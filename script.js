@@ -67,15 +67,6 @@ function fetchTabData(tab) {
 }
 
 function renderRouter() {
-    // 1. 총 의원 수 계산 (allSummary의 키 개수)
-    const totalCount = Object.keys(allSummary).length;
-    document.getElementById('total-members').innerText = totalCount.toLocaleString();
-    
-    // 2. 현재 시간 기준 업데이트 시각 표시
-    const now = new Date();
-    const formattedTime = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    document.getElementById('update-time').innerText = formattedTime;
-        
     let listHtml = '';
     let districtStats = {};
     let maxWealth = { name: '', value: -Infinity, district: '' };
@@ -83,6 +74,7 @@ function renderRouter() {
     let maxLandGrowth = { name: '', rate: -Infinity, district: '' };
     let maxBuildingGrowth = { name: '', rate: -Infinity, district: '' };
 
+    // 데이터 집계 루프
     for (let key in allSummary) {
         const item = allSummary[key];
         if (!districtStats[item.district]) districtStats[item.district] = { count: 0, total: 0 };
@@ -114,10 +106,10 @@ function renderRouter() {
             <td class="text-right">${item.y2023.toLocaleString()}</td></tr>`;
     }
 
-    // 1. 하이라이트 설정
+    // 하이라이트 설정
     highlights = { wealth: maxWealth, growth: maxGrowth, land: maxLandGrowth, building: maxBuildingGrowth };
 
-    // 2. [추가한 코드] 반드시 highlights 아래, 그리고 기존 if문 "위에" 있어야 합니다.
+    // [핵심] 총 의원 수 및 업데이트 시각 반영
     const totalCount = Object.keys(allSummary).length;
     const totalElem = document.getElementById('total-members');
     const timeElem = document.getElementById('update-time');
@@ -129,7 +121,7 @@ function renderRouter() {
         timeElem.innerText = formattedTime;
     }
 
-    // 3. 기존에 있던 페이지 판단 로직 (이어서 나옴)
+    // 페이지 판단 로직
     if (document.getElementById('districtChart')) {
         drawDistrictChart(districtStats);
         document.getElementById('loading').style.display = 'none';
