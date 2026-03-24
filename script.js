@@ -16,8 +16,9 @@ let allSummary = {};
 let highlights = {};
 let loadedCount = 0;
 let myChart = null;
+let myPieChart = null; // 파이 차트 전용 변수
 
-// 정당별 색상 정의
+// 정당별 메인 컬러 정의
 const partyColors = {
     "국민의힘": "#E61E2B",
     "더불어민주당": "#004EA2",
@@ -54,7 +55,7 @@ function fetchTabData(tab) {
             const year = clean(row[1]);
             const pos = clean(row[3]);
             const name = clean(row[4]);
-            const party = clean(row[5]); // 정당 정보
+            const party = clean(row[5]); // 6번째 열 정당 데이터
             const type = getStandardName(clean(row[6]));
             const val = parseInt(clean(row[10]).replace(/[^0-9-]/g, '')) || 0;
             
@@ -86,6 +87,8 @@ function fetchTabData(tab) {
 function renderRouter() {
     let listHtml = '';
     let districtStats = {};
+    let partyStats = {}; // 정당별 인원 집계용
+    
     let maxWealth = { name: '', value: -Infinity, district: '' };
     let maxGrowth = { name: '', rate: -Infinity, district: '' };
     let maxLandGrowth = { name: '', rate: -Infinity, district: '' };
@@ -93,10 +96,17 @@ function renderRouter() {
 
     for (let key in allSummary) {
         const item = allSummary[key];
+        
+        // 자치구 통계
         if (!districtStats[item.district]) districtStats[item.district] = { count: 0, total: 0 };
         districtStats[item.district].count += 1;
         districtStats[item.district].total += item.y2025;
 
+        // 정당 통계
+        const pName = item.party || "무소속";
+        partyStats[pName] = (partyStats[pName] || 0) + 1;
+
+        // 하이라이트 계산
         if (item.y2025 > maxWealth.value) maxWealth = { name: item.name, value: item.y2025, district: item.district };
         if (item.y2024 > 0) {
             const rate = ((item.y2025 - item.y2024) / Math.abs(item.y2024)) * 100;
@@ -114,7 +124,6 @@ function renderRouter() {
         const r2425 = item.y2024 > 0 ? ((item.y2025 - item.y2024) / Math.abs(item.y2024)) * 100 : null;
         const r2324 = item.y2023 > 0 ? ((item.y2024 - item.y2023) / Math.abs(item.y2023)) * 100 : null;
 
-        // 정당별 색상 배지 생성
         const pColor = partyColors[item.party] || "#707070";
 
         listHtml += `<tr>
@@ -134,7 +143,7 @@ function renderRouter() {
 
     highlights = { wealth: maxWealth, growth: maxGrowth, land: maxLandGrowth, building: maxBuildingGrowth };
 
-    // 총 의원 수 및 업데이트 시각 반영
+    // 상단 요약 정보 반영
     const totalCount = Object.keys(allSummary).length;
     const totalElem = document.getElementById('total-members');
     const timeElem = document.getElementById('update-time');
@@ -146,8 +155,9 @@ function renderRouter() {
         timeElem.innerText = formattedTime;
     }
 
+    // 차트 및 테이블 렌더링
     if (document.getElementById('districtChart')) {
-        drawDistrictChart(districtStats);
+        drawCharts(districtStats, partyStats);
         document.getElementById('loading').style.display = 'none';
         if (document.getElementById('stat-section')) document.getElementById('stat-section').style.display = 'block';
     }
@@ -167,13 +177,12 @@ function renderRouter() {
     }
 }
 
-function drawDistrictChart(stats) {
-    const canvas = document.getElementById('districtChart');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const sorted = Object.keys(stats).map(name => ({ name, avg: stats[name].total / stats[name].count })).sort((a, b) => b.avg - a.avg);
+function drawCharts(dStats, pStats) {
+    // 1. 자치구별 막대 차트
+    const ctxBar = document.getElementById('districtChart').getContext('2d');
+    const sorted = Object.keys(dStats).map(name => ({ name, avg: dStats[name].total / dStats[name].count })).sort((a, b) => b.avg - a.avg);
     if (myChart) myChart.destroy();
-    myChart = new Chart(ctx, {
+    myChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
             labels: sorted.map(i => i.name),
@@ -181,6 +190,36 @@ function drawDistrictChart(stats) {
         },
         options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
+
+    // 2. 정당별 도넛 차트
+    const canvasPie = document.getElementById('partyPieChart');
+    if (canvasPie) {
+        const ctxPie = canvasPie.getContext('2d');
+        const pLabels = Object.keys(pStats);
+        const pData = Object.values(pStats);
+        const pBgColors = pLabels.map(label => partyColors[label] || "#707070");
+
+        if (myPieChart) myPieChart.destroy();
+        myPieChart = new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: pLabels,
+                datasets: [{ data: pData, backgroundColor: pBgColors, borderWidth: 2, borderColor: "#ffffff" }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => ` ${ctx.label}: ${ctx.raw}명 (${((ctx.raw/pData.reduce((a,b)=>a+b))*100).toFixed(1)}%)`
+                        }
+                    }
+                }
+            }
+        });
+    }
 }
 
 function showDetailFromHighlight(type) { if (highlights[type]) showDetail(highlights[type].name, highlights[type].district); }
