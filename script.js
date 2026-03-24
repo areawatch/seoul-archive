@@ -1,92 +1,9 @@
-const sheetKey = '2PACX-1vSbGPniWhU5p7Lk2u5XP8GwljzzefLiV9aEIrO18zcANUEKVPVvabNUQMal2UMAZz2bAAAbVEKFUi2y';
-const sheetTabs = [
-    { name: "강남구", gid: "518648633" }, { name: "강동구", gid: "1323490210" }, { name: "강북구", gid: "1934460641" },
-    { name: "강서구", gid: "1178062280" }, { name: "관악구", gid: "871169057" }, { name: "광진구", gid: "134877668" },
-    { name: "구로구", gid: "1764576351" }, { name: "금천구", gid: "989163989" }, { name: "노원구", gid: "2095622784" },
-    { name: "도봉구", gid: "400936448" }, { name: "동대문구", gid: "1115421476" }, { name: "동작구", gid: "517245071" },
-    { name: "마포구", gid: "2016119575" }, { name: "서대문구", gid: "1183726382" }, { name: "서초구", gid: "1858753569" },
-    { name: "성동구", gid: "141844166" }, { name: "성북구", gid: "411459863" }, { name: "송파구", gid: "247934569" },
-    { name: "양천구", gid: "1526704188" }, { name: "영등포구", gid: "1710745572" }, { name: "용산구", gid: "831935711" },
-    { name: "은평구", gid: "853986253" }, { name: "종로구", gid: "1393867186" }, { name: "중구", gid: "718909410" },
-    { name: "중랑구", gid: "226916490" }
-];
-
-let allRawData = [];
-let allSummary = {};
-let highlights = {};
-let loadedCount = 0;
-let myChart = null;
-let myPieChart = null;
-let myPartyAvgChart = null;
-
-const partyColors = {
-    "국민의힘": "#E61E2B",
-    "더불어민주당": "#004EA2",
-    "정의당": "#FFCA05",
-    "진보당": "#D6001C",
-    "무소속": "#707070",
-    "기본소득당": "#00D2C3",
-    "개혁신당": "#FF7F32"
-};
+// script.js - 메인 컨트롤러 (페이지 구동부)
 
 $(document).ready(function() {
+    // config.js에 정의된 구 목록을 엔진(api.js)에 전달하여 데이터 로드 시작
     sheetTabs.forEach(tab => fetchTabData(tab));
 });
-
-function getStandardName(type) {
-    const t = type.trim();
-    if (t.includes("항공기") || t.includes("부동산에 관한") || t.includes("준용되는")) return "부동산에 관한 규정이 준용되는 권리와 자동차·건설기계·선박 및 항공기";
-    if (t.includes("고지거부") || t.includes("등록제외")) return "고지거부 및 등록제외사항";
-    if (t.includes("출자지분")) return "합명·합자·유한회사 출자지분";
-    if (t.includes("정치자금")) return "정치자금의 수입 및 지출을 위한 예금계좌의 예금";
-    return t;
-}
-
-function fetchTabData(tab) {
-    const url = `https://docs.google.com/spreadsheets/d/e/${sheetKey}/pub?gid=${tab.gid}&output=csv`;
-    fetch(url).then(res => res.text()).then(csvText => {
-        const rows = csvText.split(/\r?\n/);
-        rows.forEach((rowStr, index) => {
-            if (index === 0 || !rowStr.trim()) return;
-            const row = rowStr.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-            if (!row || row.length < 11) return;
-            const clean = (str) => str ? str.replace(/^"|"$/g, '').trim() : "";
-            
-            const year = clean(row[1]);
-            const pos = clean(row[3]);
-            const name = clean(row[4]);
-            const party = clean(row[5]);
-            const type = getStandardName(clean(row[6]));
-            const val = parseInt(clean(row[10]).replace(/[^0-9-]/g, '')) || 0;
-            
-            if (!name || name === "성명") return;
-
-            allRawData.push({ district: tab.name, position: pos, name: name, party: party, year: year, type: type, value: val });
-            const key = tab.name + "_" + name;
-            
-            if (!allSummary[key]) {
-                allSummary[key] = { district: tab.name, name: name, party: party, position: pos, y2025: 0, y2024: 0, y2023: 0, land2025: 0, land2024: 0, building2025: 0, building2024: 0 };
-            }
-            
-            if (year == "2025") {
-                allSummary[key].y2025 += val;
-                if (type.includes("토지") || type.includes("부동산에 관한")) allSummary[key].land2025 += val;
-                else if (type.includes("건물")) allSummary[key].building2025 += val;
-            } else if (year == "2024") {
-                allSummary[key].y2024 += val;
-                if (type.includes("토지") || type.includes("부동산에 관한")) allSummary[key].land2024 += val;
-                else if (type.includes("건물")) allSummary[key].building2024 += val;
-            } else if (year == "2023") allSummary[key].y2023 += val;
-        });
-        loadedCount++;
-        if (document.getElementById('progress-bar')) document.getElementById('progress-bar').style.width = (loadedCount / sheetTabs.length) * 100 + "%";
-        if (loadedCount === sheetTabs.length) renderRouter();
-    }).catch(err => {
-        console.error(tab.name + " 로드 실패", err);
-        loadedCount++; 
-        if (loadedCount === sheetTabs.length) renderRouter();
-    });
-}
 
 function renderRouter() {
     let listHtml = '';
@@ -98,38 +15,35 @@ function renderRouter() {
     let maxLandGrowth = { name: '', rate: -Infinity, district: '' };
     let maxBuildingGrowth = { name: '', rate: -Infinity, district: '' };
 
+    // 전역 변수 allSummary(api.js에서 채워짐) 기반으로 가공 시작
     for (let key in allSummary) {
         const item = allSummary[key];
+        
+        // 자치구 집계
         if (!districtStats[item.district]) districtStats[item.district] = { count: 0, total: 0 };
         districtStats[item.district].count += 1;
         districtStats[item.district].total += item.y2025;
 
+        // 정당 집계
         const pName = item.party || "무소속";
         if (!partyWealthStats[pName]) partyWealthStats[pName] = { count: 0, total: 0 };
         partyWealthStats[pName].count += 1;
         partyWealthStats[pName].total += item.y2025;
 
+        // 하이라이트 카드용 계산
         if (item.y2025 > maxWealth.value) maxWealth = { name: item.name, value: item.y2025, district: item.district };
         if (item.y2024 > 0) {
             const rate = ((item.y2025 - item.y2024) / Math.abs(item.y2024)) * 100;
             if (rate > maxGrowth.rate) maxGrowth = { name: item.name, rate: rate, district: item.district };
         }
-        if (item.land2024 > 0) {
-            const lRate = ((item.land2025 - item.land2024) / Math.abs(item.land2024)) * 100;
-            if (lRate > maxLandGrowth.rate) maxLandGrowth = { name: item.name, rate: lRate, district: item.district };
-        }
-        if (item.building2024 > 0) {
-            const bRate = ((item.building2025 - item.building2024) / Math.abs(item.building2024)) * 100;
-            if (bRate > maxBuildingGrowth.rate) maxBuildingGrowth = { name: item.name, rate: bRate, district: item.district };
-        }
-
+        
+        // 목록용 HTML 생성
         const r2425 = item.y2024 > 0 ? ((item.y2025 - item.y2024) / Math.abs(item.y2024)) * 100 : null;
         const r2324 = item.y2023 > 0 ? ((item.y2024 - item.y2023) / Math.abs(item.y2023)) * 100 : null;
         const pColor = partyColors[item.party] || "#707070";
 
         listHtml += `<tr>
-            <td>${item.district}</td>
-            <td>${item.position}</td>
+            <td>${item.district}</td><td>${item.position}</td>
             <td>
                 <span class="clickable-name" onclick="showDetail('${item.name}', '${item.district}')">${item.name}</span>
                 <span class="badge ms-1" style="background-color:${pColor}; font-size: 0.7rem; vertical-align: middle;">${item.party}</span>
@@ -142,9 +56,9 @@ function renderRouter() {
         </tr>`;
     }
 
-    highlights = { wealth: maxWealth, growth: maxGrowth, land: maxLandGrowth, building: maxBuildingGrowth };
+    highlights = { wealth: maxWealth, growth: maxGrowth }; // 전역 하이라이트 변수 업데이트
 
-    // 화면 반영 시 안전하게 체크
+    // 상단 요약 정보 (있을 때만 반영)
     const totalElem = document.getElementById('total-members');
     const timeElem = document.getElementById('update-time');
     if (totalElem) totalElem.innerText = Object.keys(allSummary).length.toLocaleString();
@@ -153,19 +67,17 @@ function renderRouter() {
         timeElem.innerText = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     }
 
-    // 1. 차트 그리기
-    try {
-        drawAllCharts(districtStats, partyWealthStats);
+    // 1. 차트 처리 (분석 페이지인 경우)
+    if (document.getElementById('districtChart')) {
+        drawAllCharts(districtStats, partyWealthStats); // chart.js의 함수 호출
         if (document.getElementById('stat-section')) document.getElementById('stat-section').style.display = 'block';
-    } catch(e) { console.warn("차트 렌더링 스킵:", e); }
+    }
     
-    // 2. 리스트 그리기
+    // 2. 리스트 처리 (메인 페이지인 경우)
     if (document.getElementById('analysisTable')) {
         const fmtH = (m) => `<span class="highlight-name">${m.district} ${m.name}</span><br>${m.value ? m.value.toLocaleString() + ' 천원' : m.rate.toFixed(1) + '%'}`;
         if(document.getElementById('max-wealth')) document.getElementById('max-wealth').innerHTML = fmtH(maxWealth);
         if(document.getElementById('max-growth')) document.getElementById('max-growth').innerHTML = fmtH(maxGrowth);
-        if(document.getElementById('max-land-growth')) document.getElementById('max-land-growth').innerHTML = fmtH(maxLandGrowth);
-        if(document.getElementById('max-building-growth')) document.getElementById('max-building-growth').innerHTML = fmtH(maxBuildingGrowth);
         
         document.getElementById('tableBody').innerHTML = listHtml;
         if(document.getElementById('highlight-section')) document.getElementById('highlight-section').style.display = 'flex';
@@ -175,89 +87,4 @@ function renderRouter() {
 
     // 공통 로딩 제거
     if (document.getElementById('loading')) document.getElementById('loading').style.display = 'none';
-}
-
-function drawAllCharts(dStats, pStats) {
-    const barCan = document.getElementById('districtChart');
-    if (barCan) {
-        const sortedD = Object.keys(dStats).map(name => ({ name, avg: dStats[name].total / dStats[name].count })).sort((a, b) => b.avg - a.avg);
-        if (myChart) myChart.destroy();
-        myChart = new Chart(barCan.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: sortedD.map(i => i.name),
-                datasets: [{ label: '1인당 평균 재산액', data: sortedD.map(i => i.avg), backgroundColor: 'rgba(13, 110, 253, 0.7)', borderRadius: 5 }]
-            },
-            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
-        });
-    }
-
-    const pieCan = document.getElementById('partyPieChart');
-    if (pieCan) {
-        const pLabels = Object.keys(pStats);
-        if (myPieChart) myPieChart.destroy();
-        myPieChart = new Chart(pieCan.getContext('2d'), {
-            type: 'doughnut',
-            data: {
-                labels: pLabels,
-                datasets: [{ data: pLabels.map(l => pStats[l].count), backgroundColor: pLabels.map(l => partyColors[l] || "#707070") }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
-    }
-
-    const avgCan = document.getElementById('partyAvgChart');
-    if (avgCan) {
-        const pLabels = Object.keys(pStats);
-        const sortedP = pLabels.map(l => ({ l, avg: pStats[l].total / pStats[l].count })).sort((a, b) => b.avg - a.avg);
-        if (myPartyAvgChart) myPartyAvgChart.destroy();
-        myPartyAvgChart = new Chart(avgCan.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: sortedP.map(i => i.l),
-                datasets: [{ label: '정당별 평균 재산', data: sortedP.map(i => i.avg), backgroundColor: sortedP.map(i => partyColors[i.l] || "#707070"), borderRadius: 5 }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-        });
-    }
-}
-
-function showDetailFromHighlight(type) { if (highlights[type]) showDetail(highlights[type].name, highlights[type].district); }
-
-function showDetail(mName, dName) {
-    let mDetail = {};
-    allRawData.forEach(row => {
-        if (row.name === mName && row.district === dName) {
-            if (!mDetail[row.type]) mDetail[row.type] = { y2025: 0, y2024: 0, y2023: 0 };
-            if (row.year == "2025") mDetail[row.type].y2025 += row.value;
-            else if (row.year == "2024") mDetail[row.type].y2024 += row.value;
-            else if (row.year == "2023") mDetail[row.type].y2023 += row.value;
-        }
-    });
-    let dHtml = '';
-    const order = ["토지", "건물", "부동산에 관한 규정이 준용되는 권리와 자동차·건설기계·선박 및 항공기", "현금", "예금", "정치자금의 수입 및 지출을 위한 예금계좌의 예금", "증권", "합명·합자·유한회사 출자지분", "채권", "채무", "가상자산", "합계", "고지거부 및 등록제외사항"];
-    order.forEach(t => {
-        if (mDetail[t]) {
-            dHtml += `<tr class="${t.includes('합계') ? 'table-info-custom' : ''}"><td>${t}</td><td class="text-right">${mDetail[t].y2025.toLocaleString()}</td><td class="text-right">${mDetail[t].y2024.toLocaleString()}</td><td class="text-right">${mDetail[t].y2023.toLocaleString()}</td></tr>`;
-            delete mDetail[t];
-        }
-    });
-    for (let t in mDetail) dHtml += `<tr><td>${t}</td><td class="text-right">${mDetail[t].y2025.toLocaleString()}</td><td class="text-right">${mDetail[t].y2024.toLocaleString()}</td><td class="text-right">${mDetail[t].y2023.toLocaleString()}</td></tr>`;
-    
-    if(document.getElementById('detail-title')) document.getElementById('detail-title').innerText = `🏛️ ${dName} ${mName} 상세 리포트`;
-    if(document.getElementById('detailTableBody')) document.getElementById('detailTableBody').innerHTML = dHtml;
-    
-    if (document.getElementById('highlight-section')) document.getElementById('highlight-section').style.display = 'none';
-    if (document.getElementById('list-section')) document.getElementById('list-section').style.display = 'none';
-    if (document.getElementById('stat-section')) document.getElementById('stat-section').style.display = 'none';
-    
-    if (document.getElementById('detail-section')) document.getElementById('detail-section').style.display = 'block';
-    window.scrollTo(0, 0);
-}
-
-function hideDetail() {
-    if (document.getElementById('detail-section')) document.getElementById('detail-section').style.display = 'none';
-    if (document.getElementById('highlight-section')) document.getElementById('highlight-section').style.display = 'flex';
-    if (document.getElementById('list-section')) document.getElementById('list-section').style.display = 'block';
-    if (document.getElementById('stat-section')) document.getElementById('stat-section').style.display = 'block';
 }
