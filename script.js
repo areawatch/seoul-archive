@@ -1,8 +1,12 @@
 // script.js - 메인 컨트롤러 (페이지 구동부)
 
 $(document).ready(function() {
-    // config.js에 정의된 구 목록을 엔진(api.js)에 전달하여 데이터 로드 시작
-    sheetTabs.forEach(tab => fetchTabData(tab));
+    // config.js의 데이터를 사용하여 데이터 로드 시작
+    if (typeof sheetTabs !== 'undefined') {
+        sheetTabs.forEach(tab => fetchTabData(tab));
+    } else {
+        console.error("config.js가 제대로 로드되지 않았습니다.");
+    }
 });
 
 function renderRouter() {
@@ -15,41 +19,40 @@ function renderRouter() {
     let maxLandGrowth = { name: '', rate: -Infinity, district: '' };
     let maxBuildingGrowth = { name: '', rate: -Infinity, district: '' };
 
+    // api.js에서 수집된 allSummary 데이터를 가공
     for (let key in allSummary) {
         const item = allSummary[key];
         
-        // 자치구 및 정당 집계
+        // 자치구 집계
         if (!districtStats[item.district]) districtStats[item.district] = { count: 0, total: 0 };
         districtStats[item.district].count += 1;
         districtStats[item.district].total += item.y2025;
 
+        // 정당 집계
         const pName = item.party || "무소속";
         if (!partyWealthStats[pName]) partyWealthStats[pName] = { count: 0, total: 0 };
         partyWealthStats[pName].count += 1;
         partyWealthStats[pName].total += item.y2025;
 
-        // 하이라이트 데이터 계산
+        // 하이라이트 계산
         if (item.y2025 > maxWealth.value) maxWealth = { name: item.name, value: item.y2025, district: item.district };
-        
         if (item.y2024 > 0) {
             const rate = ((item.y2025 - item.y2024) / Math.abs(item.y2024)) * 100;
             if (rate > maxGrowth.rate) maxGrowth = { name: item.name, rate: rate, district: item.district };
         }
-
         if (item.land2024 > 0) {
             const lRate = ((item.land2025 - item.land2024) / Math.abs(item.land2024)) * 100;
             if (lRate > maxLandGrowth.rate) maxLandGrowth = { name: item.name, rate: lRate, district: item.district };
         }
-
         if (item.building2024 > 0) {
             const bRate = ((item.building2025 - item.building2024) / Math.abs(item.building2024)) * 100;
             if (bRate > maxBuildingGrowth.rate) maxBuildingGrowth = { name: item.name, rate: bRate, district: item.district };
         }
-        
-        // 목록용 HTML 생성부 (기존과 동일)
+
+        // 목록용 HTML
         const r2425 = item.y2024 > 0 ? ((item.y2025 - item.y2024) / Math.abs(item.y2024)) * 100 : null;
         const r2324 = item.y2023 > 0 ? ((item.y2024 - item.y2023) / Math.abs(item.y2023)) * 100 : null;
-        const pColor = partyColors[item.party] || "#707070";
+        const pColor = (typeof partyColors !== 'undefined') ? (partyColors[item.party] || "#707070") : "#707070";
 
         listHtml += `<tr>
             <td>${item.district}</td><td>${item.position}</td>
@@ -65,32 +68,30 @@ function renderRouter() {
         </tr>`;
     }
 
-    // [수정 핵심] 모든 하이라이트 변수를 묶어서 전역 highlights에 할당
-    highlights = { 
-        wealth: maxWealth, 
-        growth: maxGrowth, 
-        land: maxLandGrowth, 
-        building: maxBuildingGrowth 
-    };
+    // 하이라이트 전역 변수 업데이트 (ui.js 등에서 참조)
+    highlights = { wealth: maxWealth, growth: maxGrowth, land: maxLandGrowth, building: maxBuildingGrowth };
 
-    // 상단 요약 정보 및 화면 출력 로직 (기존과 동일)
-    const totalElem = document.getElementById('total-members');
-    const timeElem = document.getElementById('update-time');
-    if (totalElem) totalElem.innerText = Object.keys(allSummary).length.toLocaleString();
-    if (timeElem) {
+    // 상단 요약 정보 반영
+    if (document.getElementById('total-members')) {
+        document.getElementById('total-members').innerText = Object.keys(allSummary).length.toLocaleString();
+    }
+    if (document.getElementById('update-time')) {
         const now = new Date();
-        timeElem.innerText = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        document.getElementById('update-time').innerText = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     }
 
-    // 차트 및 테이블 렌더링
+    // 1. 차트 처리 (분석 페이지일 때)
     if (document.getElementById('districtChart')) {
-        drawAllCharts(districtStats, partyWealthStats);
+        if (typeof drawAllCharts === 'function') {
+            drawAllCharts(districtStats, partyWealthStats);
+        }
+        if (document.getElementById('stat-section')) document.getElementById('stat-section').style.display = 'block';
     }
     
+    // 2. 리스트 처리 (메인 페이지일 때)
     if (document.getElementById('analysisTable')) {
         const fmtH = (m) => `<span class="highlight-name">${m.district} ${m.name}</span><br>${m.value ? m.value.toLocaleString() + ' 천원' : (m.rate ? m.rate.toFixed(1) + '%' : '-')}`;
         
-        // 4개의 카드에 각각 데이터 꽂아넣기
         if(document.getElementById('max-wealth')) document.getElementById('max-wealth').innerHTML = fmtH(maxWealth);
         if(document.getElementById('max-growth')) document.getElementById('max-growth').innerHTML = fmtH(maxGrowth);
         if(document.getElementById('max-land-growth')) document.getElementById('max-land-growth').innerHTML = fmtH(maxLandGrowth);
@@ -99,8 +100,19 @@ function renderRouter() {
         document.getElementById('tableBody').innerHTML = listHtml;
         if(document.getElementById('highlight-section')) document.getElementById('highlight-section').style.display = 'flex';
         if(document.getElementById('list-section')) document.getElementById('list-section').style.display = 'block';
-        $('#analysisTable').DataTable({ pageLength: 50, order: [[3, "desc"]], language: { search: "의원 검색:", lengthMenu: "_MENU_명씩" } });
+        
+        // 데이터테이블 초기화
+        $('#analysisTable').DataTable({ 
+            pageLength: 50, 
+            order: [[3, "desc"]], 
+            destroy: true, // 중복 방지
+            language: { search: "의원 검색:", lengthMenu: "_MENU_명씩" } 
+        });
     }
 
-    if (document.getElementById('loading')) document.getElementById('loading').style.display = 'none';
+    // 공통: 로딩 제거
+    const loadingElem = document.getElementById('loading');
+    if (loadingElem) {
+        loadingElem.style.display = 'none';
+    }
 }
