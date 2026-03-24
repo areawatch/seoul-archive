@@ -83,7 +83,7 @@ function fetchTabData(tab) {
         if (loadedCount === sheetTabs.length) renderRouter();
     }).catch(err => {
         console.error(tab.name + " 로드 실패", err);
-        loadedCount++; // 실패해도 카운트는 올려서 다음 단계를 진행하게 함
+        loadedCount++; 
         if (loadedCount === sheetTabs.length) renderRouter();
     });
 }
@@ -144,7 +144,7 @@ function renderRouter() {
 
     highlights = { wealth: maxWealth, growth: maxGrowth, land: maxLandGrowth, building: maxBuildingGrowth };
 
-    // 화면 반영 (에러 방지를 위해 요소 존재 확인)
+    // 화면 반영 시 안전하게 체크
     const totalElem = document.getElementById('total-members');
     const timeElem = document.getElementById('update-time');
     if (totalElem) totalElem.innerText = Object.keys(allSummary).length.toLocaleString();
@@ -153,13 +153,13 @@ function renderRouter() {
         timeElem.innerText = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     }
 
-    // 1. 차트 그리기 (분석 페이지인 경우에만)
-    if (document.getElementById('districtChart')) {
+    // 1. 차트 그리기
+    try {
         drawAllCharts(districtStats, partyWealthStats);
-        document.getElementById('stat-section').style.display = 'block';
-    }
+        if (document.getElementById('stat-section')) document.getElementById('stat-section').style.display = 'block';
+    } catch(e) { console.warn("차트 렌더링 스킵:", e); }
     
-    // 2. 리스트 그리기 (메인 페이지인 경우에만)
+    // 2. 리스트 그리기
     if (document.getElementById('analysisTable')) {
         const fmtH = (m) => `<span class="highlight-name">${m.district} ${m.name}</span><br>${m.value ? m.value.toLocaleString() + ' 천원' : m.rate.toFixed(1) + '%'}`;
         if(document.getElementById('max-wealth')) document.getElementById('max-wealth').innerHTML = fmtH(maxWealth);
@@ -168,18 +168,16 @@ function renderRouter() {
         if(document.getElementById('max-building-growth')) document.getElementById('max-building-growth').innerHTML = fmtH(maxBuildingGrowth);
         
         document.getElementById('tableBody').innerHTML = listHtml;
-        document.getElementById('highlight-section').style.display = 'flex';
-        document.getElementById('list-section').style.display = 'block';
+        if(document.getElementById('highlight-section')) document.getElementById('highlight-section').style.display = 'flex';
+        if(document.getElementById('list-section')) document.getElementById('list-section').style.display = 'block';
         $('#analysisTable').DataTable({ pageLength: 50, order: [[3, "desc"]], language: { search: "의원 검색:", lengthMenu: "_MENU_명씩" } });
     }
 
-    // 공통: 로딩 숨기기 (반드시 마지막에 실행)
-    const loadingElem = document.getElementById('loading');
-    if (loadingElem) loadingElem.style.display = 'none';
+    // 공통 로딩 제거
+    if (document.getElementById('loading')) document.getElementById('loading').style.display = 'none';
 }
 
 function drawAllCharts(dStats, pStats) {
-    // 자치구 막대
     const barCan = document.getElementById('districtChart');
     if (barCan) {
         const sortedD = Object.keys(dStats).map(name => ({ name, avg: dStats[name].total / dStats[name].count })).sort((a, b) => b.avg - a.avg);
@@ -194,7 +192,6 @@ function drawAllCharts(dStats, pStats) {
         });
     }
 
-    // 정당 비중 도넛
     const pieCan = document.getElementById('partyPieChart');
     if (pieCan) {
         const pLabels = Object.keys(pStats);
@@ -209,7 +206,6 @@ function drawAllCharts(dStats, pStats) {
         });
     }
 
-    // 정당 평균 막대
     const avgCan = document.getElementById('partyAvgChart');
     if (avgCan) {
         const pLabels = Object.keys(pStats);
@@ -248,19 +244,19 @@ function showDetail(mName, dName) {
     });
     for (let t in mDetail) dHtml += `<tr><td>${t}</td><td class="text-right">${mDetail[t].y2025.toLocaleString()}</td><td class="text-right">${mDetail[t].y2024.toLocaleString()}</td><td class="text-right">${mDetail[t].y2023.toLocaleString()}</td></tr>`;
     
-    document.getElementById('detail-title').innerText = `🏛️ ${dName} ${mName} 상세 리포트`;
-    document.getElementById('detailTableBody').innerHTML = dHtml;
+    if(document.getElementById('detail-title')) document.getElementById('detail-title').innerText = `🏛️ ${dName} ${mName} 상세 리포트`;
+    if(document.getElementById('detailTableBody')) document.getElementById('detailTableBody').innerHTML = dHtml;
     
     if (document.getElementById('highlight-section')) document.getElementById('highlight-section').style.display = 'none';
     if (document.getElementById('list-section')) document.getElementById('list-section').style.display = 'none';
     if (document.getElementById('stat-section')) document.getElementById('stat-section').style.display = 'none';
     
-    document.getElementById('detail-section').style.display = 'block';
+    if (document.getElementById('detail-section')) document.getElementById('detail-section').style.display = 'block';
     window.scrollTo(0, 0);
 }
 
 function hideDetail() {
-    document.getElementById('detail-section').style.display = 'none';
+    if (document.getElementById('detail-section')) document.getElementById('detail-section').style.display = 'none';
     if (document.getElementById('highlight-section')) document.getElementById('highlight-section').style.display = 'flex';
     if (document.getElementById('list-section')) document.getElementById('list-section').style.display = 'block';
     if (document.getElementById('stat-section')) document.getElementById('stat-section').style.display = 'block';
