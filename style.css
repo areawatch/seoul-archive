@@ -188,22 +188,27 @@ body {
     /* 2. [가장 중요] 테이블 셀 줄바꿈 절대 금지 */
     #analysisTable th, 
     #analysisTable td {
-        white-space: nowrap !important; /* 글자가 밀리지 않고 한 줄로 나오게 함 */
-        padding: 12px 8px !important;  /* 가독성을 위해 여백 확보 */
-        font-size: 0.85rem;            /* 모바일 최적화 글자 크기 */
+        white-space: nowrap !important; /* 이 코드가 모든 칸을 한 줄로 고정합니다 */
+        word-break: keep-all !important;
+        padding: 12px 10px !important;
+        font-size: 0.85rem;
+        vertical-align: middle;          /* 모바일 최적화 글자 크기 */
     }
 
     /* 3. 자치구와 성명 컬럼은 좀 더 눈에 띄게 */
-    #analysisTable td:nth-child(1), /* 자치구 */
-    #analysisTable td:nth-child(3) { /* 성명 */
-        font-weight: 700;
-        min-width: 70px !important;    /* 최소 너비를 넉넉히 확보 */
+    #analysisTable td:nth-child(1),
+    #analysisTable td:nth-child(2),
+    #analysisTable td:nth-child(3) {
+        min-width: 75px !important; /* '구의원' 세 글자가 여유 있게 들어가는 크기 */
+        font-weight: 600;
+        text-align: center;    /* 최소 너비를 넉넉히 확보 */
     }
 
     /* 4. 가로 스크롤 시 부드럽게 넘어가도록 */
     .table-responsive {
-        border-radius: 8px;
-        border: 1px solid #dee2e6;
+        overflow-x: auto !important;
+        display: block;
+        width: 100%;
         -webkit-overflow-scrolling: touch;
     }
 
