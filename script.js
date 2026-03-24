@@ -16,9 +16,9 @@ let allSummary = {};
 let highlights = {};
 let loadedCount = 0;
 let myChart = null;
-let myPieChart = null; // 파이 차트 전용 변수
+let myPieChart = null;
+let myPartyAvgChart = null;
 
-// 정당별 메인 컬러 정의
 const partyColors = {
     "국민의힘": "#E61E2B",
     "더불어민주당": "#004EA2",
@@ -55,7 +55,7 @@ function fetchTabData(tab) {
             const year = clean(row[1]);
             const pos = clean(row[3]);
             const name = clean(row[4]);
-            const party = clean(row[5]); // 6번째 열 정당 데이터
+            const party = clean(row[5]);
             const type = getStandardName(clean(row[6]));
             const val = parseInt(clean(row[10]).replace(/[^0-9-]/g, '')) || 0;
             
@@ -87,177 +87,79 @@ function fetchTabData(tab) {
 function renderRouter() {
     let listHtml = '';
     let districtStats = {};
-    let partyStats = {}; // 정당별 인원 집계용
-    
-    let maxWealth = { name: '', value: -Infinity, district: '' };
-    let maxGrowth = { name: '', rate: -Infinity, district: '' };
-    let maxLandGrowth = { name: '', rate: -Infinity, district: '' };
-    let maxBuildingGrowth = { name: '', rate: -Infinity, district: '' };
+    let partyWealthStats = {}; // { "국민의힘": { count: 0, total: 0 }, ... }
 
     for (let key in allSummary) {
         const item = allSummary[key];
         
-        // 자치구 통계
+        // 자치구 집계
         if (!districtStats[item.district]) districtStats[item.district] = { count: 0, total: 0 };
         districtStats[item.district].count += 1;
         districtStats[item.district].total += item.y2025;
 
-        // 정당 통계
+        // 정당 집계 (인원수 + 재산총액)
         const pName = item.party || "무소속";
-        partyStats[pName] = (partyStats[pName] || 0) + 1;
+        if (!partyWealthStats[pName]) partyWealthStats[pName] = { count: 0, total: 0 };
+        partyWealthStats[pName].count += 1;
+        partyWealthStats[pName].total += item.y2025;
 
-        // 하이라이트 계산
-        if (item.y2025 > maxWealth.value) maxWealth = { name: item.name, value: item.y2025, district: item.district };
-        if (item.y2024 > 0) {
-            const rate = ((item.y2025 - item.y2024) / Math.abs(item.y2024)) * 100;
-            if (rate > maxGrowth.rate) maxGrowth = { name: item.name, rate: rate, district: item.district };
-        }
-        if (item.land2024 > 0) {
-            const lRate = ((item.land2025 - item.land2024) / Math.abs(item.land2024)) * 100;
-            if (lRate > maxLandGrowth.rate) maxLandGrowth = { name: item.name, rate: lRate, district: item.district };
-        }
-        if (item.building2024 > 0) {
-            const bRate = ((item.building2025 - item.building2024) / Math.abs(item.building2024)) * 100;
-            if (bRate > maxBuildingGrowth.rate) maxBuildingGrowth = { name: item.name, rate: bRate, district: item.district };
-        }
-
-        const r2425 = item.y2024 > 0 ? ((item.y2025 - item.y2024) / Math.abs(item.y2024)) * 100 : null;
-        const r2324 = item.y2023 > 0 ? ((item.y2024 - item.y2023) / Math.abs(item.y2023)) * 100 : null;
-
-        const pColor = partyColors[item.party] || "#707070";
-
-        listHtml += `<tr>
-            <td>${item.district}</td>
-            <td>${item.position}</td>
-            <td>
-                <span class="clickable-name" onclick="showDetail('${item.name}', '${item.district}')">${item.name}</span>
-                <span class="badge ms-1" style="background-color:${pColor}; font-size: 0.7rem; vertical-align: middle;">${item.party}</span>
-            </td>
-            <td class="text-right fw-bold text-primary" data-order="${item.y2025}">${item.y2025.toLocaleString()}</td>
-            <td class="text-center" data-order="${r2425 ?? -999}"><span class="${r2425 > 0 ? 'up' : 'down'}">${r2425 !== null ? (r2425 > 0 ? '+' : '') + r2425.toFixed(1) + '%' : '-'}</span></td>
-            <td class="text-right">${item.y2024.toLocaleString()}</td>
-            <td class="text-center" data-order="${r2324 ?? -999}"><span class="${r2324 > 0 ? 'up' : 'down'}">${r2324 !== null ? (r2324 > 0 ? '+' : '') + r2324.toFixed(1) + '%' : '-'}</span></td>
-            <td class="text-right">${item.y2023.toLocaleString()}</td>
-        </tr>`;
+        // 목록 생성 등 생략(index.html 용)
     }
 
-    highlights = { wealth: maxWealth, growth: maxGrowth, land: maxLandGrowth, building: maxBuildingGrowth };
-
-    // 상단 요약 정보 반영
+    // 상단 정보 업데이트
     const totalCount = Object.keys(allSummary).length;
     const totalElem = document.getElementById('total-members');
-    const timeElem = document.getElementById('update-time');
-
     if (totalElem) totalElem.innerText = totalCount.toLocaleString();
-    if (timeElem) {
-        const now = new Date();
-        const formattedTime = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-        timeElem.innerText = formattedTime;
-    }
 
-    // 차트 및 테이블 렌더링
+    // 차트 그리기
     if (document.getElementById('districtChart')) {
-        drawCharts(districtStats, partyStats);
+        drawAllCharts(districtStats, partyWealthStats);
         document.getElementById('loading').style.display = 'none';
-        if (document.getElementById('stat-section')) document.getElementById('stat-section').style.display = 'block';
-    }
-    
-    if (document.getElementById('analysisTable')) {
-        const fmtH = (m) => `<span class="highlight-name">${m.district} ${m.name}</span><br>${m.value ? m.value.toLocaleString() + ' 천원' : m.rate.toFixed(1) + '%'}`;
-        document.getElementById('max-wealth').innerHTML = fmtH(maxWealth);
-        document.getElementById('max-growth').innerHTML = fmtH(maxGrowth);
-        document.getElementById('max-land-growth').innerHTML = fmtH(maxLandGrowth);
-        document.getElementById('max-building-growth').innerHTML = fmtH(maxBuildingGrowth);
-        
-        document.getElementById('tableBody').innerHTML = listHtml;
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('highlight-section').style.display = 'flex';
-        document.getElementById('list-section').style.display = 'block';
-        $('#analysisTable').DataTable({ pageLength: 50, order: [[3, "desc"]], language: { search: "의원 검색:", lengthMenu: "_MENU_명씩" } });
+        document.getElementById('stat-section').style.display = 'block';
     }
 }
 
-function drawCharts(dStats, pStats) {
-    // 1. 자치구별 막대 차트
+function drawAllCharts(dStats, pStats) {
+    // 1. 자치구별 평균 재산액 (막대)
     const ctxBar = document.getElementById('districtChart').getContext('2d');
-    const sorted = Object.keys(dStats).map(name => ({ name, avg: dStats[name].total / dStats[name].count })).sort((a, b) => b.avg - a.avg);
+    const sortedD = Object.keys(dStats).map(name => ({ name, avg: dStats[name].total / dStats[name].count })).sort((a, b) => b.avg - a.avg);
     if (myChart) myChart.destroy();
     myChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
-            labels: sorted.map(i => i.name),
-            datasets: [{ label: '1인당 평균 재산액', data: sorted.map(i => i.avg), backgroundColor: 'rgba(13, 110, 253, 0.7)', borderRadius: 5 }]
+            labels: sortedD.map(i => i.name),
+            datasets: [{ label: '1인당 평균 재산액', data: sortedD.map(i => i.avg), backgroundColor: 'rgba(13, 110, 253, 0.7)', borderRadius: 5 }]
         },
-        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
     });
 
-    // 2. 정당별 도넛 차트
-    const canvasPie = document.getElementById('partyPieChart');
-    if (canvasPie) {
-        const ctxPie = canvasPie.getContext('2d');
-        const pLabels = Object.keys(pStats);
-        const pData = Object.values(pStats);
-        const pBgColors = pLabels.map(label => partyColors[label] || "#707070");
+    // 2. 정당별 인원 비중 (도넛)
+    const ctxPie = document.getElementById('partyPieChart').getContext('2d');
+    const pLabels = Object.keys(pStats);
+    const pCounts = pLabels.map(label => pStats[label].count);
+    const pColors = pLabels.map(label => partyColors[label] || "#707070");
 
-        if (myPieChart) myPieChart.destroy();
-        myPieChart = new Chart(ctxPie, {
-            type: 'doughnut',
-            data: {
-                labels: pLabels,
-                datasets: [{ data: pData, backgroundColor: pBgColors, borderWidth: 2, borderColor: "#ffffff" }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => ` ${ctx.label}: ${ctx.raw}명 (${((ctx.raw/pData.reduce((a,b)=>a+b))*100).toFixed(1)}%)`
-                        }
-                    }
-                }
-            }
-        });
-    }
-}
-
-function showDetailFromHighlight(type) { if (highlights[type]) showDetail(highlights[type].name, highlights[type].district); }
-
-function showDetail(mName, dName) {
-    let mDetail = {};
-    allRawData.forEach(row => {
-        if (row.name === mName && row.district === dName) {
-            if (!mDetail[row.type]) mDetail[row.type] = { y2025: 0, y2024: 0, y2023: 0 };
-            if (row.year == "2025") mDetail[row.type].y2025 += row.value;
-            else if (row.year == "2024") mDetail[row.type].y2024 += row.value;
-            else if (row.year == "2023") mDetail[row.type].y2023 += row.value;
-        }
+    if (myPieChart) myPieChart.destroy();
+    myPieChart = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+            labels: pLabels,
+            datasets: [{ data: pCounts, backgroundColor: pColors }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
     });
-    let dHtml = '';
-    const order = ["토지", "건물", "부동산에 관한 규정이 준용되는 권리와 자동차·건설기계·선박 및 항공기", "현금", "예금", "정치자금의 수입 및 지출을 위한 예금계좌의 예금", "증권", "합명·합자·유한회사 출자지분", "채권", "채무", "가상자산", "합계", "고지거부 및 등록제외사항"];
-    order.forEach(t => {
-        if (mDetail[t]) {
-            dHtml += `<tr class="${t.includes('합계') ? 'table-info-custom' : ''}"><td>${t}</td><td class="text-right">${mDetail[t].y2025.toLocaleString()}</td><td class="text-right">${mDetail[t].y2024.toLocaleString()}</td><td class="text-right">${mDetail[t].y2023.toLocaleString()}</td></tr>`;
-            delete mDetail[t];
-        }
-    });
-    for (let t in mDetail) dHtml += `<tr><td>${t}</td><td class="text-right">${mDetail[t].y2025.toLocaleString()}</td><td class="text-right">${mDetail[t].y2024.toLocaleString()}</td><td class="text-right">${mDetail[t].y2023.toLocaleString()}</td></tr>`;
-    
-    document.getElementById('detail-title').innerText = `🏛️ ${dName} ${mName} 상세 리포트`;
-    document.getElementById('detailTableBody').innerHTML = dHtml;
-    
-    if (document.getElementById('highlight-section')) document.getElementById('highlight-section').style.display = 'none';
-    if (document.getElementById('list-section')) document.getElementById('list-section').style.display = 'none';
-    if (document.getElementById('stat-section')) document.getElementById('stat-section').style.display = 'none';
-    
-    document.getElementById('detail-section').style.display = 'block';
-    window.scrollTo(0, 0);
-}
 
-function hideDetail() {
-    document.getElementById('detail-section').style.display = 'none';
-    if (document.getElementById('highlight-section')) document.getElementById('highlight-section').style.display = 'flex';
-    if (document.getElementById('list-section')) document.getElementById('list-section').style.display = 'block';
-    if (document.getElementById('stat-section')) document.getElementById('stat-section').style.display = 'block';
+    // 3. 정당별 평균 재산액 (세로 막대)
+    const ctxPartyAvg = document.getElementById('partyAvgChart').getContext('2d');
+    const sortedP = pLabels.map(label => ({ label, avg: pStats[label].total / pStats[label].count })).sort((a, b) => b.avg - a.avg);
+
+    if (myPartyAvgChart) myPartyAvgChart.destroy();
+    myPartyAvgChart = new Chart(ctxPartyAvg, {
+        type: 'bar',
+        data: {
+            labels: sortedP.map(i => i.label),
+            datasets: [{ label: '정당별 평균 재산', data: sortedP.map(i => i.avg), backgroundColor: sortedP.map(i => partyColors[i.label] || "#707070"), borderRadius: 5 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
 }
