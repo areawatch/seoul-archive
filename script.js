@@ -67,6 +67,15 @@ function fetchTabData(tab) {
 }
 
 function renderRouter() {
+        // 1. 총 의원 수 계산 (allSummary의 키 개수)
+    const totalCount = Object.keys(allSummary).length;
+    document.getElementById('total-members').innerText = totalCount.toLocaleString();
+    
+    // 2. 현재 시간 기준 업데이트 시각 표시
+    const now = new Date();
+    const formattedTime = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    document.getElementById('update-time').innerText = formattedTime;
+        
     let listHtml = '';
     let districtStats = {};
     let maxWealth = { name: '', value: -Infinity, district: '' };
