@@ -17,6 +17,7 @@ let highlights = {};
 let loadedCount = 0;
 let myChart = null;
 
+// 정당별 색상 정의
 const partyColors = {
     "국민의힘": "#E61E2B",
     "더불어민주당": "#004EA2",
@@ -49,16 +50,19 @@ function fetchTabData(tab) {
             const row = rowStr.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
             if (!row || row.length < 11) return;
             const clean = (str) => str ? str.replace(/^"|"$/g, '').trim() : "";
+            
             const year = clean(row[1]);
             const pos = clean(row[3]);
             const name = clean(row[4]);
-            const party = clean(row[5]); // 6번째 열에서 정당 정보 추출
+            const party = clean(row[5]); // 정당 정보
             const type = getStandardName(clean(row[6]));
             const val = parseInt(clean(row[10]).replace(/[^0-9-]/g, '')) || 0;
+            
             if (!name || name === "성명") return;
 
             allRawData.push({ district: tab.name, position: pos, name: name, party: party, year: year, type: type, value: val });
             const key = tab.name + "_" + name;
+            
             if (!allSummary[key]) {
                 allSummary[key] = { district: tab.name, name: name, party: party, position: pos, y2025: 0, y2024: 0, y2023: 0, land2025: 0, land2024: 0, building2025: 0, building2024: 0 };
             }
@@ -87,7 +91,6 @@ function renderRouter() {
     let maxLandGrowth = { name: '', rate: -Infinity, district: '' };
     let maxBuildingGrowth = { name: '', rate: -Infinity, district: '' };
 
-    // 데이터 집계 루프
     for (let key in allSummary) {
         const item = allSummary[key];
         if (!districtStats[item.district]) districtStats[item.district] = { count: 0, total: 0 };
@@ -111,6 +114,9 @@ function renderRouter() {
         const r2425 = item.y2024 > 0 ? ((item.y2025 - item.y2024) / Math.abs(item.y2024)) * 100 : null;
         const r2324 = item.y2023 > 0 ? ((item.y2024 - item.y2023) / Math.abs(item.y2023)) * 100 : null;
 
+        // 정당별 색상 배지 생성
+        const pColor = partyColors[item.party] || "#707070";
+
         listHtml += `<tr>
             <td>${item.district}</td>
             <td>${item.position}</td>
@@ -122,13 +128,13 @@ function renderRouter() {
             <td class="text-center" data-order="${r2425 ?? -999}"><span class="${r2425 > 0 ? 'up' : 'down'}">${r2425 !== null ? (r2425 > 0 ? '+' : '') + r2425.toFixed(1) + '%' : '-'}</span></td>
             <td class="text-right">${item.y2024.toLocaleString()}</td>
             <td class="text-center" data-order="${r2324 ?? -999}"><span class="${r2324 > 0 ? 'up' : 'down'}">${r2324 !== null ? (r2324 > 0 ? '+' : '') + r2324.toFixed(1) + '%' : '-'}</span></td>
-            <td class="text-right">${item.y2023.toLocaleString()}</td></tr>`;
+            <td class="text-right">${item.y2023.toLocaleString()}</td>
+        </tr>`;
     }
 
-    // 하이라이트 설정
     highlights = { wealth: maxWealth, growth: maxGrowth, land: maxLandGrowth, building: maxBuildingGrowth };
 
-    // [핵심] 총 의원 수 및 업데이트 시각 반영
+    // 총 의원 수 및 업데이트 시각 반영
     const totalCount = Object.keys(allSummary).length;
     const totalElem = document.getElementById('total-members');
     const timeElem = document.getElementById('update-time');
@@ -140,7 +146,6 @@ function renderRouter() {
         timeElem.innerText = formattedTime;
     }
 
-    // 페이지 판단 로직
     if (document.getElementById('districtChart')) {
         drawDistrictChart(districtStats);
         document.getElementById('loading').style.display = 'none';
@@ -163,7 +168,9 @@ function renderRouter() {
 }
 
 function drawDistrictChart(stats) {
-    const ctx = document.getElementById('districtChart').getContext('2d');
+    const canvas = document.getElementById('districtChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
     const sorted = Object.keys(stats).map(name => ({ name, avg: stats[name].total / stats[name].count })).sort((a, b) => b.avg - a.avg);
     if (myChart) myChart.destroy();
     myChart = new Chart(ctx, {
