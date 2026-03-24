@@ -17,6 +17,16 @@ let highlights = {};
 let loadedCount = 0;
 let myChart = null;
 
+const partyColors = {
+    "국민의힘": "#E61E2B",
+    "더불어민주당": "#004EA2",
+    "정의당": "#FFCA05",
+    "진보당": "#D6001C",
+    "무소속": "#707070",
+    "기본소득당": "#00D2C3",
+    "개혁신당": "#FF7F32"
+};
+
 $(document).ready(function() {
     sheetTabs.forEach(tab => fetchTabData(tab));
 });
@@ -42,13 +52,16 @@ function fetchTabData(tab) {
             const year = clean(row[1]);
             const pos = clean(row[3]);
             const name = clean(row[4]);
+            const party = clean(row[5]); // 6번째 열에서 정당 정보 추출
             const type = getStandardName(clean(row[6]));
             const val = parseInt(clean(row[10]).replace(/[^0-9-]/g, '')) || 0;
             if (!name || name === "성명") return;
 
-            allRawData.push({ district: tab.name, position: pos, name: name, year: year, type: type, value: val });
+            allRawData.push({ district: tab.name, position: pos, name: name, party: party, year: year, type: type, value: val });
             const key = tab.name + "_" + name;
-            if (!allSummary[key]) allSummary[key] = { district: tab.name, name: name, position: pos, y2025: 0, y2024: 0, y2023: 0, land2025: 0, land2024: 0, building2025: 0, building2024: 0 };
+            if (!allSummary[key]) {
+                allSummary[key] = { district: tab.name, name: name, party: party, position: pos, y2025: 0, y2024: 0, y2023: 0, land2025: 0, land2024: 0, building2025: 0, building2024: 0 };
+            }
             
             if (year == "2025") {
                 allSummary[key].y2025 += val;
@@ -98,7 +111,13 @@ function renderRouter() {
         const r2425 = item.y2024 > 0 ? ((item.y2025 - item.y2024) / Math.abs(item.y2024)) * 100 : null;
         const r2324 = item.y2023 > 0 ? ((item.y2024 - item.y2023) / Math.abs(item.y2023)) * 100 : null;
 
-        listHtml += `<tr><td>${item.district}</td><td>${item.position}</td><td><span class="clickable-name" onclick="showDetail('${item.name}', '${item.district}')">${item.name}</span></td>
+        listHtml += `<tr>
+            <td>${item.district}</td>
+            <td>${item.position}</td>
+            <td>
+                <span class="clickable-name" onclick="showDetail('${item.name}', '${item.district}')">${item.name}</span>
+                <span class="badge ms-1" style="background-color:${pColor}; font-size: 0.7rem; vertical-align: middle;">${item.party}</span>
+            </td>
             <td class="text-right fw-bold text-primary" data-order="${item.y2025}">${item.y2025.toLocaleString()}</td>
             <td class="text-center" data-order="${r2425 ?? -999}"><span class="${r2425 > 0 ? 'up' : 'down'}">${r2425 !== null ? (r2425 > 0 ? '+' : '') + r2425.toFixed(1) + '%' : '-'}</span></td>
             <td class="text-right">${item.y2024.toLocaleString()}</td>
