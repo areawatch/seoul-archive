@@ -197,11 +197,14 @@ body {
 
     /* 3. 자치구와 성명 컬럼은 좀 더 눈에 띄게 */
     #analysisTable td:nth-child(1),
-    #analysisTable td:nth-child(2),
-    #analysisTable td:nth-child(3) {
+    #analysisTable td:nth-child(2) {
         min-width: 75px !important; /* '구의원' 세 글자가 여유 있게 들어가는 크기 */
         font-weight: 600;
         text-align: center;    /* 최소 너비를 넉넉히 확보 */
+    }
+    #analysisTable td:nth-child(3) {
+        min-width: 120px !important; /* 성명 + 정당 배지 공간 확보 */
+        text-align: left !important;
     }
 
     /* 4. 가로 스크롤 시 부드럽게 넘어가도록 */
