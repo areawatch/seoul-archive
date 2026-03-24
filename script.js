@@ -114,12 +114,10 @@ function renderRouter() {
             <td class="text-right">${item.y2023.toLocaleString()}</td></tr>`;
     }
 
+    // 1. 하이라이트 설정
     highlights = { wealth: maxWealth, growth: maxGrowth, land: maxLandGrowth, building: maxBuildingGrowth };
 
-    // --- script.js 의 renderRouter 함수 내부 highlights 아래에 덮어쓰기 ---
-    highlights = { wealth: maxWealth, growth: maxGrowth, land: maxLandGrowth, building: maxBuildingGrowth };
-
-    // [추가] 총 의원 수 및 업데이트 시각 반영
+    // 2. [추가한 코드] 반드시 highlights 아래, 그리고 기존 if문 "위에" 있어야 합니다.
     const totalCount = Object.keys(allSummary).length;
     const totalElem = document.getElementById('total-members');
     const timeElem = document.getElementById('update-time');
@@ -131,11 +129,12 @@ function renderRouter() {
         timeElem.innerText = formattedTime;
     }
 
+    // 3. 기존에 있던 페이지 판단 로직 (이어서 나옴)
     if (document.getElementById('districtChart')) {
         drawDistrictChart(districtStats);
         document.getElementById('loading').style.display = 'none';
-        document.getElementById('stat-section').style.display = 'block';
-    } 
+        if (document.getElementById('stat-section')) document.getElementById('stat-section').style.display = 'block';
+    }
     
     if (document.getElementById('analysisTable')) {
         const fmtH = (m) => `<span class="highlight-name">${m.district} ${m.name}</span><br>${m.value ? m.value.toLocaleString() + ' 천원' : m.rate.toFixed(1) + '%'}`;
