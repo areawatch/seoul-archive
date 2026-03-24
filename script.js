@@ -67,7 +67,7 @@ function fetchTabData(tab) {
 }
 
 function renderRouter() {
-        // 1. 총 의원 수 계산 (allSummary의 키 개수)
+    // 1. 총 의원 수 계산 (allSummary의 키 개수)
     const totalCount = Object.keys(allSummary).length;
     document.getElementById('total-members').innerText = totalCount.toLocaleString();
     
@@ -115,6 +115,21 @@ function renderRouter() {
     }
 
     highlights = { wealth: maxWealth, growth: maxGrowth, land: maxLandGrowth, building: maxBuildingGrowth };
+
+    // --- script.js 의 renderRouter 함수 내부 highlights 아래에 덮어쓰기 ---
+    highlights = { wealth: maxWealth, growth: maxGrowth, land: maxLandGrowth, building: maxBuildingGrowth };
+
+    // [추가] 총 의원 수 및 업데이트 시각 반영
+    const totalCount = Object.keys(allSummary).length;
+    const totalElem = document.getElementById('total-members');
+    const timeElem = document.getElementById('update-time');
+
+    if (totalElem) totalElem.innerText = totalCount.toLocaleString();
+    if (timeElem) {
+        const now = new Date();
+        const formattedTime = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        timeElem.innerText = formattedTime;
+    }
 
     if (document.getElementById('districtChart')) {
         drawDistrictChart(districtStats);
