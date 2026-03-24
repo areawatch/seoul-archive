@@ -119,3 +119,47 @@ body {
 @media (max-width: 768px) {
     .chart-container { height: 800px !important; }
 }
+
+/* 모바일 전용 스타일 (화면 너비 768px 이하일 때 적용) */
+@media (max-width: 768px) {
+    /* 1. 메인 타이틀 크기 축소 */
+    .display-5 {
+        font-size: 2.2rem;
+        letter-spacing: -1px;
+    }
+    .fs-5 {
+        font-size: 1.1rem !important;
+    }
+
+    /* 2. 하이라이트 카드 패딩 축소 및 줄바꿈 */
+    .highlight-card {
+        padding: 15px;
+    }
+    .highlight-value {
+        font-size: 1rem;
+    }
+
+    /* 3. [핵심] 테이블 가로 스크롤 허용 */
+    /* 부트스트랩의 .table-responsive를 모바일에서만 강화합니다 */
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto; /* 가로 스크롤 생성 */
+        -webkit-overflow-scrolling: touch; /* 부드러운 스크롤 */
+    }
+
+    /* 4. 테이블 내부 글자 크기 미세 조정 */
+    .table {
+        font-size: 0.8rem; /* 약간 더 작게 */
+        min-width: 600px; /* 스크롤이 생기도록 최소 너비 지정 */
+    }
+    .table thead th {
+        padding: 8px 4px;
+    }
+
+    /* 5. 분석 페이지 차트 높이 확대 */
+    /* 모바일에서는 세로로 길어야 차트가 안 겹칩니다 */
+    .chart-container {
+        height: 800px !important;
+    }
+}
