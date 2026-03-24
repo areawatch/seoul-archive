@@ -1,0 +1,121 @@
+/* 공통 스타일 및 폰트 */
+body { 
+    background-color: #f4f6f9; 
+    padding: 0; 
+    font-family: 'Pretendard', -apple-system, sans-serif; 
+    color: #333;
+}
+
+.container { max-width: 1500px; }
+
+/* 타이포그래피 */
+.fw-bold { font-weight: 700 !important; }
+.fs-7 { font-size: 0.85rem !important; }
+.display-5 { font-size: 2.8rem; letter-spacing: -1.5px; }
+
+/* 내비게이션 바 */
+.navbar { padding: 10px 0; }
+.navbar-brand { font-size: 1.4rem; letter-spacing: -1px; color: #0d6efd !important; }
+
+/* 카드 공통 스타일 */
+.card { 
+    border-radius: 12px; 
+    border: none; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important; 
+    overflow: hidden;
+}
+
+/* 하이라이트 요약 카드 (애니메이션 강화) */
+.highlight-card { 
+    background: white; 
+    border-left: 6px solid #0d6efd; 
+    padding: 24px; 
+    cursor: pointer; 
+    height: 100%; 
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+    border-radius: 12px;
+}
+
+.highlight-card:hover { 
+    transform: translateY(-8px) scale(1.02); 
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important; 
+}
+
+.highlight-title { 
+    font-size: 0.9rem; 
+    color: #6c757d; 
+    margin-bottom: 12px; 
+    font-weight: 700; 
+    text-transform: uppercase; 
+    letter-spacing: 1px;
+}
+
+.highlight-value { 
+    font-size: 1.1rem; 
+    font-weight: 800; 
+    line-height: 1.5; 
+    color: #212529 !important;
+}
+
+.highlight-name { 
+    color: #0d6efd; 
+    font-weight: 800; 
+}
+
+/* 카드별 고유 색상 설정 */
+.wealth-card { border-left-color: #0d6efd; }
+.growth-card { border-left-color: #dc3545; }
+.land-card { border-left-color: #ffc107; }
+.building-card { border-left-color: #17a2b8; }
+
+/* 테이블 스타일 강화 */
+.table { font-size: 0.9rem; }
+.table thead { 
+    background-color: #e9ecef; 
+    color: #333; 
+    text-align: center; 
+    font-size: 0.85rem; 
+    font-weight: 700;
+}
+.table-striped tbody tr:nth-of-type(odd) { background-color: rgba(13, 110, 253, 0.015); }
+.table-hover tbody tr:hover { background-color: rgba(13, 110, 253, 0.04) !important; }
+
+.clickable-name { 
+    color: #0d6efd; 
+    text-decoration: underline; 
+    cursor: pointer; 
+    font-weight: 600; 
+    transition: 0.2s;
+}
+.clickable-name:hover { color: #004085; }
+
+.text-right { text-align: right !important; }
+.up { color: #dc3545; font-weight: bold; }
+.down { color: #0d6efd; font-weight: bold; }
+
+/* 통계 테이블 스타일 */
+#districtStatTable { font-size: 0.85rem; }
+#districtStatTable thead { font-size: 0.8rem; }
+.text-success { color: #198754 !important; }
+
+/* 상세 보기 모달 스타일 강화 */
+#detail-section { 
+    display: none; 
+    margin-bottom: 30px; 
+    border: 3px solid #0d6efd; 
+    box-shadow: 0 10px 40px rgba(13, 110, 253, 0.1) !important;
+}
+.table-info-custom { background-color: #e7f1ff !important; font-weight: 700; font-size: 0.95rem; }
+
+/* 로딩바 애니메이션 및 디자인 */
+#loading { padding: 60px 0; border: 2px solid #e9ecef; }
+.loading-text { font-size: 1.2rem; margin-top: 15px; color: #6c757d; }
+
+/* 차트 디자인 */
+.chart-container {
+    margin-top: 10px;
+}
+/* 모바일에서는 차트 높이를 더 높게 잡아서 글자가 겹치지 않게 합니다 */
+@media (max-width: 768px) {
+    .chart-container { height: 800px !important; }
+}
