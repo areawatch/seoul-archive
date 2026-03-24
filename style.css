@@ -162,4 +162,18 @@ body {
     .chart-container {
         height: 800px !important;
     }
+
+    /* [추가] 자치구 컬럼 너비 확보 (3글자까지 한 줄) */
+    #analysisTable th:nth-child(1),
+    #analysisTable td:nth-child(1) {
+        min-width: 65px !important;
+        text-align: center;
+    }
+
+    /* [추가] 성명 컬럼 너비 확보 (3글자까지 한 줄) */
+    #analysisTable th:nth-child(3),
+    #analysisTable td:nth-child(3) {
+        min-width: 60px !important;
+        text-align: center;
+    }
 }
