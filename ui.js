@@ -1,5 +1,6 @@
 // ui.js - 컴포넌트 로더 및 상세 팝업 관리
 
+// 1. 컴포넌트(헤더/푸터) 로더
 async function loadComponent(id, file) {
     const el = document.getElementById(id);
     if (!el) return;
@@ -7,37 +8,41 @@ async function loadComponent(id, file) {
         const response = await fetch(file);
         const data = await response.text();
         el.innerHTML = data;
+        
+        // 현재 페이지 활성화 표시 (메뉴 강조)
         const links = el.querySelectorAll('.nav-link');
         const currPage = window.location.pathname.split('/').pop() || 'index.html';
         links.forEach(link => {
             if (link.getAttribute('href') === currPage) link.classList.add('active');
         });
-    } catch (e) { console.error(file + " 로드 실패", e); }
+    } catch (e) { 
+        console.error(file + " 로드 실패", e); 
+    }
 }
 
-let detailChartInstance = null;
+let detailChartInstance = null; // 차트 중복 생성 방지용
 
+// 2. 상세 정보 팝업 및 그래프 출력
 function showDetail(name, district) {
-    console.log("검색 시도:", name, district);
+    console.log("상세보기 클릭:", name, district);
     
-    // 1. 데이터 저장소 확인
+    // 데이터 저장소 확인
     if (typeof allSummary === 'undefined' || Object.keys(allSummary).length === 0) {
-        alert("데이터 로딩이 아직 완료되지 않았습니다. 잠시만 기다려주세요!");
+        alert("데이터 로딩 중입니다. 잠시 후 다시 시도해주세요!");
         return;
     }
 
-    // 2. 다양한 키 조합으로 데이터 찾기 (공백 문제 해결)
-    const key1 = name + district;
-    const key2 = name.trim() + district.trim();
-    const item = allSummary[key1] || allSummary[key2];
+    // 데이터 매칭 (이름 + 자치구 조합)
+    const key = name + district;
+    const item = allSummary[key];
 
     if (!item) {
-        console.error("현재 로드된 데이터 목록:", allSummary);
-        alert(`'${name}' 의원의 상세 데이터를 찾을 수 없습니다.\n(데이터 로드 상태를 확인해주세요)`);
+        console.error("데이터 매칭 실패. 전체 목록:", allSummary);
+        alert(`'${name}' 의원의 상세 데이터를 찾을 수 없습니다.`);
         return;
     }
 
-    // --- (이하 모달 띄우기 및 그래프 로직은 동일합니다) ---
+    // 모달 제목 및 상세 테이블 채우기
     const titleEl = document.getElementById('detailModalLabel');
     if(titleEl) titleEl.innerText = `${item.district} - ${item.name} (${item.party})`;
     
@@ -45,17 +50,21 @@ function showDetail(name, district) {
     if(contentEl) {
         contentEl.innerHTML = `
             <table class="table table-sm mt-3">
-                <tr><th width="40%">직위</th><td>${item.position}</td></tr>
-                <tr><th>2025년 재산</th><td class="fw-bold text-primary">${item.y2025.toLocaleString()} 천원</td></tr>
-                <tr><th>2024년 재산</th><td>${item.y2024.toLocaleString()} 천원</td></tr>
-                <tr><th>2023년 재산</th><td>${item.y2023.toLocaleString()} 천원</td></tr>
+                <tbody>
+                    <tr><th width="40%">직위</th><td>${item.position}</td></tr>
+                    <tr><th>2025년 재산</th><td class="fw-bold text-primary">${item.y2025.toLocaleString()} 천원</td></tr>
+                    <tr><th>2024년 재산</th><td>${item.y2024.toLocaleString()} 천원</td></tr>
+                    <tr><th>2023년 재산</th><td>${item.y2023.toLocaleString()} 천원</td></tr>
+                </tbody>
             </table>`;
     }
 
+    // 그래프 그리기
     const canvas = document.getElementById('detailChart');
     if (canvas) {
         const ctx = canvas.getContext('2d');
-        if (detailChartInstance) detailChartInstance.destroy();
+        if (detailChartInstance) detailChartInstance.destroy(); // 기존 차트 삭제
+
         detailChartInstance = new Chart(ctx, {
             type: 'line',
             data: {
@@ -71,10 +80,27 @@ function showDetail(name, district) {
                     pointBackgroundColor: '#0d6efd'
                 }]
             },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true, // ★ Y축을 0부터 시작하게 설정
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString(); // 숫자 콤마 표시
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false } // 상단 범례 숨김
+                }
+            }
         });
     }
 
+    // 모달 실행
     const modalElement = document.getElementById('detailModal');
     if (modalElement) {
         const myModal = bootstrap.Modal.getOrCreateInstance(modalElement);
