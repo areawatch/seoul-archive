@@ -1,5 +1,26 @@
 // ui.js - 상세 리포트 및 공통 UI 제어
 
+async function loadComponent(id, file) {
+    const el = document.getElementById(id);
+    if (el) {
+        try {
+            const response = await fetch(file);
+            const data = await response.text();
+            el.innerHTML = data;
+            
+            // 현재 페이지 활성화 표시 (active 클래스 자동 부여)
+            const links = el.querySelectorAll('.nav-link');
+            const currPage = window.location.pathname.split('/').pop() || 'index.html';
+            links.forEach(link => {
+                if (link.getAttribute('href') === currPage) link.classList.add('active');
+            });
+        } catch (e) {
+            console.error(file + " 컴포넌트 로드 실패", e);
+        }
+    }
+}
+
+
 function showDetailFromHighlight(type) { 
     if (highlights[type]) showDetail(highlights[type].name, highlights[type].district); 
 }

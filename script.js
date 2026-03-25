@@ -1,11 +1,13 @@
 // script.js - 메인 컨트롤러 (페이지 구동부)
 
 $(document).ready(function() {
-    // config.js의 데이터를 사용하여 데이터 로드 시작
+    // 1. 헤더와 푸터 먼저 조립
+    loadComponent('header-plugin', 'header.html');
+    loadComponent('footer-plugin', 'footer.html');
+
+    // 2. 기존 데이터 로드 시작
     if (typeof sheetTabs !== 'undefined') {
         sheetTabs.forEach(tab => fetchTabData(tab));
-    } else {
-        console.error("config.js가 제대로 로드되지 않았습니다.");
     }
 });
 
