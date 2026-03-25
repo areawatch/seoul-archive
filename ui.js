@@ -88,8 +88,12 @@ function showDetail(name, district) {
         }
     });
 
-    // 부트스트랩 모달 띄우기
+    // 부트스트랩 모달 띄우기 (이 방식이 가장 에러가 적습니다)
     const modalElement = document.getElementById('detailModal');
-    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-    modal.show();
+    if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    } else {
+        console.error("detailModal 요소를 찾을 수 없습니다. index.html을 확인하세요.");
+    }
 }
