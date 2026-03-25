@@ -34,7 +34,7 @@ function fetchTabData(tab) {
             if (!name || name === "성명") return;
 
             allRawData.push({ district: tab.name, position: pos, name: name, party: party, year: year, type: type, value: val });
-            const key = tab.name + "_" + name;
+            const key = name + tab.name;
             
             if (!allSummary[key]) {
                 allSummary[key] = { district: tab.name, name: name, party: party, position: pos, y2025: 0, y2024: 0, y2023: 0, land2025: 0, land2024: 0, building2025: 0, building2024: 0 };

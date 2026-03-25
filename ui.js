@@ -18,22 +18,30 @@ async function loadComponent(id, file) {
 let detailChartInstance = null;
 
 function showDetail(name, district) {
-    console.log("클릭됨:", name, district); // 디버깅용 로그
-
-    // 1. 데이터 찾기 (allSummary가 전역변수인지 확인)
-    const key = name + district;
-    const item = (typeof allSummary !== 'undefined') ? allSummary[key] : null;
-
-    if (!item) {
-        alert("데이터를 찾을 수 없습니다: " + name);
+    console.log("검색 시도:", name, district);
+    
+    // 1. 데이터 저장소 확인
+    if (typeof allSummary === 'undefined' || Object.keys(allSummary).length === 0) {
+        alert("데이터 로딩이 아직 완료되지 않았습니다. 잠시만 기다려주세요!");
         return;
     }
 
-    // 2. 모달 제목 및 내용 채우기
+    // 2. 다양한 키 조합으로 데이터 찾기 (공백 문제 해결)
+    const key1 = name + district;
+    const key2 = name.trim() + district.trim();
+    const item = allSummary[key1] || allSummary[key2];
+
+    if (!item) {
+        console.error("현재 로드된 데이터 목록:", allSummary);
+        alert(`'${name}' 의원의 상세 데이터를 찾을 수 없습니다.\n(데이터 로드 상태를 확인해주세요)`);
+        return;
+    }
+
+    // --- (이하 모달 띄우기 및 그래프 로직은 동일합니다) ---
     const titleEl = document.getElementById('detailModalLabel');
-    const contentEl = document.getElementById('detailContent');
     if(titleEl) titleEl.innerText = `${item.district} - ${item.name} (${item.party})`;
     
+    const contentEl = document.getElementById('detailContent');
     if(contentEl) {
         contentEl.innerHTML = `
             <table class="table table-sm mt-3">
@@ -44,12 +52,10 @@ function showDetail(name, district) {
             </table>`;
     }
 
-    // 3. 그래프 그리기 (Canvas 확인 후 실행)
     const canvas = document.getElementById('detailChart');
     if (canvas) {
         const ctx = canvas.getContext('2d');
         if (detailChartInstance) detailChartInstance.destroy();
-
         detailChartInstance = new Chart(ctx, {
             type: 'line',
             data: {
@@ -69,12 +75,9 @@ function showDetail(name, district) {
         });
     }
 
-    // 4. 모달 강제 실행
     const modalElement = document.getElementById('detailModal');
     if (modalElement) {
-        const myModal = new bootstrap.Modal(modalElement);
+        const myModal = bootstrap.Modal.getOrCreateInstance(modalElement);
         myModal.show();
-    } else {
-        alert("HTML에 detailModal이 없습니다. index.html을 확인해주세요.");
     }
 }
