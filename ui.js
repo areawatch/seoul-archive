@@ -8,102 +8,88 @@ async function loadComponent(id, file) {
         const response = await fetch(file);
         const data = await response.text();
         el.innerHTML = data;
-        
         const links = el.querySelectorAll('.nav-link');
         const currPage = window.location.pathname.split('/').pop() || 'index.html';
         links.forEach(link => {
             if (link.getAttribute('href') === currPage) link.classList.add('active');
         });
-    } catch (e) { 
-        console.error(file + " 로드 실패", e); 
-    }
+    } catch (e) { console.error(file + " 로드 실패", e); }
 }
 
 let detailChartInstance = null;
 
 // 2. 상세 정보 팝업 및 그래프 출력
 function showDetail(name, district) {
-    console.log("상세보기 클릭:", name, district);
-    
-    // 데이터 로드 확인
-    if (typeof allSummary === 'undefined' || Object.keys(allSummary).length === 0) {
-        alert("데이터 로딩 중입니다. 잠시 후 다시 시도해주세요!");
-        return;
-    }
-
-    // 데이터 매칭 (이름 + 자치구 조합)
     const key = name + district;
     const item = allSummary[key];
-
-    if (!item) {
-        alert(`'${name}' 의원의 데이터를 찾을 수 없습니다.`);
-        return;
-    }
+    if (!item) return;
 
     // 모달 제목 설정
     const titleEl = document.getElementById('detailModalLabel');
     if(titleEl) titleEl.innerText = `${item.district} - ${item.name} (${item.party})`;
     
-    // --- [내용 구성 시작] ---
-    
-    // A. 상단 3개년 총액 요약 테이블
-    let summaryHtml = `
-        <table class="table table-sm border-bottom mb-4" style="font-size: 0.9rem;">
-            <thead class="table-light">
-                <tr><th>연도</th><th>직위</th><th class="text-end">총 재산(천원)</th></tr>
-            </thead>
-            <tbody>
-                <tr class="table-primary"><td>2025</td><td>${item.position}</td><td class="text-end fw-bold">${item.y2025.toLocaleString()}</td></tr>
-                <tr><td>2024</td><td>${item.position}</td><td class="text-end">${item.y2024.toLocaleString()}</td></tr>
-                <tr><td>2023</td><td>${item.position}</td><td class="text-end">${item.y2023.toLocaleString()}</td></tr>
-            </tbody>
-        </table>
-        <h6 class="fw-bold mb-3">연도별 세부 자산 내역</h6>
-    `;
+    // --- [데이터 통합 로직] ---
+    // 모든 연도의 상세 항목명을 중복 없이 추출
+    const allDetailTypes = Array.from(new Set(allRawData
+        .filter(d => d.name === name && d.district === district)
+        .map(d => d.type)));
 
-    // B. 연도별 상세 데이터 리스트 (2025 -> 2024 -> 2023 순)
-    let detailTableHtml = "";
-    const years = ["2025", "2024", "2023"];
-
-    years.forEach(year => {
-        const yearDetails = allRawData.filter(d => d.name === name && d.district === district && d.year === year);
-        
-        detailTableHtml += `
-            <div class="mb-3">
-                <div class="badge bg-secondary mb-2">${year}년 상세 내역</div>
-                <table class="table table-hover table-sm mb-0" style="font-size: 0.82rem;">
-                    <tbody>`;
-        
-        if (yearDetails.length > 0) {
-            yearDetails.forEach(d => {
-                detailTableHtml += `
+    // A. 통합 상세 테이블 생성
+    let tableHtml = `
+        <div class="table-responsive">
+            <table class="table table-hover table-sm mt-3" style="font-size: 0.8rem; min-width: 450px;">
+                <thead class="table-light text-center">
                     <tr>
-                        <td class="text-muted" width="65%">${d.type}</td>
-                        <td class="text-end fw-bold">${d.value.toLocaleString()}</td>
-                    </tr>`;
-            });
-        } else {
-            detailTableHtml += `<tr><td colspan="2" class="text-center text-muted small">해당 연도 상세 데이터가 없습니다.</td></tr>`;
-        }
-        
-        detailTableHtml += `</tbody></table></div>`;
+                        <th class="text-start" width="40%">자산 항목</th>
+                        <th>2025</th>
+                        <th>2024</th>
+                        <th>2023</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+    allDetailTypes.forEach(type => {
+        const getVal = (year) => {
+            const found = allRawData.find(d => d.name === name && d.district === district && d.year === year && d.type === type);
+            return found ? found.value.toLocaleString() : "-";
+        };
+
+        tableHtml += `
+            <tr>
+                <td class="text-muted small">${type}</td>
+                <td class="text-end fw-bold">${getVal("2025")}</td>
+                <td class="text-end">${getVal("2024")}</td>
+                <td class="text-end">${getVal("2023")}</td>
+            </tr>`;
     });
 
-    const contentEl = document.getElementById('detailContent');
-    if(contentEl) contentEl.innerHTML = summaryHtml + detailTableHtml;
+    // 총계 행 추가
+    tableHtml += `
+            <tr class="table-primary fw-bold">
+                <td>합계 (총액)</td>
+                <td class="text-end">${item.y2025.toLocaleString()}</td>
+                <td class="text-end">${item.y2024.toLocaleString()}</td>
+                <td class="text-end">${item.y2023.toLocaleString()}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p class="text-muted mt-2" style="font-size: 0.75rem;">* 단위: 천원 / 가로로 스와이프하여 전체 내용을 볼 수 있습니다.</p>
+    </div>`;
 
-    // C. 그래프 그리기 (Y축 0부터 시작)
+    const contentEl = document.getElementById('detailContent');
+    if(contentEl) contentEl.innerHTML = tableHtml;
+
+    // B. 그래프 그리기
     const canvas = document.getElementById('detailChart');
     if (canvas) {
         const ctx = canvas.getContext('2d');
         if (detailChartInstance) detailChartInstance.destroy();
-
         detailChartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['2023년', '2024년', '2025년'],
+                labels: ['2023', '2024', '2025'],
                 datasets: [{
-                    label: '재산 추이 (천원)',
+                    label: '재산 추이',
                     data: [item.y2023, item.y2024, item.y2025],
                     borderColor: '#0d6efd',
                     backgroundColor: 'rgba(13, 110, 253, 0.1)',
@@ -116,18 +102,12 @@ function showDetail(name, district) {
             options: { 
                 responsive: true, 
                 maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true, // Y축 0부터 시작
-                        ticks: { callback: v => v.toLocaleString() }
-                    }
-                },
+                scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() } } },
                 plugins: { legend: { display: false } }
             }
         });
     }
 
-    // D. 모달 실행
     const modalElement = document.getElementById('detailModal');
     if (modalElement) {
         const myModal = bootstrap.Modal.getOrCreateInstance(modalElement);
