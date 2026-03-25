@@ -56,16 +56,18 @@ function renderRouter() {
         const r2324 = item.y2023 > 0 ? ((item.y2024 - item.y2023) / Math.abs(item.y2023)) * 100 : null;
         const pColor = (typeof partyColors !== 'undefined') ? (partyColors[item.party] || "#707070") : "#707070";
 
+        // script.js 내 리스트 생성 부분
         listHtml += `<tr onclick="showDetail('${item.name}', '${item.district}')" style="cursor:pointer;">
-            <td>${item.district}</td><td>${item.position}</td>
+            <td>${item.district}</td>
+            <td>${item.position}</td>
             <td>
-                <span class="clickable-name" onclick="showDetail('${item.name}', '${item.district}')">${item.name}</span>
-                <span class="badge ms-1" style="background-color:${pColor}; font-size: 0.7rem; vertical-align: middle;">${item.party}</span>
+                <span class="clickable-name">${item.name}</span>
+                <span class="badge ms-1" style="background-color:${pColor}; font-size: 0.7rem;">${item.party}</span>
             </td>
-            <td class="text-right fw-bold text-primary" data-order="${item.y2025}">${item.y2025.toLocaleString()}</td>
-            <td class="text-center" data-order="${r2425 ?? -999}"><span class="${r2425 > 0 ? 'up' : 'down'}">${r2425 !== null ? (r2425 > 0 ? '+' : '') + r2425.toFixed(1) + '%' : '-'}</span></td>
+            <td class="text-right fw-bold text-primary">${item.y2025.toLocaleString()}</td>
+            <td class="text-center"><span class="${r2425 > 0 ? 'up' : 'down'}">${r2425 !== null ? (r2425 > 0 ? '+' : '') + r2425.toFixed(1) + '%' : '-'}</span></td>
             <td class="text-right">${item.y2024.toLocaleString()}</td>
-            <td class="text-center" data-order="${r2324 ?? -999}"><span class="${r2324 > 0 ? 'up' : 'down'}">${r2324 !== null ? (r2324 > 0 ? '+' : '') + r2324.toFixed(1) + '%' : '-'}</span></td>
+            <td class="text-center"><span class="${r2324 > 0 ? 'up' : 'down'}">${r2324 !== null ? (r2324 > 0 ? '+' : '') + r2324.toFixed(1) + '%' : '-'}</span></td>
             <td class="text-right">${item.y2023.toLocaleString()}</td>
         </tr>`;
     }
