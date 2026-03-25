@@ -56,7 +56,7 @@ function renderRouter() {
         const r2324 = item.y2023 > 0 ? ((item.y2024 - item.y2023) / Math.abs(item.y2023)) * 100 : null;
         const pColor = (typeof partyColors !== 'undefined') ? (partyColors[item.party] || "#707070") : "#707070";
 
-        listHtml += `<tr>
+        listHtml += `<tr onclick="showDetail('${item.name}', '${item.district}')" style="cursor:pointer;">
             <td>${item.district}</td><td>${item.position}</td>
             <td>
                 <span class="clickable-name" onclick="showDetail('${item.name}', '${item.district}')">${item.name}</span>

@@ -220,3 +220,26 @@ body {
         height: 600px !important;
     }
 }
+
+/* 테이블 행에 마우스를 올렸을 때 효과 */
+#analysisTable tbody tr {
+    cursor: pointer; /* 마우스 커서가 손가락 모양으로 변경 */
+    transition: background-color 0.2s ease;
+}
+
+#analysisTable tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05) !important; /* 연한 파란색 배경 */
+}
+
+/* 이름 강조 제거 (행 전체가 클릭되므로 중복 강조 피하기) */
+.clickable-name {
+    text-decoration: none;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    #analysisTable td {
+        padding: 12px 8px; /* 터치하기 좋게 상하 여백 확대 */
+        font-size: 0.85rem;
+    }
+}
