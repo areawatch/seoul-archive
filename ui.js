@@ -1,6 +1,6 @@
 // ui.js - 컴포넌트 로더 및 상세 팝업 관리
 
-// 1. 컴포넌트(헤더/푸터) 로더
+// 1. 공통 컴포넌트(헤더/푸터) 로더
 async function loadComponent(id, file) {
     const el = document.getElementById(id);
     if (!el) return;
@@ -9,7 +9,6 @@ async function loadComponent(id, file) {
         const data = await response.text();
         el.innerHTML = data;
         
-        // 현재 페이지 활성화 표시 (메뉴 강조)
         const links = el.querySelectorAll('.nav-link');
         const currPage = window.location.pathname.split('/').pop() || 'index.html';
         links.forEach(link => {
@@ -20,13 +19,13 @@ async function loadComponent(id, file) {
     }
 }
 
-let detailChartInstance = null; // 차트 중복 생성 방지용
+let detailChartInstance = null;
 
 // 2. 상세 정보 팝업 및 그래프 출력
 function showDetail(name, district) {
     console.log("상세보기 클릭:", name, district);
     
-    // 데이터 저장소 확인
+    // 데이터 로드 확인
     if (typeof allSummary === 'undefined' || Object.keys(allSummary).length === 0) {
         alert("데이터 로딩 중입니다. 잠시 후 다시 시도해주세요!");
         return;
@@ -37,33 +36,67 @@ function showDetail(name, district) {
     const item = allSummary[key];
 
     if (!item) {
-        console.error("데이터 매칭 실패. 전체 목록:", allSummary);
-        alert(`'${name}' 의원의 상세 데이터를 찾을 수 없습니다.`);
+        alert(`'${name}' 의원의 데이터를 찾을 수 없습니다.`);
         return;
     }
 
-    // 모달 제목 및 상세 테이블 채우기
+    // 모달 제목 설정
     const titleEl = document.getElementById('detailModalLabel');
     if(titleEl) titleEl.innerText = `${item.district} - ${item.name} (${item.party})`;
     
-    const contentEl = document.getElementById('detailContent');
-    if(contentEl) {
-        contentEl.innerHTML = `
-            <table class="table table-sm mt-3">
-                <tbody>
-                    <tr><th width="40%">직위</th><td>${item.position}</td></tr>
-                    <tr><th>2025년 재산</th><td class="fw-bold text-primary">${item.y2025.toLocaleString()} 천원</td></tr>
-                    <tr><th>2024년 재산</th><td>${item.y2024.toLocaleString()} 천원</td></tr>
-                    <tr><th>2023년 재산</th><td>${item.y2023.toLocaleString()} 천원</td></tr>
-                </tbody>
-            </table>`;
-    }
+    // --- [내용 구성 시작] ---
+    
+    // A. 상단 3개년 총액 요약 테이블
+    let summaryHtml = `
+        <table class="table table-sm border-bottom mb-4" style="font-size: 0.9rem;">
+            <thead class="table-light">
+                <tr><th>연도</th><th>직위</th><th class="text-end">총 재산(천원)</th></tr>
+            </thead>
+            <tbody>
+                <tr class="table-primary"><td>2025</td><td>${item.position}</td><td class="text-end fw-bold">${item.y2025.toLocaleString()}</td></tr>
+                <tr><td>2024</td><td>${item.position}</td><td class="text-end">${item.y2024.toLocaleString()}</td></tr>
+                <tr><td>2023</td><td>${item.position}</td><td class="text-end">${item.y2023.toLocaleString()}</td></tr>
+            </tbody>
+        </table>
+        <h6 class="fw-bold mb-3">연도별 세부 자산 내역</h6>
+    `;
 
-    // 그래프 그리기
+    // B. 연도별 상세 데이터 리스트 (2025 -> 2024 -> 2023 순)
+    let detailTableHtml = "";
+    const years = ["2025", "2024", "2023"];
+
+    years.forEach(year => {
+        const yearDetails = allRawData.filter(d => d.name === name && d.district === district && d.year === year);
+        
+        detailTableHtml += `
+            <div class="mb-3">
+                <div class="badge bg-secondary mb-2">${year}년 상세 내역</div>
+                <table class="table table-hover table-sm mb-0" style="font-size: 0.82rem;">
+                    <tbody>`;
+        
+        if (yearDetails.length > 0) {
+            yearDetails.forEach(d => {
+                detailTableHtml += `
+                    <tr>
+                        <td class="text-muted" width="65%">${d.type}</td>
+                        <td class="text-end fw-bold">${d.value.toLocaleString()}</td>
+                    </tr>`;
+            });
+        } else {
+            detailTableHtml += `<tr><td colspan="2" class="text-center text-muted small">해당 연도 상세 데이터가 없습니다.</td></tr>`;
+        }
+        
+        detailTableHtml += `</tbody></table></div>`;
+    });
+
+    const contentEl = document.getElementById('detailContent');
+    if(contentEl) contentEl.innerHTML = summaryHtml + detailTableHtml;
+
+    // C. 그래프 그리기 (Y축 0부터 시작)
     const canvas = document.getElementById('detailChart');
     if (canvas) {
         const ctx = canvas.getContext('2d');
-        if (detailChartInstance) detailChartInstance.destroy(); // 기존 차트 삭제
+        if (detailChartInstance) detailChartInstance.destroy();
 
         detailChartInstance = new Chart(ctx, {
             type: 'line',
@@ -85,22 +118,16 @@ function showDetail(name, district) {
                 maintainAspectRatio: false,
                 scales: {
                     y: {
-                        beginAtZero: true, // ★ Y축을 0부터 시작하게 설정
-                        ticks: {
-                            callback: function(value) {
-                                return value.toLocaleString(); // 숫자 콤마 표시
-                            }
-                        }
+                        beginAtZero: true, // Y축 0부터 시작
+                        ticks: { callback: v => v.toLocaleString() }
                     }
                 },
-                plugins: {
-                    legend: { display: false } // 상단 범례 숨김
-                }
+                plugins: { legend: { display: false } }
             }
         });
     }
 
-    // 모달 실행
+    // D. 모달 실행
     const modalElement = document.getElementById('detailModal');
     if (modalElement) {
         const myModal = bootstrap.Modal.getOrCreateInstance(modalElement);
