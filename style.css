@@ -243,3 +243,13 @@ body {
         font-size: 0.85rem;
     }
 }
+
+.border-bottom-dashed {
+    border-bottom: 1px dashed #dee2e6;
+}
+.border-bottom-dashed:last-child {
+    border-bottom: none;
+}
+.border-bottom-dashed:hover {
+    background-color: #fff;
+}
