@@ -20,21 +20,30 @@ let detailChartInstance = null;
 
 // 2. 상세 정보 팝업 및 그래프 출력
 function showDetail(name, district) {
+    console.log("상세보기 클릭:", name, district);
+    
+    if (typeof allSummary === 'undefined' || Object.keys(allSummary).length === 0) {
+        alert("데이터 로딩 중입니다. 잠시 후 다시 시도해주세요!");
+        return;
+    }
+
     const key = name + district;
     const item = allSummary[key];
-    if (!item) return;
+
+    if (!item) {
+        alert(`'${name}' 의원의 데이터를 찾을 수 없습니다.`);
+        return;
+    }
 
     // 모달 제목 설정
     const titleEl = document.getElementById('detailModalLabel');
     if(titleEl) titleEl.innerText = `${item.district} - ${item.name} (${item.party})`;
     
-    // --- [데이터 통합 로직] ---
-    // 모든 연도의 상세 항목명을 중복 없이 추출
+    // --- [데이터 통합 표 로직] ---
     const allDetailTypes = Array.from(new Set(allRawData
         .filter(d => d.name === name && d.district === district)
         .map(d => d.type)));
 
-    // A. 통합 상세 테이블 생성
     let tableHtml = `
         <div class="table-responsive">
             <table class="table table-hover table-sm mt-3" style="font-size: 0.8rem; min-width: 450px;">
@@ -63,7 +72,6 @@ function showDetail(name, district) {
             </tr>`;
     });
 
-    // 총계 행 추가
     tableHtml += `
             <tr class="table-primary fw-bold">
                 <td>합계 (총액)</td>
@@ -79,7 +87,7 @@ function showDetail(name, district) {
     const contentEl = document.getElementById('detailContent');
     if(contentEl) contentEl.innerHTML = tableHtml;
 
-    // B. 그래프 그리기
+    // --- [그래프 그리기 - Y축 0부터 시작 옵션 포함] ---
     const canvas = document.getElementById('detailChart');
     if (canvas) {
         const ctx = canvas.getContext('2d');
@@ -102,7 +110,12 @@ function showDetail(name, district) {
             options: { 
                 responsive: true, 
                 maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() } } },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, // ★ Y축 0부터 시작 (image_1.png의 왜곡 해결)
+                        ticks: { callback: v => v.toLocaleString() } 
+                    } 
+                },
                 plugins: { legend: { display: false } }
             }
         });
