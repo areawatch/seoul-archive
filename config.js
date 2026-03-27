@@ -2,6 +2,7 @@
 const sheetKey = '2PACX-1vSbGPniWhU5p7Lk2u5XP8GwljzzefLiV9aEIrO18zcANUEKVPVvabNUQMal2UMAZz2bAAAbVEKFUi2y';
 
 const sheetTabs = [
+    { name: "구청장", gid: "0" }, // 구청장 시트 추가
     { name: "강남구", gid: "518648633" }, { name: "강동구", gid: "1323490210" }, { name: "강북구", gid: "1934460641" },
     { name: "강서구", gid: "1178062280" }, { name: "관악구", gid: "871169057" }, { name: "광진구", gid: "134877668" },
     { name: "구로구", gid: "1764576351" }, { name: "금천구", gid: "989163989" }, { name: "노원구", gid: "2095622784" },

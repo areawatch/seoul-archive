@@ -254,41 +254,35 @@ body {
     background-color: #fff;
 }
 
-/* 상세 모달 테이블 최종 최적화 */
+/* 상세 모달 테이블 최종 최적화 (5개 컬럼 대응) */
 #detailContent table {
-    table-layout: fixed; /* 칸 너비를 고정합니다 */
+    table-layout: fixed;
     width: 100% !important;
-    border-collapse: collapse;
 }
 
-/* 항목 칸: 쪼그라들지 않게 최소/고정 너비 부여 */
+/* 항목 칸 고정 */
 #detailContent th:first-child,
 #detailContent td:first-child {
-    width: 100px !important; /* 최소 100px 확보 */
-    text-align: left;
-    padding-left: 10px !important;
-    white-space: nowrap; /* 글자 줄바꿈 방지 */
-    overflow: visible;
+    width: 85px !important; 
+    white-space: nowrap;
     background-color: #f8f9fa;
     font-weight: bold;
+    font-size: 0.8rem;
+    padding-left: 8px !important;
 }
 
-/* 금액 칸(2025, 2024, 2023): 나머지 공간을 공평하게 배분 */
+/* 금액 칸(2026, 2025, 2024, 2023) 균등 배분 */
 #detailContent th:not(:first-child),
 #detailContent td:not(:first-child) {
-    width: auto !important; /* 남은 공간을 브라우저가 배분 */
+    width: auto !important; 
     text-align: right;
-    padding-right: 10px !important;
+    font-size: 0.75rem; /* 칸이 늘어났으므로 폰트를 살짝 줄임 */
+    padding-right: 5px !important;
+    letter-spacing: -0.5px;
 }
 
-/* 모바일에서 글자가 겹치지 않게 폰트 조절 */
 @media (max-width: 576px) {
-    #detailContent th:first-child,
-    #detailContent td:first-child {
-        width: 85px !important; /* 모바일은 조금 더 작게 */
-        font-size: 0.8rem;
-    }
-    #detailContent td:not(:first-child) {
-        font-size: 0.8rem;
+    #detailContent th:first-child, #detailContent td:first-child {
+        width: 80px !important;
     }
 }
