@@ -136,10 +136,10 @@ function showDetail(name, district) {
             <table class="table table-sm table-bordered align-middle mb-0" style="font-size: 0.85rem; table-layout: fixed; width: 100%;">
                 <thead class="table-light">
                     <tr>
-                        <th style="width:40%">항목</th>
-                        <th style="width:20%" class="text-end">2025</th>
-                        <th style="width:20%" class="text-end">2024</th>
-                        <th style="width:20%" class="text-end">2023</th>
+                        <th>항목</th>
+                        <th class="text-end">2025</th>
+                        <th class="text-end">2024</th>
+                        <th class="text-end">2023</th>
                     </tr>
                 </thead>
                 <tbody>`;
