@@ -1,6 +1,25 @@
+// 1. 긴 항목명을 "자동차 등"으로 줄이고 툴팁 설정
+function formatItemType(type) {
+    const longName = "부동산에 관한 규정이 준용되는 권리와 자동차·건설기계·선박 및 항공기";
+    if (type && type.includes("부동산에 관한") && type.includes("자동차")) {
+        // data-bs-toggle을 추가하여 부트스트랩 툴팁이 인식하게 함
+        return `
+            <span>자동차 등</span>
+            <i class="bi bi-info-circle text-primary ms-1" 
+               style="cursor: help; font-size: 0.8rem;" 
+               data-bs-toggle="tooltip" 
+               data-bs-placement="top" 
+               title="${longName}"></i>
+        `;
+    }
+    return type || "";
+}
+
 window.onload = () => {
-    loadComponent('header-plugin', 'header.html');
-    loadComponent('footer-plugin', 'footer.html');
+    if (typeof loadComponent === 'function') {
+        loadComponent('header-plugin', 'header.html');
+        loadComponent('footer-plugin', 'footer.html');
+    }
     if (typeof sheetTabs !== 'undefined') {
         sheetTabs.forEach(tab => fetchTabData(tab));
     }
@@ -59,8 +78,60 @@ function renderRouter() {
     });
 }
 
+function showDetail(name, district) {
+    const personData = allRawData.filter(d => d.name === name && d.district === district && String(d.year) === "2025");
+    if (personData.length === 0) return;
+
+    const p = personData[0];
+    document.getElementById('detailModalLabel').innerHTML = `
+        <span class="fw-bold">${p.district} ${p.name}</span> 
+        <small class="text-muted" style="font-size: 0.8rem;">(${p.party}) 재산 상세</small>
+    `;
+
+    let html = `
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered align-middle mb-0" style="font-size: 0.85rem;">
+                <thead class="table-light">
+                    <tr><th>항목</th><th>상세내역</th><th class="text-end">금액(천원)</th></tr>
+                </thead>
+                <tbody>`;
+
+    personData.forEach(item => {
+        html += `
+            <tr>
+                <td class="bg-light fw-bold">${formatItemType(item.type)}</td>
+                <td><small class="text-muted">${item.description || '-'}</small></td>
+                <td class="text-end fw-bold">${item.value.toLocaleString()}</td>
+            </tr>`;
+    });
+    html += `</tbody></table></div>`;
+    document.getElementById('detailContent').innerHTML = html;
+
+    // --- 차트 및 툴팁 초기화 로직 ---
+    const modalEl = document.getElementById('detailModal');
+    
+    // 이전에 걸려있던 이벤트 리스너 제거 (중복 방지)
+    const newModalEl = modalEl.cloneNode(true);
+    modalEl.parentNode.replaceChild(newModalEl, modalEl);
+
+    const myModal = new bootstrap.Modal(newModalEl);
+
+    newModalEl.addEventListener('shown.bs.modal', function () {
+        // 1. 차트 그리기
+        if (typeof updateDetailChart === 'function') {
+            updateDetailChart(personData);
+        }
+        // 2. 부트스트랩 툴팁 활성화 (아이콘 마우스 오버용)
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+
+    myModal.show();
+}
+
 function updateHighlights(summaryArray) {
-    // 5등까지 정렬해서 자르기
     const topWealth = [...summaryArray].sort((a, b) => b.y2025 - a.y2025).slice(0, 5);
     const topGrowth = [...summaryArray].filter(a => a.y2024 > 0)
         .sort((a, b) => ((b.y2025 - b.y2024) / b.y2024) - ((a.y2025 - a.y2024) / a.y2024)).slice(0, 5);
@@ -70,17 +141,19 @@ function updateHighlights(summaryArray) {
     const fillList = (id, items, type) => {
         const container = document.getElementById(id);
         if (!container) return;
-        
         let html = "";
         items.forEach((item, idx) => {
             let valText = "";
             if (type === 'wealth') valText = (item.y2025 / 100000).toFixed(1) + "억";
-            else if (type === 'growth') valText = ((item.y2025 - item.y2024) / item.y2024 * 100).toFixed(0) + "%";
+            else if (type === 'growth') {
+                const growth = ((item.y2025 - item.y2024) / item.y2024 * 100);
+                valText = (growth > 0 ? '+' : '') + growth.toFixed(0) + "%";
+            }
             else if (type === 'land') valText = (item.land2025 / 100000).toFixed(1) + "억";
             else if (type === 'building') valText = (item.building2025 / 100000).toFixed(1) + "억";
 
             html += `
-                <div class="d-flex justify-content-between align-items-center py-1 border-bottom-dashed" 
+                <div class="d-flex justify-content-between align-items-center py-1 border-bottom" 
                      style="font-size: 0.8rem; cursor:pointer;" 
                      onclick="showDetail('${item.name}', '${item.district}')">
                     <span class="text-truncate" style="max-width: 100px;">
@@ -93,12 +166,10 @@ function updateHighlights(summaryArray) {
         });
         container.innerHTML = html;
     };
-
     fillList('max-wealth-list', topWealth, 'wealth');
     fillList('max-growth-list', topGrowth, 'growth');
     fillList('max-land-list', topLand, 'land');
     fillList('max-building-list', topBuilding, 'building');
-
     const section = document.getElementById('highlight-section');
     if (section) section.style.display = 'flex';
 }
