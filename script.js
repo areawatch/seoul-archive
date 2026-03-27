@@ -3,20 +3,35 @@ let currentFilter = "전체";
 // 1. 항목명 변환 및 툴팁 설정
 function formatItemType(type) {
     if (!type) return "";
+    
+    // 툴팁에 표시될 전체 문구 정의
     const longNameAutomobile = "부동산에 관한 규정이 준용되는 권리와 자동차·건설기계·선박 및 항공기";
     const longNameRefusal = "고지거부 및 등록제외사항";
     const longNameInvestment = "합명·합자·유한회사 출자지분";
-    const isAutomobile = /자동차|항공기|선박|건설기계/.test(type);
+    const longNameNonProfit = "비영리법인에 출연한 재산";
+
+    // 판별 로직 (단어 포함 여부 및 정확한 일치 여부 체크)
     
-    if (isAutomobile) {
+    // 1. 자동차 등 (자동차, 항공기, 선박, 건설기계 포함 시)
+    if (/자동차|항공기|선박|건설기계/.test(type)) {
         return `<span class="text-nowrap">자동차 등</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameAutomobile}"></i>`;
     }
+
+    // 2. 고지거부
     if (type.includes("고지거부")) {
         return `<span class="text-nowrap">고지거부</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameRefusal}"></i>`;
     }
+
+    // 3. 출자지분
     if (type.includes("출자지분") || type.includes("유한회사") || type.includes("합명")) {
         return `<span class="text-nowrap">출자지분</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameInvestment}"></i>`;
     }
+
+    // 4. 비영리법인 (단어 포함 혹은 항목명이 정확히 "재산"인 경우 대응)
+    if (type.includes("비영리법인") || type === "재산") {
+        return `<span class="text-nowrap">비영리</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameNonProfit}"></i>`;
+    }
+
     return type; 
 }
 
