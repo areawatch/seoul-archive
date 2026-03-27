@@ -1,21 +1,50 @@
 // 1. 항목명 변환 및 툴팁 설정
 function formatItemType(type) {
-    const names = {
-        automobile: { long: "부동산에 관한 규정이 준용되는 권리와 자동차·건설기계·선박 및 항공기", short: "자동차 등" },
-        refusal: { long: "고지거부 및 등록제외사항", short: "고지거부" },
-        investment: { long: "합명·합자·유한회사 출자지분", short: "출자지분" }
-    };
-    if (type) {
-        let matched = null;
-        if (type.includes("부동산에 관한") && type.includes("자동차")) matched = names.automobile;
-        else if (type.includes("고지거부")) matched = names.refusal;
-        else if (type.includes("합명") && (type.includes("출자지분") || type.includes("유한회사"))) matched = names.investment;
+    if (!type) return "";
 
-        if (matched) {
-            return `<span class="text-nowrap">${matched.short}</span><i class="bi bi-info-circle text-primary ms-1" style="cursor: help; font-size: 0.8rem;" data-bs-toggle="tooltip" data-bs-placement="top" title="${matched.long}"></i>`;
-        }
+    const longNameAutomobile = "부동산에 관한 규정이 준용되는 권리와 자동차·건설기계·선박 및 항공기";
+    const longNameRefusal = "고지거부 및 등록제외사항";
+    const longNameInvestment = "합명·합자·유한회사 출자지분";
+
+    // 자동차, 항공기, 선박, 건설기계 판별
+    const isAutomobile = /자동차|항공기|선박|건설기계/.test(type);
+    
+    if (isAutomobile) {
+        return `
+            <span class="text-nowrap">자동차 등</span>
+            <i class="bi bi-info-circle text-secondary ms-1" 
+               style="cursor: help; font-size: 0.8rem; opacity: 0.7;" 
+               data-bs-toggle="tooltip" 
+               data-bs-placement="top" 
+               title="${longNameAutomobile}"></i>
+        `;
     }
-    return type || "";
+    
+    // 고지거부 판별
+    if (type.includes("고지거부")) {
+        return `
+            <span class="text-nowrap">고지거부</span>
+            <i class="bi bi-info-circle text-secondary ms-1" 
+               style="cursor: help; font-size: 0.8rem; opacity: 0.7;" 
+               data-bs-toggle="tooltip" 
+               data-bs-placement="top" 
+               title="${longNameRefusal}"></i>
+        `;
+    }
+
+    // 출자지분 판별
+    if (type.includes("출자지분") || type.includes("유한회사") || type.includes("합명")) {
+        return `
+            <span class="text-nowrap">출자지분</span>
+            <i class="bi bi-info-circle text-secondary ms-1" 
+               style="cursor: help; font-size: 0.8rem; opacity: 0.7;" 
+               data-bs-toggle="tooltip" 
+               data-bs-placement="top" 
+               title="${longNameInvestment}"></i>
+        `;
+    }
+
+    return type; 
 }
 
 window.onload = () => {
@@ -34,7 +63,6 @@ function renderRouter() {
     const summaryArray = Object.values(allSummary);
     if (summaryArray.length === 0) return;
 
-    // [복구] 상단 하이라이트 카드 데이터 업데이트 및 섹션 표시
     updateHighlights(summaryArray);
 
     let listHtml = "";
@@ -121,7 +149,7 @@ function showDetail(name, district) {
         const row = tableSummary[type];
         html += `
             <tr>
-                <td class="bg-light fw-bold">${formatItemType(type)}</td>
+                <td class="bg-light fw-bold text-truncate">${formatItemType(type)}</td>
                 <td class="text-end fw-bold text-danger">${row.y26.toLocaleString()}</td>
                 <td class="text-end text-muted small">${row.y25.toLocaleString()}</td>
                 <td class="text-end text-muted small">${row.y24.toLocaleString()}</td>
@@ -140,6 +168,7 @@ function showDetail(name, district) {
                     </tr>
                 </tfoot>
             </table></div>`;
+            
     document.getElementById('detailContent').innerHTML = html;
 
     const modalEl = document.getElementById('detailModal');
@@ -152,7 +181,6 @@ function showDetail(name, district) {
 }
 
 function updateHighlights(summaryArray) {
-    // 2026년 데이터 기준으로 정렬
     const topWealth = [...summaryArray].sort((a, b) => (b.y2026||0) - (a.y2026||0)).slice(0, 5);
     const topGrowth = [...summaryArray].filter(a => (a.y2025||0) > 0)
         .sort((a, b) => ((b.y2026-b.y2025)/b.y2025) - ((a.y2026-a.y2025)/a.y2025)).slice(0, 5);
@@ -170,7 +198,6 @@ function updateHighlights(summaryArray) {
             else if (type === 'land') val = item.land2026 || 0;
             else if (type === 'building') val = item.building2026 || 0;
 
-            // 표시 텍스트 결정
             const valText = type === 'growth' ? (val > 0 ? '+' : '') + val.toFixed(0) + "%" : (val / 100000).toFixed(1) + "억";
             
             html += `
@@ -193,7 +220,6 @@ function updateHighlights(summaryArray) {
     fillList('max-land-list', topLand, 'land');
     fillList('max-building-list', topBuilding, 'building');
 
-    // 하이라이트 섹션 보이기
     const section = document.getElementById('highlight-section');
     if (section) section.style.display = 'flex';
 }
