@@ -4,37 +4,25 @@ let currentFilter = "전체";
 function formatItemType(type) {
     if (!type) return "";
     
-    // 툴팁에 표시될 전체 문구 정의
     const longNameAutomobile = "부동산에 관한 규정이 준용되는 권리와 자동차·건설기계·선박 및 항공기";
     const longNameRefusal = "고지거부 및 등록제외사항";
     const longNameInvestment = "합명·합자·유한회사 출자지분";
     const longNameNonProfit = "비영리법인에 출연한 재산";
-    const longNameGold = "금 및 백금";
+    const longNameGold = "금 및 백금"; 
 
-    // 판별 로직 (단어 포함 여부 및 정확한 일치 여부 체크)
-    
-    // 1. 자동차 등 (자동차, 항공기, 선박, 건설기계 포함 시)
     if (/자동차|항공기|선박|건설기계/.test(type)) {
         return `<span class="text-nowrap">자동차 등</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameAutomobile}"></i>`;
     }
-
-    // 2. 고지거부
     if (type.includes("고지거부")) {
         return `<span class="text-nowrap">고지거부</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameRefusal}"></i>`;
     }
-
-    // 3. 출자지분
     if (type.includes("출자지분") || type.includes("유한회사") || type.includes("합명")) {
         return `<span class="text-nowrap">출자지분</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameInvestment}"></i>`;
     }
-
-    // 4. 비영리법인 (단어 포함 혹은 항목명이 정확히 "재산"인 경우 대응)
     if (type.includes("비영리법인") || type === "재산") {
         return `<span class="text-nowrap">비영리</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameNonProfit}"></i>`;
     }
-
-    // 5. [수정] 금 (예금/적금은 제외하고 '금'이나 '백금'만 포함된 경우)
-    // '예금'이나 '적금'이라는 글자가 있으면 통과시키고, 그렇지 않으면서 '금'이나 '백금'이 있을 때만 실행
+    // 예금/적금은 제외하고 금/백금만 필터링
     if (!/예금|적금/.test(type) && (type.includes("금") || type.includes("백금"))) {
         return `<span class="text-nowrap">금</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameGold}"></i>`;
     }
@@ -52,7 +40,6 @@ window.onload = () => {
     }
 };
 
-// [개선] 직위 필터 함수 (전)구청장 등 포함 처리
 function filterPosition(pos) {
     currentFilter = pos;
     renderRouter();
@@ -65,14 +52,12 @@ function renderRouter() {
     let summaryArray = Object.values(allSummary);
     if (summaryArray.length === 0) return;
 
-    // [핵심] 필터 로직 개선: "구청장" 글자 포함 여부로 판별
     if (currentFilter === "구청장") {
         summaryArray = summaryArray.filter(item => item.position.includes("구청장"));
     } else if (currentFilter === "구의원") {
         summaryArray = summaryArray.filter(item => !item.position.includes("구청장"));
     }
 
-    // 상단 하이라이트 업데이트 (필터링된 데이터 기준)
     updateHighlights(summaryArray);
 
     let listHtml = "";
@@ -112,7 +97,6 @@ function renderRouter() {
             </tr>`;
     });
 
-    // 기존 테이블 파괴
     if ($.fn.DataTable.isDataTable('#analysisTable')) {
         $('#analysisTable').DataTable().clear().destroy();
     }
@@ -123,17 +107,15 @@ function renderRouter() {
     document.getElementById('list-section').style.display = 'block';
     if (document.getElementById('filter-section')) document.getElementById('filter-section').style.display = 'block';
 
-    // [스타일 보정] DataTable 재생성 시 autoWidth 옵션 조정
     $('#analysisTable').DataTable({
         "order": [[3, "desc"]],
         "pageLength": 25,
-        "autoWidth": false, // 너비 강제 고정 방지
+        "autoWidth": false,
         "responsive": true,
         "language": { "search": "검색:", "lengthMenu": "_MENU_ 개씩 보기" }
     });
 }
 
-// [나머지 showDetail, updateHighlights 함수는 이전과 동일하게 유지]
 function showDetail(name, district) {
     const allYearsData = allRawData.filter(d => d.name === name && d.district === district);
     if (allYearsData.length === 0) return;
@@ -152,7 +134,7 @@ function showDetail(name, district) {
     let html = `<div class="table-responsive"><table class="table table-sm table-bordered align-middle mb-0 custom-detail-table"><thead class="table-light"><tr><th style="width:85px">항목</th><th class="text-end">2026</th><th class="text-end">2025</th><th class="text-end">2024</th><th class="text-end">2023</th></tr></thead><tbody>`;
     Object.keys(tableSummary).forEach(type => {
         const row = tableSummary[type];
-        html += `<tr><td class="bg-light fw-bold text-truncate">${formatItemType(type)}</td><td class="text-end fw-bold text-danger">${row.y26.toLocaleString()}</td><td class="text-end text-muted small">${row.y25.toLocaleString()}</td><td class="text-end text-muted small">${row.y24.toLocaleString()}</td><td class="text-end text-muted small">${row.y23.toLocaleString()}</td></tr>`;
+        html += `<tr><td class="bg-light fw-bold" style="white-space: normal; min-width: 100px;">${formatItemType(type)}</td><td class="text-end fw-bold text-danger">${row.y26.toLocaleString()}</td><td class="text-end text-muted small">${row.y25.toLocaleString()}</td><td class="text-end text-muted small">${row.y24.toLocaleString()}</td><td class="text-end text-muted small">${row.y23.toLocaleString()}</td></tr>`;
     });
     html += `</tbody><tfoot style="border-top: 1px solid #dee2e6;"><tr class="fw-bold"><td class="text-center bg-light">총계</td><td class="text-end text-danger">${t26.toLocaleString()}</td><td class="text-end text-muted small">${t25.toLocaleString()}</td><td class="text-end text-muted small">${t24.toLocaleString()}</td><td class="text-end text-muted small">${t23.toLocaleString()}</td></tr></tfoot></table></div>`;
     document.getElementById('detailContent').innerHTML = html;
@@ -170,6 +152,7 @@ function updateHighlights(filteredArray) {
     const topGrowth = [...filteredArray].filter(a => (a.y2025||0) > 0).sort((a, b) => ((b.y2026-b.y2025)/b.y2025) - ((a.y2026-a.y2025)/a.y2025)).slice(0, 5);
     const topLand = [...filteredArray].sort((a, b) => (b.land2026||0) - (a.land2026||0)).slice(0, 5);
     const topBuilding = [...filteredArray].sort((a, b) => (b.building2026||0) - (a.building2026||0)).slice(0, 5);
+
     const fillList = (id, items, type) => {
         const container = document.getElementById(id);
         if (!container) return;
@@ -185,7 +168,17 @@ function updateHighlights(filteredArray) {
             else if (type === 'land') val = item.land2026 || 0;
             else if (type === 'building') val = item.building2026 || 0;
             const valText = type === 'growth' ? (val > 0 ? '+' : '') + val.toFixed(0) + "%" : (val / 100000).toFixed(1) + "억";
-            html += `<div class="d-flex justify-content-between align-items-center py-1 border-bottom" style="font-size: 0.8rem; cursor:pointer;" onclick="showDetail('${item.name}', '${item.district}')"><span class="text-truncate" style="max-width: 100px;"><span class="text-muted me-1">${idx + 1}.</span><span class="fw-bold text-dark">${item.name}</span><small class="text-muted">(${item.district.substring(0,2)})</small></span><span class="fw-bold text-danger">${valText}</span></div>`;
+            
+            // [수정] substring(0, 2)를 제거하여 (서대문구) 전체가 나오도록 변경
+            html += `
+                <div class="d-flex justify-content-between align-items-center py-1 border-bottom" style="font-size: 0.8rem; cursor:pointer;" onclick="showDetail('${item.name}', '${item.district}')">
+                    <span class="text-truncate" style="max-width: 110px;">
+                        <span class="text-muted me-1">${idx + 1}.</span>
+                        <span class="fw-bold text-dark">${item.name}</span>
+                        <small class="text-muted">(${item.district})</small>
+                    </span>
+                    <span class="fw-bold text-danger">${valText}</span>
+                </div>`;
         });
         container.innerHTML = html;
     };
