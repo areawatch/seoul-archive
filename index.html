@@ -51,6 +51,19 @@
             <p class="mt-2">데이터를 불러오는 중입니다...</p>
         </div>
 
+        <div id="filter-section" class="container mt-4 mb-2" style="display:none;">
+            <div class="btn-group" role="group" aria-label="직위 필터">
+                <input type="radio" class="btn-check" name="posFilter" id="btn-all" checked onclick="filterPosition('전체')">
+                <label class="btn btn-outline-secondary px-4" for="btn-all">전체</label>
+
+                <input type="radio" class="btn-check" name="posFilter" id="btn-head" onclick="filterPosition('구청장')">
+                <label class="btn btn-outline-secondary px-4" for="btn-head">구청장</label>
+
+                <input type="radio" class="btn-check" name="posFilter" id="btn-member" onclick="filterPosition('구의원')">
+                <label class="btn btn-outline-secondary px-4" for="btn-member">구의원</label>
+            </div>
+        </div>
+
         <div id="list-section" style="display: none;">
             <div class="table-responsive">
                 <table id="analysisTable" class="table table-hover align-middle">
