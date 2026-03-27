@@ -1,16 +1,36 @@
-// 1. 긴 항목명을 "자동차 등"으로 줄이고 툴팁 설정
+// 1. 항목명 변환 및 툴팁 설정
 function formatItemType(type) {
-    const longName = "부동산에 관한 규정이 준용되는 권리와 자동차·건설기계·선박 및 항공기";
-    if (type && type.includes("부동산에 관한") && type.includes("자동차")) {
-        // data-bs-toggle을 추가하여 부트스트랩 툴팁이 인식하게 함
-        return `
-            <span>자동차 등</span>
-            <i class="bi bi-info-circle text-primary ms-1" 
-               style="cursor: help; font-size: 0.8rem;" 
-               data-bs-toggle="tooltip" 
-               data-bs-placement="top" 
-               title="${longName}"></i>
-        `;
+    const names = {
+        automobile: {
+            long: "부동산에 관한 규정이 준용되는 권리와 자동차·건설기계·선박 및 항공기",
+            short: "자동차 등"
+        },
+        refusal: {
+            long: "고지거부 및 등록제외사항",
+            short: "고지거부"
+        },
+        investment: {
+            long: "합명·합자·유한회사 출자지분",
+            short: "출자지분"
+        }
+    };
+
+    if (type) {
+        let matched = null;
+        if (type.includes("부동산에 관한") && type.includes("자동차")) matched = names.automobile;
+        else if (type.includes("고지거부")) matched = names.refusal;
+        else if (type.includes("합명") && (type.includes("출자지분") || type.includes("유한회사"))) matched = names.investment;
+
+        if (matched) {
+            return `
+                <span class="text-nowrap">${matched.short}</span>
+                <i class="bi bi-info-circle text-primary ms-1" 
+                   style="cursor: help; font-size: 0.8rem;" 
+                   data-bs-toggle="tooltip" 
+                   data-bs-placement="top" 
+                   title="${matched.long}"></i>
+            `;
+        }
     }
     return type || "";
 }
@@ -79,54 +99,88 @@ function renderRouter() {
 }
 
 function showDetail(name, district) {
-    const personData = allRawData.filter(d => d.name === name && d.district === district && String(d.year) === "2025");
-    if (personData.length === 0) return;
+    const allYearsData = allRawData.filter(d => d.name === name && d.district === district);
+    if (allYearsData.length === 0) return;
 
-    const p = personData[0];
+    const tableSummary = {};
+    let total25 = 0, total24 = 0, total23 = 0;
+    
+    allYearsData.forEach(item => {
+        const type = item.type;
+        if (!tableSummary[type]) {
+            tableSummary[type] = { y25: 0, y24: 0, y23: 0 };
+        }
+        if (String(item.year) === "2025") {
+            tableSummary[type].y25 += item.value;
+            total25 += item.value;
+        }
+        else if (String(item.year) === "2024") {
+            tableSummary[type].y24 += item.value;
+            total24 += item.value;
+        }
+        else if (String(item.year) === "2023") {
+            tableSummary[type].y23 += item.value;
+            total23 += item.value;
+        }
+    });
+
+    const p = allYearsData[0];
     document.getElementById('detailModalLabel').innerHTML = `
         <span class="fw-bold">${p.district} ${p.name}</span> 
         <small class="text-muted" style="font-size: 0.8rem;">(${p.party}) 재산 상세</small>
     `;
 
+    // 너비 조정: 항목(40%) + 연도별 3개(각 20%) = 100%
     let html = `
         <div class="table-responsive">
-            <table class="table table-sm table-bordered align-middle mb-0" style="font-size: 0.85rem;">
+            <table class="table table-sm table-bordered align-middle mb-0" style="font-size: 0.85rem; table-layout: fixed; width: 100%;">
                 <thead class="table-light">
-                    <tr><th>항목</th><th>상세내역</th><th class="text-end">금액(천원)</th></tr>
+                    <tr>
+                        <th style="width:40%">항목</th>
+                        <th style="width:20%" class="text-end">2025</th>
+                        <th style="width:20%" class="text-end">2024</th>
+                        <th style="width:20%" class="text-end">2023</th>
+                    </tr>
                 </thead>
                 <tbody>`;
 
-    personData.forEach(item => {
+    Object.keys(tableSummary).forEach(type => {
+        const row = tableSummary[type];
         html += `
             <tr>
-                <td class="bg-light fw-bold">${formatItemType(item.type)}</td>
-                <td><small class="text-muted">${item.description || '-'}</small></td>
-                <td class="text-end fw-bold">${item.value.toLocaleString()}</td>
+                <td class="bg-light fw-bold text-truncate">${formatItemType(type)}</td>
+                <td class="text-end fw-bold text-primary">${row.y25.toLocaleString()}</td>
+                <td class="text-end text-muted small">${row.y24.toLocaleString()}</td>
+                <td class="text-end text-muted small">${row.y23.toLocaleString()}</td>
             </tr>`;
     });
-    html += `</tbody></table></div>`;
+
+    html += `</tbody>
+                <tfoot style="border-top: 1px solid #dee2e6;">
+                    <tr class="fw-bold">
+                        <td class="text-center bg-light">총계</td>
+                        <td class="text-end text-primary">${total25.toLocaleString()}</td>
+                        <td class="text-end text-muted small">${total24.toLocaleString()}</td>
+                        <td class="text-end text-muted small">${total23.toLocaleString()}</td>
+                    </tr>
+                </tfoot>
+            </table></div>`;
+            
     document.getElementById('detailContent').innerHTML = html;
 
-    // --- 차트 및 툴팁 초기화 로직 ---
     const modalEl = document.getElementById('detailModal');
-    
-    // 이전에 걸려있던 이벤트 리스너 제거 (중복 방지)
-    const newModalEl = modalEl.cloneNode(true);
-    modalEl.parentNode.replaceChild(newModalEl, modalEl);
+    let myModal = bootstrap.Modal.getOrCreateInstance(modalEl);
 
-    const myModal = new bootstrap.Modal(newModalEl);
-
-    newModalEl.addEventListener('shown.bs.modal', function () {
-        // 1. 차트 그리기
+    modalEl.addEventListener('shown.bs.modal', function () {
         if (typeof updateDetailChart === 'function') {
-            updateDetailChart(personData);
+            updateDetailChart(allYearsData);
         }
-        // 2. 부트스트랩 툴팁 활성화 (아이콘 마우스 오버용)
+        
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
-    });
+    }, { once: true });
 
     myModal.show();
 }
