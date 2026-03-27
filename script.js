@@ -9,6 +9,7 @@ function formatItemType(type) {
     const longNameRefusal = "고지거부 및 등록제외사항";
     const longNameInvestment = "합명·합자·유한회사 출자지분";
     const longNameNonProfit = "비영리법인에 출연한 재산";
+    const longNameGold = "금 및 백금";
 
     // 판별 로직 (단어 포함 여부 및 정확한 일치 여부 체크)
     
@@ -30,6 +31,12 @@ function formatItemType(type) {
     // 4. 비영리법인 (단어 포함 혹은 항목명이 정확히 "재산"인 경우 대응)
     if (type.includes("비영리법인") || type === "재산") {
         return `<span class="text-nowrap">비영리</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameNonProfit}"></i>`;
+    }
+
+    // 5. [수정] 금 (예금/적금은 제외하고 '금'이나 '백금'만 포함된 경우)
+    // '예금'이나 '적금'이라는 글자가 있으면 통과시키고, 그렇지 않으면서 '금'이나 '백금'이 있을 때만 실행
+    if (!/예금|적금/.test(type) && (type.includes("금") || type.includes("백금"))) {
+        return `<span class="text-nowrap">금</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameGold}"></i>`;
     }
 
     return type; 
