@@ -13,7 +13,7 @@ function formatItemType(type) {
     if (/자동차|항공기|선박|건설기계/.test(type)) {
         return `<span class="text-nowrap">자동차 등</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameAutomobile}"></i>`;
     }
-    if (type.includes("고지거부")) {
+    if (type.includes("고지거부") || type.includes("등록제외")) {
         return `<span class="text-nowrap">고지거부</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameRefusal}"></i>`;
     }
     if (type.includes("출자지분") || type.includes("유한회사") || type.includes("합명")) {
