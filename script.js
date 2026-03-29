@@ -22,7 +22,7 @@ function formatItemType(type) {
     if (type.includes("비영리법인") || type === "재산") {
         return `<span class="text-nowrap">비영리</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameNonProfit}"></i>`;
     }
-    if (!/예금|적금/.test(type) && (type.includes("금") || type.includes("백금"))) {
+    if (!/예금|적금|현금/.test(type) && (type.includes("금") || type.includes("백금"))) {
         return `<span class="text-nowrap">금</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameGold}"></i>`;
     }
 
