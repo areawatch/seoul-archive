@@ -22,7 +22,6 @@ function formatItemType(type) {
     if (type.includes("비영리법인") || type === "재산") {
         return `<span class="text-nowrap">비영리</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameNonProfit}"></i>`;
     }
-    // 예금/적금은 제외하고 금/백금만 필터링
     if (!/예금|적금/.test(type) && (type.includes("금") || type.includes("백금"))) {
         return `<span class="text-nowrap">금</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameGold}"></i>`;
     }
@@ -119,25 +118,86 @@ function renderRouter() {
 function showDetail(name, district) {
     const allYearsData = allRawData.filter(d => d.name === name && d.district === district);
     if (allYearsData.length === 0) return;
+
     const tableSummary = {};
     let t26=0, t25=0, t24=0, t23=0;
+
     allYearsData.forEach(item => {
         const type = item.type;
-        if (!tableSummary[type]) tableSummary[type] = { y26:0, y25:0, y24:0, y23:0 };
+        if (!tableSummary[type]) {
+            tableSummary[type] = { 
+                y26:0, y25:0, y24:0, y23:0, 
+                n26:"", n25:"", n24:"", n23:"" 
+            };
+        }
         const yr = String(item.year);
-        if (yr === "2026") { tableSummary[type].y26 += item.value; t26 += item.value; }
-        else if (yr === "2025") { tableSummary[type].y25 += item.value; t25 += item.value; }
-        else if (yr === "2024") { tableSummary[type].y24 += item.value; t24 += item.value; }
-        else if (yr === "2023") { tableSummary[type].y23 += item.value; t23 += item.value; }
+        const val = item.value;
+        const note = (item.note && item.note.trim() !== "") ? item.note : "";
+
+        if (yr === "2026") { tableSummary[type].y26 += val; t26 += val; tableSummary[type].n26 = note; }
+        else if (yr === "2025") { tableSummary[type].y25 += val; t25 += val; tableSummary[type].n25 = note; }
+        else if (yr === "2024") { tableSummary[type].y24 += val; t24 += val; tableSummary[type].n24 = note; }
+        else if (yr === "2023") { tableSummary[type].y23 += val; t23 += val; tableSummary[type].n23 = note; }
     });
+
     document.getElementById('detailModalLabel').innerHTML = `<span class="fw-bold">${allYearsData[0].district} ${name}</span> 상세`;
-    let html = `<div class="table-responsive"><table class="table table-sm table-bordered align-middle mb-0 custom-detail-table"><thead class="table-light"><tr><th style="width:85px">항목</th><th class="text-end">2026</th><th class="text-end">2025</th><th class="text-end">2024</th><th class="text-end">2023</th></tr></thead><tbody>`;
+
+    // [수정] 아이콘 색상을 #555555로 변경하고 숫자 왼쪽에 배치
+    const getNoteIcon = (note) => {
+        if (!note) return "";
+        return `<i class="bi bi-chat-left-dots me-1" style="cursor: help; font-size: 0.7rem; color: #555555; opacity: 0.8;" data-bs-toggle="tooltip" data-bs-placement="top" title="${note}"></i>`;
+    };
+
+    let html = `
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered align-middle mb-0 custom-detail-table">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:85px">항목</th>
+                        <th class="text-end">2026</th>
+                        <th class="text-end">2025</th>
+                        <th class="text-end">2024</th>
+                        <th class="text-end">2023</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
     Object.keys(tableSummary).forEach(type => {
         const row = tableSummary[type];
-        html += `<tr><td class="bg-light fw-bold" style="white-space: normal; min-width: 100px;">${formatItemType(type)}</td><td class="text-end fw-bold text-danger">${row.y26.toLocaleString()}</td><td class="text-end text-muted small">${row.y25.toLocaleString()}</td><td class="text-end text-muted small">${row.y24.toLocaleString()}</td><td class="text-end text-muted small">${row.y23.toLocaleString()}</td></tr>`;
+        html += `
+            <tr>
+                <td class="bg-light fw-bold" style="white-space: normal; min-width: 100px;">
+                    ${formatItemType(type)}
+                </td>
+                <td class="text-end fw-bold text-danger">
+                    ${getNoteIcon(row.n26)}${row.y26.toLocaleString()}
+                </td>
+                <td class="text-end text-muted small">
+                    ${getNoteIcon(row.n25)}${row.y25.toLocaleString()}
+                </td>
+                <td class="text-end text-muted small">
+                    ${getNoteIcon(row.n24)}${row.y24.toLocaleString()}
+                </td>
+                <td class="text-end text-muted small">
+                    ${getNoteIcon(row.n23)}${row.y23.toLocaleString()}
+                </td>
+            </tr>`;
     });
-    html += `</tbody><tfoot style="border-top: 1px solid #dee2e6;"><tr class="fw-bold"><td class="text-center bg-light">총계</td><td class="text-end text-danger">${t26.toLocaleString()}</td><td class="text-end text-muted small">${t25.toLocaleString()}</td><td class="text-end text-muted small">${t24.toLocaleString()}</td><td class="text-end text-muted small">${t23.toLocaleString()}</td></tr></tfoot></table></div>`;
+
+    html += `</tbody>
+                <tfoot style="border-top: 1px solid #dee2e6;">
+                    <tr class="fw-bold">
+                        <td class="text-center bg-light">총계</td>
+                        <td class="text-end text-danger">${t26.toLocaleString()}</td>
+                        <td class="text-end text-muted small">${t25.toLocaleString()}</td>
+                        <td class="text-end text-muted small">${t24.toLocaleString()}</td>
+                        <td class="text-end text-muted small">${t23.toLocaleString()}</td>
+                    </tr>
+                </tfoot>
+            </table></div>`;
+            
     document.getElementById('detailContent').innerHTML = html;
+
     const modalEl = document.getElementById('detailModal');
     let myModal = bootstrap.Modal.getOrCreateInstance(modalEl);
     modalEl.addEventListener('shown.bs.modal', function () {
@@ -169,10 +229,9 @@ function updateHighlights(filteredArray) {
             else if (type === 'building') val = item.building2026 || 0;
             const valText = type === 'growth' ? (val > 0 ? '+' : '') + val.toFixed(0) + "%" : (val / 100000).toFixed(1) + "억";
             
-            // [수정] substring(0, 2)를 제거하여 (서대문구) 전체가 나오도록 변경
             html += `
                 <div class="d-flex justify-content-between align-items-center py-1 border-bottom" style="font-size: 0.8rem; cursor:pointer;" onclick="showDetail('${item.name}', '${item.district}')">
-                    <span class="text-truncate" style="max-width: 110px;">
+                    <span class="text-truncate" style="max-width: 125px;">
                         <span class="text-muted me-1">${idx + 1}.</span>
                         <span class="fw-bold text-dark">${item.name}</span>
                         <small class="text-muted">(${item.district})</small>

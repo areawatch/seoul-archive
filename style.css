@@ -15,7 +15,7 @@ body {
 
 /* 내비게이션 바 */
 .navbar { padding: 10px 0; }
-.navbar-brand { font-size: 1.4rem; letter-spacing: -1px; color: #0d6efd !important; }
+.navbar-brand { font-size: 1.4rem; letter-spacing: -1px; color: #ffffff !important; }
 
 /* 카드 공통 스타일 */
 .card { 
