@@ -45,14 +45,19 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card h-100 p-4 stat-card shadow-sm">
-                        <div class="text-muted small mb-2">전년 대비 평균 증감</div>
-                        <h2 class="fw-bold text-primary"><span id="avg-diff-total">0</span></h2>
-                        <p class="mb-0 text-secondary small">
-                            구청장 <span id="mayor-avg-diff">0</span> / 구의원 <span id="member-avg-diff">0</span>
+                    <div class="card h-100 p-4 stat-card shadow-sm border-0" style="background: linear-gradient(145deg, #ffffff, #f8f9fa);">
+                        <div class="text-muted small mb-2">공직자 평균 부동산 자산</div>
+                        <h2 class="fw-bold text-dark" style="letter-spacing: -1px;">
+                            <span id="avg-real-estate">0</span>
+                        </h2>
+                        <p class="mb-0 mt-2">
+                            <span class="badge bg-warning text-dark">분석 결과</span> 
+                            <span class="small text-secondary d-block mt-1">
+                                서울 시민 평균보다 <b id="re-ratio" class="text-dark">0.0</b>배 많음
+                            </span>
                         </p>
                     </div>
-                </div>
+                </div>  
             </div>
         </div>
     </main>
@@ -60,20 +65,29 @@
     <div id="footer-plugin"></div>
 
     <script>
+        // 기준값: 서울 시민 가구당 평균 부동산 자산 (5억 5천만 원 설정)
+        const SEOUL_AVG_RE_MAN = 55000;
+
         async function loadComponent(id, file) {
             try {
                 const response = await fetch(file);
+                if (!response.ok) return;
                 const data = await response.text();
                 const container = document.getElementById(id);
-                if (container) { container.innerHTML = data; }
-            } catch (err) { console.error(err); }
+                if (container) {
+                    container.innerHTML = data;
+                    if (id === 'header-plugin') {
+                        const nav = container.querySelector('nav');
+                        if (nav) { nav.classList.remove('mb-4'); nav.classList.add('mb-0'); }
+                    }
+                }
+            } catch (err) { console.error(file + " 로드 실패:", err); }
         }
 
-        // ✨ 한국식 단위 변환 (글씨 크기 동일 버전)
-        function formatKoreanUnit(val) {
-            if (val === 0) return "0만";
-            const sign = val < 0 ? "-" : "";
-            let absVal = Math.abs(Math.round(val));
+        function formatKoreanUnit(manValue) {
+            if (manValue === 0) return "0만";
+            const sign = manValue < 0 ? "-" : "";
+            let absVal = Math.abs(Math.round(manValue));
             
             const jo = Math.floor(absVal / 100000000); 
             const eok = Math.floor((absVal % 100000000) / 10000);
@@ -109,46 +123,61 @@
 
         function renderStats(allData) {
             const data = Object.values(allData);
-            const mayors = data.filter(i => i.position && i.position.includes("구청장"));
-            const members = data.filter(i => i.position && !i.position.includes("구청장"));
+            
+            // 2026년 데이터가 있는 현직자만 필터링
+            const activeData = data.filter(i => Number(i.y2026) > 0);
+            const activeMayors = activeData.filter(i => i.position && i.position.includes("구청장"));
+            const activeMembers = activeData.filter(i => i.position && !i.position.includes("구청장"));
 
             const duration = 1500;
+            const toMan = (cheon) => cheon / 10;
 
-            // 1. 인원
+            // 1. 인원수 반영
             animateValue("total-count", 0, data.length, duration);
-            document.getElementById('mayor-count').innerText = mayors.length;
-            document.getElementById('member-count').innerText = members.length;
+            document.getElementById('mayor-count').innerText = data.filter(i => i.position.includes("구청장")).length;
+            document.getElementById('member-count').innerText = data.filter(i => !i.position.includes("구청장")).length;
 
             // 2. 재산 총합
-            const sumMayor = mayors.reduce((acc, cur) => acc + (Number(cur.y2026) || 0), 0);
-            const sumMember = members.reduce((acc, cur) => acc + (Number(cur.y2026) || 0), 0);
+            const sumMayorCheon = activeMayors.reduce((acc, cur) => acc + (Number(cur.y2026) || 0), 0);
+            const sumMemberCheon = activeMembers.reduce((acc, cur) => acc + (Number(cur.y2026) || 0), 0);
+            const sumTotalMan = toMan(sumMayorCheon + sumMemberCheon);
             
-            animateValue("total-wealth", 0, sumMayor + sumMember, duration, true);
-            document.getElementById('mayor-total').innerHTML = formatKoreanUnit(sumMayor);
-            document.getElementById('member-total').innerHTML = formatKoreanUnit(sumMember);
+            animateValue("total-wealth", 0, sumTotalMan, duration, true);
+            document.getElementById('mayor-total').innerHTML = formatKoreanUnit(toMan(sumMayorCheon));
+            document.getElementById('member-total').innerHTML = formatKoreanUnit(toMan(sumMemberCheon));
 
-            // 3. 평균 증감
-            const getAvg = (arr) => {
-                const valid = arr.filter(i => Number(i.y2025) > 0);
-                return valid.length === 0 ? 0 : valid.reduce((acc, cur) => acc + (Number(cur.y2026) - Number(cur.y2025)), 0) / valid.length;
+            // 3. 평균 부동산 자산 계산 (토지 + 건물)
+            const getAvgRealEstateMan = (arr) => {
+                if (arr.length === 0) return 0;
+                const totalRECheon = arr.reduce((acc, cur) => {
+                    return acc + (Number(cur.land2026) || 0) + (Number(cur.building2026) || 0);
+                }, 0);
+                return toMan(totalRECheon / arr.length);
             };
-            const diffTotal = getAvg(data);
-            const diffMayor = getAvg(mayors);
-            const diffMember = getAvg(members);
 
-            animateValue("avg-diff-total", 0, diffTotal, duration, true, diffTotal > 0 ? "+" : "");
-            document.getElementById('mayor-avg-diff').innerHTML = (diffMayor > 0 ? "+" : "") + formatKoreanUnit(diffMayor);
-            document.getElementById('member-avg-diff').innerHTML = (diffMember > 0 ? "+" : "") + formatKoreanUnit(diffMember);
+            const avgREMan = getAvgRealEstateMan(activeData);
+            
+            // 배수 계산 (예: 공직자 평균 13억 / 서울시민 5.5억 = 약 2.4배)
+            const ratio = (avgREMan / SEOUL_AVG_RE_MAN).toFixed(1);
+
+            // 애니메이션 실행
+            animateValue("avg-real-estate", 0, avgREMan, duration, true);
+            document.getElementById('re-ratio').innerText = ratio;
         }
 
         async function init() {
-            loadComponent('header-plugin', 'header.html');
-            loadComponent('footer-plugin', 'footer.html');
+            await loadComponent('header-plugin', 'header.html');
+            await loadComponent('footer-plugin', 'footer.html');
+
             try {
                 const response = await fetch('data.json?v=' + Date.now());
+                if (!response.ok) throw new Error("JSON 파일을 찾을 수 없습니다.");
                 const data = await response.json();
+                console.log("✅ 데이터 로드 성공");
                 renderStats(data);
-            } catch (err) { console.error(err); }
+            } catch (err) { 
+                console.error("데이터 초기화 에러:", err); 
+            }
         }
 
         window.addEventListener('DOMContentLoaded', init);
