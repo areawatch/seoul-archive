@@ -90,3 +90,15 @@ function checkAllLoaded() {
         if (typeof renderRouter === 'function') renderRouter();
     }
 }
+
+function checkAllLoaded() {
+    loadedCount++;
+    if (loadedCount === sheetTabs.length) {
+        console.log("✅ 모든 시트 데이터 로드 완료!");
+        
+        // 데이터 로드 완료 후, 현재 페이지에 renderRouter 함수가 있다면 실행시킵니다.
+        if (typeof renderRouter === 'function') {
+            renderRouter();
+        }
+    }
+}
