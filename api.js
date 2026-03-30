@@ -1,4 +1,4 @@
-// api.js - 데이터 정확도 보정 및 M열(비고) 추출 추가
+// api.js - 데이터 정확도 보정, M열(비고) 추출 및 토지/건물 합산 복구
 
 let allRawData = [];
 let allSummary = {};
@@ -15,7 +15,7 @@ async function fetchTabData(tab) {
         rows.forEach(row => {
             if (!row.trim()) return;
 
-            // [수정] 빈 열(,,)을 정확히 인식하기 위한 파싱 로직
+            // 빈 열(,,)을 정확히 인식하기 위한 파싱 로직
             const columns = [];
             let curr = "";
             let inQuotes = false;
@@ -29,7 +29,7 @@ async function fetchTabData(tab) {
                     curr += char;
                 }
             }
-            columns.push(curr.trim()); // 마지막 열 추가
+            columns.push(curr.trim()); 
 
             if (columns.length < 11) return;
 
@@ -41,9 +41,9 @@ async function fetchTabData(tab) {
                 position: clean(columns[3]),    // D열 (직위)
                 name: clean(columns[4]),        // E열 (성명)
                 party: clean(columns[5]),       // F열 (소속정당)
-                type: clean(columns[6]),        // G열 (재산대분류 - 실제 항목명)
+                type: clean(columns[6]),        // G열 (재산대분류)
                 value: parseInt(clean(columns[10]).replace(/[^0-9-]/g, "")) || 0, // K열 (현재가액)
-                note: clean(columns[12])        // M열 (비고1) - 인덱스 12 고정
+                note: clean(columns[12])        // M열 (비고)
             };
 
             allRawData.push(item);
@@ -54,16 +54,28 @@ async function fetchTabData(tab) {
                     district: item.district, name: item.name,
                     position: item.position, party: item.party,
                     y2026: 0, y2025: 0, y2024: 0, y2023: 0,
-                    land2026: 0, building2026: 0
+                    land2026: 0, building2026: 0 // 초기값 설정
                 };
             }
 
             const val = item.value;
             const yr = String(item.year);
+            
+            // 1. 연도별 전체 재산 합산
             if (yr === "2026") allSummary[key].y2026 += val;
             else if (yr === "2025") allSummary[key].y2025 += val;
             else if (yr === "2024") allSummary[key].y2024 += val;
             else if (yr === "2023") allSummary[key].y2023 += val;
+
+            // 2. [복구 완료] 상단 TOP5용 토지/건물 개별 합산 (2026년 기준)
+            if (yr === "2026") {
+                if (item.type.includes("토지")) {
+                    allSummary[key].land2026 += val;
+                }
+                if (item.type.includes("건물")) {
+                    allSummary[key].building2026 += val;
+                }
+            }
         });
         checkAllLoaded();
     } catch (error) {
