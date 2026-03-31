@@ -71,6 +71,7 @@ function renderRouter() {
     updateHighlights(summaryArray);
 
     let listHtml = "";
+    const orderVal = (rate) => (rate === null || Number.isNaN(rate)) ? -1e15 : rate;
     summaryArray.forEach(item => {
         const v26 = item.y2026 || 0;
         const v25 = item.y2025 || 0;
@@ -90,17 +91,17 @@ function renderRouter() {
                     <span class="badge ms-1" style="background-color:${pColor}; font-size: 0.6rem;">${item.party}</span>
                 </td>
                 <td class="text-end fw-bold text-danger">${v26.toLocaleString()}</td>
-                <td class="text-center">
+                <td class="text-center" data-order="${orderVal(r2526)}" data-sort="${orderVal(r2526)}">
                     <small class="fw-bold ${r2526 > 0 ? 'text-danger' : 'text-primary'}">
                         ${r2526 !== null ? (r2526 > 0 ? '+' : '') + r2526.toFixed(1) + '%' : '-'}
                     </small>
                 </td>
                 <td class="text-end text-muted small">${v25.toLocaleString()}</td>
-                <td class="text-center">
+                <td class="text-center" data-order="${orderVal(r2425)}" data-sort="${orderVal(r2425)}">
                     <small class="text-muted">${r2425 !== null ? (r2425 > 0 ? '+' : '') + r2425.toFixed(1) + '%' : '-'}</small>
                 </td>
                 <td class="text-end text-muted small">${v24.toLocaleString()}</td>
-                <td class="text-center">
+                <td class="text-center" data-order="${orderVal(r2324)}" data-sort="${orderVal(r2324)}">
                     <small class="text-muted">${r2324 !== null ? (r2324 > 0 ? '+' : '') + r2324.toFixed(1) + '%' : '-'}</small>
                 </td>
                 <td class="text-end text-muted small">${v23.toLocaleString()}</td>
@@ -119,6 +120,9 @@ function renderRouter() {
 
     $('#analysisTable').DataTable({
         "order": [[3, "desc"]],
+        "columnDefs": [
+            { "targets": [4, 6, 8], "type": "num" }
+        ],
         "pageLength": 25,
         "autoWidth": false,
         "responsive": true,
