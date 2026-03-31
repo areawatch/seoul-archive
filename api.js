@@ -4,6 +4,11 @@ let allRawData = [];
 let allSummary = {};
 let loadedCount = 0;
 
+function isDebtType(type) {
+    if (!type) return false;
+    return /채무|부채/.test(String(type));
+}
+
 async function fetchTabData(tab) {
     const url = `https://docs.google.com/spreadsheets/d/e/${sheetKey}/pub?gid=${tab.gid}&output=csv`;
     
@@ -60,12 +65,13 @@ async function fetchTabData(tab) {
 
             const val = item.value;
             const yr = String(item.year);
+            const signedVal = isDebtType(item.type) ? -val : val;
             
             // 1. 연도별 전체 재산 합산
-            if (yr === "2026") allSummary[key].y2026 += val;
-            else if (yr === "2025") allSummary[key].y2025 += val;
-            else if (yr === "2024") allSummary[key].y2024 += val;
-            else if (yr === "2023") allSummary[key].y2023 += val;
+            if (yr === "2026") allSummary[key].y2026 += signedVal;
+            else if (yr === "2025") allSummary[key].y2025 += signedVal;
+            else if (yr === "2024") allSummary[key].y2024 += signedVal;
+            else if (yr === "2023") allSummary[key].y2023 += signedVal;
 
             // 2. [복구 완료] 상단 TOP5용 토지/건물 개별 합산 (2026년 기준)
             if (yr === "2026") {

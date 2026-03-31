@@ -29,6 +29,17 @@ function formatItemType(type) {
     return type; 
 }
 
+function isDebtType(type) {
+    if (!type) return false;
+    return /채무|부채/.test(String(type));
+}
+
+function formatSignedByType(type, value) {
+    const v = Number(value) || 0;
+    if (isDebtType(type)) return "-" + Math.abs(v).toLocaleString();
+    return v.toLocaleString();
+}
+
 window.onload = () => {
     if (typeof loadComponent === 'function') {
         loadComponent('header-plugin', 'header.html');
@@ -132,15 +143,23 @@ function showDetail(name, district) {
         }
         const yr = String(item.year);
         const val = item.value;
+        const signedVal = isDebtType(type) ? -val : val;
         const note = (item.note && item.note.trim() !== "") ? item.note : "";
 
-        if (yr === "2026") { tableSummary[type].y26 += val; t26 += val; tableSummary[type].n26 = note; }
-        else if (yr === "2025") { tableSummary[type].y25 += val; t25 += val; tableSummary[type].n25 = note; }
-        else if (yr === "2024") { tableSummary[type].y24 += val; t24 += val; tableSummary[type].n24 = note; }
-        else if (yr === "2023") { tableSummary[type].y23 += val; t23 += val; tableSummary[type].n23 = note; }
+        if (yr === "2026") { tableSummary[type].y26 += val; t26 += signedVal; tableSummary[type].n26 = note; }
+        else if (yr === "2025") { tableSummary[type].y25 += val; t25 += signedVal; tableSummary[type].n25 = note; }
+        else if (yr === "2024") { tableSummary[type].y24 += val; t24 += signedVal; tableSummary[type].n24 = note; }
+        else if (yr === "2023") { tableSummary[type].y23 += val; t23 += signedVal; tableSummary[type].n23 = note; }
     });
 
-    document.getElementById('detailModalLabel').innerHTML = `<span class="fw-bold">${allYearsData[0].district} ${name}</span> 상세`;
+    const posText = (allYearsData[0].position || "").trim();
+    const partyText = (allYearsData[0].party || "").trim();
+    const titleMain = [allYearsData[0].district, posText, name].filter(Boolean).join(" ");
+    const partyColor = (typeof partyColors !== 'undefined' && partyColors[partyText]) ? partyColors[partyText] : "#666";
+    const partyBadge = partyText
+        ? `<span class="badge ms-2 align-middle" style="background-color:${partyColor}; font-size: 0.75rem;">${partyText}</span>`
+        : "";
+    document.getElementById('detailModalLabel').innerHTML = `<span class="fw-bold">${titleMain}</span>${partyBadge}`;
 
     // [수정] 아이콘 색상을 #555555로 변경하고 숫자 왼쪽에 배치
     const getNoteIcon = (note) => {
@@ -170,16 +189,16 @@ function showDetail(name, district) {
                     ${formatItemType(type)}
                 </td>
                 <td class="text-end fw-bold text-danger">
-                    ${getNoteIcon(row.n26)}${row.y26.toLocaleString()}
+                    ${getNoteIcon(row.n26)}${formatSignedByType(type, row.y26)}
                 </td>
                 <td class="text-end text-muted small">
-                    ${getNoteIcon(row.n25)}${row.y25.toLocaleString()}
+                    ${getNoteIcon(row.n25)}${formatSignedByType(type, row.y25)}
                 </td>
                 <td class="text-end text-muted small">
-                    ${getNoteIcon(row.n24)}${row.y24.toLocaleString()}
+                    ${getNoteIcon(row.n24)}${formatSignedByType(type, row.y24)}
                 </td>
                 <td class="text-end text-muted small">
-                    ${getNoteIcon(row.n23)}${row.y23.toLocaleString()}
+                    ${getNoteIcon(row.n23)}${formatSignedByType(type, row.y23)}
                 </td>
             </tr>`;
     });
@@ -228,13 +247,20 @@ function updateHighlights(filteredArray) {
             else if (type === 'land') val = item.land2026 || 0;
             else if (type === 'building') val = item.building2026 || 0;
             const valText = type === 'growth' ? (val > 0 ? '+' : '') + val.toFixed(0) + "%" : (val / 100000).toFixed(1) + "억";
+            const posText = (item.position || "").trim();
+            const partyText = (item.party || "").trim();
+            const partyColor = (typeof partyColors !== 'undefined' && partyColors[partyText]) ? partyColors[partyText] : "#666";
+            const partyBadge = partyText
+                ? `<span class="badge ms-1 align-middle" style="background-color:${partyColor}; font-size: 0.6rem;">${partyText}</span>`
+                : "";
             
             html += `
                 <div class="d-flex justify-content-between align-items-center py-1 border-bottom" style="font-size: 0.8rem; cursor:pointer;" onclick="showDetail('${item.name}', '${item.district}')">
-                    <span class="text-truncate" style="max-width: 125px;">
+                    <span class="text-truncate" style="max-width: 200px;">
                         <span class="text-muted me-1">${idx + 1}.</span>
                         <span class="fw-bold text-dark">${item.name}</span>
-                        <small class="text-muted">(${item.district})</small>
+                        <small class="text-muted ms-1">${item.district}${posText ? " " + posText : ""}</small>
+                        ${partyBadge}
                     </span>
                     <span class="fw-bold text-danger">${valText}</span>
                 </div>`;

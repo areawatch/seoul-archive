@@ -19,7 +19,9 @@ function updateDetailChart(allPersonData) {
     allPersonData.forEach(d => {
         const yr = String(d.year);
         if (yearlyTotals.hasOwnProperty(yr)) {
-            yearlyTotals[yr] += (Number(d.value) || 0);
+            const raw = (Number(d.value) || 0);
+            const signed = /채무|부채/.test(String(d.type || "")) ? -raw : raw;
+            yearlyTotals[yr] += signed;
         }
     });
 

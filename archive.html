@@ -17,7 +17,11 @@
     <div id="header-plugin"></div>
 
     <div class="container mt-4">
-        <h2 class="mb-4 fw-bold">의원 재산 목록</h2>
+        <div class="d-flex align-items-end justify-content-between mb-2">
+            <h2 class="mb-0 fw-bold">의원 재산 목록</h2>
+            <small class="text-muted">단위: 천원</small>
+        </div>
+        <div class="text-muted small mb-3">* 채무(부채)는 총계 산정 시 감산 처리됩니다.</div>
 
         <div id="highlight-section" class="row mb-4" style="display: none;">
             <div class="col-md-3 mb-3">
@@ -72,13 +76,13 @@
                             <th>자치구</th>
                             <th>직위</th>
                             <th>성명</th>
-                            <th class="text-end">2026년</th>
+                            <th class="text-end">2026년 (천원)</th>
                             <th class="text-center">증감율</th>
-                            <th class="text-end">2025년</th>
+                            <th class="text-end">2025년 (천원)</th>
                             <th class="text-center">증감율</th>
-                            <th class="text-end">2024년</th>
+                            <th class="text-end">2024년 (천원)</th>
                             <th class="text-center">증감율</th>
-                            <th class="text-end">2023년</th>
+                            <th class="text-end">2023년 (천원)</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
@@ -101,6 +105,7 @@
                     <div class="mb-4" style="height: 250px;">
                         <canvas id="detailChart"></canvas>
                     </div>
+                    <div class="text-muted small mb-2">단위: 천원 (채무/부채는 총계에서 감산)</div>
                     <div id="detailContent"></div>
                 </div>
                 <div class="modal-footer">
