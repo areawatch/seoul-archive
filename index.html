@@ -128,8 +128,36 @@
         </div>
     </main>
 
+    <section class="data-spotlight py-5" style="background-color: #f8f9fa;" aria-labelledby="spotlight-heading">
+        <div class="container">
+            <h2 id="spotlight-heading" class="h4 fw-bold text-center mb-2">데이터 스포트라이트</h2>
+            <p class="text-center text-muted small mb-4">Data Spotlight</p>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="d-flex gap-3 align-items-start h-100">
+                        <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                        <p class="mb-0 spotlight-text lh-lg" id="spotlight-council">데이터를 불러오는 중입니다.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="d-flex gap-3 align-items-start h-100">
+                        <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                        <p class="mb-0 spotlight-text lh-lg" id="spotlight-party">데이터를 불러오는 중입니다.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="d-flex gap-3 align-items-start h-100">
+                        <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                        <p class="mb-0 spotlight-text lh-lg" id="spotlight-highfin">데이터를 불러오는 중입니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <div id="footer-plugin"></div>
 
+    <script src="config.js"></script>
     <script>
         async function loadComponent(id, file) {
             try {
@@ -215,6 +243,156 @@
             return toMan(sumCheon / count);
         }
 
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        /** formatKoreanUnit 결과에 만 단위 뒤 '원' 부착 (예: 18억 2598만원) */
+        function formatKoreanWonFromMan(manRounded) {
+            const base = formatKoreanUnit(Math.round(manRounded));
+            if (base === "0조 0억 0만") return "0원";
+            return base.endsWith("만") ? base + "원" : base;
+        }
+
+        /** 정당명과 괄호 안 금액을 config.js partyColors와 동일 색으로 */
+        function partyNameAndAmountColored(name, amountWonText) {
+            const fallback = "#212529";
+            const hex =
+                typeof partyColors !== "undefined" && partyColors[name] ? partyColors[name] : fallback;
+            return (
+                '<strong style="color:' +
+                escapeHtml(hex) +
+                ';font-weight:700">' +
+                escapeHtml(name) +
+                "(" +
+                escapeHtml(amountWonText) +
+                ")</strong>"
+            );
+        }
+
+        function financeCheonPerson(p) {
+            return (Number(p.cash2026) || 0) + (Number(p.deposit2026) || 0) + (Number(p.stock2026) || 0);
+        }
+
+        function realEstateCheonPerson(p) {
+            return (Number(p.land2026) || 0) + (Number(p.building2026) || 0);
+        }
+
+        // activeData = 2026년 신고액(y2026)이 0보다 큰 인원
+        function renderDataSpotlight(activeAll) {
+            const elCouncil = document.getElementById("spotlight-council");
+            const elParty = document.getElementById("spotlight-party");
+            const elHigh = document.getElementById("spotlight-highfin");
+            if (!elCouncil || !elParty || !elHigh) return;
+
+            const em = (s) => `<strong class="spotlight-em">${s}</strong>`;
+
+            // ① 구의원(직위 정확히 "구의원") 지역별 재산 집중도
+            const councilOnly = activeAll.filter((p) => p.position === "구의원");
+            if (councilOnly.length === 0) {
+                elCouncil.textContent =
+                    "2026년 신고액이 있는 현직 구의원 데이터가 없어 이 항목을 계산할 수 없습니다.";
+            } else {
+                const byDistrict = {};
+                councilOnly.forEach((p) => {
+                    const d = (p.district || "미상").trim() || "미상";
+                    byDistrict[d] = (byDistrict[d] || 0) + (Number(p.y2026) || 0);
+                });
+                const totalCouncil = Object.values(byDistrict).reduce((a, b) => a + b, 0);
+                const sorted = Object.entries(byDistrict)
+                    .map(([d, s]) => ({
+                        d,
+                        s,
+                        pct: totalCouncil > 0 ? (s / totalCouncil) * 100 : 0
+                    }))
+                    .sort((a, b) => b.s - a.s || a.d.localeCompare(b.d, "ko"));
+                const top3 = sorted.slice(0, 3);
+                const top3Html = top3
+                    .map(({ d, pct }) => em(escapeHtml(d) + "(" + pct.toFixed(1) + "%)"))
+                    .join(",");
+                const top3Sum = top3.reduce((acc, x) => acc + x.s, 0);
+                const combinedPct =
+                    totalCouncil > 0 ? ((top3Sum / totalCouncil) * 100).toFixed(1) : "0.0";
+                elCouncil.innerHTML =
+                    "재산 총액이 가장 많은 곳은 " +
+                    top3Html +
+                    " 순서이며, 전체 재산의 " +
+                    em(combinedPct + "%") +
+                    "를 차지합니다.(구의원 기준)";
+            }
+
+            // ② 정당별 평균 재산 순위
+            const byParty = {};
+            activeAll.forEach((p) => {
+                const party = (p.party || "").trim();
+                if (!party) return;
+                if (!byParty[party]) byParty[party] = { sum: 0, n: 0 };
+                byParty[party].sum += Number(p.y2026) || 0;
+                byParty[party].n += 1;
+            });
+            const ranked = Object.entries(byParty)
+                .map(([name, { sum, n }]) => ({
+                    name,
+                    avgCheon: sum / n
+                }))
+                .sort((a, b) => b.avgCheon - a.avgCheon);
+
+            if (ranked.length === 0) {
+                elParty.textContent =
+                    "소속 정당 정보가 있는 신고 데이터가 없어 이 항목을 계산할 수 없습니다.";
+            } else if (ranked.length === 1) {
+                const a = ranked[0];
+                const amt = formatKoreanWonFromMan(toMan(a.avgCheon));
+                elParty.innerHTML =
+                    "정당별 평균액수가 가장 큰 곳은 " +
+                    partyNameAndAmountColored(a.name, amt) +
+                    "입니다.";
+            } else {
+                const a = ranked[0];
+                const b = ranked[1];
+                const avgMan1 = toMan(a.avgCheon);
+                const avgMan2 = toMan(b.avgCheon);
+                const amtA = formatKoreanWonFromMan(avgMan1);
+                const amtB = formatKoreanWonFromMan(avgMan2);
+                let pctHigher = "0.0";
+                if (avgMan2 > 0) {
+                    pctHigher = (((avgMan1 - avgMan2) / avgMan2) * 100).toFixed(1);
+                } else if (avgMan1 > 0) {
+                    pctHigher = "—";
+                }
+                elParty.innerHTML =
+                    "정당별 평균액수가 가장 큰 곳은 " +
+                    partyNameAndAmountColored(a.name, amtA) +
+                    "이며, 다음인 " +
+                    partyNameAndAmountColored(b.name, amtB) +
+                    "에 비해 " +
+                    em(pctHigher === "—" ? "—" : pctHigher + "%") +
+                    " 높습니다.";
+            }
+
+            // ③ 금융 ≥10억·부동산 ≥30억 (1억=100,000천원, chart.js와 동일)
+            const CHEON_PER_EOK = 100000;
+            const fin10eokCheon = 10 * CHEON_PER_EOK;
+            const re30eokCheon = 30 * CHEON_PER_EOK;
+            const highFinCount = activeAll.filter((p) => financeCheonPerson(p) >= fin10eokCheon).length;
+            const highReCount = activeAll.filter((p) => realEstateCheonPerson(p) >= re30eokCheon).length;
+            const thr = (t) => '<strong class="spotlight-threshold">' + t + "</strong>";
+            elHigh.innerHTML =
+                "금융자산(현금·예금·증권)을 " +
+                thr("10억원 이상") +
+                " 보유한 공직자는 총 " +
+                em(String(highFinCount)) +
+                "명이고, 부동산(토지+건물)을 " +
+                thr("30억 이상") +
+                " 보유한 공직자는 " +
+                em(String(highReCount)) +
+                "명입니다.";
+        }
+
         function renderStats(allData) {
             const data = Object.values(allData);
             const mayorAll = data.filter(isMayor);
@@ -276,6 +454,8 @@
                 animateValue(`${p.prefix}-total-member`, 0, totalManMember, duration, true);
                 animateValue(`${p.prefix}-avg-member`, 0, avgMember, duration, true);
             });
+
+            renderDataSpotlight(activeAll);
         }
 
         async function init() {

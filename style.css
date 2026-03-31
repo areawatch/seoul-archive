@@ -68,6 +68,26 @@ h1 {
     margin-right: auto;
 }
 
+.data-spotlight .spotlight-check {
+    color: #ee2f51;
+    font-size: 1.25rem;
+}
+
+.data-spotlight .spotlight-text {
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.data-spotlight .spotlight-em {
+    color: #001066;
+    font-weight: 700;
+}
+
+.data-spotlight .spotlight-threshold {
+    color: #ee2f51;
+    font-weight: 700;
+}
+
 .stat-triple .stat-value-line {
     font-size: 0.95rem;
     line-height: 1.35;
