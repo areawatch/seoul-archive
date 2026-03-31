@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "generate:data": "node scripts/generate-data.mjs"
+    "generate:data": "node scripts/generate-data.mjs",
+    "build": "exit 0"
   }
 }
 
