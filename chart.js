@@ -61,10 +61,13 @@ function updateDetailChart(allPersonData) {
                     min: 0, // [요청사항] y축 최소값 0 고정
                     ticks: {
                         callback: function(value) {
-                            if (value >= 1000000) {
-                                return (value / 1000000).toFixed(1) + '십억';
+                            // value 단위: 천원
+                            // 1억 원 = 100,000(천원)
+                            const v = Number(value) || 0;
+                            if (v >= 100000) {
+                                return (v / 100000).toFixed(1) + '억';
                             }
-                            return value.toLocaleString() + '원';
+                            return v.toLocaleString() + '천원';
                         },
                         font: { size: 10 }
                     },
@@ -81,7 +84,9 @@ function updateDetailChart(allPersonData) {
                     backgroundColor: 'rgba(0,0,0,0.8)',
                     callbacks: {
                         label: function(context) {
-                            return ' 총액: ' + context.parsed.y.toLocaleString() + ' 천원';
+                            const v = Number(context.parsed.y) || 0;
+                            const pretty = v >= 100000 ? (v / 100000).toFixed(2) + '억' : v.toLocaleString() + '천원';
+                            return ' 총액: ' + pretty;
                         }
                     }
                 }
