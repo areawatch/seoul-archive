@@ -36,8 +36,9 @@ async function fetchTabData(tab) {
             }
             columns.push(curr.trim()); 
 
-            // K열(현재가액)=10, M열(비고1)=12, N열(비고2)=13 사용
-            if (columns.length < 14) return;
+            // 필수: K열(현재가액)=10 까지는 있어야 함
+            // M/N(비고1/2)은 비어있을 수 있어 columns 길이가 짧아도 스킵하면 안 됨
+            if (columns.length < 11) return;
 
             const clean = (val) => val ? val.replace(/^"|"$/g, "").trim() : "";
 

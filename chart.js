@@ -64,6 +64,7 @@ function updateDetailChart(allPersonData) {
                             // value 단위: 천원
                             // 1억 원 = 100,000(천원)
                             const v = Number(value) || 0;
+                            if (v === 0) return '0';
                             if (v >= 100000) {
                                 return (v / 100000).toFixed(1) + '억';
                             }
