@@ -61,14 +61,10 @@ function updateDetailChart(allPersonData) {
                     min: 0, // [요청사항] y축 최소값 0 고정
                     ticks: {
                         callback: function(value) {
-                            // value 단위: 천원
-                            // 1억 원 = 100,000(천원)
+                            // value 단위: 천원. 1억 원 = 100,000(천원) → 축은 전 구간 '억'으로 통일
                             const v = Number(value) || 0;
                             if (v === 0) return '0';
-                            if (v >= 100000) {
-                                return (v / 100000).toFixed(1) + '억';
-                            }
-                            return v.toLocaleString() + '천원';
+                            return (v / 100000).toFixed(1) + '억';
                         },
                         font: { size: 10 }
                     },
@@ -86,7 +82,7 @@ function updateDetailChart(allPersonData) {
                     callbacks: {
                         label: function(context) {
                             const v = Number(context.parsed.y) || 0;
-                            const pretty = v >= 100000 ? (v / 100000).toFixed(2) + '억' : v.toLocaleString() + '천원';
+                            const pretty = v === 0 ? '0' : (v / 100000).toFixed(2) + '억';
                             return ' 총액: ' + pretty;
                         }
                     }
