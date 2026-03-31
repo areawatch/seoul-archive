@@ -36,7 +36,8 @@ async function fetchTabData(tab) {
             }
             columns.push(curr.trim()); 
 
-            if (columns.length < 11) return;
+            // K열(현재가액)=10, M열(비고1)=12, N열(비고2)=13 사용
+            if (columns.length < 14) return;
 
             const clean = (val) => val ? val.replace(/^"|"$/g, "").trim() : "";
 
@@ -48,7 +49,8 @@ async function fetchTabData(tab) {
                 party: clean(columns[5]),       // F열 (소속정당)
                 type: clean(columns[6]),        // G열 (재산대분류)
                 value: parseInt(clean(columns[10]).replace(/[^0-9-]/g, "")) || 0, // K열 (현재가액)
-                note: clean(columns[12])        // M열 (비고)
+                note: clean(columns[12]),       // M열 (비고1)
+                note2: clean(columns[13])       // N열 (비고2)
             };
 
             allRawData.push(item);

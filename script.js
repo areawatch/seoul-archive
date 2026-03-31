@@ -138,18 +138,20 @@ function showDetail(name, district) {
         if (!tableSummary[type]) {
             tableSummary[type] = { 
                 y26:0, y25:0, y24:0, y23:0, 
-                n26:"", n25:"", n24:"", n23:"" 
+                n26:"", n25:"", n24:"", n23:"",
+                n26_2:"", n25_2:"", n24_2:"", n23_2:""
             };
         }
         const yr = String(item.year);
         const val = item.value;
         const signedVal = isDebtType(type) ? -val : val;
         const note = (item.note && item.note.trim() !== "") ? item.note : "";
+        const note2 = (item.note2 && item.note2.trim() !== "") ? item.note2 : "";
 
-        if (yr === "2026") { tableSummary[type].y26 += val; t26 += signedVal; tableSummary[type].n26 = note; }
-        else if (yr === "2025") { tableSummary[type].y25 += val; t25 += signedVal; tableSummary[type].n25 = note; }
-        else if (yr === "2024") { tableSummary[type].y24 += val; t24 += signedVal; tableSummary[type].n24 = note; }
-        else if (yr === "2023") { tableSummary[type].y23 += val; t23 += signedVal; tableSummary[type].n23 = note; }
+        if (yr === "2026") { tableSummary[type].y26 += val; t26 += signedVal; tableSummary[type].n26 = note; tableSummary[type].n26_2 = note2; }
+        else if (yr === "2025") { tableSummary[type].y25 += val; t25 += signedVal; tableSummary[type].n25 = note; tableSummary[type].n25_2 = note2; }
+        else if (yr === "2024") { tableSummary[type].y24 += val; t24 += signedVal; tableSummary[type].n24 = note; tableSummary[type].n24_2 = note2; }
+        else if (yr === "2023") { tableSummary[type].y23 += val; t23 += signedVal; tableSummary[type].n23 = note; tableSummary[type].n23_2 = note2; }
     });
 
     const posText = (allYearsData[0].position || "").trim();
@@ -161,10 +163,24 @@ function showDetail(name, district) {
         : "";
     document.getElementById('detailModalLabel').innerHTML = `<span class="fw-bold">${titleMain}</span>${partyBadge}`;
 
-    // [수정] 아이콘 색상을 #555555로 변경하고 숫자 왼쪽에 배치
-    const getNoteIcon = (note) => {
-        if (!note) return "";
-        return `<i class="bi bi-chat-left-dots me-1" style="cursor: help; font-size: 0.7rem; color: #555555; opacity: 0.8;" data-bs-toggle="tooltip" data-bs-placement="top" title="${note}"></i>`;
+    const escapeAttr = (s) => String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
+    // 비고1: 말풍선 / 비고2: ❗ 강조 아이콘
+    const getNoteIcons = (note1, note2) => {
+        const a = note1 ? escapeAttr(note1) : "";
+        const b = note2 ? escapeAttr(note2) : "";
+        const icon1 = a
+            ? `<i class="bi bi-chat-left-dots me-1" style="cursor: help; font-size: 0.7rem; color: #555555; opacity: 0.85;" data-bs-toggle="tooltip" data-bs-placement="top" title="${a}"></i>`
+            : "";
+        const icon2 = b
+            ? `<i class="bi bi-exclamation-circle-fill me-1" style="cursor: help; font-size: 0.75rem; color: #dc3545; opacity: 0.95;" data-bs-toggle="tooltip" data-bs-placement="top" title="❗ ${b}"></i>`
+            : "";
+        return icon2 + icon1;
     };
 
     let html = `
@@ -189,16 +205,16 @@ function showDetail(name, district) {
                     ${formatItemType(type)}
                 </td>
                 <td class="text-end fw-bold text-danger">
-                    ${getNoteIcon(row.n26)}${formatSignedByType(type, row.y26)}
+                    ${getNoteIcons(row.n26, row.n26_2)}${formatSignedByType(type, row.y26)}
                 </td>
                 <td class="text-end text-muted small">
-                    ${getNoteIcon(row.n25)}${formatSignedByType(type, row.y25)}
+                    ${getNoteIcons(row.n25, row.n25_2)}${formatSignedByType(type, row.y25)}
                 </td>
                 <td class="text-end text-muted small">
-                    ${getNoteIcon(row.n24)}${formatSignedByType(type, row.y24)}
+                    ${getNoteIcons(row.n24, row.n24_2)}${formatSignedByType(type, row.y24)}
                 </td>
                 <td class="text-end text-muted small">
-                    ${getNoteIcon(row.n23)}${formatSignedByType(type, row.y23)}
+                    ${getNoteIcons(row.n23, row.n23_2)}${formatSignedByType(type, row.y23)}
                 </td>
             </tr>`;
     });
