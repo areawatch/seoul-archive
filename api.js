@@ -4,6 +4,55 @@ let allRawData = [];
 let allSummary = {};
 let loadedCount = 0;
 
+async function loadArchiveDataFromJson() {
+    const cacheBuster = Date.now();
+    const [summaryRes, detailRes] = await Promise.all([
+        fetch(`data.json?v=${cacheBuster}`),
+        fetch(`detail.json?v=${cacheBuster}`)
+    ]);
+
+    if (!summaryRes.ok) throw new Error("data.json 로드 실패");
+    if (!detailRes.ok) throw new Error("detail.json 로드 실패");
+
+    const summaryData = await summaryRes.json();
+    const detailData = await detailRes.json();
+
+    allSummary = summaryData || {};
+    const raw = [];
+
+    // detail.json -> showDetail/chart.js가 기대하는 allRawData 배열 형태로 변환
+    Object.keys(detailData || {}).forEach(personKey => {
+        const person = detailData[personKey];
+        if (!person || !person.types) return;
+
+        const district = person.district || "";
+        const name = person.name || "";
+        const position = person.position || "";
+        const party = person.party || "";
+
+        Object.keys(person.types).forEach(type => {
+            const byYear = person.types[type] || {};
+            Object.keys(byYear).forEach(yr => {
+                const rec = byYear[yr] || {};
+                const valueRaw = Number(rec.valueRaw) || 0;
+                raw.push({
+                    year: String(yr),
+                    district,
+                    position,
+                    party,
+                    name,
+                    type,
+                    value: valueRaw, // 원본 K열 값(천원)
+                    note: rec.note1 || "",
+                    note2: rec.note2 || ""
+                });
+            });
+        });
+    });
+
+    allRawData = raw;
+}
+
 function isDebtType(type) {
     if (!type) return false;
     return /채무|부채/.test(String(type));

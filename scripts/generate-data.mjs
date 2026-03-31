@@ -80,6 +80,7 @@ async function fetchTabCsv(tab) {
 
 async function main() {
   const allSummary = {};
+  const detail = {};
 
   for (const tab of sheetTabs) {
     const csv = await fetchTabCsv(tab);
@@ -99,7 +100,9 @@ async function main() {
         name: clean(columns[4]), // E열 (성명)
         party: clean(columns[5]), // F열 (소속정당)
         type: clean(columns[6]), // G열 (재산대분류)
-        value: parseValueToInt(columns[10]) // K열 (현재가액)
+        value: parseValueToInt(columns[10]), // K열 (현재가액)
+        note1: clean(columns[12]), // M열 (비고1)
+        note2: clean(columns[13]) // N열 (비고2)
       };
 
       if (!item.district || !item.name) continue;
@@ -124,6 +127,36 @@ async function main() {
         if (!allSummary[key].party && item.party) allSummary[key].party = item.party;
       }
 
+      // ---- detail.json (모달 상세용) ----
+      if (!detail[key]) {
+        detail[key] = {
+          district: item.district,
+          name: item.name,
+          position: item.position,
+          party: item.party,
+          types: {}
+        };
+      } else {
+        // prefer non-empty meta if any tab had blanks
+        if (!detail[key].position && item.position) detail[key].position = item.position;
+        if (!detail[key].party && item.party) detail[key].party = item.party;
+      }
+
+      const typeKey = item.type || "";
+      const yearKey = item.year || "";
+      if (typeKey && yearKey) {
+        if (!detail[key].types[typeKey]) detail[key].types[typeKey] = {};
+        if (!detail[key].types[typeKey][yearKey]) {
+          detail[key].types[typeKey][yearKey] = { valueRaw: 0, note1: "", note2: "" };
+        }
+
+        // 값은 원본(K열) 그대로 누적
+        detail[key].types[typeKey][yearKey].valueRaw += item.value;
+        // 비고는 현재 UI처럼 "마지막 값 덮어쓰기"와 동일하게 맞춤
+        detail[key].types[typeKey][yearKey].note1 = item.note1 || "";
+        detail[key].types[typeKey][yearKey].note2 = item.note2 || "";
+      }
+
       const yr = String(item.year);
       const signedVal = isDebtType(item.type) ? -item.value : item.value;
       if (yr === "2026") allSummary[key].y2026 += signedVal;
@@ -143,6 +176,12 @@ async function main() {
   const sorted = Object.fromEntries(Object.entries(allSummary).sort((a, b) => a[0].localeCompare(b[0], "ko")));
   await fs.writeFile("data.json", JSON.stringify(sorted, null, 2) + "\n", "utf8");
   console.log(`✅ data.json generated (${Object.keys(sorted).length} people)`);
+
+  const sortedDetail = Object.fromEntries(
+    Object.entries(detail).sort((a, b) => a[0].localeCompare(b[0], "ko"))
+  );
+  await fs.writeFile("detail.json", JSON.stringify(sortedDetail, null, 2) + "\n", "utf8");
+  console.log(`✅ detail.json generated (${Object.keys(sortedDetail).length} people)`);
 }
 
 main().catch((err) => {

@@ -45,7 +45,22 @@ window.onload = () => {
         loadComponent('header-plugin', 'header.html');
         loadComponent('footer-plugin', 'footer.html');
     }
-    if (typeof sheetTabs !== 'undefined') {
+    if (typeof loadArchiveDataFromJson === 'function') {
+        // data.json/detail.json 기반으로 1회 로드 후 라우터 렌더
+        loadArchiveDataFromJson()
+            .then(() => renderRouter())
+            .catch(err => {
+                console.error("데이터 로드 실패:", err);
+                // detail.json이 아직 없거나 로드 실패하면 (구형 동작) CSV 로드로 폴백
+                if (typeof sheetTabs !== 'undefined' && typeof fetchTabData === 'function') {
+                    sheetTabs.forEach(tab => fetchTabData(tab));
+                } else {
+                    const loadingEl = document.getElementById('loading');
+                    if (loadingEl) loadingEl.style.display = 'none';
+                }
+            });
+    } else if (typeof sheetTabs !== 'undefined') {
+        // (구형 동작) CSV fetch 방식
         sheetTabs.forEach(tab => fetchTabData(tab));
     }
 };
