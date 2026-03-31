@@ -1,0 +1,12 @@
+# Workers 정적 자산 업로드 시 제외 (assets.directory 가 루트일 때 필수)
+# wrangler deploy 시 설치되는 node_modules(내장 workerd ~116MB 등)가 올라가면 빌드 실패
+node_modules
+.wrangler/
+.git/
+.github/
+scripts/
+.vscode/
+*.log
+.env
+.env.*
+.DS_Store
