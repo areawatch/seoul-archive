@@ -15,48 +15,115 @@
     <section class="hero-section">
         <div class="container text-center">
             <h1 class="display-4 fw-bold mb-3 hero-title">내 동네 공직자의 재산,<br><strong>얼마나 변했을까요?</strong></h1>
-            <p class="lead mb-4 text-secondary" style="opacity: 0.8;">서울시 구청장 및 구의원 450여 명의 4개년 재산 데이터를 한눈에 확인하세요.</p>
+            <p class="small text-white-50 mb-4 px-2 hero-meta">
+                서울시 <span id="hero-district-count">25</span>개 자치구 구청장 <span id="hero-mayor-count">0</span>명,
+                구의원 <span id="hero-member-count">0</span>명의 재산을 분석 중입니다. (전/현직 포함)
+            </p>
             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                <a href="archive.html" class="btn btn-primary btn-lg px-4 gap-3 shadow-sm">재산 목록 바로가기</a>
+                <a href="archive.html" class="btn btn-primary btn-sm px-4 py-2 shadow-sm fw-bold d-inline-flex align-items-center gap-2" style="font-size: 0.875rem;">
+                    <i class="bi bi-list-ul" aria-hidden="true"></i>
+                    재산 목록 바로가기
+                </a>
             </div>
         </div>
     </section>
 
     <main class="py-5">
         <div class="container">
-            <div class="row g-4 mb-5 text-center">
-                <div class="col-md-4">
-                    <div class="card h-100 p-4 stat-card shadow-sm">
-                        <div class="text-muted small mb-2">데이터 분석 규모</div>
-                        <h2 class="fw-bold"><span id="total-count">0</span>명</h2>
-                        <p class="mb-0 text-secondary small">
-                            구청장(전현직 포함) <span id="mayor-count">0</span>명 + 구의원(전현직 포함) <span id="member-count">0</span>명
-                        </p>
+            <div class="row g-4 mb-5 justify-content-center">
+                <!-- 카드 1: 2026년 재산 총액 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 stat-card shadow-sm border-0" style="border-top: 4px solid #ee2f51 !important;">
+                        <div class="card-body p-4">
+                            <div class="fs-6 fw-bold text-secondary mb-3 text-center">2026년 재산 총액 및 1인당 평균</div>
+                            <div class="row g-0 text-center stat-triple">
+                                <div class="col-4 border-end">
+                                    <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;letter-spacing:0.02em;">전체</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">총액</div>
+                                    <div class="fw-bold text-danger mb-2 stat-value-line" id="c1-total-all">0</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">평균</div>
+                                    <div class="fw-semibold small" id="c1-avg-all">0</div>
+                                </div>
+                                <div class="col-4 border-end">
+                                    <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;">구청장</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line" id="c1-total-mayor">0</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">평균</div>
+                                    <div class="fw-semibold small" id="c1-avg-mayor">0</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;">구의원</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line" id="c1-total-member">0</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">평균</div>
+                                    <div class="fw-semibold small" id="c1-avg-member">0</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card h-100 p-4 stat-card shadow-sm">
-                        <div class="text-muted small mb-2">2026년 재산 총합</div>
-                        <h2 class="fw-bold text-danger"><span id="total-wealth">0</span></h2>
-                        <p class="mb-0 text-secondary small">
-                            구청장 <span id="mayor-total">0</span> / 구의원 <span id="member-total">0</span>
-                        </p>
+                <!-- 카드 2: 부동산 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 stat-card shadow-sm border-0" style="border-top: 4px solid #001066 !important;">
+                        <div class="card-body p-4">
+                            <div class="fs-6 fw-bold text-secondary mb-3 text-center">부동산(토지+건물) 총액 및 1인당 평균</div>
+                            <div class="row g-0 text-center stat-triple">
+                                <div class="col-4 border-end">
+                                    <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;">전체</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">총액</div>
+                                    <div class="fw-bold text-danger mb-2 stat-value-line" id="c2-total-all">0</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">평균</div>
+                                    <div class="fw-semibold small" id="c2-avg-all">0</div>
+                                </div>
+                                <div class="col-4 border-end">
+                                    <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;">구청장</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line" id="c2-total-mayor">0</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">평균</div>
+                                    <div class="fw-semibold small" id="c2-avg-mayor">0</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;">구의원</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line" id="c2-total-member">0</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">평균</div>
+                                    <div class="fw-semibold small" id="c2-avg-member">0</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card h-100 p-4 stat-card shadow-sm border-0" style="background: linear-gradient(145deg, #ffffff, #f8f9fa);">
-                        <div class="text-muted small mb-2">공직자 평균 부동산 자산</div>
-                        <h2 class="fw-bold text-dark" style="letter-spacing: -1px;">
-                            <span id="avg-real-estate">0</span>
-                        </h2>
-                        <p class="mb-0 mt-2">
-                            <span class="badge bg-warning text-dark">분석 결과</span> 
-                            <span class="small text-secondary d-block mt-1">
-                                서울 시민 평균보다 <b id="re-ratio" class="text-dark">0.0</b>배 많음
-                            </span>
-                        </p>
+                <!-- 카드 3: 금융자산 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 stat-card shadow-sm border-0" style="border-top: 4px solid #40127e !important;">
+                        <div class="card-body p-4">
+                            <div class="fs-6 fw-bold text-secondary mb-3 text-center">금융자산(현금·예금·증권) 총액 및 평균</div>
+                            <div class="row g-0 text-center stat-triple">
+                                <div class="col-4 border-end">
+                                    <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;">전체</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">총액</div>
+                                    <div class="fw-bold text-danger mb-2 stat-value-line" id="c3-total-all">0</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">평균</div>
+                                    <div class="fw-semibold small" id="c3-avg-all">0</div>
+                                </div>
+                                <div class="col-4 border-end">
+                                    <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;">구청장</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line" id="c3-total-mayor">0</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">평균</div>
+                                    <div class="fw-semibold small" id="c3-avg-mayor">0</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;">구의원</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line" id="c3-total-member">0</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">평균</div>
+                                    <div class="fw-semibold small" id="c3-avg-member">0</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>  
+                </div>
             </div>
         </div>
     </main>
@@ -64,9 +131,6 @@
     <div id="footer-plugin"></div>
 
     <script>
-        // 기준값: 서울 시민 가구당 평균 부동산 자산 (5억 5천만 원 설정)
-        const SEOUL_AVG_RE_MAN = 55000;
-
         async function loadComponent(id, file) {
             try {
                 const response = await fetch(file);
@@ -83,20 +147,18 @@
             } catch (err) { console.error(file + " 로드 실패:", err); }
         }
 
+        /** 만원 기준 → 조·억·만 (0은 0조 0억 0만) */
         function formatKoreanUnit(manValue) {
-            if (manValue === 0) return "0만";
+            if (manValue === 0) return "0조 0억 0만";
             const sign = manValue < 0 ? "-" : "";
             let absVal = Math.abs(Math.round(manValue));
-            
-            const jo = Math.floor(absVal / 100000000); 
+            const jo = Math.floor(absVal / 100000000);
             const eok = Math.floor((absVal % 100000000) / 10000);
             const man = absVal % 10000;
-
             let result = "";
             if (jo > 0) result += `${jo}조 `;
             if (eok > 0) result += `${eok}억 `;
             if (man > 0 || result === "") result += `${man}만`;
-            
             return sign + result.trim();
         }
 
@@ -108,9 +170,9 @@
                 if (!startTimestamp) startTimestamp = timestamp;
                 const progress = Math.min((timestamp - startTimestamp) / duration, 1);
                 const current = progress * (end - start) + start;
-                
+
                 if (isKorean) {
-                    obj.innerHTML = prefix + formatKoreanUnit(current);
+                    obj.innerHTML = prefix + formatKoreanUnit(Math.round(current));
                 } else {
                     obj.innerText = prefix + Math.floor(current).toLocaleString();
                 }
@@ -120,48 +182,100 @@
             window.requestAnimationFrame(step);
         }
 
+        function isMayor(p) {
+            return p.position && String(p.position).includes("구청장");
+        }
+
+        function activeWithY2026(arr) {
+            return arr.filter(i => Number(i.y2026) > 0);
+        }
+
+        function toMan(cheon) {
+            return (Number(cheon) || 0) / 10;
+        }
+
+        function sumY2026(arr) {
+            return arr.reduce((a, i) => a + (Number(i.y2026) || 0), 0);
+        }
+
+        function sumRealEstateCheon(arr) {
+            return arr.reduce((a, i) => {
+                return a + (Number(i.land2026) || 0) + (Number(i.building2026) || 0);
+            }, 0);
+        }
+
+        function sumFinanceCheon(arr) {
+            return arr.reduce((a, i) => {
+                return a + (Number(i.cash2026) || 0) + (Number(i.deposit2026) || 0) + (Number(i.stock2026) || 0);
+            }, 0);
+        }
+
+        function avgManFromCheonSum(sumCheon, count) {
+            if (!count) return 0;
+            return toMan(sumCheon / count);
+        }
+
         function renderStats(allData) {
             const data = Object.values(allData);
-            
-            // 2026년 데이터가 있는 현직자만 필터링
-            const activeData = data.filter(i => Number(i.y2026) > 0);
-            const activeMayors = activeData.filter(i => i.position && i.position.includes("구청장"));
-            const activeMembers = activeData.filter(i => i.position && !i.position.includes("구청장"));
+            const mayorAll = data.filter(isMayor);
+            const memberAll = data.filter(p => p.position && !isMayor(p));
+
+            const activeAll = activeWithY2026(data);
+            const activeMayors = activeWithY2026(mayorAll);
+            const activeMembers = activeWithY2026(memberAll);
 
             const duration = 1500;
-            const toMan = (cheon) => cheon / 10;
+            const districts = new Set(data.map(i => i.district).filter(Boolean)).size;
 
-            // 1. 인원수 반영
-            animateValue("total-count", 0, data.length, duration);
-            document.getElementById('mayor-count').innerText = data.filter(i => i.position.includes("구청장")).length;
-            document.getElementById('member-count').innerText = data.filter(i => !i.position.includes("구청장")).length;
+            animateValue("hero-district-count", 0, districts, duration, false);
+            animateValue("hero-mayor-count", 0, mayorAll.length, duration, false);
+            animateValue("hero-member-count", 0, memberAll.length, duration, false);
 
-            // 2. 재산 총합
-            const sumMayorCheon = activeMayors.reduce((acc, cur) => acc + (Number(cur.y2026) || 0), 0);
-            const sumMemberCheon = activeMembers.reduce((acc, cur) => acc + (Number(cur.y2026) || 0), 0);
-            const sumTotalMan = toMan(sumMayorCheon + sumMemberCheon);
-            
-            animateValue("total-wealth", 0, sumTotalMan, duration, true);
-            document.getElementById('mayor-total').innerHTML = formatKoreanUnit(toMan(sumMayorCheon));
-            document.getElementById('member-total').innerHTML = formatKoreanUnit(toMan(sumMemberCheon));
+            const packs = [
+                {
+                    prefix: "c1",
+                    sumCheonAll: sumY2026(activeAll),
+                    sumCheonMayor: sumY2026(activeMayors),
+                    sumCheonMember: sumY2026(activeMembers),
+                    nAll: activeAll.length,
+                    nMayor: activeMayors.length,
+                    nMember: activeMembers.length
+                },
+                {
+                    prefix: "c2",
+                    sumCheonAll: sumRealEstateCheon(activeAll),
+                    sumCheonMayor: sumRealEstateCheon(activeMayors),
+                    sumCheonMember: sumRealEstateCheon(activeMembers),
+                    nAll: activeAll.length,
+                    nMayor: activeMayors.length,
+                    nMember: activeMembers.length
+                },
+                {
+                    prefix: "c3",
+                    sumCheonAll: sumFinanceCheon(activeAll),
+                    sumCheonMayor: sumFinanceCheon(activeMayors),
+                    sumCheonMember: sumFinanceCheon(activeMembers),
+                    nAll: activeAll.length,
+                    nMayor: activeMayors.length,
+                    nMember: activeMembers.length
+                }
+            ];
 
-            // 3. 평균 부동산 자산 계산 (토지 + 건물)
-            const getAvgRealEstateMan = (arr) => {
-                if (arr.length === 0) return 0;
-                const totalRECheon = arr.reduce((acc, cur) => {
-                    return acc + (Number(cur.land2026) || 0) + (Number(cur.building2026) || 0);
-                }, 0);
-                return toMan(totalRECheon / arr.length);
-            };
+            packs.forEach((p) => {
+                const totalManAll = toMan(p.sumCheonAll);
+                const totalManMayor = toMan(p.sumCheonMayor);
+                const totalManMember = toMan(p.sumCheonMember);
+                const avgAll = avgManFromCheonSum(p.sumCheonAll, p.nAll);
+                const avgMayor = avgManFromCheonSum(p.sumCheonMayor, p.nMayor);
+                const avgMember = avgManFromCheonSum(p.sumCheonMember, p.nMember);
 
-            const avgREMan = getAvgRealEstateMan(activeData);
-            
-            // 배수 계산 (예: 공직자 평균 13억 / 서울시민 5.5억 = 약 2.4배)
-            const ratio = (avgREMan / SEOUL_AVG_RE_MAN).toFixed(1);
-
-            // 애니메이션 실행
-            animateValue("avg-real-estate", 0, avgREMan, duration, true);
-            document.getElementById('re-ratio').innerText = ratio;
+                animateValue(`${p.prefix}-total-all`, 0, totalManAll, duration, true);
+                animateValue(`${p.prefix}-avg-all`, 0, avgAll, duration, true);
+                animateValue(`${p.prefix}-total-mayor`, 0, totalManMayor, duration, true);
+                animateValue(`${p.prefix}-avg-mayor`, 0, avgMayor, duration, true);
+                animateValue(`${p.prefix}-total-member`, 0, totalManMember, duration, true);
+                animateValue(`${p.prefix}-avg-member`, 0, avgMember, duration, true);
+            });
         }
 
         async function init() {
@@ -174,8 +288,8 @@
                 const data = await response.json();
                 console.log("✅ 데이터 로드 성공");
                 renderStats(data);
-            } catch (err) { 
-                console.error("데이터 초기화 에러:", err); 
+            } catch (err) {
+                console.error("데이터 초기화 에러:", err);
             }
         }
 

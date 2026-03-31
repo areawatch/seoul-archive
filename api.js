@@ -111,7 +111,8 @@ async function fetchTabData(tab) {
                     district: item.district, name: item.name,
                     position: item.position, party: item.party,
                     y2026: 0, y2025: 0, y2024: 0, y2023: 0,
-                    land2026: 0, building2026: 0 // 초기값 설정
+                    land2026: 0, building2026: 0,
+                    cash2026: 0, deposit2026: 0, stock2026: 0
                 };
             }
 
@@ -125,14 +126,14 @@ async function fetchTabData(tab) {
             else if (yr === "2024") allSummary[key].y2024 += signedVal;
             else if (yr === "2023") allSummary[key].y2023 += signedVal;
 
-            // 2. [복구 완료] 상단 TOP5용 토지/건물 개별 합산 (2026년 기준)
+            // 2. 2026년 G열(재산대분류)별 합산 (채무 감산과 무관, 원값)
             if (yr === "2026") {
-                if (item.type.includes("토지")) {
-                    allSummary[key].land2026 += val;
-                }
-                if (item.type.includes("건물")) {
-                    allSummary[key].building2026 += val;
-                }
+                const t = String(item.type || "");
+                if (t.includes("토지")) allSummary[key].land2026 += val;
+                if (t.includes("건물")) allSummary[key].building2026 += val;
+                if (t.includes("현금")) allSummary[key].cash2026 += val;
+                if (t.includes("예금")) allSummary[key].deposit2026 += val;
+                if (t.includes("증권")) allSummary[key].stock2026 += val;
             }
         });
         checkAllLoaded();
@@ -145,18 +146,7 @@ async function fetchTabData(tab) {
 function checkAllLoaded() {
     loadedCount++;
     if (loadedCount === sheetTabs.length) {
-        if (typeof renderRouter === 'function') renderRouter();
-    }
-}
-
-function checkAllLoaded() {
-    loadedCount++;
-    if (loadedCount === sheetTabs.length) {
         console.log("✅ 모든 시트 데이터 로드 완료!");
-        
-        // 데이터 로드 완료 후, 현재 페이지에 renderRouter 함수가 있다면 실행시킵니다.
-        if (typeof renderRouter === 'function') {
-            renderRouter();
-        }
+        if (typeof renderRouter === 'function') renderRouter();
     }
 }

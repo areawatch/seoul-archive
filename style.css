@@ -56,10 +56,26 @@ h1 {
 }
 .stat-card {
     border: none;
-    border-top: 4px solid #0d6efd;
     transition: transform 0.3s;
 }
 .stat-card:hover { transform: translateY(-5px); }
+
+.hero-section .hero-meta {
+    color: rgba(255, 255, 255, 0.72) !important;
+    line-height: 1.5;
+    max-width: 36rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.stat-triple .stat-value-line {
+    font-size: 0.95rem;
+    line-height: 1.35;
+    min-height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 
 /* 카드 공통 스타일 */

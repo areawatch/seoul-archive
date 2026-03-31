@@ -119,7 +119,10 @@ async function main() {
           y2024: 0,
           y2023: 0,
           land2026: 0,
-          building2026: 0
+          building2026: 0,
+          cash2026: 0,
+          deposit2026: 0,
+          stock2026: 0
         };
       } else {
         // prefer non-empty meta if any tab had blanks
@@ -164,10 +167,14 @@ async function main() {
       else if (yr === "2024") allSummary[key].y2024 += signedVal;
       else if (yr === "2023") allSummary[key].y2023 += signedVal;
 
-      // TOP5용 토지/건물 (2026년 기준) — 채무 감산과 무관하게 원 값으로 합산
+      // 2026년 G열(재산대분류)별 합산 — 채무 감산과 무관하게 원값(K열) 합산
       if (yr === "2026") {
-        if (String(item.type).includes("토지")) allSummary[key].land2026 += item.value;
-        if (String(item.type).includes("건물")) allSummary[key].building2026 += item.value;
+        const t = String(item.type || "");
+        if (t.includes("토지")) allSummary[key].land2026 += item.value;
+        if (t.includes("건물")) allSummary[key].building2026 += item.value;
+        if (t.includes("현금")) allSummary[key].cash2026 += item.value;
+        if (t.includes("예금")) allSummary[key].deposit2026 += item.value;
+        if (t.includes("증권")) allSummary[key].stock2026 += item.value;
       }
     }
   }
