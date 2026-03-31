@@ -1,0 +1,9 @@
+{
+  "name": "seoul-archive",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate:data": "node scripts/generate-data.mjs"
+  }
+}
+
