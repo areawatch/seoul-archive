@@ -8,8 +8,12 @@ function formatItemType(type) {
     const longNameRefusal = "고지거부 및 등록제외사항";
     const longNameInvestment = "합명·합자·유한회사 출자지분";
     const longNameNonProfit = "비영리법인에 출연한 재산";
-    const longNameGold = "금 및 백금"; 
+    const longNameGold = "금 및 백금";
+    const longNamePoliticalFunds = "정치자금법에 따른 정치자금의 수입 및 지출을 위한 예금계좌의 예금";
 
+    if (type.includes("정치자금법")) {
+        return `<span class="text-nowrap">정치자금</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNamePoliticalFunds}"></i>`;
+    }
     if (/자동차|항공기|선박|건설기계/.test(type)) {
         return `<span class="text-nowrap">자동차 등</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameAutomobile}"></i>`;
     }
