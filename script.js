@@ -44,6 +44,33 @@ function formatSignedByType(type, value) {
     return v.toLocaleString();
 }
 
+/** 상단 하이라이트: 송파구+구의원 → 송파구의원, 강남구+구청장 → 강남구청장 */
+function formatDistrictPositionLabel(district, position) {
+    const d = (district || "").trim();
+    const pos = (position || "").trim();
+    if (!pos) return d;
+    if (d === "중구") return d + " " + pos;
+    const base = d.length >= 2 && d.endsWith("구") ? d.slice(0, -1) : d;
+    if (pos.startsWith("구")) return base + pos;
+    return d + " " + pos;
+}
+
+/** 천원 단위 증감 → +33억 9,843만 (1억=100,000천원). 1만 미만은 N천원 */
+function formatCheonDeltaEokMan(cheonDelta) {
+    const n = Number(cheonDelta) || 0;
+    const sign = n > 0 ? "+" : n < 0 ? "-" : "+";
+    const v = Math.abs(Math.floor(n));
+    const CHEON_PER_EOK = 100000;
+    if (v === 0) return "+0";
+    const eok = Math.floor(v / CHEON_PER_EOK);
+    const man = Math.floor((v % CHEON_PER_EOK) / 10);
+    if (eok === 0 && man === 0) return sign + v.toLocaleString() + "천원";
+    const parts = [];
+    if (eok > 0) parts.push(eok + "억");
+    if (man > 0) parts.push(man.toLocaleString() + "만");
+    return sign + parts.join(" ");
+}
+
 window.onload = () => {
     if (typeof loadComponent === 'function') {
         loadComponent('header-plugin', 'header.html');
@@ -179,12 +206,21 @@ function showDetail(name, district) {
 
     const posText = (allYearsData[0].position || "").trim();
     const partyText = (allYearsData[0].party || "").trim();
-    const titleMain = [allYearsData[0].district, posText, name].filter(Boolean).join(" ");
+    const locLabel = formatDistrictPositionLabel(allYearsData[0].district, posText);
+    const escTitle = (s) =>
+        String(s ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
     const partyColor = (typeof partyColors !== 'undefined' && partyColors[partyText]) ? partyColors[partyText] : "#666";
     const partyBadge = partyText
-        ? `<span class="badge ms-2 align-middle" style="background-color:${partyColor}; font-size: 0.75rem;">${partyText}</span>`
+        ? `<span class="badge ms-2 align-middle" style="background-color:${partyColor}; font-size: 0.75rem;">${escTitle(partyText)}</span>`
         : "";
-    document.getElementById('detailModalLabel').innerHTML = `<span class="fw-bold">${titleMain}</span>${partyBadge}`;
+    document.getElementById("detailModalLabel").innerHTML =
+        `<span class="fw-bold" style="font-size:1.1rem; letter-spacing:-0.02em;">${escTitle(name)}</span>` +
+        ` <span class="text-muted fw-light" style="font-size:0.82rem;">${escTitle(locLabel)}</span>` +
+        partyBadge;
 
     const escapeAttr = (s) => String(s)
         .replace(/&/g, "&amp;")
@@ -266,10 +302,14 @@ function showDetail(name, district) {
 }
 
 function updateHighlights(filteredArray) {
-    const topWealth = [...filteredArray].sort((a, b) => (b.y2026||0) - (a.y2026||0)).slice(0, 5);
-    const topGrowth = [...filteredArray].filter(a => (a.y2025||0) > 0).sort((a, b) => ((b.y2026-b.y2025)/b.y2025) - ((a.y2026-a.y2025)/a.y2025)).slice(0, 5);
-    const topLand = [...filteredArray].sort((a, b) => (b.land2026||0) - (a.land2026||0)).slice(0, 5);
-    const topBuilding = [...filteredArray].sort((a, b) => (b.building2026||0) - (a.building2026||0)).slice(0, 5);
+    const topN = 10;
+    const topWealth = [...filteredArray].sort((a, b) => (b.y2026||0) - (a.y2026||0)).slice(0, topN);
+    const topGrowth = [...filteredArray]
+        .filter(a => (a.y2025 || 0) > 0)
+        .sort((a, b) => ((b.y2026 || 0) - (b.y2025 || 0)) - ((a.y2026 || 0) - (a.y2025 || 0)))
+        .slice(0, topN);
+    const topLand = [...filteredArray].sort((a, b) => (b.land2026||0) - (a.land2026||0)).slice(0, topN);
+    const topBuilding = [...filteredArray].sort((a, b) => (b.building2026||0) - (a.building2026||0)).slice(0, topN);
 
     const fillList = (id, items, type) => {
         const container = document.getElementById(id);
@@ -282,26 +322,36 @@ function updateHighlights(filteredArray) {
         items.forEach((item, idx) => {
             let val = 0;
             if (type === 'wealth') val = item.y2026 || 0;
-            else if (type === 'growth') val = item.y2025 > 0 ? ((item.y2026 - item.y2025)/item.y2025*100) : 0;
+            else if (type === 'growth') val = (item.y2026 || 0) - (item.y2025 || 0);
             else if (type === 'land') val = item.land2026 || 0;
             else if (type === 'building') val = item.building2026 || 0;
-            const valText = type === 'growth' ? (val > 0 ? '+' : '') + val.toFixed(0) + "%" : (val / 100000).toFixed(1) + "억";
+            const valText =
+                type === 'growth'
+                    ? formatCheonDeltaEokMan(val)
+                    : (val / 100000).toFixed(1) + "억";
+            const valClass =
+                type === 'growth' ? (val >= 0 ? 'text-danger' : 'text-primary') : 'text-danger';
             const posText = (item.position || "").trim();
             const partyText = (item.party || "").trim();
             const partyColor = (typeof partyColors !== 'undefined' && partyColors[partyText]) ? partyColors[partyText] : "#666";
             const partyBadge = partyText
-                ? `<span class="badge ms-1 align-middle" style="background-color:${partyColor}; font-size: 0.6rem;">${partyText}</span>`
+                ? `<span class="badge ms-1 align-middle flex-shrink-0 text-nowrap" style="background-color:${partyColor}; font-size: 0.6rem;">${partyText}</span>`
                 : "";
-            
+            const locLabel = formatDistrictPositionLabel(item.district, posText);
+
             html += `
-                <div class="d-flex justify-content-between align-items-center py-1 border-bottom" style="font-size: 0.8rem; cursor:pointer;" onclick="showDetail('${item.name}', '${item.district}')">
-                    <span class="text-truncate" style="max-width: 200px;">
-                        <span class="text-muted me-1">${idx + 1}.</span>
-                        <span class="fw-bold text-dark">${item.name}</span>
-                        <small class="text-muted ms-1">${item.district}${posText ? " " + posText : ""}</small>
-                        ${partyBadge}
-                    </span>
-                    <span class="fw-bold text-danger">${valText}</span>
+                <div class="d-flex justify-content-between align-items-center py-1 border-bottom gap-2" style="font-size: 0.8rem; cursor:pointer;" onclick="showDetail('${item.name}', '${item.district}')">
+                    <div class="d-flex align-items-center flex-grow-1" style="min-width:0;">
+                        <span class="flex-shrink-0 fw-bold text-dark me-2 text-end" style="width:2rem; font-variant-numeric: tabular-nums;">${idx + 1}</span>
+                        <div class="d-flex align-items-center min-w-0 flex-grow-1" style="min-width:0;">
+                            <span class="text-truncate" style="min-width:0;">
+                                <span class="fw-bold text-dark">${item.name}</span>
+                                <small class="text-muted ms-1">${locLabel}</small>
+                            </span>
+                            ${partyBadge}
+                        </div>
+                    </div>
+                    <span class="fw-bold ${valClass} flex-shrink-0">${valText}</span>
                 </div>`;
         });
         container.innerHTML = html;
