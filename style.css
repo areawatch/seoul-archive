@@ -860,10 +860,43 @@ main.index-main-lead {
     font-size: 1rem;
 }
 
+.intro-contact-followup {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: #495057;
+}
+
 .intro-contact-name {
     font-size: 0.95rem;
     color: #212529;
     font-weight: 600;
+}
+
+.intro-contact-channels {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.25rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.intro-contact-channel {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.intro-contact-channel-icon {
+    color: #868e96;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+
+.intro-contact-sep {
+    color: #adb5bd;
+    user-select: none;
+    padding: 0 0.1rem;
 }
 
 .intro-contact-tel {
@@ -873,7 +906,23 @@ main.index-main-lead {
     font-weight: 600;
 }
 
+.intro-contact-tel--inline {
+    margin-left: 0;
+}
+
 .intro-contact-tel:hover {
+    color: var(--intro-point-hover);
+    text-decoration: underline;
+}
+
+.intro-contact-link {
+    color: var(--intro-point);
+    text-decoration: none;
+    font-weight: 600;
+    word-break: break-all;
+}
+
+.intro-contact-link:hover {
     color: var(--intro-point-hover);
     text-decoration: underline;
 }
