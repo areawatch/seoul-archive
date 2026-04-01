@@ -33,18 +33,19 @@
             <div class="row g-4 mb-5 justify-content-center">
                 <!-- 카드 1: 2026년 재산 총액 -->
                 <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 stat-card shadow-sm border-0" style="border-top: 4px solid #ee2f51 !important;">
+                    <div class="card h-100 stat-card stat-card-metric">
+                        <div class="stat-card-index" aria-hidden="true">01</div>
                         <div class="card-body p-4">
-                            <div class="fs-6 fw-bold text-secondary mb-3 text-center">2026년 재산 총액 및 1인당 평균</div>
+                            <div class="fs-6 fw-bold text-secondary mb-3 text-center stat-card-heading">2026년 재산 총액 및 1인당 평균</div>
                             <div class="row g-0 text-center stat-triple">
-                                <div class="col-4 border-end">
+                                <div class="col-4 border-end stat-triple-col">
                                     <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;letter-spacing:0.02em;">전체</div>
                                     <div class="text-muted" style="font-size:0.72rem;">총액</div>
-                                    <div class="fw-bold text-danger mb-2 stat-value-line" id="c1-total-all">0</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line stat-value-total" id="c1-total-all">0</div>
                                     <div class="text-muted" style="font-size:0.72rem;">평균</div>
                                     <div class="fw-semibold small" id="c1-avg-all">0</div>
                                 </div>
-                                <div class="col-4 border-end">
+                                <div class="col-4 border-end stat-triple-col">
                                     <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;">구청장</div>
                                     <div class="text-muted" style="font-size:0.72rem;">총액</div>
                                     <div class="fw-bold text-dark mb-2 stat-value-line" id="c1-total-mayor">0</div>
@@ -64,18 +65,19 @@
                 </div>
                 <!-- 카드 2: 부동산 -->
                 <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 stat-card shadow-sm border-0" style="border-top: 4px solid #001066 !important;">
+                    <div class="card h-100 stat-card stat-card-metric">
+                        <div class="stat-card-index" aria-hidden="true">02</div>
                         <div class="card-body p-4">
-                            <div class="fs-6 fw-bold text-secondary mb-3 text-center">부동산(토지+건물) 총액 및 1인당 평균</div>
+                            <div class="fs-6 fw-bold text-secondary mb-3 text-center stat-card-heading">부동산(토지+건물) 총액 및 1인당 평균</div>
                             <div class="row g-0 text-center stat-triple">
-                                <div class="col-4 border-end">
+                                <div class="col-4 border-end stat-triple-col">
                                     <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;">전체</div>
                                     <div class="text-muted" style="font-size:0.72rem;">총액</div>
-                                    <div class="fw-bold text-danger mb-2 stat-value-line" id="c2-total-all">0</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line stat-value-total" id="c2-total-all">0</div>
                                     <div class="text-muted" style="font-size:0.72rem;">평균</div>
                                     <div class="fw-semibold small" id="c2-avg-all">0</div>
                                 </div>
-                                <div class="col-4 border-end">
+                                <div class="col-4 border-end stat-triple-col">
                                     <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;">구청장</div>
                                     <div class="text-muted" style="font-size:0.72rem;">총액</div>
                                     <div class="fw-bold text-dark mb-2 stat-value-line" id="c2-total-mayor">0</div>
@@ -95,18 +97,19 @@
                 </div>
                 <!-- 카드 3: 금융자산 -->
                 <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 stat-card shadow-sm border-0" style="border-top: 4px solid #40127e !important;">
+                    <div class="card h-100 stat-card stat-card-metric">
+                        <div class="stat-card-index" aria-hidden="true">03</div>
                         <div class="card-body p-4">
-                            <div class="fs-6 fw-bold text-secondary mb-3 text-center">금융자산(현금·예금·증권) 총액 및 평균</div>
+                            <div class="fs-6 fw-bold text-secondary mb-3 text-center stat-card-heading">금융자산(현금·예금·증권) 총액 및 평균</div>
                             <div class="row g-0 text-center stat-triple">
-                                <div class="col-4 border-end">
+                                <div class="col-4 border-end stat-triple-col">
                                     <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;">전체</div>
                                     <div class="text-muted" style="font-size:0.72rem;">총액</div>
-                                    <div class="fw-bold text-danger mb-2 stat-value-line" id="c3-total-all">0</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line stat-value-total" id="c3-total-all">0</div>
                                     <div class="text-muted" style="font-size:0.72rem;">평균</div>
                                     <div class="fw-semibold small" id="c3-avg-all">0</div>
                                 </div>
-                                <div class="col-4 border-end">
+                                <div class="col-4 border-end stat-triple-col">
                                     <div class="text-uppercase text-secondary fw-semibold mb-2" style="font-size:0.7rem;">구청장</div>
                                     <div class="text-muted" style="font-size:0.72rem;">총액</div>
                                     <div class="fw-bold text-dark mb-2 stat-value-line" id="c3-total-mayor">0</div>
@@ -132,24 +135,18 @@
         <div class="container index-main">
             <h2 id="spotlight-heading" class="h4 fw-bold text-center mb-2">데이터 스포트라이트</h2>
             <p class="text-center text-muted small mb-4">Data Spotlight</p>
-            <div class="row g-4">
-                <div class="col-lg-4">
-                    <div class="d-flex gap-3 align-items-start h-100">
-                        <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
-                        <p class="mb-0 spotlight-text lh-lg" id="spotlight-council">데이터를 불러오는 중입니다.</p>
-                    </div>
+            <div class="spotlight-body">
+                <div class="d-flex gap-3 align-items-start spotlight-row">
+                    <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    <p class="mb-0 spotlight-text lh-lg" id="spotlight-council">데이터를 불러오는 중입니다.</p>
                 </div>
-                <div class="col-lg-4">
-                    <div class="d-flex gap-3 align-items-start h-100">
-                        <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
-                        <p class="mb-0 spotlight-text lh-lg" id="spotlight-party">데이터를 불러오는 중입니다.</p>
-                    </div>
+                <div class="d-flex gap-3 align-items-start spotlight-row">
+                    <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    <p class="mb-0 spotlight-text lh-lg" id="spotlight-party">데이터를 불러오는 중입니다.</p>
                 </div>
-                <div class="col-lg-4">
-                    <div class="d-flex gap-3 align-items-start h-100">
-                        <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
-                        <p class="mb-0 spotlight-text lh-lg" id="spotlight-highfin">데이터를 불러오는 중입니다.</p>
-                    </div>
+                <div class="d-flex gap-3 align-items-start spotlight-row">
+                    <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    <p class="mb-0 spotlight-text lh-lg" id="spotlight-highfin">데이터를 불러오는 중입니다.</p>
                 </div>
             </div>
         </div>
