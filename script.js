@@ -80,7 +80,7 @@ function formatDistrictPositionLabel(district, position) {
     return d + " " + pos;
 }
 
-/** 천원 합계 → 005억0123만원 (1억=100,000천원, 1만원=10천원). 억 3자리·만 4자리 0패딩 */
+/** 천원 합계 → 232억 138만원 (1억=100,000천원, 1만원=10천원). 앞자리 0·불필요 단위 생략 */
 function formatCheonSumToEokManWon(cheon) {
     const n = Number(cheon) || 0;
     const neg = n < 0;
@@ -88,9 +88,44 @@ function formatCheonSumToEokManWon(cheon) {
     const CHEON_PER_EOK = 100000;
     const eok = Math.floor(v / CHEON_PER_EOK);
     const man = Math.floor((v % CHEON_PER_EOK) / 10);
-    const eokStr = String(eok).padStart(3, "0");
-    const manStr = String(man).padStart(4, "0");
-    return (neg ? "-" : "") + eokStr + "억" + manStr + "만원";
+    const parts = [];
+    if (eok > 0) parts.push(eok.toLocaleString() + "억");
+    if (man > 0) parts.push(man.toLocaleString() + "만원");
+    if (parts.length === 0) return (neg ? "-" : "") + "0";
+    return (neg ? "-" : "") + parts.join(" ");
+}
+
+/** 구의원만, 구별 총재산·부동산·금융 합계 배열 (차트·카드·순위 공통) */
+function archiveDistrictBuildCouncilTotalsArrays() {
+    const labels = getSeoulDistrictNames();
+    const totals = labels.map(() => 0);
+    const reTotals = labels.map(() => 0);
+    const finTotals = labels.map(() => 0);
+    const idx = Object.fromEntries(labels.map((n, i) => [n, i]));
+    Object.values(allSummary).forEach((item) => {
+        if (!isArchiveDistrictCouncilMember(item)) return;
+        const d = (item.district || "").trim();
+        const i = idx[d];
+        if (i === undefined) return;
+        totals[i] += Number(item.y2026) || 0;
+        reTotals[i] += sumRealEstate2026Item(item);
+        finTotals[i] += sumFinance2026Item(item);
+    });
+    return { labels, totals, reTotals, finTotals };
+}
+
+/** 값 큰 순 1위… 동률 시 동순위·다음 건너뜀 */
+function archiveDistrictRanksAmongValues(values) {
+    const sorted = values
+        .map((v, i) => ({ v: Number(v) || 0, i }))
+        .sort((a, b) => b.v - a.v || a.i - b.i);
+    const ranks = new Array(values.length);
+    let rank = 1;
+    for (let k = 0; k < sorted.length; k++) {
+        if (k > 0 && sorted[k].v !== sorted[k - 1].v) rank = k + 1;
+        ranks[sorted[k].i] = rank;
+    }
+    return ranks;
 }
 
 /** 천원 단위 증감 → +33억 9,843만 (1억=100,000천원). 1만 미만은 N천원 */
@@ -160,6 +195,9 @@ function updateDistrictSummaryCards(items) {
     const totalEl = document.getElementById("district-stat-total");
     const reEl = document.getElementById("district-stat-realestate");
     const finEl = document.getElementById("district-stat-finance");
+    const totalRankEl = document.getElementById("district-stat-total-rank");
+    const reRankEl = document.getElementById("district-stat-realestate-rank");
+    const finRankEl = document.getElementById("district-stat-finance-rank");
     if (!totalEl || !reEl || !finEl) return;
 
     let sumY = 0;
@@ -174,6 +212,26 @@ function updateDistrictSummaryCards(items) {
     totalEl.textContent = formatCheonSumToEokManWon(sumY);
     reEl.textContent = formatCheonSumToEokManWon(sumRe);
     finEl.textContent = formatCheonSumToEokManWon(sumFin);
+
+    const gu = (currentDistrictFilter || "").trim();
+    const agg = archiveDistrictBuildCouncilTotalsArrays();
+    const gi = agg.labels.indexOf(gu);
+    const nGu = agg.labels.length;
+
+    if (totalRankEl && reRankEl && finRankEl) {
+        if (gi >= 0 && nGu > 0) {
+            const rT = archiveDistrictRanksAmongValues(agg.totals)[gi];
+            const rR = archiveDistrictRanksAmongValues(agg.reTotals)[gi];
+            const rF = archiveDistrictRanksAmongValues(agg.finTotals)[gi];
+            totalRankEl.textContent = nGu + "개 구 중 " + rT + "위";
+            reRankEl.textContent = nGu + "개 구 중 " + rR + "위";
+            finRankEl.textContent = nGu + "개 구 중 " + rF + "위";
+        } else {
+            totalRankEl.textContent = "—";
+            reRankEl.textContent = "—";
+            finRankEl.textContent = "—";
+        }
+    }
 }
 
 function renderDistrictRouter() {

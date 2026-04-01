@@ -271,6 +271,23 @@ function districtChartDatasetFills(values, selectedIdx, dimOthers, rgb, baseAlph
     return values.map((_, i) => districtChartBarFill(i, selectedIdx, rgb, baseAlpha, dimOthers));
 }
 
+/** 선택 구만 테두리, 비선택은 테두리 없음 */
+function districtChartDatasetBarBorders(len, selectedIdx, dimOthers, borderRgb) {
+    const borderColor = [];
+    const borderWidth = [];
+    for (let i = 0; i < len; i++) {
+        const sel = selectedIdx >= 0 && i === selectedIdx;
+        if (dimOthers && sel) {
+            borderColor.push(borderRgb);
+            borderWidth.push(1);
+        } else {
+            borderColor.push("transparent");
+            borderWidth.push(0);
+        }
+    }
+    return { borderColor, borderWidth };
+}
+
 /** 막대 위 1위 표시용 노란 별 (캔버스, bi-star-fill 느낌) */
 function districtChartDrawRankStar(ctx, cx, cy, outerR) {
     const spikes = 5;
@@ -306,26 +323,34 @@ function updateDistrictCompareChart() {
     const labels = getSeoulDistrictNames();
     if (labels.length === 0) return;
 
-    const totals = labels.map(() => 0);
-    const reTotals = labels.map(() => 0);
-    const finTotals = labels.map(() => 0);
-    const idx = Object.fromEntries(labels.map((n, i) => [n, i]));
-
-    const sumRe = (p) => (Number(p.land2026) || 0) + (Number(p.building2026) || 0);
-    const sumFin = (p) =>
-        (Number(p.cash2026) || 0) + (Number(p.deposit2026) || 0) + (Number(p.stock2026) || 0);
-
-    Object.values(allSummary).forEach((item) => {
-        if (typeof isArchiveDistrictCouncilMember === "function" && !isArchiveDistrictCouncilMember(item)) {
-            return;
-        }
-        const d = (item.district || "").trim();
-        const i = idx[d];
-        if (i === undefined) return;
-        totals[i] += Number(item.y2026) || 0;
-        reTotals[i] += sumRe(item);
-        finTotals[i] += sumFin(item);
-    });
+    let totals;
+    let reTotals;
+    let finTotals;
+    if (typeof archiveDistrictBuildCouncilTotalsArrays === "function") {
+        const agg = archiveDistrictBuildCouncilTotalsArrays();
+        totals = agg.totals;
+        reTotals = agg.reTotals;
+        finTotals = agg.finTotals;
+    } else {
+        totals = labels.map(() => 0);
+        reTotals = labels.map(() => 0);
+        finTotals = labels.map(() => 0);
+        const idx = Object.fromEntries(labels.map((n, i) => [n, i]));
+        const sumRe = (p) => (Number(p.land2026) || 0) + (Number(p.building2026) || 0);
+        const sumFin = (p) =>
+            (Number(p.cash2026) || 0) + (Number(p.deposit2026) || 0) + (Number(p.stock2026) || 0);
+        Object.values(allSummary).forEach((item) => {
+            if (typeof isArchiveDistrictCouncilMember === "function" && !isArchiveDistrictCouncilMember(item)) {
+                return;
+            }
+            const d = (item.district || "").trim();
+            const i = idx[d];
+            if (i === undefined) return;
+            totals[i] += Number(item.y2026) || 0;
+            reTotals[i] += sumRe(item);
+            finTotals[i] += sumFin(item);
+        });
+    }
 
     const selected = (typeof currentDistrictFilter !== "undefined" ? String(currentDistrictFilter) : "").trim();
     const selectedIdx = selected ? labels.indexOf(selected) : -1;
@@ -355,6 +380,11 @@ function updateDistrictCompareChart() {
     const fill0 = districtChartDatasetFills(totals, selectedIdx, dimOthers, [230, 30, 43], 0.78);
     const fill1 = districtChartDatasetFills(reTotals, selectedIdx, dimOthers, [13, 110, 253], 0.72);
     const fill2 = districtChartDatasetFills(finTotals, selectedIdx, dimOthers, [25, 135, 84], 0.72);
+
+    const barBorderRgb = ["rgb(200, 20, 35)", "rgb(10, 88, 202)", "rgb(20, 108, 67)"];
+    const bw0 = districtChartDatasetBarBorders(labels.length, selectedIdx, dimOthers, barBorderRgb[0]);
+    const bw1 = districtChartDatasetBarBorders(labels.length, selectedIdx, dimOthers, barBorderRgb[1]);
+    const bw2 = districtChartDatasetBarBorders(labels.length, selectedIdx, dimOthers, barBorderRgb[2]);
 
     const rankStarPlugin = {
         id: "districtCompareRankStar",
@@ -393,6 +423,7 @@ function updateDistrictCompareChart() {
     }
 
     const districtAmountColors = ["#e63946", "#2563eb", "#198754"];
+    const districtTooltipSwatchRgb = barBorderRgb;
 
     function districtCompareExternalTooltip(context) {
         const tooltip = context.tooltip;
@@ -432,9 +463,8 @@ function updateDistrictCompareChart() {
             const tops = topSets[dp.datasetIndex];
             const rankNote = tops.has(dataIndex) ? " · 1위" : "";
 
-            const ds = context.chart.data.datasets[dp.datasetIndex];
             const swatch =
-                typeof ds.borderColor === "string" ? ds.borderColor : "rgba(255,255,255,0.5)";
+                districtTooltipSwatchRgb[dp.datasetIndex] || "rgba(255,255,255,0.5)";
 
             const labelPart = districtChartEscHtml(dsLab) + ": ";
             let amountHtml;
@@ -484,6 +514,21 @@ function updateDistrictCompareChart() {
         el.style.transform = "translate(-50%, calc(-100% - 10px))";
         el.style.pointerEvents = "none";
         el.style.zIndex = "1080";
+
+        requestAnimationFrame(() => {
+            const pad = 10;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const box = el.getBoundingClientRect();
+            let shiftX = 0;
+            let shiftY = 0;
+            if (box.left < pad) shiftX += pad - box.left;
+            if (box.right > vw - pad) shiftX += vw - pad - box.right;
+            if (box.top < pad) shiftY += pad - box.top;
+            if (box.bottom > vh - pad) shiftY += vh - pad - box.bottom;
+            el.style.transform =
+                "translate(calc(-50% + " + shiftX + "px), calc(-100% - 10px + " + shiftY + "px))";
+        });
     }
 
     window.districtCompareChartInstance = new Chart(ctx.getContext("2d"), {
@@ -495,24 +540,24 @@ function updateDistrictCompareChart() {
                     label: "총재산 합계",
                     data: totals,
                     backgroundColor: fill0,
-                    borderColor: "rgb(200, 20, 35)",
-                    borderWidth: 1,
+                    borderColor: bw0.borderColor,
+                    borderWidth: bw0.borderWidth,
                     borderRadius: 3,
                 },
                 {
                     label: "부동산 합계 (토지+건물)",
                     data: reTotals,
                     backgroundColor: fill1,
-                    borderColor: "rgb(10, 88, 202)",
-                    borderWidth: 1,
+                    borderColor: bw1.borderColor,
+                    borderWidth: bw1.borderWidth,
                     borderRadius: 3,
                 },
                 {
                     label: "금융자산 합계 (현금·예금·증권)",
                     data: finTotals,
                     backgroundColor: fill2,
-                    borderColor: "rgb(20, 108, 67)",
-                    borderWidth: 1,
+                    borderColor: bw2.borderColor,
+                    borderWidth: bw2.borderWidth,
                     borderRadius: 3,
                 },
             ],

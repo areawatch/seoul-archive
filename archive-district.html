@@ -18,7 +18,7 @@
 
     <div class="container mt-4 archive-main">
         <div class="mb-2">
-            <h2 class="mb-0 archive-list-page-title">자치구별 재산 목록</h2>
+            <h2 class="mb-0 archive-list-page-title">자치구별(구의원) 재산 목록</h2>
         </div>
         <div class="text-muted small mb-3">※ 단위가 없는 경우에는 (천원)을 의미하며 채무(부채)는 총계 산정 시 감산 처리됩니다.</div>
 
@@ -29,21 +29,24 @@
 
         <div id="district-summary-section" class="row mb-4" style="display: none;">
             <div class="col-md-4 mb-3">
-                <div class="card bg-light border-0 shadow-sm p-3 h-100 text-center">
-                    <small class="text-muted fw-bold mb-2 d-block">해당 구 재산 합계 (2026)</small>
-                    <div id="district-stat-total" class="fs-4 fw-bold text-danger">-</div>
+                <div class="card district-summary-card district-summary-card--total border-0 shadow-sm p-3 h-100 text-center">
+                    <small class="district-summary-card-label mb-2 d-block">해당 구 재산 합계 (2026)</small>
+                    <div id="district-stat-total" class="district-summary-card-value fs-4 fw-bold">-</div>
+                    <div id="district-stat-total-rank" class="district-summary-card-rank small mt-1">-</div>
                 </div>
             </div>
             <div class="col-md-4 mb-3">
-                <div class="card bg-light border-0 shadow-sm p-3 h-100 text-center">
-                    <small class="text-muted fw-bold mb-2 d-block">부동산 합계 (토지+건물, 2026)</small>
-                    <div id="district-stat-realestate" class="fs-4 fw-bold text-danger">-</div>
+                <div class="card district-summary-card district-summary-card--re border-0 shadow-sm p-3 h-100 text-center">
+                    <small class="district-summary-card-label mb-2 d-block">부동산 합계 (토지+건물, 2026)</small>
+                    <div id="district-stat-realestate" class="district-summary-card-value fs-4 fw-bold">-</div>
+                    <div id="district-stat-realestate-rank" class="district-summary-card-rank small mt-1">-</div>
                 </div>
             </div>
             <div class="col-md-4 mb-3">
-                <div class="card bg-light border-0 shadow-sm p-3 h-100 text-center">
-                    <small class="text-muted fw-bold mb-2 d-block">금융자산 합계 (현금·예금·증권, 2026)</small>
-                    <div id="district-stat-finance" class="fs-4 fw-bold text-danger">-</div>
+                <div class="card district-summary-card district-summary-card--fin border-0 shadow-sm p-3 h-100 text-center">
+                    <small class="district-summary-card-label mb-2 d-block">금융자산 합계 (현금·예금·증권, 2026)</small>
+                    <div id="district-stat-finance" class="district-summary-card-value fs-4 fw-bold">-</div>
+                    <div id="district-stat-finance-rank" class="district-summary-card-rank small mt-1">-</div>
                 </div>
             </div>
         </div>

@@ -140,10 +140,12 @@ h1 {
     gap: 0.65rem;
     justify-content: center;
     align-items: stretch;
+    width: 100%;
 }
 
 @media (min-width: 768px) {
     .district-rank1-strip {
+        flex-wrap: nowrap;
         justify-content: flex-start;
     }
 }
@@ -155,9 +157,10 @@ h1 {
     align-items: flex-start;
     gap: 0.12rem;
     padding: 0.55rem 0.95rem 0.65rem;
-    min-width: min(100%, 9.75rem);
-    flex: 1 1 auto;
-    max-width: 100%;
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: none;
+    width: 100%;
     border-radius: 0.55rem;
     background: linear-gradient(165deg, #ffffff 0%, #f8fafc 100%);
     border: 1px solid rgba(15, 23, 42, 0.09);
@@ -167,11 +170,12 @@ h1 {
     text-align: start;
 }
 
-@media (min-width: 576px) {
+@media (min-width: 768px) {
     .district-rank1-pill {
-        flex: 1 1 calc(33.333% - 0.5rem);
-        min-width: 8.5rem;
-        max-width: 14rem;
+        flex: 1 1 0;
+        width: auto;
+        align-items: center;
+        text-align: center;
     }
 }
 
@@ -196,27 +200,22 @@ h1 {
 }
 
 .district-rank1-pill-district {
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
+    font-family: 'Paperozi', sans-serif !important;
+    font-size: 1.08rem;
+    font-weight: 700 !important;
+    letter-spacing: -0.04em;
     color: #0f172a;
     line-height: 1.25;
 }
 
 .district-rank1-pill-v {
-    font-size: 1.125rem;
-    font-weight: 800;
+    font-family: 'Paperozi', sans-serif !important;
+    font-size: 1.28rem;
+    font-weight: 700 !important;
     letter-spacing: -0.05em;
     color: var(--pill-accent);
     line-height: 1.15;
     margin-top: 0.15rem;
-}
-
-@media (max-width: 575.98px) {
-    .district-rank1-pill {
-        flex: 1 1 100%;
-        max-width: none;
-    }
 }
 
 /* 자치구 비교 차트 — 외부 HTML 툴팁 */
@@ -274,7 +273,56 @@ h1 {
     font-weight: 700;
     font-size: 0.88em;
     opacity: 0.9;
-    white-space: nowrap;
+}
+
+/* archive-district 상단 3요약 카드 — 차트 색과 맞춤 */
+.district-summary-card {
+    --district-card-accent: #64748b;
+    background: linear-gradient(165deg, #ffffff 0%, #f8fafc 100%);
+    border-left: 4px solid var(--district-card-accent) !important;
+}
+
+.district-summary-card--total {
+    --district-card-accent: #dc2626;
+}
+
+.district-summary-card--re {
+    --district-card-accent: #2563eb;
+}
+
+.district-summary-card--fin {
+    --district-card-accent: #16a34a;
+}
+
+.district-summary-card-label {
+    color: #64748b;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+}
+
+.district-summary-card .district-summary-card-value {
+    font-family: 'Paperozi', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.04em;
+}
+
+.district-summary-card--total .district-summary-card-value {
+    color: #dc2626;
+}
+
+.district-summary-card--re .district-summary-card-value {
+    color: #2563eb;
+}
+
+.district-summary-card--fin .district-summary-card-value {
+    color: #16a34a;
+}
+
+.district-summary-card-rank {
+    color: #64748b;
+    font-weight: 600;
+    letter-spacing: -0.02em;
 }
 
 /* archive — DataTables 하단(건수 문구)·페이지네이션 */
