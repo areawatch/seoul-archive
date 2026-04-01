@@ -54,6 +54,13 @@ function getSeoulDistrictNames() {
         .sort((a, b) => a.localeCompare(b, "ko"));
 }
 
+/** archive-district: 구청장·전)구청장 제외, 구의원·전)구의원만 */
+function isArchiveDistrictCouncilMember(item) {
+    const p = (item.position || "").trim();
+    if (/구청장/.test(p)) return false;
+    return /구의원/.test(p);
+}
+
 let currentDistrictFilter = "";
 
 function formatSignedByType(type, value) {
@@ -174,11 +181,18 @@ function renderDistrictRouter() {
     const districtSummarySection = document.getElementById("district-summary-section");
     if (!tableBody || !districtSummarySection) return;
 
-    let summaryArray = Object.values(allSummary);
-    if (summaryArray.length === 0) return;
+    if (Object.keys(allSummary).length === 0) return;
+
+    const chartSection = document.getElementById("district-chart-section");
+    if (chartSection && typeof updateDistrictCompareChart === "function") {
+        updateDistrictCompareChart();
+        chartSection.style.display = "block";
+    }
 
     const d = (currentDistrictFilter || "").trim();
-    summaryArray = summaryArray.filter((item) => (item.district || "").trim() === d);
+    let summaryArray = Object.values(allSummary)
+        .filter(isArchiveDistrictCouncilMember)
+        .filter((item) => (item.district || "").trim() === d);
 
     updateDistrictSummaryCards(summaryArray);
 

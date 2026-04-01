@@ -48,6 +48,21 @@
             </div>
         </div>
 
+        <section id="district-chart-section" class="mb-4" style="display: none;" aria-labelledby="district-chart-heading">
+            <h3 id="district-chart-heading" class="h6 fw-bold mb-2 text-center text-md-start">자치구별 총재산·부동산·금융 합계 비교 (2026)</h3>
+            <p class="district-chart-star-legend small text-muted mb-1 text-center text-md-start d-flex align-items-center justify-content-center justify-content-md-start flex-wrap gap-1">
+                <i class="bi bi-star-fill text-warning flex-shrink-0" style="font-size:1rem;" aria-hidden="true"></i>
+                <span class="visually-hidden">노란 별</span>
+                <span>: 해당 지표 1위</span>
+            </p>
+            <div id="district-chart-rank1-caption" class="district-rank1-caption-wrap mb-3 text-center text-md-start" aria-live="polite"></div>
+            <div class="district-compare-chart-scroll">
+                <div class="district-compare-chart-wrap">
+                    <canvas id="districtCompareChart" aria-label="자치구별 재산·부동산·금융 합계 막대 그래프"></canvas>
+                </div>
+            </div>
+        </section>
+
         <div id="loading" class="text-center my-5">
             <div class="spinner-border text-primary" role="status"></div>
             <p class="mt-2">데이터를 불러오는 중입니다...</p>
