@@ -1,5 +1,58 @@
 // chart.js - 시각화 전용 엔진
 
+/** 자치구 비교 차트 외부 HTML 툴팁 숨김 + Chart 활성 요소 해제(모바일 고착 방지) */
+function districtChartHideExternalTooltip(chart) {
+    const tip = document.getElementById("district-chart-tooltip-el");
+    if (tip) {
+        tip.style.opacity = "0";
+        tip.style.visibility = "hidden";
+    }
+    if (chart && typeof chart.setActiveElements === "function") {
+        try {
+            chart.setActiveElements([]);
+            chart.update("none");
+        } catch (e) {
+            /* noop */
+        }
+    }
+}
+
+/**
+ * 스크롤·차트 밖 터치 시 툴팁 제거. 반환값: 등록 해제 함수
+ * @param {object} chart Chart.js 인스턴스
+ */
+function districtChartInstallTooltipDismissers(chart) {
+    const canvas = chart?.canvas;
+    if (!canvas) return () => {};
+
+    const hide = () => districtChartHideExternalTooltip(window.districtCompareChartInstance);
+
+    const onScrollOrResize = () => hide();
+
+    const onTouchStart = (e) => {
+        const tip = document.getElementById("district-chart-tooltip-el");
+        if (!tip || tip.style.opacity === "0" || tip.style.visibility === "hidden") return;
+        const t = e.target;
+        if (tip === t || tip.contains(t)) return;
+        const chartRoot = canvas.closest(".district-compare-chart-scroll");
+        if (chartRoot && (chartRoot === t || chartRoot.contains(t))) return;
+        hide();
+    };
+
+    window.addEventListener("scroll", onScrollOrResize, true);
+    window.addEventListener("resize", onScrollOrResize);
+    const scrollWrap = canvas.closest(".district-compare-chart-scroll");
+    scrollWrap?.addEventListener("scroll", onScrollOrResize, { passive: true });
+    document.addEventListener("touchstart", onTouchStart, { passive: true, capture: true });
+
+    return () => {
+        window.removeEventListener("scroll", onScrollOrResize, true);
+        window.removeEventListener("resize", onScrollOrResize);
+        scrollWrap?.removeEventListener("scroll", onScrollOrResize);
+        document.removeEventListener("touchstart", onTouchStart, true);
+    };
+}
+
 /**
  * [수정] 모달 내 2023~2026 재산 변동 추이 그래프 (Line Chart)
  * @param {Array} allPersonData - 해당 인물의 전 연도 데이터 배열
@@ -413,6 +466,11 @@ function updateDistrictCompareChart() {
         },
     };
 
+    if (typeof window._districtChartTooltipDismissCleanup === "function") {
+        window._districtChartTooltipDismissCleanup();
+        window._districtChartTooltipDismissCleanup = null;
+    }
+
     if (window.districtCompareChartInstance instanceof Chart) {
         window.districtCompareChartInstance.destroy();
     }
@@ -609,4 +667,11 @@ function updateDistrictCompareChart() {
             },
         },
     });
+
+    if (typeof window._districtChartTooltipDismissCleanup === "function") {
+        window._districtChartTooltipDismissCleanup();
+    }
+    window._districtChartTooltipDismissCleanup = districtChartInstallTooltipDismissers(
+        window.districtCompareChartInstance
+    );
 }
