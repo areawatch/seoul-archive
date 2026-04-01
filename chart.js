@@ -341,32 +341,19 @@ function districtChartDatasetBarBorders(len, selectedIdx, dimOthers, borderRgb) 
     return { borderColor, borderWidth };
 }
 
-/** 막대 위 1위 표시용 노란 별 (캔버스, bi-star-fill 느낌) */
-function districtChartDrawRankStar(ctx, cx, cy, outerR) {
-    const spikes = 5;
-    const innerR = outerR * 0.42;
-    const step = Math.PI / spikes;
-    let rot = -Math.PI / 2;
-    ctx.beginPath();
-    for (let i = 0; i < spikes * 2; i++) {
-        const r = i % 2 === 0 ? outerR : innerR;
-        const sx = cx + Math.cos(rot) * r;
-        const sy = cy + Math.sin(rot) * r;
-        if (i === 0) ctx.moveTo(sx, sy);
-        else ctx.lineTo(sx, sy);
-        rot += step;
-    }
-    ctx.closePath();
-    ctx.fillStyle = "#ffc107";
-    ctx.strokeStyle = "#e0a800";
-    ctx.lineWidth = 1;
-    ctx.fill();
-    ctx.stroke();
+/** 막대 위 1위 표시: ⭐ 이모지 (캔버스 텍스트, 툴팁과 동일) */
+function districtChartDrawRankStar(ctx, cx, cy, fontPx) {
+    const fp = Math.max(10, Number(fontPx) || 14);
+    ctx.font =
+        `${fp}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("⭐", cx, cy);
 }
 
 /**
  * 자치구별 페이지: 25개 구 × (총재산·부동산·금융) 합계 비교 (그룹 막대, Y=천원)
- * 1위 막대 상단 노란 별 · 선택 구만 원래 색
+ * 1위 막대 상단 ⭐ · 선택 구만 원래 색
  */
 function updateDistrictCompareChart() {
     const ctx = document.getElementById("districtCompareChart");
@@ -445,7 +432,7 @@ function updateDistrictCompareChart() {
             if (chart.canvas.id !== "districtCompareChart") return;
             const { ctx } = chart;
             const topsList = [topTot, topRe, topFin];
-            const starR = 6.5;
+            const starFontPx = 14;
             ctx.save();
 
             chart.data.datasets.forEach((_, dsIndex) => {
@@ -458,8 +445,8 @@ function updateDistrictCompareChart() {
                     const props = el.getProps(["x", "y", "base"], true);
                     const topY = Math.min(props.y, props.base);
                     const x = props.x;
-                    const cy = topY - starR - 3;
-                    districtChartDrawRankStar(ctx, x, cy, starR);
+                    const cy = topY - Math.round(starFontPx / 2) - 3;
+                    districtChartDrawRankStar(ctx, x, cy, starFontPx);
                 });
             });
             ctx.restore();
@@ -518,8 +505,12 @@ function updateDistrictCompareChart() {
             const eok = v === 0 ? "0" : (v / 100000).toFixed(2) + "억";
             const amountPlain = eok + " (" + v.toLocaleString() + "천원)";
             const dsLab = dp.dataset.label || "";
-            const tops = topSets[dp.datasetIndex];
-            const rankNote = tops.has(dataIndex) ? " · 1위" : "";
+            const posR = rankRowsByDataset[dp.datasetIndex][dataIndex];
+            const rankAmong =
+                " · " +
+                districtCount +
+                "개 구 중 " +
+                (posR === 1 ? "1위 ⭐" : posR + "위");
 
             const swatch =
                 districtTooltipSwatchRgb[dp.datasetIndex] || "rgba(255,255,255,0.5)";
@@ -528,9 +519,6 @@ function updateDistrictCompareChart() {
             let amountHtml;
             if (isSelectedCol) {
                 const c = districtAmountColors[dp.datasetIndex] || "#ffffff";
-                const posR = rankRowsByDataset[dp.datasetIndex][dataIndex];
-                const rankAmong =
-                    " · " + districtCount + "개 구 중 " + posR + "위";
                 amountHtml =
                     '<span class="district-chart-tooltip-amount" style="color:' +
                     districtChartEscHtml(c) +
@@ -540,7 +528,11 @@ function updateDistrictCompareChart() {
                     districtChartEscHtml(rankAmong) +
                     "</span></span>";
             } else {
-                amountHtml = districtChartEscHtml(amountPlain);
+                amountHtml =
+                    districtChartEscHtml(amountPlain) +
+                    '<span class="district-chart-tooltip-posrank">' +
+                    districtChartEscHtml(rankAmong) +
+                    "</span>";
             }
 
             rows +=
@@ -551,9 +543,6 @@ function updateDistrictCompareChart() {
                 '<span class="district-chart-tooltip-line">' +
                 labelPart +
                 amountHtml +
-                (rankNote
-                    ? '<span class="district-chart-tooltip-rank">' + districtChartEscHtml(rankNote) + "</span>"
-                    : "") +
                 "</span></div>";
         });
 
