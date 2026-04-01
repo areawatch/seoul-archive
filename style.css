@@ -215,9 +215,22 @@ h1 {
 .stat-card-metric .stat-card-heading {
     font-family: 'Paperozi', sans-serif !important;
     font-weight: 700 !important;
-    color: #495057 !important;
     letter-spacing: -0.02em;
     line-height: 1.35;
+    font-size: 1.02rem !important;
+}
+
+/* 개요 카드 타이틀 강조색 */
+.stat-card-metric .stat-card-heading--c1 {
+    color: #b4233f !important;
+}
+
+.stat-card-metric .stat-card-heading--c2 {
+    color: #0f3d7a !important;
+}
+
+.stat-card-metric .stat-card-heading--c3 {
+    color: #4a2c6b !important;
 }
 .stat-card-metric .stat-triple-col.border-end {
     border-color: rgba(0, 0, 0, 0.08) !important;
@@ -292,6 +305,40 @@ h1 {
     max-width: 36rem;
     margin-left: auto;
     margin-right: auto;
+}
+
+.hero-section .hero-archive-btn {
+    background-color: #aac465 !important;
+    border-color: #aac465 !important;
+    color: #2a3318 !important;
+}
+
+.hero-section .hero-archive-btn:hover,
+.hero-section .hero-archive-btn:focus {
+    background-color: #97b34e !important;
+    border-color: #97b34e !important;
+    color: #2a3318 !important;
+}
+
+.hero-section .hero-archive-btn .bi {
+    color: inherit;
+}
+
+.hero-section .hero-intro-btn {
+    background-color: transparent !important;
+    border: 2px solid #aac465 !important;
+    color: #e3edb5 !important;
+}
+
+.hero-section .hero-intro-btn:hover,
+.hero-section .hero-intro-btn:focus {
+    background-color: rgba(170, 196, 101, 0.22) !important;
+    border-color: #c4d67f !important;
+    color: #f4f7e8 !important;
+}
+
+.hero-section .hero-intro-btn .bi {
+    color: inherit;
 }
 
 /* 메인 첫 블록: 히어로와 살짝 간격 */
@@ -635,4 +682,243 @@ main.index-main-lead {
     #detailContent th:first-child, #detailContent td:first-child {
         width: 80px !important;
     }
+}
+
+/* —— intro.html 프로젝트 소개 —— */
+.intro-page {
+    --intro-point: #aac465;
+    --intro-point-hover: #97b34e;
+    --intro-point-ink: #2a3318;
+    background: linear-gradient(180deg, #f4f6f9 0%, #eef1f5 100%);
+    min-height: 50vh;
+    overflow-x: clip;
+}
+
+.intro-poster {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.intro-poster-img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* 모바일·태블릿: 컨테이너 밖으로 넓혀 화면 가로를 꽉 채움 */
+@media (max-width: 991.98px) {
+    .intro-page .intro-poster {
+        width: 100vw;
+        max-width: 100vw;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+.intro-title {
+    font-family: 'Paperozi', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.65rem, 4vw, 2.35rem);
+    line-height: 1.28;
+    letter-spacing: -0.03em;
+    color: #212529;
+    white-space: nowrap;
+}
+
+.intro-title-q {
+    display: inline;
+}
+
+.intro-title-accent {
+    display: inline;
+    color: var(--intro-point);
+}
+
+@media (max-width: 400px) {
+    .intro-title {
+        white-space: normal;
+        font-size: 1.4rem;
+    }
+}
+
+.intro-body-stack {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding-top: 1.1rem;
+}
+
+@media (max-width: 991.98px) {
+    .intro-body-stack {
+        padding-top: 2rem;
+    }
+}
+
+.intro-body-stack > .intro-title,
+.intro-body-stack > .intro-lead,
+.intro-body-stack > .intro-panel,
+.intro-body-stack > .intro-contact {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.intro-lead {
+    font-size: 1.05rem;
+    line-height: 1.75;
+}
+
+.intro-panel {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 1rem;
+    padding: 1.35rem 1.5rem 1.25rem;
+    box-shadow: 0 0.125rem 0.5rem rgba(15, 23, 42, 0.06);
+}
+
+.intro-panel-title {
+    font-family: 'Paperozi', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: -0.02em;
+    color: #343a40;
+    margin-bottom: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.intro-panel-icon {
+    color: var(--intro-point);
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.intro-panel-text {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: #495057;
+    margin-bottom: 1rem !important;
+}
+
+.intro-brand {
+    color: var(--intro-point);
+    font-weight: 700;
+}
+
+.intro-note {
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: #5c636a;
+    padding: 0.75rem 0.9rem;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    border-left: 3px solid #6c757d;
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+}
+
+.intro-note-icon {
+    flex-shrink: 0;
+    margin-top: 0.12rem;
+    color: #6c757d;
+}
+
+.intro-contact {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 1rem;
+    padding: 1.25rem 1.35rem;
+}
+
+.intro-contact-title {
+    font-family: 'Paperozi', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.02em;
+    color: #212529;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.intro-contact-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.45rem;
+    background: #f1f3f5;
+    color: #495057;
+    font-size: 1rem;
+}
+
+.intro-contact-name {
+    font-size: 0.95rem;
+    color: #212529;
+    font-weight: 600;
+}
+
+.intro-contact-tel {
+    margin-left: 0.35rem;
+    color: var(--intro-point);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.intro-contact-tel:hover {
+    color: var(--intro-point-hover);
+    text-decoration: underline;
+}
+
+.intro-contact-org {
+    font-size: 0.8125rem;
+    color: #868e96;
+}
+
+.intro-newsletter-actions {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.intro-newsletter-btn {
+    font-weight: 600;
+    font-size: 0.9rem;
+    line-height: 1.35;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    border-radius: 0.5rem;
+    white-space: normal;
+    text-align: center;
+    background-color: var(--intro-point) !important;
+    border-color: var(--intro-point) !important;
+    color: var(--intro-point-ink) !important;
+}
+
+.intro-newsletter-btn:hover,
+.intro-newsletter-btn:focus {
+    background-color: var(--intro-point-hover) !important;
+    border-color: var(--intro-point-hover) !important;
+    color: var(--intro-point-ink) !important;
+}
+
+.intro-newsletter-btn--outline {
+    background-color: transparent !important;
+    border: 2px solid var(--intro-point) !important;
+    color: var(--intro-point-ink) !important;
+}
+
+.intro-newsletter-btn--outline:hover,
+.intro-newsletter-btn--outline:focus {
+    background-color: rgba(170, 196, 101, 0.18) !important;
+    border-color: var(--intro-point-hover) !important;
+    color: var(--intro-point-ink) !important;
 }
