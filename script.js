@@ -308,8 +308,15 @@ function updateHighlights(filteredArray) {
         .filter(a => (a.y2025 || 0) > 0)
         .sort((a, b) => ((b.y2026 || 0) - (b.y2025 || 0)) - ((a.y2026 || 0) - (a.y2025 || 0)))
         .slice(0, topN);
-    const topLand = [...filteredArray].sort((a, b) => (b.land2026||0) - (a.land2026||0)).slice(0, topN);
-    const topBuilding = [...filteredArray].sort((a, b) => (b.building2026||0) - (a.building2026||0)).slice(0, topN);
+    const sumRealEstate2026 = (p) => (Number(p.land2026) || 0) + (Number(p.building2026) || 0);
+    const sumFinance2026 = (p) =>
+        (Number(p.cash2026) || 0) + (Number(p.deposit2026) || 0) + (Number(p.stock2026) || 0);
+    const topRealEstate = [...filteredArray]
+        .sort((a, b) => sumRealEstate2026(b) - sumRealEstate2026(a))
+        .slice(0, topN);
+    const topFinance = [...filteredArray]
+        .sort((a, b) => sumFinance2026(b) - sumFinance2026(a))
+        .slice(0, topN);
 
     const fillList = (id, items, type) => {
         const container = document.getElementById(id);
@@ -323,8 +330,8 @@ function updateHighlights(filteredArray) {
             let val = 0;
             if (type === 'wealth') val = item.y2026 || 0;
             else if (type === 'growth') val = (item.y2026 || 0) - (item.y2025 || 0);
-            else if (type === 'land') val = item.land2026 || 0;
-            else if (type === 'building') val = item.building2026 || 0;
+            else if (type === 'realestate') val = sumRealEstate2026(item);
+            else if (type === 'finance') val = sumFinance2026(item);
             const valText =
                 type === 'growth'
                     ? formatCheonDeltaEokMan(val)
@@ -358,8 +365,8 @@ function updateHighlights(filteredArray) {
     };
     fillList('max-wealth-list', topWealth, 'wealth');
     fillList('max-growth-list', topGrowth, 'growth');
-    fillList('max-land-list', topLand, 'land');
-    fillList('max-building-list', topBuilding, 'building');
+    fillList('max-realestate-list', topRealEstate, 'realestate');
+    fillList('max-finance-list', topFinance, 'finance');
     const section = document.getElementById('highlight-section');
     if (section) section.style.display = 'flex';
 }
