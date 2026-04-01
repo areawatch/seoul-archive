@@ -223,10 +223,67 @@ h1 {
     border-color: rgba(0, 0, 0, 0.08) !important;
 }
 .stat-card-metric .stat-value-total {
-    font-family: 'Paperozi', sans-serif;
-    font-weight: 700;
     font-size: 1.02rem;
+}
+
+.stat-card-metric .stat-metric-col-title {
+    font-family: 'Paperozi', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #6c757d !important;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card-metric .stat-metric-sublabel {
+    font-family: 'Paperozi', sans-serif !important;
+    font-size: 0.72rem !important;
+    color: #6c757d !important;
+}
+
+.stat-card-metric .stat-value-line {
+    font-family: 'Paperozi', sans-serif !important;
+    font-weight: 700 !important;
     letter-spacing: -0.02em;
+    color: #212529;
+}
+
+.stat-card-metric .stat-avg-value {
+    font-family: 'Paperozi', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem;
+    letter-spacing: -0.02em;
+    color: #212529;
+}
+
+/* 조·억(또는 조만) / 만 — 데스크톱 한 줄, 모바일만 세로 */
+.stat-card-metric .stat-ko-stack {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.3em;
+    max-width: 100%;
+    line-height: 1.22;
+}
+
+.stat-card-metric .stat-ko-stack--single {
+    display: inline;
+}
+
+@media (max-width: 767.98px) {
+    .stat-card-metric .stat-ko-stack:not(.stat-ko-stack--single) {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.08rem;
+        line-height: 1.18;
+    }
+
+    .stat-card-metric .stat-value-line {
+        min-height: 3.2rem;
+    }
 }
 
 .hero-section .hero-meta {
