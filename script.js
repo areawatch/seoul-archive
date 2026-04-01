@@ -162,7 +162,7 @@ function renderRouter() {
     
     document.getElementById('loading').style.display = 'none';
     document.getElementById('list-section').style.display = 'block';
-    if (document.getElementById('filter-section')) document.getElementById('filter-section').style.display = 'block';
+    if (document.getElementById('filter-section')) document.getElementById('filter-section').style.display = 'flex';
 
     $('#analysisTable').DataTable({
         "order": [[3, "desc"]],

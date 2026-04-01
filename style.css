@@ -46,6 +46,78 @@ h1 {
     font-weight: 700 !important; /* Bold 단계 사용 */
 }
 
+/* archive.html — 모바일에서 좌우 여백 확대 */
+@media (max-width: 767.98px) {
+    .archive-main.container {
+        padding-left: 1.35rem;
+        padding-right: 1.35rem;
+    }
+}
+
+/* archive.html — 공직자 재산 목록 제목 (Paperlogy Bold 700) */
+.archive-list-page-title {
+    font-family: 'Paperozi', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 2.25rem;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+}
+
+/* archive — DataTables 하단(건수 문구)·페이지네이션 */
+#analysisTable_wrapper .dataTables_info {
+    color: #a8aeb5;
+    font-size: 0.72rem;
+    padding-top: 0.65rem;
+}
+
+#analysisTable_wrapper .dataTables_length,
+#analysisTable_wrapper .dataTables_length label,
+#analysisTable_wrapper .dataTables_filter label {
+    color: #a8aeb5;
+    font-size: 0.72rem;
+}
+
+#analysisTable_wrapper .dataTables_length select {
+    font-size: 0.75rem;
+    padding: 0.2rem 1.75rem 0.2rem 0.45rem;
+    color: #5c636a;
+}
+
+#analysisTable_wrapper .dataTables_paginate {
+    padding-top: 0.5rem;
+}
+
+#analysisTable_wrapper .dataTables_paginate .pagination {
+    margin-bottom: 0;
+    gap: 0.12rem;
+}
+
+#analysisTable_wrapper .dataTables_paginate .page-link {
+    padding: 0.12rem 0.42rem;
+    font-size: 0.7rem;
+    line-height: 1.35;
+    color: #0f2744;
+    border-color: #dee2e6;
+    border-radius: 0.25rem;
+}
+
+#analysisTable_wrapper .dataTables_paginate .page-item.active .page-link {
+    background-color: #0f2744;
+    border-color: #0f2744;
+    color: #fff;
+    z-index: 1;
+}
+
+#analysisTable_wrapper .dataTables_paginate .page-item.disabled .page-link {
+    color: #b8c0c8;
+}
+
+#analysisTable_wrapper .dataTables_paginate .page-item:not(.disabled):not(.active) .page-link:hover {
+    background-color: #eef2f6;
+    color: #0a1929;
+    border-color: #ced4da;
+}
+
 /* 기존 레이아웃 디자인 유지 */
 .hero-section {
     background: linear-gradient(135deg, #212529 0%, #343a40 100%);
