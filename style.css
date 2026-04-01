@@ -759,7 +759,8 @@ main.index-main-lead {
 .intro-body-stack > .intro-title,
 .intro-body-stack > .intro-lead,
 .intro-body-stack > .intro-panel,
-.intro-body-stack > .intro-contact {
+.intro-body-stack > .intro-contact,
+.intro-body-stack > .intro-newsletter-card {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -882,8 +883,24 @@ main.index-main-lead {
     color: #868e96;
 }
 
+.intro-newsletter-card {
+    margin-top: 1.25rem;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 1rem;
+    padding: 1.35rem 1.5rem 1.25rem;
+    box-shadow: 0 0.125rem 0.5rem rgba(15, 23, 42, 0.06);
+}
+
+.intro-newsletter-lead {
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    color: #495057;
+    margin-bottom: 1.15rem !important;
+}
+
 .intro-newsletter-actions {
-    margin-top: 1rem;
+    margin-top: 0;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
