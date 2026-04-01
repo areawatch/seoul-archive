@@ -324,6 +324,23 @@ h1 {
     color: inherit;
 }
 
+.hero-section .hero-district-btn {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    border: 2px solid rgba(227, 237, 181, 0.55) !important;
+    color: #f4f7e8 !important;
+}
+
+.hero-section .hero-district-btn:hover,
+.hero-section .hero-district-btn:focus {
+    background-color: rgba(170, 196, 101, 0.28) !important;
+    border-color: #c4d67f !important;
+    color: #fff !important;
+}
+
+.hero-section .hero-district-btn .bi {
+    color: inherit;
+}
+
 .hero-section .hero-intro-btn {
     background-color: transparent !important;
     border: 2px solid #aac465 !important;

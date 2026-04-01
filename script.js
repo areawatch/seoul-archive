@@ -38,6 +38,24 @@ function isDebtType(type) {
     return /채무|부채/.test(String(type));
 }
 
+function sumRealEstate2026Item(p) {
+    return (Number(p.land2026) || 0) + (Number(p.building2026) || 0);
+}
+
+function sumFinance2026Item(p) {
+    return (Number(p.cash2026) || 0) + (Number(p.deposit2026) || 0) + (Number(p.stock2026) || 0);
+}
+
+function getSeoulDistrictNames() {
+    if (typeof sheetTabs === "undefined") return [];
+    return sheetTabs
+        .filter((t) => t.name !== "구청장")
+        .map((t) => t.name)
+        .sort((a, b) => a.localeCompare(b, "ko"));
+}
+
+let currentDistrictFilter = "";
+
 function formatSignedByType(type, value) {
     const v = Number(value) || 0;
     if (isDebtType(type)) return "-" + Math.abs(v).toLocaleString();
@@ -53,6 +71,19 @@ function formatDistrictPositionLabel(district, position) {
     const base = d.length >= 2 && d.endsWith("구") ? d.slice(0, -1) : d;
     if (pos.startsWith("구")) return base + pos;
     return d + " " + pos;
+}
+
+/** 천원 합계 → 005억0123만원 (1억=100,000천원, 1만원=10천원). 억 3자리·만 4자리 0패딩 */
+function formatCheonSumToEokManWon(cheon) {
+    const n = Number(cheon) || 0;
+    const neg = n < 0;
+    const v = Math.abs(Math.floor(n));
+    const CHEON_PER_EOK = 100000;
+    const eok = Math.floor(v / CHEON_PER_EOK);
+    const man = Math.floor((v % CHEON_PER_EOK) / 10);
+    const eokStr = String(eok).padStart(3, "0");
+    const manStr = String(man).padStart(4, "0");
+    return (neg ? "-" : "") + eokStr + "억" + manStr + "만원";
 }
 
 /** 천원 단위 증감 → +33억 9,843만 (1억=100,000천원). 1만 미만은 N천원 */
@@ -79,7 +110,10 @@ window.onload = () => {
     if (typeof loadArchiveDataFromJson === 'function') {
         // data.json/detail.json 기반으로 1회 로드 후 라우터 렌더
         loadArchiveDataFromJson()
-            .then(() => renderRouter())
+            .then(() => {
+                if (document.body.id === "page-archive-district") initDistrictArchivePage();
+                else renderRouter();
+            })
             .catch(err => {
                 console.error("데이터 로드 실패:", err);
                 // detail.json이 아직 없거나 로드 실패하면 (구형 동작) CSV 로드로 폴백
@@ -99,6 +133,114 @@ window.onload = () => {
 function filterPosition(pos) {
     currentFilter = pos;
     renderRouter();
+}
+
+function initDistrictArchivePage() {
+    const sel = document.getElementById("district-select");
+    if (!sel) return;
+    const names = getSeoulDistrictNames();
+    sel.innerHTML = names.map((n) => `<option value="${n}">${n}</option>`).join("");
+    currentDistrictFilter = names[0] || "";
+    sel.value = currentDistrictFilter;
+    sel.addEventListener("change", () => {
+        currentDistrictFilter = sel.value;
+        renderDistrictRouter();
+    });
+    renderDistrictRouter();
+}
+
+function updateDistrictSummaryCards(items) {
+    const totalEl = document.getElementById("district-stat-total");
+    const reEl = document.getElementById("district-stat-realestate");
+    const finEl = document.getElementById("district-stat-finance");
+    if (!totalEl || !reEl || !finEl) return;
+
+    let sumY = 0;
+    let sumRe = 0;
+    let sumFin = 0;
+    items.forEach((item) => {
+        sumY += Number(item.y2026) || 0;
+        sumRe += sumRealEstate2026Item(item);
+        sumFin += sumFinance2026Item(item);
+    });
+
+    totalEl.textContent = formatCheonSumToEokManWon(sumY);
+    reEl.textContent = formatCheonSumToEokManWon(sumRe);
+    finEl.textContent = formatCheonSumToEokManWon(sumFin);
+}
+
+function renderDistrictRouter() {
+    const tableBody = document.getElementById("tableBody");
+    const districtSummarySection = document.getElementById("district-summary-section");
+    if (!tableBody || !districtSummarySection) return;
+
+    let summaryArray = Object.values(allSummary);
+    if (summaryArray.length === 0) return;
+
+    const d = (currentDistrictFilter || "").trim();
+    summaryArray = summaryArray.filter((item) => (item.district || "").trim() === d);
+
+    updateDistrictSummaryCards(summaryArray);
+
+    let listHtml = "";
+    const orderVal = (rate) => (rate === null || Number.isNaN(rate)) ? -1e15 : rate;
+    summaryArray.forEach((item) => {
+        const v26 = item.y2026 || 0;
+        const v25 = item.y2025 || 0;
+        const v24 = item.y2024 || 0;
+        const v23 = item.y2023 || 0;
+        const r2526 = v25 > 0 ? ((v26 - v25) / v25 * 100) : null;
+        const r2425 = v24 > 0 ? ((v25 - v24) / v24 * 100) : null;
+        const r2324 = v23 > 0 ? ((v24 - v23) / v23 * 100) : null;
+        const pColor = (typeof partyColors !== "undefined" && partyColors[item.party]) ? partyColors[item.party] : "#666";
+
+        listHtml += `
+            <tr onclick="showDetail('${item.name}', '${item.district}')" style="cursor:pointer;">
+                <td>${item.district}</td>
+                <td><small>${item.position}</small></td>
+                <td>
+                    <span class="fw-bold">${item.name}</span>
+                    <span class="badge ms-1" style="background-color:${pColor}; font-size: 0.6rem;">${item.party}</span>
+                </td>
+                <td class="text-end fw-bold text-danger">${v26.toLocaleString()}</td>
+                <td class="text-center" data-order="${orderVal(r2526)}" data-sort="${orderVal(r2526)}">
+                    <small class="fw-bold ${r2526 > 0 ? "text-danger" : "text-primary"}">
+                        ${r2526 !== null ? (r2526 > 0 ? "+" : "") + r2526.toFixed(1) + "%" : "-"}
+                    </small>
+                </td>
+                <td class="text-end text-muted small">${v25.toLocaleString()}</td>
+                <td class="text-center" data-order="${orderVal(r2425)}" data-sort="${orderVal(r2425)}">
+                    <small class="text-muted">${r2425 !== null ? (r2425 > 0 ? "+" : "") + r2425.toFixed(1) + "%" : "-"}</small>
+                </td>
+                <td class="text-end text-muted small">${v24.toLocaleString()}</td>
+                <td class="text-center" data-order="${orderVal(r2324)}" data-sort="${orderVal(r2324)}">
+                    <small class="text-muted">${r2324 !== null ? (r2324 > 0 ? "+" : "") + r2324.toFixed(1) + "%" : "-"}</small>
+                </td>
+                <td class="text-end text-muted small">${v23.toLocaleString()}</td>
+            </tr>`;
+    });
+
+    if ($.fn.DataTable.isDataTable("#analysisTable")) {
+        $("#analysisTable").DataTable().clear().destroy();
+    }
+
+    tableBody.innerHTML = listHtml;
+
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("list-section").style.display = "block";
+    const filterEl = document.getElementById("district-filter-section");
+    if (filterEl) filterEl.style.display = "flex";
+
+    districtSummarySection.style.display = "flex";
+
+    $("#analysisTable").DataTable({
+        order: [[3, "desc"]],
+        columnDefs: [{ targets: [4, 6, 8], type: "num" }],
+        pageLength: 25,
+        autoWidth: false,
+        responsive: true,
+        language: { search: "검색:", lengthMenu: "_MENU_ 개씩 보기" },
+    });
 }
 
 function renderRouter() {
@@ -308,14 +450,11 @@ function updateHighlights(filteredArray) {
         .filter(a => (a.y2025 || 0) > 0)
         .sort((a, b) => ((b.y2026 || 0) - (b.y2025 || 0)) - ((a.y2026 || 0) - (a.y2025 || 0)))
         .slice(0, topN);
-    const sumRealEstate2026 = (p) => (Number(p.land2026) || 0) + (Number(p.building2026) || 0);
-    const sumFinance2026 = (p) =>
-        (Number(p.cash2026) || 0) + (Number(p.deposit2026) || 0) + (Number(p.stock2026) || 0);
     const topRealEstate = [...filteredArray]
-        .sort((a, b) => sumRealEstate2026(b) - sumRealEstate2026(a))
+        .sort((a, b) => sumRealEstate2026Item(b) - sumRealEstate2026Item(a))
         .slice(0, topN);
     const topFinance = [...filteredArray]
-        .sort((a, b) => sumFinance2026(b) - sumFinance2026(a))
+        .sort((a, b) => sumFinance2026Item(b) - sumFinance2026Item(a))
         .slice(0, topN);
 
     const fillList = (id, items, type) => {
@@ -330,8 +469,8 @@ function updateHighlights(filteredArray) {
             let val = 0;
             if (type === 'wealth') val = item.y2026 || 0;
             else if (type === 'growth') val = (item.y2026 || 0) - (item.y2025 || 0);
-            else if (type === 'realestate') val = sumRealEstate2026(item);
-            else if (type === 'finance') val = sumFinance2026(item);
+            else if (type === 'realestate') val = sumRealEstate2026Item(item);
+            else if (type === 'finance') val = sumFinance2026Item(item);
             const valText =
                 type === 'growth'
                     ? formatCheonDeltaEokMan(val)
