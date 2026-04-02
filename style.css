@@ -18,6 +18,12 @@ body {
     color: #333;
 }
 
+/* 푸터: body와 동일 회색 (위쪽은 mt 대신 안쪽 pt로만 여백 — 회색 띠 끊김 방지) */
+.site-footer {
+    background-color: #f4f6f9;
+    border-top-color: rgba(0, 0, 0, 0.08) !important;
+}
+
 /* 텍스트 드래그(선택) 강조 — 모든 페이지 공통 */
 ::selection {
     background-color: #aac465;
