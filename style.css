@@ -1411,3 +1411,12 @@ main.index-main-lead {
     border-color: var(--intro-point-hover) !important;
     color: var(--intro-point-ink) !important;
 }
+
+.site-footer .site-footer-internal-link {
+    text-decoration: none !important;
+}
+.site-footer .site-footer-internal-link:hover,
+.site-footer .site-footer-internal-link:focus-visible {
+    text-decoration: none !important;
+    opacity: 0.82;
+}
