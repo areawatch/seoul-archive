@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>내부 분석 · 연도별 집계</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .analysis-internal {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.25rem 3rem;
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            color: #212529;
+        }
+        .analysis-internal h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.35rem;
+        }
+        .analysis-internal .analysis-lead {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-bottom: 2rem;
+        }
+        .analysis-internal h2 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin: 2rem 0 0.75rem;
+            padding-bottom: 0.35rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .analysis-internal h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #495057;
+            margin: 1.25rem 0 0.5rem;
+        }
+        .analysis-internal .analysis-year-fold {
+            margin-bottom: 0.65rem;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            border: 1px solid #dee2e6;
+            overflow: hidden;
+        }
+        .analysis-internal .analysis-year-fold > summary {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.6rem 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #343a40;
+            background: #f8f9fa;
+            cursor: pointer;
+            user-select: none;
+        }
+        .analysis-internal .analysis-year-fold > summary::-webkit-details-marker {
+            display: none;
+        }
+        .analysis-internal .analysis-year-fold > summary::before {
+            content: "";
+            display: inline-block;
+            width: 0.45em;
+            height: 0.45em;
+            border-right: 2px solid #495057;
+            border-bottom: 2px solid #495057;
+            transform: rotate(-45deg);
+            margin-top: -0.15em;
+            flex-shrink: 0;
+            opacity: 0.75;
+            transition: transform 0.15s ease;
+        }
+        .analysis-internal .analysis-year-fold[open] > summary::before {
+            transform: rotate(45deg);
+            margin-top: 0.1em;
+        }
+        .analysis-internal .analysis-year-fold > summary:hover {
+            background: #f1f3f5;
+        }
+        .analysis-internal .analysis-year-fold-body {
+            padding: 0.5rem 0.75rem 0.65rem;
+            border-top: 1px solid #e9ecef;
+        }
+        .analysis-internal .analysis-year-fold-body > h3:first-child {
+            margin-top: 0.35rem;
+        }
+        .analysis-internal table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8125rem;
+            margin-bottom: 0.5rem;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+        /* 둥근 모서리 + 클립은 피벗표(#analysis-s3-table) 제외 — overflow:hidden이 셀 sticky를 막음 */
+        .analysis-internal table:not(#analysis-s3-table) {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .analysis-internal thead th {
+            text-align: left;
+            background: #f1f3f5;
+            color: #343a40;
+            font-weight: 600;
+            padding: 0.55rem 0.65rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .analysis-internal thead th.num,
+        .analysis-internal td.num {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+        .analysis-internal tbody td,
+        .analysis-internal tbody th {
+            padding: 0.45rem 0.65rem;
+            border-bottom: 1px solid #f1f3f5;
+        }
+        .analysis-internal tbody tr:nth-child(even) {
+            background: #fafbfc;
+        }
+        .analysis-internal tbody tr:last-child td,
+        .analysis-internal tbody tr:last-child th {
+            border-bottom: none;
+        }
+        .analysis-internal .rank {
+            width: 2.5rem;
+            text-align: center;
+            color: #6c757d;
+        }
+        .analysis-internal .err {
+            color: #c92a2a;
+            padding: 1rem;
+            background: #fff5f5;
+            border-radius: 8px;
+        }
+        .analysis-internal thead th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+        .analysis-internal thead th.sortable:hover {
+            background: #e9ecef;
+        }
+        .analysis-internal thead th.sortable .sort-hint {
+            opacity: 0.45;
+            font-size: 0.75em;
+            font-weight: 500;
+            margin-left: 0.2em;
+        }
+        .analysis-internal thead th.sort-asc .sort-hint::after {
+            content: "↑";
+        }
+        .analysis-internal thead th.sort-desc .sort-hint::after {
+            content: "↓";
+        }
+        .analysis-internal .analysis-full-table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            background: #fff;
+            border: 1px solid #dee2e6;
+        }
+        .analysis-internal table.analysis-full-2026 {
+            min-width: 2400px;
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            box-shadow: none;
+            border-radius: 0;
+        }
+        .analysis-internal table.analysis-full-2026 thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            white-space: nowrap;
+            box-shadow: 0 1px 0 #dee2e6;
+        }
+        /* 3번 피벗표만: # · 자치구 · 성명 가로 고정
+           border-collapse:collapse + 부모/테이블 overflow:hidden 은 셀 sticky를 깨뜨리는 경우가 많음 */
+        #analysis-s3-table {
+            --s3-sticky-rank-w: 2.75rem;
+            --s3-sticky-district-w: 7rem;
+            --s3-sticky-name-w: 7.25rem;
+            overflow: visible;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        #analysis-s3-table thead th.analysis-s3-sticky-rank,
+        #analysis-s3-table tbody td.analysis-s3-sticky-rank {
+            position: sticky;
+            left: 0;
+            z-index: 4;
+            width: var(--s3-sticky-rank-w);
+            min-width: var(--s3-sticky-rank-w);
+            max-width: var(--s3-sticky-rank-w);
+            box-sizing: border-box;
+            background: #fff;
+            box-shadow: 3px 0 6px -3px rgba(0, 0, 0, 0.12);
+        }
+        #analysis-s3-table thead th.analysis-s3-sticky-district,
+        #analysis-s3-table tbody td.analysis-s3-sticky-district {
+            position: sticky;
+            left: var(--s3-sticky-rank-w);
+            z-index: 5;
+            width: var(--s3-sticky-district-w);
+            min-width: var(--s3-sticky-district-w);
+            max-width: var(--s3-sticky-district-w);
+            box-sizing: border-box;
+            background: #fff;
+            box-shadow: 3px 0 6px -3px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        #analysis-s3-table thead th.analysis-s3-sticky-name,
+        #analysis-s3-table tbody td.analysis-s3-sticky-name {
+            position: sticky;
+            left: calc(var(--s3-sticky-rank-w) + var(--s3-sticky-district-w));
+            z-index: 6;
+            width: var(--s3-sticky-name-w);
+            min-width: var(--s3-sticky-name-w);
+            max-width: var(--s3-sticky-name-w);
+            box-sizing: border-box;
+            background: #fff;
+            box-shadow: 3px 0 6px -3px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        #analysis-s3-table thead th.analysis-s3-sticky-rank,
+        #analysis-s3-table thead th.analysis-s3-sticky-district,
+        #analysis-s3-table thead th.analysis-s3-sticky-name {
+            top: 0;
+            z-index: 14;
+            background: #f1f3f5;
+            box-shadow: 3px 0 6px -3px rgba(0, 0, 0, 0.1), 0 1px 0 #dee2e6;
+        }
+        #analysis-s3-table thead th.analysis-s3-sticky-name {
+            z-index: 16;
+        }
+        #analysis-s3-table thead th.analysis-s3-sticky-district {
+            z-index: 15;
+        }
+        #analysis-s3-table thead th.analysis-s3-sticky-rank {
+            z-index: 14;
+        }
+        #analysis-s3-table tbody tr:nth-child(even) td.analysis-s3-sticky-rank,
+        #analysis-s3-table tbody tr:nth-child(even) td.analysis-s3-sticky-district,
+        #analysis-s3-table tbody tr:nth-child(even) td.analysis-s3-sticky-name {
+            background: #fafbfc;
+        }
+        .analysis-internal .analysis-pager-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.65rem 1rem;
+            margin-bottom: 0.65rem;
+            font-size: 0.8125rem;
+            color: #495057;
+        }
+        .analysis-internal .analysis-pager-toolbar button {
+            font: inherit;
+            padding: 0.35rem 0.65rem;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+        }
+        .analysis-internal .analysis-pager-toolbar button:hover:not(:disabled) {
+            background: #f8f9fa;
+        }
+        .analysis-internal .analysis-pager-toolbar button:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        .analysis-internal .analysis-pager-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+        }
+        .analysis-internal .analysis-pager-toolbar select {
+            font: inherit;
+            padding: 0.3rem 0.45rem;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+        }
+        .analysis-internal table.analysis-full-2026 td.analysis-note-cell {
+            max-width: 15rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            vertical-align: top;
+            font-size: 0.72rem;
+            color: #495057;
+        }
+        .analysis-internal .analysis-note-tip {
+            cursor: help;
+            border-bottom: 1px dotted rgba(73, 80, 87, 0.45);
+            outline: none;
+        }
+        .analysis-s3-float-tip {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            max-width: min(22rem, calc(100vw - 1.5rem));
+            padding: 0.5rem 0.65rem;
+            font-size: 0.75rem;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            word-break: break-word;
+            background: #212529;
+            color: #f8f9fa;
+            border-radius: 6px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.28);
+            pointer-events: none;
+        }
+        .analysis-internal table.analysis-full-2026 th.analysis-type-col {
+            max-width: 7.5rem;
+            white-space: normal;
+            word-break: break-word;
+            line-height: 1.25;
+            font-size: 0.68rem;
+            font-weight: 600;
+            vertical-align: bottom;
+        }
+    </style>
+</head>
+<body style="background: #e9ecef; margin: 0;">
+    <main class="analysis-internal">
+        <h1>내부 분석</h1>
+        <p class="analysis-lead">
+            1·2는 <code>data.json</code>, 3번 항목별 표는 <code>detail.json</code> · 메뉴 미연결 · 검색 제외(<code>noindex</code>)
+        </p>
+        <div id="analysis-root">데이터를 불러오는 중입니다.</div>
+    </main>
+    <script>
+        (function () {
+            const YEARS = ["2023", "2024", "2025", "2026"];
+            const KINDS = [
+                { key: "total", label: "재산 총액" },
+                { key: "re", label: "부동산(토지+건물)" },
+                { key: "fin", label: "금융자산" }
+            ];
+
+            function esc(s) {
+                return String(s ?? "")
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;");
+            }
+
+            function escAttr(s) {
+                return String(s ?? "")
+                    .replace(/&/g, "&amp;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/</g, "&lt;");
+            }
+
+            function personCheon(p, year, kind) {
+                const y = String(year);
+                if (kind === "total") return Number(p["y" + y]) || 0;
+                if (kind === "re") {
+                    const k = "re" + y;
+                    if (p[k] != null && p[k] !== "") return Number(p[k]) || 0;
+                    if (y === "2026") {
+                        return (Number(p.land2026) || 0) + (Number(p.building2026) || 0);
+                    }
+                    return 0;
+                }
+                if (kind === "fin") {
+                    const k = "fin" + y;
+                    if (p[k] != null && p[k] !== "") return Number(p[k]) || 0;
+                    if (y === "2026") {
+                        return (
+                            (Number(p.cash2026) || 0) +
+                            (Number(p.deposit2026) || 0) +
+                            (Number(p.stock2026) || 0)
+                        );
+                    }
+                    return 0;
+                }
+                return 0;
+            }
+
+            function formatEok(cheon) {
+                const v = Number(cheon) || 0;
+                const eok = v / 100000;
+                return eok.toLocaleString(undefined, { maximumFractionDigits: 1 }) + "억";
+            }
+
+            function formatCheonRaw(cheon) {
+                return (Number(cheon) || 0).toLocaleString();
+            }
+
+            function aggregateByDistrict(people) {
+                const map = {};
+                people.forEach((p) => {
+                    const d = (p.district || "미상").trim() || "미상";
+                    if (!map[d]) {
+                        map[d] = { y2023: 0, y2024: 0, y2025: 0, y2026: 0, re2023: 0, re2024: 0, re2025: 0, re2026: 0, fin2023: 0, fin2024: 0, fin2025: 0, fin2026: 0 };
+                    }
+                    YEARS.forEach((y) => {
+                        map[d]["y" + y] = (map[d]["y" + y] || 0) + personCheon(p, y, "total");
+                        map[d]["re" + y] = (map[d]["re" + y] || 0) + personCheon(p, y, "re");
+                        map[d]["fin" + y] = (map[d]["fin" + y] || 0) + personCheon(p, y, "fin");
+                    });
+                });
+                return map;
+            }
+
+            function districtTableHtml(year, districtMap) {
+                const y = String(year);
+                const rows = Object.keys(districtMap).map((d) => ({
+                    d,
+                    total: districtMap[d]["y" + y] || 0,
+                    re: districtMap[d]["re" + y] || 0,
+                    fin: districtMap[d]["fin" + y] || 0
+                }));
+                rows.sort((a, b) => b.total - a.total);
+
+                let h =
+                    "<table class='analysis-district-table'><thead><tr>" +
+                    "<th scope='col' class='sortable' data-sort='d' title='클릭하여 정렬'>자치구<span class='sort-hint'></span></th>" +
+                    "<th scope='col' class='num sortable sort-desc' data-sort='total' title='클릭하여 정렬'>재산 총액<span class='sort-hint'></span></th>" +
+                    "<th scope='col' class='num sortable' data-sort='re' title='클릭하여 정렬'>부동산<span class='sort-hint'></span></th>" +
+                    "<th scope='col' class='num sortable' data-sort='fin' title='클릭하여 정렬'>금융자산<span class='sort-hint'></span></th>" +
+                    "</tr></thead><tbody>";
+                rows.forEach((r) => {
+                    h +=
+                        "<tr data-d=\"" +
+                        escAttr(r.d) +
+                        '" data-total="' +
+                        r.total +
+                        '" data-re="' +
+                        r.re +
+                        '" data-fin="' +
+                        r.fin +
+                        '"><th scope="row">' +
+                        esc(r.d) +
+                        "</th><td class='num'>" +
+                        esc(formatEok(r.total)) +
+                        "</td><td class='num'>" +
+                        esc(formatEok(r.re)) +
+                        "</td><td class='num'>" +
+                        esc(formatEok(r.fin)) +
+                        "</td></tr>";
+                });
+                h += "</tbody></table>";
+                return h;
+            }
+
+            function initDistrictTableSort(container) {
+                container.querySelectorAll("table.analysis-district-table").forEach((table) => {
+                    const tbody = table.querySelector("tbody");
+                    if (!tbody) return;
+
+                    let sortKey = "total";
+                    let dirNum = -1;
+                    let dirStr = -1;
+
+                    function cmp(trA, trB) {
+                        if (sortKey === "d") {
+                            const sa = trA.getAttribute("data-d") || "";
+                            const sb = trB.getAttribute("data-d") || "";
+                            const c = sa.localeCompare(sb, "ko");
+                            return dirStr === 1 ? c : -c;
+                        }
+                        const va = Number(trA.getAttribute("data-" + sortKey)) || 0;
+                        const vb = Number(trB.getAttribute("data-" + sortKey)) || 0;
+                        return dirNum === 1 ? va - vb : vb - va;
+                    }
+
+                    function applySort() {
+                        const rows = Array.from(tbody.querySelectorAll("tr"));
+                        rows.sort(cmp);
+                        rows.forEach((tr) => tbody.appendChild(tr));
+                        table.querySelectorAll("thead th.sortable").forEach((th) => {
+                            th.classList.remove("sort-asc", "sort-desc");
+                            const k = th.getAttribute("data-sort");
+                            if (k === sortKey) {
+                                if (k === "d") {
+                                    th.classList.add(dirStr === 1 ? "sort-asc" : "sort-desc");
+                                } else {
+                                    th.classList.add(dirNum === 1 ? "sort-asc" : "sort-desc");
+                                }
+                            }
+                        });
+                    }
+
+                    table.querySelectorAll("thead th.sortable").forEach((th) => {
+                        th.addEventListener("click", () => {
+                            const key = th.getAttribute("data-sort");
+                            if (key === sortKey) {
+                                if (key === "d") dirStr = -dirStr;
+                                else dirNum = -dirNum;
+                            } else {
+                                sortKey = key;
+                                if (key === "d") dirStr = 1;
+                                else dirNum = -1;
+                            }
+                            applySort();
+                        });
+                    });
+                });
+            }
+
+            function top10Html(year, kind, people) {
+                const y = String(year);
+                const label = KINDS.find((k) => k.key === kind).label;
+                const scored = people
+                    .map((p) => ({
+                        p,
+                        v: personCheon(p, y, kind)
+                    }))
+                    .filter((x) => x.v > 0)
+                    .sort((a, b) => b.v - a.v)
+                    .slice(0, 10);
+
+                let h =
+                    "<h3>" +
+                    esc(y) +
+                    "년 · " +
+                    esc(label) +
+                    " Top 10</h3><table><thead><tr><th class='rank'>#</th><th>자치구</th><th>성명</th><th>직위</th><th>정당</th><th class='num'>천원</th><th class='num'>억(환산)</th></tr></thead><tbody>";
+                scored.forEach((x, i) => {
+                    const p = x.p;
+                    h +=
+                        "<tr><td class='rank'>" +
+                        (i + 1) +
+                        "</td><td>" +
+                        esc(p.district || "") +
+                        "</td><td>" +
+                        esc(p.name || "") +
+                        "</td><td>" +
+                        esc(p.position || "") +
+                        "</td><td>" +
+                        esc(p.party || "") +
+                        "</td><td class='num'>" +
+                        esc(formatCheonRaw(x.v)) +
+                        "</td><td class='num'>" +
+                        esc(formatEok(x.v)) +
+                        "</td></tr>";
+                });
+                if (scored.length === 0) {
+                    h += "<tr><td colspan='7' style='text-align:center;color:#868e96'>해당 연도·항목에 데이터 없음</td></tr>";
+                }
+                h += "</tbody></table>";
+                return h;
+            }
+
+            function escTitleAttr(s) {
+                return String(s ?? "")
+                    .replace(/&/g, "&amp;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/</g, "&lt;");
+            }
+
+            /** 피벗 금액 열 순서: 아래 고정 순서 후 나머지는 가나다 */
+            const PIVOT_COLUMN_ORDER_FIRST = [
+                "토지",
+                "건물",
+                "예금",
+                "증권",
+                "채권",
+                "채무",
+                "현금",
+                "자동차 등",
+                "가상자산",
+                "회원권"
+            ];
+
+            function sortPivotTypeColumns(typeSet) {
+                const arr = [...typeSet];
+                const ordered = [];
+                PIVOT_COLUMN_ORDER_FIRST.forEach((name) => {
+                    if (arr.indexOf(name) !== -1) ordered.push(name);
+                });
+                const rest = arr
+                    .filter((x) => ordered.indexOf(x) === -1)
+                    .sort((a, b) => a.localeCompare(b, "ko"));
+                return ordered.concat(rest);
+            }
+
+            /** 원본 G열 문자열 → 피벗 열 헤더(줄임). 같은 열로 묶인 원본은 값 합산·비고 병합 */
+            const PIVOT_TYPE_MERGE_GROUPS = [
+                {
+                    columnLabel: "고지거부",
+                    rawNames: [
+                        "고지거부 및 등록제외사항",
+                        "고지거부및 등록제외사항",
+                        "고지거부및 등록제외사항(소계)"
+                    ]
+                },
+                {
+                    columnLabel: "자동차 등",
+                    rawNames: [
+                        "부동산에 관한 규정이 준용되는 권리와 자동차 건설기계 선박 및 항공기",
+                        "부동산에 관한 규정이 준용되는 권리와 자동차·건설기계·선박 및 항공기"
+                    ]
+                },
+                {
+                    columnLabel: "정치자금",
+                    rawNames: [
+                        "정치자금법에 따른 정치자금의 수입 및 지출을 위한 예금계좌의 예금",
+                        "정치자금법에 따른 정치자금의 수입 및 지출을 위한 예금계좌의 예금(소계)",
+                        "정치자급법에 따른 정치자금의 수입 및 지출을 위한 예금계좌의 예금"
+                    ]
+                }
+            ];
+
+            const PIVOT_RAW_TO_COLUMN = (function () {
+                const m = {};
+                PIVOT_TYPE_MERGE_GROUPS.forEach((g) => {
+                    g.rawNames.forEach((r) => {
+                        m[r] = g.columnLabel;
+                    });
+                });
+                return m;
+            })();
+
+            function pivotColumnKeyForRawType(rawType) {
+                return PIVOT_RAW_TO_COLUMN[rawType] != null ? PIVOT_RAW_TO_COLUMN[rawType] : rawType;
+            }
+
+            function pivotTheadTitleForColumn(columnLabel) {
+                const g = PIVOT_TYPE_MERGE_GROUPS.find((x) => x.columnLabel === columnLabel);
+                if (g) {
+                    return escTitleAttr(
+                        columnLabel + " (통합: " + g.rawNames.join(" · ") + ") · 클릭하여 정렬"
+                    );
+                }
+                return escTitleAttr(columnLabel + " · 클릭하여 정렬");
+            }
+
+            function mergePivotCellsForColumn(person, columnLabel) {
+                const chunks = [];
+                Object.keys(person.types || {}).forEach((rawT) => {
+                    if (pivotColumnKeyForRawType(rawT) !== columnLabel) return;
+                    const byY = person.types[rawT]?.["2026"];
+                    if (byY == null) return;
+                    chunks.push({
+                        valueRaw: Number(byY.valueRaw) || 0,
+                        note1: byY.note1 != null ? String(byY.note1) : "",
+                        note2: byY.note2 != null ? String(byY.note2) : ""
+                    });
+                });
+                if (chunks.length === 0) {
+                    return { valueRaw: null, note1: "", note2: "" };
+                }
+                const sum = chunks.reduce((a, x) => a + x.valueRaw, 0);
+                const n1 = chunks
+                    .map((c) => c.note1.trim())
+                    .filter(Boolean)
+                    .join(" / ");
+                const n2 = chunks
+                    .map((c) => c.note2.trim())
+                    .filter(Boolean)
+                    .join(" / ");
+                return { valueRaw: sum, note1: n1, note2: n2 };
+            }
+
+            /** detail.json → 인원당 1행, 2026 재산대분류를 열로 전개 */
+            function buildPivot2026(detailObj) {
+                const typeSet = new Set();
+                Object.values(detailObj || {}).forEach((p) => {
+                    if (!p || !p.types) return;
+                    Object.keys(p.types).forEach((t) => {
+                        const byY = p.types[t];
+                        if (byY && Object.prototype.hasOwnProperty.call(byY, "2026")) {
+                            typeSet.add(pivotColumnKeyForRawType(t));
+                        }
+                    });
+                });
+                const typeColumns = sortPivotTypeColumns(typeSet);
+
+                const keys = Object.keys(detailObj || {}).sort((ka, kb) => {
+                    const pa = detailObj[ka];
+                    const pb = detailObj[kb];
+                    const d = (pa.district || "").localeCompare(pb.district || "", "ko");
+                    if (d !== 0) return d;
+                    return (pa.name || "").localeCompare(pb.name || "", "ko");
+                });
+
+                const rows = keys.map((key) => {
+                    const p = detailObj[key];
+                    const cells = {};
+                    typeColumns.forEach((col) => {
+                        cells[col] = mergePivotCellsForColumn(p, col);
+                    });
+                    return {
+                        district: p.district || "",
+                        position: p.position || "",
+                        name: p.name || "",
+                        party: p.party || "",
+                        cells
+                    };
+                });
+
+                return { typeColumns, rows };
+            }
+
+            function pivotCellTd(cell) {
+                const missing = !cell || cell.valueRaw == null;
+                const display = missing ? "—" : formatCheonRaw(cell.valueRaw);
+                const hasNote =
+                    cell &&
+                    (String(cell.note1 || "").trim() !== "" || String(cell.note2 || "").trim() !== "");
+                if (!hasNote) {
+                    return "<td class='num'>" + esc(display) + "</td>";
+                }
+                return (
+                    "<td class='num'><span class='analysis-note-tip' data-n1=\"" +
+                    escAttr(cell.note1 || "") +
+                    "\" data-n2=\"" +
+                    escAttr(cell.note2 || "") +
+                    "\" tabindex=\"0\">" +
+                    esc(display) +
+                    "</span></td>"
+                );
+            }
+
+            function bindPivotTableTooltips(table) {
+                if (!table || table.dataset.analysisPivotTipBound === "1") return;
+                table.dataset.analysisPivotTipBound = "1";
+                let floatTip = document.getElementById("analysis-s3-float-tip");
+                if (!floatTip) {
+                    floatTip = document.createElement("div");
+                    floatTip.id = "analysis-s3-float-tip";
+                    floatTip.className = "analysis-s3-float-tip";
+                    floatTip.setAttribute("role", "tooltip");
+                    document.body.appendChild(floatTip);
+                }
+                let hideT = null;
+                function hideTip() {
+                    clearTimeout(hideT);
+                    floatTip.style.display = "none";
+                    floatTip.style.visibility = "hidden";
+                }
+                function positionTip(anchor) {
+                    const r = anchor.getBoundingClientRect();
+                    const pad = 8;
+                    const w = floatTip.offsetWidth;
+                    const h = floatTip.offsetHeight;
+                    let left = r.left + r.width / 2 - w / 2;
+                    left = Math.max(pad, Math.min(left, window.innerWidth - w - pad));
+                    let top = r.top - h - pad;
+                    if (top < pad) top = r.bottom + pad;
+                    if (top + h > window.innerHeight - pad) {
+                        top = Math.max(pad, window.innerHeight - h - pad);
+                    }
+                    floatTip.style.left = left + "px";
+                    floatTip.style.top = top + "px";
+                }
+                function showTip(anchor) {
+                    clearTimeout(hideT);
+                    const n1 = anchor.getAttribute("data-n1") || "";
+                    const n2 = anchor.getAttribute("data-n2") || "";
+                    const parts = [];
+                    if (n1.trim()) parts.push("비고1: " + n1.trim());
+                    if (n2.trim()) parts.push("비고2: " + n2.trim());
+                    if (!parts.length) {
+                        hideTip();
+                        return;
+                    }
+                    floatTip.textContent = parts.join("\n\n");
+                    floatTip.style.display = "block";
+                    floatTip.style.visibility = "hidden";
+                    requestAnimationFrame(() => {
+                        positionTip(anchor);
+                        floatTip.style.visibility = "visible";
+                    });
+                }
+                table.addEventListener(
+                    "mouseover",
+                    (e) => {
+                        const el = e.target.closest(".analysis-note-tip");
+                        if (el && table.contains(el)) showTip(el);
+                    },
+                    true
+                );
+                table.addEventListener(
+                    "mouseout",
+                    (e) => {
+                        const el = e.target.closest(".analysis-note-tip");
+                        if (!el || !table.contains(el)) return;
+                        const rel = e.relatedTarget;
+                        if (rel && el.contains(rel)) return;
+                        hideT = setTimeout(hideTip, 100);
+                    },
+                    true
+                );
+                table.addEventListener(
+                    "focusin",
+                    (e) => {
+                        const el = e.target.closest(".analysis-note-tip");
+                        if (el && table.contains(el)) showTip(el);
+                    },
+                    true
+                );
+                table.addEventListener(
+                    "focusout",
+                    (e) => {
+                        const el = e.target.closest(".analysis-note-tip");
+                        if (!el || !table.contains(el)) return;
+                        hideT = setTimeout(hideTip, 100);
+                    },
+                    true
+                );
+                window.addEventListener("scroll", hideTip, true);
+                window.addEventListener("resize", hideTip);
+            }
+
+            function buildPivotThead(typeColumns) {
+                let h = "<tr><th class='rank analysis-s3-sticky-rank'>#</th>";
+                h +=
+                    "<th scope='col' class='sortable analysis-s3-sticky-district' data-sort='district' title='클릭하여 정렬'>자치구<span class='sort-hint'></span></th>";
+                h +=
+                    "<th scope='col' class='sortable analysis-s3-sticky-name' data-sort='name' title='클릭하여 정렬'>성명<span class='sort-hint'></span></th>";
+                h +=
+                    "<th scope='col' class='sortable' data-sort='position' title='클릭하여 정렬'>직위<span class='sort-hint'></span></th>";
+                h +=
+                    "<th scope='col' class='sortable' data-sort='party' title='클릭하여 정렬'>정당<span class='sort-hint'></span></th>";
+                typeColumns.forEach((t, i) => {
+                    h +=
+                        "<th scope='col' class='num sortable analysis-type-col' data-sort='t" +
+                        i +
+                        "' title=\"" +
+                        pivotTheadTitleForColumn(t) +
+                        "\">" +
+                        esc(t) +
+                        "<span class='sort-hint'></span></th>";
+                });
+                h += "</tr>";
+                return h;
+            }
+
+            function section3PivotShellHtml() {
+                return (
+                    "<p class='analysis-lead' style='margin-bottom:0.75rem'><code>detail.json</code> · 인원당 한 행, 2026년 재산대분류를 가로로 표시. 표기 차이·소계 행은 <strong>고지거부</strong>·<strong>자동차 등</strong>·<strong>정치자금</strong> 열로 통합(금액 합산) · 없으면 — · 비고는 점선 숫자에 마우스·포커스 시 말풍선 · 페이지네이션 · 헤더 정렬</p>" +
+                    "<div class='analysis-pager-toolbar'>" +
+                    "<span id='analysis-s3-info'></span>" +
+                    "<label>페이지당 <select id='analysis-s3-psize' aria-label='페이지당 행 수'>" +
+                    "<option value='25'>25</option>" +
+                    "<option value='50' selected>50</option>" +
+                    "<option value='100'>100</option>" +
+                    "<option value='200'>200</option>" +
+                    "</select>명</label>" +
+                    "<div class='analysis-pager-btns'>" +
+                    "<button type='button' id='analysis-s3-first'>처음</button>" +
+                    "<button type='button' id='analysis-s3-prev'>이전</button>" +
+                    "<button type='button' id='analysis-s3-next'>다음</button>" +
+                    "<button type='button' id='analysis-s3-last'>마지막</button>" +
+                    "</div></div>" +
+                    "<div class='analysis-full-table-wrap'>" +
+                    "<table id='analysis-s3-table' class='analysis-full-2026'>" +
+                    "<thead id='analysis-s3-thead'></thead>" +
+                    "<tbody id='analysis-s3-tbody'></tbody></table></div>"
+                );
+            }
+
+            function initSection3Pivot(root, pivot) {
+                const tbody = root.querySelector("#analysis-s3-tbody");
+                const thead = root.querySelector("#analysis-s3-thead");
+                const info = root.querySelector("#analysis-s3-info");
+                const table = root.querySelector("#analysis-s3-table");
+                const psizeSel = root.querySelector("#analysis-s3-psize");
+                if (!tbody || !thead || !info || !table || !pivot.rows.length) return;
+
+                const typeColumns = pivot.typeColumns;
+
+                thead.innerHTML = buildPivotThead(typeColumns);
+                bindPivotTableTooltips(table);
+
+                const state = {
+                    rows: pivot.rows,
+                    sortKey: "district",
+                    sortDirStr: 1,
+                    sortDirNum: -1,
+                    page: 0,
+                    pageSize: 50
+                };
+
+                function isTypeSortKey(k) {
+                    return /^t\d+$/.test(k);
+                }
+
+                function currentDirForKey(k) {
+                    return isTypeSortKey(k) ? state.sortDirNum : state.sortDirStr;
+                }
+
+                function setDirForKey(k, d) {
+                    if (isTypeSortKey(k)) state.sortDirNum = d;
+                    else state.sortDirStr = d;
+                }
+
+                function tieBreak(a, b) {
+                    const n = String(a.name || "").localeCompare(String(b.name || ""), "ko");
+                    if (n !== 0) return n;
+                    return String(a.district || "").localeCompare(String(b.district || ""), "ko");
+                }
+
+                function compareRows(a, b) {
+                    const key = state.sortKey;
+                    const dir = currentDirForKey(key);
+                    if (isTypeSortKey(key)) {
+                        const idx = parseInt(key.slice(1), 10);
+                        const t = typeColumns[idx];
+                        const ca = a.cells[t];
+                        const cb = b.cells[t];
+                        const na = ca && ca.valueRaw != null ? Number(ca.valueRaw) : null;
+                        const nb = cb && cb.valueRaw != null ? Number(cb.valueRaw) : null;
+                        const aMiss = na === null;
+                        const bMiss = nb === null;
+                        if (aMiss && bMiss) return tieBreak(a, b);
+                        if (aMiss) return 1;
+                        if (bMiss) return -1;
+                        const cmp = na - nb;
+                        if (cmp !== 0) return dir === 1 ? cmp : -cmp;
+                        return tieBreak(a, b);
+                    }
+                    const c = String(a[key] || "").localeCompare(String(b[key] || ""), "ko");
+                    if (c !== 0) return dir === 1 ? c : -c;
+                    return tieBreak(a, b);
+                }
+
+                function sortedSlice() {
+                    return [...state.rows].sort(compareRows);
+                }
+
+                function render() {
+                    const sorted = sortedSlice();
+                    const total = sorted.length;
+                    const psize = state.pageSize;
+                    const pageCount = Math.max(1, Math.ceil(total / psize));
+                    if (state.page >= pageCount) state.page = pageCount - 1;
+                    if (state.page < 0) state.page = 0;
+                    const start = state.page * psize;
+                    const slice = sorted.slice(start, start + psize);
+
+                    let h = "";
+                    slice.forEach((r, i) => {
+                        const globalIdx = start + i + 1;
+                        h +=
+                            "<tr><td class='rank analysis-s3-sticky-rank'>" +
+                            globalIdx +
+                            "</td><td class='analysis-s3-sticky-district'>" +
+                            esc(r.district) +
+                            "</td><td class='analysis-s3-sticky-name'>" +
+                            esc(r.name) +
+                            "</td><td>" +
+                            esc(r.position) +
+                            "</td><td>" +
+                            esc(r.party) +
+                            "</td>";
+                        typeColumns.forEach((t) => {
+                            h += pivotCellTd(r.cells[t]);
+                        });
+                        h += "</tr>";
+                    });
+                    tbody.innerHTML = h;
+
+                    const end = start + slice.length;
+                    info.textContent =
+                        "총 " +
+                        total.toLocaleString() +
+                        "명 · " +
+                        (total ? start + 1 + "–" + end + "번째 표시" : "") +
+                        " · 페이지 " +
+                        (state.page + 1) +
+                        " / " +
+                        pageCount;
+
+                    table.querySelectorAll("thead th.sortable").forEach((th) => {
+                        th.classList.remove("sort-asc", "sort-desc");
+                        const k = th.getAttribute("data-sort");
+                        if (k === state.sortKey) {
+                            const d = currentDirForKey(k);
+                            th.classList.add(d === 1 ? "sort-asc" : "sort-desc");
+                        }
+                    });
+
+                    const firstBtn = root.querySelector("#analysis-s3-first");
+                    const prevBtn = root.querySelector("#analysis-s3-prev");
+                    const nextBtn = root.querySelector("#analysis-s3-next");
+                    const lastBtn = root.querySelector("#analysis-s3-last");
+                    if (firstBtn && prevBtn && nextBtn && lastBtn) {
+                        firstBtn.disabled = state.page <= 0;
+                        prevBtn.disabled = state.page <= 0;
+                        nextBtn.disabled = state.page >= pageCount - 1;
+                        lastBtn.disabled = state.page >= pageCount - 1;
+                    }
+                }
+
+                table.querySelector("thead").addEventListener("click", (e) => {
+                    const th = e.target.closest("th.sortable");
+                    if (!th || !table.contains(th)) return;
+                    const key = th.getAttribute("data-sort");
+                    if (!key) return;
+                    if (key === state.sortKey) {
+                        setDirForKey(key, -currentDirForKey(key));
+                    } else {
+                        state.sortKey = key;
+                        setDirForKey(key, isTypeSortKey(key) ? -1 : 1);
+                    }
+                    state.page = 0;
+                    render();
+                });
+
+                const firstBtn = root.querySelector("#analysis-s3-first");
+                const prevBtn = root.querySelector("#analysis-s3-prev");
+                const nextBtn = root.querySelector("#analysis-s3-next");
+                const lastBtn = root.querySelector("#analysis-s3-last");
+                if (firstBtn)
+                    firstBtn.addEventListener("click", () => {
+                        state.page = 0;
+                        render();
+                    });
+                if (prevBtn)
+                    prevBtn.addEventListener("click", () => {
+                        state.page = Math.max(0, state.page - 1);
+                        render();
+                    });
+                if (nextBtn)
+                    nextBtn.addEventListener("click", () => {
+                        const sorted = sortedSlice();
+                        const pageCount = Math.max(1, Math.ceil(sorted.length / state.pageSize));
+                        state.page = Math.min(pageCount - 1, state.page + 1);
+                        render();
+                    });
+                if (lastBtn)
+                    lastBtn.addEventListener("click", () => {
+                        const sorted = sortedSlice();
+                        const pageCount = Math.max(1, Math.ceil(sorted.length / state.pageSize));
+                        state.page = pageCount - 1;
+                        render();
+                    });
+                if (psizeSel) {
+                    psizeSel.addEventListener("change", () => {
+                        state.pageSize = Math.max(1, parseInt(psizeSel.value, 10) || 50);
+                        state.page = 0;
+                        render();
+                    });
+                }
+
+                render();
+            }
+
+            async function run() {
+                const root = document.getElementById("analysis-root");
+                try {
+                    const v = Date.now();
+                    const [dataRes, detailRes] = await Promise.all([
+                        fetch("data.json?v=" + v),
+                        fetch("detail.json?v=" + v)
+                    ]);
+                    if (!dataRes.ok) throw new Error("data.json 로드 실패");
+                    const dataObj = await dataRes.json();
+                    const people = Object.values(dataObj);
+                    if (!people.length) throw new Error("데이터가 비어 있습니다.");
+
+                    let pivot2026 = null;
+                    let detailLoadError = null;
+                    if (!detailRes.ok) detailLoadError = "detail.json을 불러오지 못했습니다.";
+                    else {
+                        try {
+                            const detailObj = await detailRes.json();
+                            pivot2026 = buildPivot2026(detailObj);
+                        } catch (err) {
+                            detailLoadError = "detail.json 파싱 오류";
+                        }
+                    }
+
+                    const districtMap = aggregateByDistrict(people);
+
+                    let html = "";
+
+                    html += "<h2>1. 연도별 자치구 합계</h2>";
+                    html += "<p class='analysis-lead' style='margin-bottom:1rem'>구 소속 인원 기준 합산(천원 → 억 환산) · 연도 제목을 눌러 펼치거나 접기</p>";
+                    YEARS.forEach((y) => {
+                        html +=
+                            "<details class='analysis-year-fold'><summary>" +
+                            esc(y) +
+                            "년</summary><div class='analysis-year-fold-body'>";
+                        html += districtTableHtml(y, districtMap);
+                        html += "</div></details>";
+                    });
+
+                    html += "<h2>2. 연도별 개인 Top 10</h2>";
+                    html += "<p class='analysis-lead' style='margin-bottom:1rem'>해당 연도·항목 값이 0보다 큰 인원만 정렬 · 연도 제목을 눌러 펼치거나 접기</p>";
+                    YEARS.forEach((y) => {
+                        html +=
+                            "<details class='analysis-year-fold'><summary>" +
+                            esc(y) +
+                            "년</summary><div class='analysis-year-fold-body'>";
+                        KINDS.forEach((k) => {
+                            html += top10Html(y, k.key, people);
+                        });
+                        html += "</div></details>";
+                    });
+
+                    html += "<h2>3. 2026년 전체 데이터 표 (피벗)</h2>";
+                    if (detailLoadError) {
+                        html +=
+                            "<p class='analysis-lead' style='margin-bottom:0.75rem'><code>detail.json</code>이 필요합니다. 재산대분류(G열)를 열로 펼친 표입니다.</p>" +
+                            "<p class='err'><strong>표시 불가</strong> " +
+                            esc(detailLoadError) +
+                            "</p>";
+                    } else if (!pivot2026 || !pivot2026.rows.length) {
+                        html +=
+                            "<p class='analysis-lead' style='margin-bottom:0.75rem'><code>detail.json</code> 기준 2026년 피벗 표입니다.</p>" +
+                            "<p class='err'><strong>데이터 없음</strong> 2026년 재산대분류가 없습니다.</p>";
+                    } else {
+                        html += section3PivotShellHtml();
+                    }
+
+                    root.innerHTML = html;
+                    initDistrictTableSort(root);
+                    if (pivot2026 && pivot2026.rows.length) initSection3Pivot(root, pivot2026);
+                } catch (e) {
+                    root.innerHTML =
+                        "<p class='err'><strong>오류</strong> " + esc(e.message || String(e)) + "</p>";
+                }
+            }
+
+            run();
+        })();
+    </script>
+</body>
+</html>
