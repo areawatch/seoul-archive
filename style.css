@@ -610,7 +610,7 @@ main.index-main-lead {
     margin-right: auto;
     display: flex;
     flex-direction: column;
-    gap: 1.75rem;
+    gap: 0;
     background: #fff;
     border-radius: 1rem;
     padding: clamp(1.85rem, 5.5vw, 3.5rem) clamp(1.65rem, 4.5vw, 3rem);
@@ -626,6 +626,18 @@ main.index-main-lead {
 
 .data-spotlight .spotlight-row {
     width: 100%;
+    padding-top: 1.125rem;
+    padding-bottom: 1.125rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.data-spotlight .spotlight-row:first-child {
+    padding-top: 0;
+}
+
+.data-spotlight .spotlight-row:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
 }
 
 .data-spotlight .spotlight-check {
