@@ -254,6 +254,85 @@
         #analysis-s3-table tbody tr:nth-child(even) td.analysis-s3-sticky-name {
             background: #fafbfc;
         }
+        /* 모바일: 피벗표 전열 폭 최소화 → 스크롤 영역에 데이터 열 더 노출 */
+        @media (max-width: 640px) {
+            .analysis-internal table#analysis-s3-table.analysis-full-2026 {
+                min-width: 960px;
+            }
+            #analysis-s3-table {
+                --s3-sticky-rank-w: 1.75rem;
+                --s3-sticky-district-w: 3.45rem;
+                --s3-sticky-name-w: 3.95rem;
+            }
+            #analysis-s3-table th,
+            #analysis-s3-table td {
+                padding: 0.1rem 0.08rem;
+            }
+            #analysis-s3-table thead th.analysis-s3-sticky-rank,
+            #analysis-s3-table tbody td.analysis-s3-sticky-rank,
+            #analysis-s3-table thead th.analysis-s3-sticky-district,
+            #analysis-s3-table tbody td.analysis-s3-sticky-district,
+            #analysis-s3-table thead th.analysis-s3-sticky-name,
+            #analysis-s3-table tbody td.analysis-s3-sticky-name {
+                padding-left: 0.12rem;
+                padding-right: 0.12rem;
+                font-size: 0.62rem;
+                line-height: 1.2;
+            }
+            #analysis-s3-table thead th.analysis-s3-sticky-district,
+            #analysis-s3-table tbody td.analysis-s3-sticky-district,
+            #analysis-s3-table thead th.analysis-s3-sticky-name,
+            #analysis-s3-table tbody td.analysis-s3-sticky-name {
+                white-space: nowrap;
+            }
+            #analysis-s3-table thead th.analysis-s3-col-pos,
+            #analysis-s3-table tbody td.analysis-s3-col-pos {
+                max-width: 2.65rem;
+                min-width: 2.65rem;
+                width: 2.65rem;
+                font-size: 0.55rem;
+                line-height: 1.15;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            #analysis-s3-table thead th.analysis-s3-col-party,
+            #analysis-s3-table tbody td.analysis-s3-col-party {
+                max-width: 3.15rem;
+                min-width: 3.15rem;
+                width: 3.15rem;
+                font-size: 0.52rem;
+                line-height: 1.15;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            #analysis-s3-table .analysis-type-col {
+                font-size: 0.52rem;
+                line-height: 1.15;
+                max-width: 2.85rem;
+                min-width: 2.5rem;
+                width: 2.85rem;
+                padding-left: 0.08rem;
+                padding-right: 0.08rem;
+                white-space: normal;
+                word-break: break-word;
+            }
+            #analysis-s3-table thead th.num:not(.analysis-s3-sticky-rank) {
+                font-size: 0.54rem;
+            }
+            #analysis-s3-table td.num {
+                font-size: 0.54rem;
+                max-width: 3.35rem;
+                min-width: 2.85rem;
+                width: 3.35rem;
+                padding-left: 0.06rem;
+                padding-right: 0.06rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
         .analysis-internal .analysis-pager-toolbar {
             display: flex;
             flex-wrap: wrap;
@@ -851,9 +930,9 @@
                 h +=
                     "<th scope='col' class='sortable analysis-s3-sticky-name' data-sort='name' title='클릭하여 정렬'>성명<span class='sort-hint'></span></th>";
                 h +=
-                    "<th scope='col' class='sortable' data-sort='position' title='클릭하여 정렬'>직위<span class='sort-hint'></span></th>";
+                    "<th scope='col' class='sortable analysis-s3-col-pos' data-sort='position' title='클릭하여 정렬'>직위<span class='sort-hint'></span></th>";
                 h +=
-                    "<th scope='col' class='sortable' data-sort='party' title='클릭하여 정렬'>정당<span class='sort-hint'></span></th>";
+                    "<th scope='col' class='sortable analysis-s3-col-party' data-sort='party' title='클릭하여 정렬'>정당<span class='sort-hint'></span></th>";
                 typeColumns.forEach((t, i) => {
                     h +=
                         "<th scope='col' class='num sortable analysis-type-col' data-sort='t" +
@@ -981,9 +1060,9 @@
                             esc(r.district) +
                             "</td><td class='analysis-s3-sticky-name'>" +
                             esc(r.name) +
-                            "</td><td>" +
+                            "</td><td class='analysis-s3-col-pos'>" +
                             esc(r.position) +
-                            "</td><td>" +
+                            "</td><td class='analysis-s3-col-party'>" +
                             esc(r.party) +
                             "</td>";
                         typeColumns.forEach((t) => {
