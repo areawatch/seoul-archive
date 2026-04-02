@@ -182,7 +182,7 @@
             white-space: nowrap;
             box-shadow: 0 1px 0 #dee2e6;
         }
-        /* 3번 피벗표만: # · 자치구 · 성명 가로 고정
+        /* 4번 피벗표만: # · 자치구 · 성명 가로 고정
            border-collapse:collapse + 부모/테이블 overflow:hidden 은 셀 sticky를 깨뜨리는 경우가 많음 */
         #analysis-s3-table {
             --s3-sticky-rank-w: 2.75rem;
@@ -406,6 +406,39 @@
             font-weight: 600;
             vertical-align: bottom;
         }
+        .analysis-internal .analysis-party-name {
+            font-weight: 600;
+        }
+        .analysis-internal .analysis-pivot-total-col,
+        .analysis-internal .analysis-pivot-total-col .analysis-note-tip {
+            font-weight: 700;
+        }
+        .analysis-internal table.analysis-per-capita-table td.num strong {
+            font-weight: 700;
+        }
+        .analysis-internal .analysis-per-capita-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .analysis-internal .analysis-per-capita-district-label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #495057;
+            margin: 0;
+        }
+        .analysis-internal .analysis-per-capita-district-select {
+            max-width: 11rem;
+            min-width: 8rem;
+        }
+        @media (max-width: 576px) {
+            .analysis-internal .analysis-per-capita-district-select {
+                max-width: 100%;
+                flex: 1 1 100%;
+            }
+        }
     </style>
 </head>
 <body style="background: #e9ecef; margin: 0;">
@@ -413,12 +446,13 @@
     <main class="analysis-internal">
         <h1>내부 분석</h1>
         <p class="analysis-lead">
-            1·2는 <code>data.json</code>, 3번 항목별 표는 <code>detail.json</code> · 검색 제외(<code>noindex</code>)
+            1·2·3은 <code>data.json</code>, 4번 피벗은 <code>detail.json</code> · 검색 제외(<code>noindex</code>)
         </p>
         <div id="analysis-root">데이터를 불러오는 중입니다.</div>
     </main>
     <div id="footer-plugin"></div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="config.js"></script>
     <script>
         async function loadComponent(id, file) {
             try {
@@ -454,12 +488,38 @@
                 { key: "fin", label: "금융자산" }
             ];
 
+            /** config.js sheetTabs — 구청장 제외 25개 자치구(순서 동일) */
+            const SEOUL_DISTRICTS =
+                typeof sheetTabs !== "undefined" && Array.isArray(sheetTabs)
+                    ? sheetTabs.filter((t) => t && t.name && t.name !== "구청장").map((t) => t.name)
+                    : [];
+
             function esc(s) {
                 return String(s ?? "")
                     .replace(/&/g, "&amp;")
                     .replace(/</g, "&lt;")
                     .replace(/>/g, "&gt;")
                     .replace(/"/g, "&quot;");
+            }
+
+            /** config.js partyColors와 동일 (미등록 정당은 회색) */
+            function partyColorHex(party) {
+                const p = String(party || "").trim();
+                if (typeof partyColors !== "undefined" && partyColors[p]) return partyColors[p];
+                return "#6c757d";
+            }
+
+            function partyCellInnerHtml(party) {
+                const p = String(party || "").trim();
+                if (!p) return "";
+                const hex = partyColorHex(party);
+                return (
+                    '<strong class="analysis-party-name" style="color:' +
+                    esc(hex) +
+                    ';font-weight:600">' +
+                    esc(p) +
+                    "</strong>"
+                );
             }
 
             function escAttr(s) {
@@ -647,7 +707,7 @@
                         "</td><td>" +
                         esc(p.position || "") +
                         "</td><td>" +
-                        esc(p.party || "") +
+                        partyCellInnerHtml(p.party) +
                         "</td><td class='num'>" +
                         esc(formatCheonRaw(x.v)) +
                         "</td><td class='num'>" +
@@ -661,11 +721,124 @@
                 return h;
             }
 
+            /** 1인당 평균(천원): 전 인원 수로 나눔 · 표시는 억 환산 + 천원 보조 */
+            function perCapitaAverageTableHtml(people) {
+                const n = people.length;
+                if (!n) {
+                    return "<p class='err'>인원 데이터가 없습니다.</p>";
+                }
+                let h =
+                    "<table class='analysis-per-capita-table'><thead><tr>" +
+                    "<th scope='col'>연도</th>" +
+                    "<th scope='col' class='num'><strong>전체 재산</strong></th>" +
+                    "<th scope='col' class='num'>부동산</th>" +
+                    "<th scope='col' class='num'>금융자산</th>" +
+                    "</tr></thead><tbody>";
+                YEARS.forEach((y) => {
+                    let st = 0;
+                    let sr = 0;
+                    let sf = 0;
+                    people.forEach((p) => {
+                        st += personCheon(p, y, "total");
+                        sr += personCheon(p, y, "re");
+                        sf += personCheon(p, y, "fin");
+                    });
+                    const at = st / n;
+                    const ar = sr / n;
+                    const af = sf / n;
+                    const cell = (avg, boldEok) => {
+                        const eok = esc(formatEok(avg));
+                        const cheon =
+                            "<br><small style='color:#868e96;font-weight:400'>" +
+                            esc(formatCheonRaw(Math.round(avg))) +
+                            " 천원</small>";
+                        const main = boldEok ? "<strong>" + eok + "</strong>" : eok;
+                        return main + cheon;
+                    };
+                    h +=
+                        "<tr><th scope='row'>" +
+                        esc(y) +
+                        "년</th><td class='num'>" +
+                        cell(at, true) +
+                        "</td><td class='num'>" +
+                        cell(ar, false) +
+                        "</td><td class='num'>" +
+                        cell(af, false) +
+                        "</td></tr>";
+                });
+                h += "</tbody></table>";
+                return h;
+            }
+
+            function filterPeopleByDistrict(people, district) {
+                const d = String(district || "").trim();
+                if (!d) return people;
+                return people.filter((p) => String(p.district || "").trim() === d);
+            }
+
+            function perCapitaLeadHtml(district, count, totalAll) {
+                const tail =
+                    " · 연도별 합계 ÷ 인원 · 부동산·금융은 메인 페이지와 동일 산식(2026은 토지+건물, 현금+예금+증권)";
+                if (!String(district || "").trim()) {
+                    return (
+                        "<code>data.json</code> 등록 인원 " +
+                        totalAll.toLocaleString() +
+                        "명 기준" +
+                        tail
+                    );
+                }
+                return (
+                    "선택: <strong>" +
+                    esc(String(district).trim()) +
+                    "</strong> · 해당 구 소속 인원 " +
+                    count.toLocaleString() +
+                    "명 기준" +
+                    tail
+                );
+            }
+
+            function initPerCapitaDistrictFilter(root, people) {
+                const sel = root.querySelector("#analysis-per-capita-district");
+                const leadEl = root.querySelector("#analysis-per-capita-lead");
+                const host = root.querySelector("#analysis-per-capita-table-host");
+                if (!sel || !leadEl || !host) return;
+                const totalAll = people.length;
+                function apply() {
+                    const d = sel.value;
+                    const subset = filterPeopleByDistrict(people, d);
+                    leadEl.innerHTML = perCapitaLeadHtml(d, subset.length, totalAll);
+                    host.innerHTML = perCapitaAverageTableHtml(subset);
+                }
+                sel.addEventListener("change", apply);
+            }
+
             function escTitleAttr(s) {
                 return String(s ?? "")
                     .replace(/&/g, "&amp;")
                     .replace(/"/g, "&quot;")
                     .replace(/</g, "&lt;");
+            }
+
+            /** 피벗 표 첫 데이터 열(토지 직전): detail 2026 전 항목 합, 채무·부채는 차감 */
+            const PIVOT_TOTAL_COLUMN_KEY = "전체 재산";
+
+            function isPivotDebtRawType(rawType) {
+                return /채무|부채/.test(String(rawType || ""));
+            }
+
+            function mergeTotalNet2026(person) {
+                let sum = 0;
+                let hasAny = false;
+                Object.keys(person.types || {}).forEach((rawT) => {
+                    const byY = person.types[rawT]?.["2026"];
+                    if (byY == null) return;
+                    hasAny = true;
+                    const v = Number(byY.valueRaw) || 0;
+                    if (isPivotDebtRawType(rawT)) sum -= v;
+                    else sum += v;
+                });
+                if (!hasAny) return { valueRaw: null, note1: "", note2: "" };
+                return { valueRaw: sum, note1: "", note2: "" };
             }
 
             /** 피벗 금액 열 순서: 아래 고정 순서 후 나머지는 가나다 */
@@ -736,6 +909,11 @@
             }
 
             function pivotTheadTitleForColumn(columnLabel) {
+                if (columnLabel === PIVOT_TOTAL_COLUMN_KEY) {
+                    return escTitleAttr(
+                        "전체 재산 · 2026 전 재산대분류 합산, 채무·부채 항목은 차감 · 클릭하여 정렬"
+                    );
+                }
                 const g = PIVOT_TYPE_MERGE_GROUPS.find((x) => x.columnLabel === columnLabel);
                 if (g) {
                     return escTitleAttr(
@@ -746,6 +924,9 @@
             }
 
             function mergePivotCellsForColumn(person, columnLabel) {
+                if (columnLabel === PIVOT_TOTAL_COLUMN_KEY) {
+                    return mergeTotalNet2026(person);
+                }
                 const chunks = [];
                 Object.keys(person.types || {}).forEach((rawT) => {
                     if (pivotColumnKeyForRawType(rawT) !== columnLabel) return;
@@ -784,7 +965,17 @@
                         }
                     });
                 });
-                const typeColumns = sortPivotTypeColumns(typeSet);
+                let typeColumns = sortPivotTypeColumns(typeSet);
+                const landIdx = typeColumns.indexOf("토지");
+                if (landIdx >= 0) {
+                    typeColumns = [
+                        ...typeColumns.slice(0, landIdx),
+                        PIVOT_TOTAL_COLUMN_KEY,
+                        ...typeColumns.slice(landIdx)
+                    ];
+                } else {
+                    typeColumns = [PIVOT_TOTAL_COLUMN_KEY, ...typeColumns];
+                }
 
                 const keys = Object.keys(detailObj || {}).sort((ka, kb) => {
                     const pa = detailObj[ka];
@@ -812,17 +1003,21 @@
                 return { typeColumns, rows };
             }
 
-            function pivotCellTd(cell) {
+            function pivotCellTd(cell, opts) {
+                const boldTotal = opts && opts.boldTotal;
+                const tdClass = "num" + (boldTotal ? " analysis-pivot-total-col" : "");
                 const missing = !cell || cell.valueRaw == null;
                 const display = missing ? "—" : formatCheonRaw(cell.valueRaw);
                 const hasNote =
                     cell &&
                     (String(cell.note1 || "").trim() !== "" || String(cell.note2 || "").trim() !== "");
                 if (!hasNote) {
-                    return "<td class='num'>" + esc(display) + "</td>";
+                    return "<td class=\"" + tdClass + "\">" + esc(display) + "</td>";
                 }
                 return (
-                    "<td class='num'><span class='analysis-note-tip' data-n1=\"" +
+                    "<td class=\"" +
+                    tdClass +
+                    "\"><span class='analysis-note-tip' data-n1=\"" +
                     escAttr(cell.note1 || "") +
                     "\" data-n2=\"" +
                     escAttr(cell.note2 || "") +
@@ -934,13 +1129,20 @@
                 h +=
                     "<th scope='col' class='sortable analysis-s3-col-party' data-sort='party' title='클릭하여 정렬'>정당<span class='sort-hint'></span></th>";
                 typeColumns.forEach((t, i) => {
+                    const totalCls = t === PIVOT_TOTAL_COLUMN_KEY ? " analysis-pivot-total-col" : "";
+                    const labelHtml =
+                        t === PIVOT_TOTAL_COLUMN_KEY
+                            ? "<strong>" + esc(t) + "</strong>"
+                            : esc(t);
                     h +=
-                        "<th scope='col' class='num sortable analysis-type-col' data-sort='t" +
+                        "<th scope='col' class='num sortable analysis-type-col" +
+                        totalCls +
+                        "' data-sort='t" +
                         i +
                         "' title=\"" +
                         pivotTheadTitleForColumn(t) +
                         "\">" +
-                        esc(t) +
+                        labelHtml +
                         "<span class='sort-hint'></span></th>";
                 });
                 h += "</tr>";
@@ -949,7 +1151,7 @@
 
             function section3PivotShellHtml() {
                 return (
-                    "<p class='analysis-lead' style='margin-bottom:0.75rem'><code>detail.json</code> · 인원당 한 행, 2026년 재산대분류를 가로로 표시. 표기 차이·소계 행은 <strong>고지거부</strong>·<strong>자동차 등</strong>·<strong>정치자금</strong> 열로 통합(금액 합산) · 없으면 — · 비고는 점선 숫자에 마우스·포커스 시 말풍선 · 페이지네이션 · 헤더 정렬</p>" +
+                    "<p class='analysis-lead' style='margin-bottom:0.75rem'><code>detail.json</code> · 인원당 한 행, 2026년 재산대분류를 가로로 표시. <strong>전체 재산</strong>은 전 항목 합산에 채무·부채만 차감(토지 열 앞). 표기 차이·소계는 <strong>고지거부</strong>·<strong>자동차 등</strong>·<strong>정치자금</strong> 열로 통합 · 없으면 — · 비고는 점선 숫자 말풍선 · 페이지네이션 · 헤더 정렬</p>" +
                     "<div class='analysis-pager-toolbar'>" +
                     "<span id='analysis-s3-info'></span>" +
                     "<label>페이지당 <select id='analysis-s3-psize' aria-label='페이지당 행 수'>" +
@@ -1063,10 +1265,10 @@
                             "</td><td class='analysis-s3-col-pos'>" +
                             esc(r.position) +
                             "</td><td class='analysis-s3-col-party'>" +
-                            esc(r.party) +
+                            partyCellInnerHtml(r.party) +
                             "</td>";
                         typeColumns.forEach((t) => {
-                            h += pivotCellTd(r.cells[t]);
+                            h += pivotCellTd(r.cells[t], { boldTotal: t === PIVOT_TOTAL_COLUMN_KEY });
                         });
                         h += "</tr>";
                     });
@@ -1211,7 +1413,27 @@
                         html += "</div></details>";
                     });
 
-                    html += "<h2>3. 2026년 전체 데이터 표 (피벗)</h2>";
+                    html += "<h2>3. 1인당 금액 평균</h2>";
+                    html +=
+                        "<p id='analysis-per-capita-lead' class='analysis-lead' style='margin-bottom:0.65rem'>" +
+                        perCapitaLeadHtml("", people.length, people.length) +
+                        "</p>";
+                    let districtOpts = "<option value=''>전체</option>";
+                    SEOUL_DISTRICTS.forEach((name) => {
+                        districtOpts +=
+                            "<option value='" + escAttr(name) + "'>" + esc(name) + "</option>";
+                    });
+                    html +=
+                        "<div class='analysis-per-capita-toolbar'>" +
+                        "<label for='analysis-per-capita-district' class='analysis-per-capita-district-label'>자치구</label>" +
+                        "<select id='analysis-per-capita-district' class='form-select form-select-sm analysis-per-capita-district-select' aria-label='1인당 평균 자치구 필터'>" +
+                        districtOpts +
+                        "</select></div>" +
+                        "<div id='analysis-per-capita-table-host'>" +
+                        perCapitaAverageTableHtml(people) +
+                        "</div>";
+
+                    html += "<h2>4. 2026년 전체 데이터 표 (피벗)</h2>";
                     if (detailLoadError) {
                         html +=
                             "<p class='analysis-lead' style='margin-bottom:0.75rem'><code>detail.json</code>이 필요합니다. 재산대분류(G열)를 열로 펼친 표입니다.</p>" +
@@ -1228,6 +1450,7 @@
 
                     root.innerHTML = html;
                     initDistrictTableSort(root);
+                    initPerCapitaDistrictFilter(root, people);
                     if (pivot2026 && pivot2026.rows.length) initSection3Pivot(root, pivot2026);
                 } catch (e) {
                     root.innerHTML =
