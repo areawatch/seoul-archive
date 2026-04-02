@@ -111,6 +111,8 @@ async function fetchTabData(tab) {
                     district: item.district, name: item.name,
                     position: item.position, party: item.party,
                     y2026: 0, y2025: 0, y2024: 0, y2023: 0,
+                    re2023: 0, re2024: 0, re2025: 0, re2026: 0,
+                    fin2023: 0, fin2024: 0, fin2025: 0, fin2026: 0,
                     land2026: 0, building2026: 0,
                     cash2026: 0, deposit2026: 0, stock2026: 0
                 };
@@ -126,14 +128,29 @@ async function fetchTabData(tab) {
             else if (yr === "2024") allSummary[key].y2024 += signedVal;
             else if (yr === "2023") allSummary[key].y2023 += signedVal;
 
-            // 2. 2026년 G열(재산대분류)별 합산 (채무 감산과 무관, 원값)
-            if (yr === "2026") {
+            // 2. 연도별 부동산·금융 (채무 감산과 무관, 원값)
+            if (yr === "2023" || yr === "2024" || yr === "2025" || yr === "2026") {
                 const t = String(item.type || "");
-                if (t.includes("토지")) allSummary[key].land2026 += val;
-                if (t.includes("건물")) allSummary[key].building2026 += val;
-                if (t.includes("현금")) allSummary[key].cash2026 += val;
-                if (t.includes("예금")) allSummary[key].deposit2026 += val;
-                if (t.includes("증권")) allSummary[key].stock2026 += val;
+                if (t.includes("토지")) {
+                    if (yr === "2026") allSummary[key].land2026 += val;
+                    allSummary[key][`re${yr}`] += val;
+                }
+                if (t.includes("건물")) {
+                    if (yr === "2026") allSummary[key].building2026 += val;
+                    allSummary[key][`re${yr}`] += val;
+                }
+                if (t.includes("현금")) {
+                    if (yr === "2026") allSummary[key].cash2026 += val;
+                    allSummary[key][`fin${yr}`] += val;
+                }
+                if (t.includes("예금")) {
+                    if (yr === "2026") allSummary[key].deposit2026 += val;
+                    allSummary[key][`fin${yr}`] += val;
+                }
+                if (t.includes("증권")) {
+                    if (yr === "2026") allSummary[key].stock2026 += val;
+                    allSummary[key][`fin${yr}`] += val;
+                }
             }
         });
         checkAllLoaded();

@@ -675,6 +675,158 @@ main.index-main-lead {
     justify-content: center;
 }
 
+/* 개요: 연도별 합계 표 */
+.index-overview-year-table-wrap {
+    margin-top: 1.75rem;
+}
+
+.index-overview-year-caption {
+    letter-spacing: -0.01em;
+}
+
+.index-overview-year-table-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 8px 24px rgba(15, 23, 42, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.index-overview-year-table {
+    font-size: 0.875rem;
+    --bs-table-bg: transparent;
+    --bs-table-border-color: transparent;
+    margin-bottom: 0;
+}
+
+.index-overview-year-table thead {
+    background: linear-gradient(180deg, #f8f9fa 0%, #f1f3f5 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+}
+
+.index-overview-year-table thead th {
+    font-family: 'Paperozi', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: #495057;
+    padding-top: 0.9rem;
+    padding-bottom: 0.9rem;
+    vertical-align: middle;
+    border: none;
+}
+
+.index-overview-year-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.index-overview-year-table tbody tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.index-overview-year-table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.index-overview-year-table tbody th,
+.index-overview-year-table tbody td {
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+    border: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    vertical-align: middle;
+}
+
+.index-overview-year-table tbody tr:last-child th,
+.index-overview-year-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.index-overview-year-table .ov-yt-col-year {
+    text-align: left;
+    padding-left: 1.25rem;
+    font-family: 'Paperozi', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: #212529;
+    width: 5.5rem;
+    white-space: nowrap;
+}
+
+.index-overview-year-table thead .ov-yt-col-year {
+    padding-left: 1.25rem;
+}
+
+.index-overview-year-table .ov-yt-col-num {
+    text-align: right;
+    padding-right: 1.15rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.index-overview-year-table thead .ov-yt-col-num {
+    text-align: right;
+    padding-right: 1.15rem;
+}
+
+/* 조·억·만 — 개요 카드 총액(.stat-value-line)과 동일 톤 */
+.index-overview-year-table .ov-yt-amt {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 0.3em 0.45em;
+    max-width: 100%;
+    font-family: 'Paperozi', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em;
+    color: #212529;
+    line-height: 1.22;
+}
+
+.index-overview-year-table .ov-yt-fig {
+    display: inline-flex;
+    align-items: baseline;
+    white-space: nowrap;
+}
+
+.index-overview-year-table .ov-yt-num {
+    font-family: inherit;
+    font-weight: 700 !important;
+    font-size: 0.95rem;
+    letter-spacing: -0.02em;
+    color: inherit;
+}
+
+.index-overview-year-table .ov-yt-unit {
+    font-family: inherit;
+    font-weight: 700 !important;
+    font-size: 0.72rem;
+    margin-left: 0.1em;
+    color: #6c757d;
+    letter-spacing: -0.02em;
+}
+
+@media (max-width: 575.98px) {
+    .index-overview-year-table {
+        font-size: 0.8rem;
+    }
+
+    .index-overview-year-table .ov-yt-num {
+        font-size: 0.95rem;
+    }
+
+    .index-overview-year-table .ov-yt-col-year {
+        padding-left: 0.85rem;
+    }
+
+    .index-overview-year-table .ov-yt-col-num {
+        padding-right: 0.75rem;
+    }
+}
+
 
 /* 카드 공통 스타일 */
 .card { 

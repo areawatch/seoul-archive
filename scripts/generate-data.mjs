@@ -118,6 +118,14 @@ async function main() {
           y2025: 0,
           y2024: 0,
           y2023: 0,
+          re2023: 0,
+          re2024: 0,
+          re2025: 0,
+          re2026: 0,
+          fin2023: 0,
+          fin2024: 0,
+          fin2025: 0,
+          fin2026: 0,
           land2026: 0,
           building2026: 0,
           cash2026: 0,
@@ -167,14 +175,29 @@ async function main() {
       else if (yr === "2024") allSummary[key].y2024 += signedVal;
       else if (yr === "2023") allSummary[key].y2023 += signedVal;
 
-      // 2026년 G열(재산대분류)별 합산 — 채무 감산과 무관하게 원값(K열) 합산
-      if (yr === "2026") {
+      // 연도별 부동산(토지+건물)·금융(현금·예금·증권) — 원값(K열), 채무 제외
+      if (yr === "2023" || yr === "2024" || yr === "2025" || yr === "2026") {
         const t = String(item.type || "");
-        if (t.includes("토지")) allSummary[key].land2026 += item.value;
-        if (t.includes("건물")) allSummary[key].building2026 += item.value;
-        if (t.includes("현금")) allSummary[key].cash2026 += item.value;
-        if (t.includes("예금")) allSummary[key].deposit2026 += item.value;
-        if (t.includes("증권")) allSummary[key].stock2026 += item.value;
+        if (t.includes("토지")) {
+          if (yr === "2026") allSummary[key].land2026 += item.value;
+          allSummary[key][`re${yr}`] += item.value;
+        }
+        if (t.includes("건물")) {
+          if (yr === "2026") allSummary[key].building2026 += item.value;
+          allSummary[key][`re${yr}`] += item.value;
+        }
+        if (t.includes("현금")) {
+          if (yr === "2026") allSummary[key].cash2026 += item.value;
+          allSummary[key][`fin${yr}`] += item.value;
+        }
+        if (t.includes("예금")) {
+          if (yr === "2026") allSummary[key].deposit2026 += item.value;
+          allSummary[key][`fin${yr}`] += item.value;
+        }
+        if (t.includes("증권")) {
+          if (yr === "2026") allSummary[key].stock2026 += item.value;
+          allSummary[key][`fin${yr}`] += item.value;
+        }
       }
     }
   }

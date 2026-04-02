@@ -163,6 +163,34 @@
                     </div>
                 </div>
             </div>
+            <div class="row justify-content-center index-overview-year-table-wrap">
+                <div class="col-12 col-xl-10">
+                    <p class="text-center text-muted small mb-2 mb-md-3 index-overview-year-caption">
+                        연도별 합계 · 조·억·만 원 환산 · 2026년 신고액이 있는 인원 기준
+                    </p>
+                    <div class="table-responsive index-overview-year-table-card">
+                        <table
+                            class="table table-sm align-middle index-overview-year-table mb-0"
+                            id="overview-year-table"
+                            aria-label="연도별 재산·부동산·금융 합계"
+                        >
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="ov-yt-col-year">연도</th>
+                                    <th scope="col" class="ov-yt-col-num">재산 총액</th>
+                                    <th scope="col" class="ov-yt-col-num">부동산 총액</th>
+                                    <th scope="col" class="ov-yt-col-num">금융자산 총액</th>
+                                </tr>
+                            </thead>
+                            <tbody id="overview-year-tbody">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">데이터를 불러오는 중입니다.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -675,6 +703,78 @@
             }
         }
 
+        /**
+         * 개요 연도별 표: 천원 합 → HTML (조·)억·만, 억·만 숫자는 최소 4자리 0 패딩
+         */
+        function formatCheonSumEokManHtml(cheonSum) {
+            const man = Math.round(toMan(Number(cheonSum) || 0));
+            const pad4 = (n) => String(Math.max(0, Math.floor(n))).padStart(4, "0");
+            const fig = (numStr, unit) =>
+                '<span class="ov-yt-fig"><span class="ov-yt-num">' +
+                escapeHtml(numStr) +
+                '</span><span class="ov-yt-unit">' +
+                escapeHtml(unit) +
+                "</span></span>";
+            if (man === 0) {
+                return '<span class="ov-yt-amt">' + fig("0000", "억") + fig("0000", "만") + "</span>";
+            }
+            const sign = man < 0 ? "-" : "";
+            const absVal = Math.abs(man);
+            const jo = Math.floor(absVal / 100000000);
+            const eok = Math.floor((absVal % 100000000) / 10000);
+            const manRem = absVal % 10000;
+            let parts = "";
+            if (jo > 0) {
+                parts += fig(jo.toLocaleString(), "조");
+            }
+            parts += fig(pad4(eok), "억");
+            parts += fig(pad4(manRem), "만");
+            return sign + '<span class="ov-yt-amt">' + parts + "</span>";
+        }
+
+        function overviewYearCheonPerson(p, year, kind) {
+            const y = String(year);
+            if (kind === "total") return Number(p["y" + y]) || 0;
+            if (kind === "re") {
+                const k = "re" + y;
+                if (p[k] != null && p[k] !== "") return Number(p[k]) || 0;
+                if (y === "2026") return realEstateCheonPerson(p);
+                return 0;
+            }
+            if (kind === "fin") {
+                const k = "fin" + y;
+                if (p[k] != null && p[k] !== "") return Number(p[k]) || 0;
+                if (y === "2026") return financeCheonPerson(p);
+                return 0;
+            }
+            return 0;
+        }
+
+        function renderOverviewYearTable(activeAll) {
+            const tb = document.getElementById("overview-year-tbody");
+            if (!tb) return;
+            const years = ["2023", "2024", "2025", "2026"];
+            const kinds = ["total", "re", "fin"];
+            if (!activeAll.length) {
+                tb.innerHTML =
+                    '<tr><td colspan="4" class="text-center text-muted py-4">2026년 신고 데이터가 없어 표시할 수 없습니다.</td></tr>';
+                return;
+            }
+            let html = "";
+            years.forEach((y) => {
+                html += '<tr><th scope="row" class="ov-yt-col-year">' + escapeHtml(y + "년") + "</th>";
+                kinds.forEach((kind) => {
+                    const sum = activeAll.reduce(
+                        (acc, p) => acc + overviewYearCheonPerson(p, y, kind),
+                        0
+                    );
+                    html += '<td class="ov-yt-col-num">' + formatCheonSumEokManHtml(sum) + "</td>";
+                });
+                html += "</tr>";
+            });
+            tb.innerHTML = html;
+        }
+
         function renderStats(allData) {
             const data = Object.values(allData);
             const mayorAll = data.filter(isMayor);
@@ -738,6 +838,7 @@
             });
 
             renderDataSpotlight(activeAll);
+            renderOverviewYearTable(activeAll);
         }
 
         async function init() {
