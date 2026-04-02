@@ -18,6 +18,16 @@ body {
     color: #333;
 }
 
+/* 텍스트 드래그(선택) 강조 — 모든 페이지 공통 */
+::selection {
+    background-color: #aac465;
+    color: #1a1a1a;
+}
+::-moz-selection {
+    background-color: #aac465;
+    color: #1a1a1a;
+}
+
 .container { max-width: 1500px; }
 
 /* 타이포그래피 */
@@ -565,9 +575,19 @@ h1 {
     color: inherit;
 }
 
-/* 메인 첫 블록: 히어로와 살짝 간격 */
+/* 개요·데이터 스포트라이트 공통: 제목·부제 블록 위·아래 여백 동일 */
 main.index-main-lead {
-    padding-top: 2.25rem !important;
+    padding-top: 0 !important;
+}
+
+.index-section-head {
+    padding-top: clamp(2rem, 5vw, 2.75rem);
+    padding-bottom: 0;
+}
+
+/* 메인 다음 섹션: 제목 블록만 개요와 동일 규칙, 섹션 상단은 중복 여백 없음 */
+.data-spotlight.py-5 {
+    padding-top: 0 !important;
 }
 
 .index-section-title {
@@ -590,10 +610,10 @@ main.index-main-lead {
     margin-right: auto;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.75rem;
     background: #fff;
     border-radius: 1rem;
-    padding: clamp(1.35rem, 3.5vw, 2.25rem) clamp(1.25rem, 3vw, 2rem);
+    padding: clamp(1.85rem, 5.5vw, 3.5rem) clamp(1.65rem, 4.5vw, 3rem);
     box-shadow: 0 0.125rem 0.5rem rgba(15, 23, 42, 0.08);
     border: 1px solid rgba(0, 0, 0, 0.04);
 }
@@ -609,7 +629,7 @@ main.index-main-lead {
 }
 
 .data-spotlight .spotlight-check {
-    color: #ee2f51;
+    color: #679b59;
     font-size: 1.25rem;
 }
 
@@ -619,12 +639,12 @@ main.index-main-lead {
 }
 
 .data-spotlight .spotlight-em {
-    color: #001066;
+    color: #186f4f;
     font-weight: 700;
 }
 
 .data-spotlight .spotlight-threshold {
-    color: #ee2f51;
+    color: #679b59;
     font-weight: 700;
 }
 
