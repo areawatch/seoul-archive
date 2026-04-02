@@ -44,7 +44,7 @@ body {
 /* Bootstrap py-5(3rem) 대신 섹션 간격을 1rem으로 */
 .py-5 {
     padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
+    padding-bottom: 3rem !important;
 }
 
 /* 내비게이션 바 */
@@ -675,13 +675,28 @@ main.index-main-lead {
     justify-content: center;
 }
 
-/* 개요: 연도별 합계 표 */
+/* 개요: 연도별 합계 표 — 넓은 화면에서 데이터 스포트라이트 본문과 동일 너비(66.666%) */
 .index-overview-year-table-wrap {
     margin-top: 1.75rem;
 }
 
-.index-overview-year-caption {
-    letter-spacing: -0.01em;
+.index-overview-year-inner {
+    width: 100%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (min-width: 768px) {
+    .index-overview-year-inner {
+        width: 66.666%;
+    }
+}
+
+/* 카드 아래: 개요 제목과 동일 — 본문(표)까지 간격은 개요→카드 행과 같이 부제 p의 아래 마진에 맡김 */
+.index-overview-year-inner .index-overview-year-head.index-section-head {
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .index-overview-year-table-card {
@@ -702,16 +717,16 @@ main.index-main-lead {
 }
 
 .index-overview-year-table thead {
-    background: linear-gradient(180deg, #f8f9fa 0%, #f1f3f5 100%);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+    background: #f8f9fa;
+    border-bottom: 1px solid #eef0f2;
 }
 
 .index-overview-year-table thead th {
     font-family: 'Paperozi', sans-serif !important;
     font-weight: 700 !important;
-    font-size: 0.75rem;
+    font-size: 0.98rem;
     letter-spacing: -0.02em;
-    color: #495057;
+    color: #343a40;
     padding-top: 0.9rem;
     padding-bottom: 0.9rem;
     vertical-align: middle;
@@ -747,17 +762,16 @@ main.index-main-lead {
 .index-overview-year-table .ov-yt-col-year {
     text-align: left;
     padding-left: 1.25rem;
-    font-family: 'Paperozi', sans-serif !important;
-    font-weight: 700 !important;
-    font-size: 0.8125rem;
-    letter-spacing: -0.02em;
-    color: #212529;
     width: 5.5rem;
     white-space: nowrap;
 }
 
-.index-overview-year-table thead .ov-yt-col-year {
-    padding-left: 1.25rem;
+.index-overview-year-table tbody th.ov-yt-col-year {
+    font-family: 'Pretendard', -apple-system, sans-serif !important;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: -0.01em;
+    color: #333;
 }
 
 .index-overview-year-table .ov-yt-col-num {
@@ -771,42 +785,37 @@ main.index-main-lead {
     padding-right: 1.15rem;
 }
 
-/* 조·억·만 — 개요 카드 총액(.stat-value-line)과 동일 톤 */
+/* 금액: 본문 폰트(Pretendard), 숫자·단위 동일 스타일 */
 .index-overview-year-table .ov-yt-amt {
     display: inline-flex;
     flex-wrap: wrap;
     align-items: baseline;
     justify-content: flex-end;
-    gap: 0.3em 0.45em;
+    gap: 0.35em 0.5em;
     max-width: 100%;
-    font-family: 'Paperozi', sans-serif !important;
-    font-weight: 700 !important;
-    letter-spacing: -0.02em;
-    color: #212529;
-    line-height: 1.22;
+    font-family: 'Pretendard', -apple-system, sans-serif !important;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: -0.01em;
+    color: #333;
+    line-height: 1.35;
 }
 
 .index-overview-year-table .ov-yt-fig {
     display: inline-flex;
     align-items: baseline;
+    gap: 0.08em;
     white-space: nowrap;
 }
 
-.index-overview-year-table .ov-yt-num {
-    font-family: inherit;
-    font-weight: 700 !important;
-    font-size: 0.95rem;
-    letter-spacing: -0.02em;
-    color: inherit;
-}
-
+.index-overview-year-table .ov-yt-num,
 .index-overview-year-table .ov-yt-unit {
-    font-family: inherit;
-    font-weight: 700 !important;
-    font-size: 0.72rem;
-    margin-left: 0.1em;
-    color: #6c757d;
-    letter-spacing: -0.02em;
+    font-family: inherit !important;
+    font-weight: 600;
+    font-size: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    margin: 0;
 }
 
 @media (max-width: 575.98px) {
@@ -814,11 +823,11 @@ main.index-main-lead {
         font-size: 0.8rem;
     }
 
-    .index-overview-year-table .ov-yt-num {
-        font-size: 0.95rem;
+    .index-overview-year-table .ov-yt-amt {
+        font-size: 0.8rem;
     }
 
-    .index-overview-year-table .ov-yt-col-year {
+    .index-overview-year-table tbody th.ov-yt-col-year {
         padding-left: 0.85rem;
     }
 
