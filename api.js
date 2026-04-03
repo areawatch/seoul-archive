@@ -5,11 +5,9 @@ let allSummary = {};
 let loadedCount = 0;
 
 async function loadArchiveDataFromJson() {
-    const cacheBuster = Date.now();
-    const [summaryRes, detailRes] = await Promise.all([
-        fetch(`data.json?v=${cacheBuster}`),
-        fetch(`detail.json?v=${cacheBuster}`)
-    ]);
+    // URL에 매번 다른 쿼리를 붙이면 CDN·브라우저 캐시가 무력화되어 트래픽 급증 시 불리함.
+    // 배포 시 파일이 바뀌면 ETag가 달라져 304/신규 본문으로 갱신됨.
+    const [summaryRes, detailRes] = await Promise.all([fetch("data.json"), fetch("detail.json")]);
 
     if (!summaryRes.ok) throw new Error("data.json 로드 실패");
     if (!detailRes.ok) throw new Error("detail.json 로드 실패");

@@ -1365,11 +1365,7 @@
             async function run() {
                 const root = document.getElementById("analysis-root");
                 try {
-                    const v = Date.now();
-                    const [dataRes, detailRes] = await Promise.all([
-                        fetch("data.json?v=" + v),
-                        fetch("detail.json?v=" + v)
-                    ]);
+                    const [dataRes, detailRes] = await Promise.all([fetch("data.json"), fetch("detail.json")]);
                     if (!dataRes.ok) throw new Error("data.json 로드 실패");
                     const dataObj = await dataRes.json();
                     const people = Object.values(dataObj);

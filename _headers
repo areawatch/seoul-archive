@@ -1,0 +1,35 @@
+# Cloudflare Workers static assets — https://developers.cloudflare.com/workers/static-assets/headers/
+# 데이터는 배포 시 파일 내용(ETag)이 바뀌므로, 짧은 max-age로 엣지·브라우저 재사용 + SWR로 재검증 부담 완화
+
+/data.json
+  Cache-Control: public, max-age=600, stale-while-revalidate=86400
+
+/detail.json
+  Cache-Control: public, max-age=600, stale-while-revalidate=86400
+
+/style.css
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/config.js
+  Cache-Control: public, max-age=1800, stale-while-revalidate=86400
+
+/chart.js
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/script.js
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/api.js
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/ui.js
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/*.png
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/*.jpg
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/*.webp
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
