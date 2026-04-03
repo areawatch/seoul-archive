@@ -458,11 +458,12 @@
             })[0];
         }
 
-        /** y2026−y2023 증가(천원) 최대 1인, delta>0만 (동률 시 이름·자치구) */
+        /** y2026−y2023 증가(천원) 최대 1인. y2023>0만 포함(0이면 순위 제외), delta>0만 (동률 시 이름·자치구) */
         function topPersonByWealthIncreaseSince2023(arr) {
             if (!arr.length) return null;
             const delta = (p) => (Number(p.y2026) || 0) - (Number(p.y2023) || 0);
-            const positive = arr.filter((p) => delta(p) > 0);
+            const y2023Cheon = (p) => Number(p.y2023) || 0;
+            const positive = arr.filter((p) => y2023Cheon(p) > 0 && delta(p) > 0);
             if (!positive.length) return null;
             return [...positive].sort((a, b) => {
                 const dv = delta(b) - delta(a);
@@ -671,7 +672,7 @@
                     " 입니다.";
             }
 
-            // ⑦⑧ 2023년 대비 총재산(y2026 합) 증가 최다 — 현직 구청장·구의원
+            // ⑦⑧ 2023년 대비 총재산(y2026−y2023) 증가 최다 — y2023>0만, 현직 구청장·구의원
             const mayorActive = activeAll.filter((p) => p.position === "구청장");
             const councilActive = activeAll.filter((p) => p.position === "구의원");
             const mayorTop = topPersonByWealthIncreaseSince2023(mayorActive);
@@ -679,13 +680,13 @@
 
             if (!mayorTop) {
                 elMayorGrowth.textContent =
-                    "2023년 대비 재산이 늘어난 현직 구청장 데이터가 없어 이 항목을 계산할 수 없습니다.";
+                    "2023년 재산 신고가 있는 인원 중, 2023년 대비 재산이 늘어난 구청장이 없어 이 항목을 계산할 수 없습니다.";
             } else {
                 const dCheon =
                     (Number(mayorTop.y2026) || 0) - (Number(mayorTop.y2023) || 0);
                 const wonInc = formatKoreanWonFromMan(toMan(dCheon));
                 elMayorGrowth.innerHTML =
-                    "2023년 대비 재산이 가장 많이 늘어난 구청장은 " +
+                    "2023년 재산 신고가 있는 구청장 중, 2023년 대비 재산이 가장 많이 늘어난 이는 " +
                     spotlightPersonPartyNameRoleHtml(mayorTop) +
                     " 으로 " +
                     em(wonInc) +
@@ -694,13 +695,13 @@
 
             if (!councilTop) {
                 elCouncilGrowth.textContent =
-                    "2023년 대비 재산이 늘어난 현직 구의원 데이터가 없어 이 항목을 계산할 수 없습니다.";
+                    "2023년 재산 신고가 있는 인원 중, 2023년 대비 재산이 늘어난 구의원이 없어 이 항목을 계산할 수 없습니다.";
             } else {
                 const dCheon =
                     (Number(councilTop.y2026) || 0) - (Number(councilTop.y2023) || 0);
                 const wonInc = formatKoreanWonFromMan(toMan(dCheon));
                 elCouncilGrowth.innerHTML =
-                    "2023년 대비 재산이 가장 많이 늘어난 구의원은 " +
+                    "2023년 재산 신고가 있는 구의원 중, 2023년 대비 재산이 가장 많이 늘어난 이는 " +
                     spotlightPersonPartyNameRoleHtml(councilTop) +
                     " 으로 " +
                     em(wonInc) +
