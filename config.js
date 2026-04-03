@@ -1,4 +1,12 @@
 // config.js - 공통 설정 데이터
+
+/**
+ * Cloudflare Web Analytics 사이트 토큰.
+ * 대시보드 → Web analytics(https://dash.cloudflare.com/ → Web analytics) → 사이트 추가/관리 → JS 스니펫의 token 값.
+ * 비워 두면 cf-analytics.js가 비콘을 넣지 않습니다.
+ */
+const cloudflareWebAnalyticsToken = "96b8b165ef6c41abb1a8cf6b4d6f79af";
+
 const sheetKey = '2PACX-1vSbGPniWhU5p7Lk2u5XP8GwljzzefLiV9aEIrO18zcANUEKVPVvabNUQMal2UMAZz2bAAAbVEKFUi2y';
 
 const sheetTabs = [

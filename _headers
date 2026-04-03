@@ -13,6 +13,9 @@
 /config.js
   Cache-Control: public, max-age=1800, stale-while-revalidate=86400
 
+/cf-analytics.js
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
 /chart.js
   Cache-Control: public, max-age=3600, stale-while-revalidate=86400
 
