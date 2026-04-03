@@ -378,7 +378,11 @@ function updateDistrictCompareChart() {
         const idx = Object.fromEntries(labels.map((n, i) => [n, i]));
         const sumRe = (p) => (Number(p.land2026) || 0) + (Number(p.building2026) || 0);
         const sumFin = (p) =>
-            (Number(p.cash2026) || 0) + (Number(p.deposit2026) || 0) + (Number(p.stock2026) || 0);
+            (Number(p.cash2026) || 0) +
+            (Number(p.deposit2026) || 0) +
+            (Number(p.stock2026) || 0) +
+            (Number(p.bond2026) || 0) +
+            (Number(p.virtual2026) || 0);
         Object.values(allSummary).forEach((item) => {
             if (typeof isArchiveDistrictCouncilMember === "function" && !isArchiveDistrictCouncilMember(item)) {
                 return;
@@ -600,7 +604,7 @@ function updateDistrictCompareChart() {
                     borderRadius: 3,
                 },
                 {
-                    label: "금융자산 합계 (현금·예금·증권)",
+                    label: "금융자산 합계 (현금·예금·증권·채권·가상자산)",
                     data: finTotals,
                     backgroundColor: fill2,
                     borderColor: bw2.borderColor,

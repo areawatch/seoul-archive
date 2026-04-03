@@ -547,7 +547,9 @@
                         return (
                             (Number(p.cash2026) || 0) +
                             (Number(p.deposit2026) || 0) +
-                            (Number(p.stock2026) || 0)
+                            (Number(p.stock2026) || 0) +
+                            (Number(p.bond2026) || 0) +
+                            (Number(p.virtual2026) || 0)
                         );
                     }
                     return 0;
@@ -778,7 +780,7 @@
 
             function perCapitaLeadHtml(district, count, totalAll) {
                 const tail =
-                    " · 연도별 합계 ÷ 인원 · 부동산·금융은 메인 페이지와 동일 산식(2026은 토지+건물, 현금+예금+증권)";
+                    " · 연도별 합계 ÷ 인원 · 부동산·금융은 메인 페이지와 동일 산식(2026은 토지+건물, 현금+예금+증권+채권+가상자산)";
                 if (!String(district || "").trim()) {
                     return (
                         "<code>data.json</code> 등록 인원 " +

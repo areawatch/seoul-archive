@@ -135,7 +135,7 @@
                     <div class="card h-100 stat-card stat-card-metric">
                         <div class="stat-card-index" aria-hidden="true">03</div>
                         <div class="card-body p-4">
-                            <div class="fs-6 fw-bold mb-3 text-center stat-card-heading stat-card-heading--c3">📈 금융자산(현금·예금·증권) 총액</div>
+                            <div class="fs-6 fw-bold mb-3 text-center stat-card-heading stat-card-heading--c3">📈 금융자산(현금·예금·증권·채권·가상자산) 총액</div>
                             <div class="row g-0 text-center stat-triple">
                                 <div class="col-4 border-end stat-triple-col">
                                     <div class="stat-metric-col-title stat-metric-col-title--tight">전체</div>
@@ -352,7 +352,14 @@
 
         function sumFinanceCheon(arr) {
             return arr.reduce((a, i) => {
-                return a + (Number(i.cash2026) || 0) + (Number(i.deposit2026) || 0) + (Number(i.stock2026) || 0);
+                return (
+                    a +
+                    (Number(i.cash2026) || 0) +
+                    (Number(i.deposit2026) || 0) +
+                    (Number(i.stock2026) || 0) +
+                    (Number(i.bond2026) || 0) +
+                    (Number(i.virtual2026) || 0)
+                );
             }, 0);
         }
 
@@ -408,7 +415,13 @@
         }
 
         function financeCheonPerson(p) {
-            return (Number(p.cash2026) || 0) + (Number(p.deposit2026) || 0) + (Number(p.stock2026) || 0);
+            return (
+                (Number(p.cash2026) || 0) +
+                (Number(p.deposit2026) || 0) +
+                (Number(p.stock2026) || 0) +
+                (Number(p.bond2026) || 0) +
+                (Number(p.virtual2026) || 0)
+            );
         }
 
         function realEstateCheonPerson(p) {
@@ -634,7 +647,7 @@
             const highReCount = activeAll.filter((p) => realEstateCheonPerson(p) >= re30eokCheon).length;
             const thr = (t) => '<strong class="spotlight-threshold">' + t + "</strong>";
             elHigh.innerHTML =
-                "금융자산(현금·예금·증권)을 " +
+                "금융자산(현금·예금·증권·채권·가상자산)을 " +
                 thr("10억원 이상") +
                 " 보유한 공직자는 총 " +
                 em(String(highFinCount)) +
@@ -665,7 +678,7 @@
                 const cheonFin = financeCheonPerson(pFin);
                 const wonFin = formatKoreanWonFromMan(toMan(cheonFin));
                 elMaxFin.innerHTML =
-                    "가장 금융자산(현금·예금·증권)이 많은 사람은 " +
+                    "가장 금융자산(현금·예금·증권·채권·가상자산)이 많은 사람은 " +
                     spotlightPersonPartyNameRoleHtml(pFin) +
                     "이며, 금액은 " +
                     em(wonFin) +

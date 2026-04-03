@@ -130,7 +130,9 @@ async function main() {
           building2026: 0,
           cash2026: 0,
           deposit2026: 0,
-          stock2026: 0
+          stock2026: 0,
+          bond2026: 0,
+          virtual2026: 0
         };
       } else {
         // prefer non-empty meta if any tab had blanks
@@ -175,7 +177,7 @@ async function main() {
       else if (yr === "2024") allSummary[key].y2024 += signedVal;
       else if (yr === "2023") allSummary[key].y2023 += signedVal;
 
-      // 연도별 부동산(토지+건물)·금융(현금·예금·증권) — 원값(K열), 채무 제외
+      // 연도별 부동산(토지+건물)·금융(현금·예금·증권·채권·가상자산) — 원값(K열), 채무 제외
       if (yr === "2023" || yr === "2024" || yr === "2025" || yr === "2026") {
         const t = String(item.type || "");
         if (t.includes("토지")) {
@@ -196,6 +198,14 @@ async function main() {
         }
         if (t.includes("증권")) {
           if (yr === "2026") allSummary[key].stock2026 += item.value;
+          allSummary[key][`fin${yr}`] += item.value;
+        }
+        if (t.includes("채권")) {
+          if (yr === "2026") allSummary[key].bond2026 += item.value;
+          allSummary[key][`fin${yr}`] += item.value;
+        }
+        if (t.includes("가상자산")) {
+          if (yr === "2026") allSummary[key].virtual2026 += item.value;
           allSummary[key][`fin${yr}`] += item.value;
         }
       }

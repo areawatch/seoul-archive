@@ -43,7 +43,13 @@ function sumRealEstate2026Item(p) {
 }
 
 function sumFinance2026Item(p) {
-    return (Number(p.cash2026) || 0) + (Number(p.deposit2026) || 0) + (Number(p.stock2026) || 0);
+    return (
+        (Number(p.cash2026) || 0) +
+        (Number(p.deposit2026) || 0) +
+        (Number(p.stock2026) || 0) +
+        (Number(p.bond2026) || 0) +
+        (Number(p.virtual2026) || 0)
+    );
 }
 
 function getSeoulDistrictNames() {

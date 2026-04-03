@@ -114,7 +114,8 @@ async function fetchTabData(tab) {
                     re2023: 0, re2024: 0, re2025: 0, re2026: 0,
                     fin2023: 0, fin2024: 0, fin2025: 0, fin2026: 0,
                     land2026: 0, building2026: 0,
-                    cash2026: 0, deposit2026: 0, stock2026: 0
+                    cash2026: 0, deposit2026: 0, stock2026: 0,
+                    bond2026: 0, virtual2026: 0
                 };
             }
 
@@ -149,6 +150,14 @@ async function fetchTabData(tab) {
                 }
                 if (t.includes("증권")) {
                     if (yr === "2026") allSummary[key].stock2026 += val;
+                    allSummary[key][`fin${yr}`] += val;
+                }
+                if (t.includes("채권")) {
+                    if (yr === "2026") allSummary[key].bond2026 += val;
+                    allSummary[key][`fin${yr}`] += val;
+                }
+                if (t.includes("가상자산")) {
+                    if (yr === "2026") allSummary[key].virtual2026 += val;
                     allSummary[key][`fin${yr}`] += val;
                 }
             }
