@@ -24,6 +24,14 @@ body {
     border-top-color: rgba(0, 0, 0, 0.08) !important;
 }
 
+.site-footer-partner-logo {
+    width: 80px;
+    max-width: min(80px, 28vw);
+    height: auto;
+    vertical-align: middle;
+    display: block;
+}
+
 /* 텍스트 드래그(선택) 강조 — 모든 페이지 공통 */
 ::selection {
     background-color: #aac465;
