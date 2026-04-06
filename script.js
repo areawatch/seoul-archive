@@ -161,6 +161,17 @@ window.onload = () => {
             .then(() => {
                 if (document.body.id === "page-archive-district") initDistrictArchivePage();
                 else renderRouter();
+
+                const sp = new URLSearchParams(window.location.search);
+                const wn = sp.get("wealthName");
+                const wd = sp.get("wealthDistrict");
+                if (wn && wd && document.getElementById("detailModal")) {
+                    try {
+                        showDetail(decodeURIComponent(wn), decodeURIComponent(wd));
+                    } catch (err) {
+                        console.warn("wealth query showDetail:", err);
+                    }
+                }
             })
             .catch(err => {
                 console.error("데이터 로드 실패:", err);

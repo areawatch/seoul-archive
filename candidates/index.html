@@ -27,6 +27,14 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
     />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
   </head>
   <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
     <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
@@ -145,6 +153,43 @@
         ></div>
       </div>
     </div>
+
+    <div
+      class="modal fade"
+      id="archiveWealthModal"
+      tabindex="-1"
+      aria-labelledby="archiveWealthModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="archiveWealthModalLabel">재산 상세</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="닫기"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-4" style="height: 250px">
+              <canvas id="archiveWealthChart"></canvas>
+            </div>
+            <div class="text-muted small mb-2">단위: 천원 (채무/부채는 총계에서 감산)</div>
+            <div id="archiveWealthContent"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../config.js"></script>
+    <script src="../archive-wealth-modal.js"></script>
 
     <script>
       /* 선관위 예비후보 명부「구시군」선택 순서와 동일 */
@@ -325,6 +370,79 @@
       }
 
       let lastFilteredCandidates = [];
+      let wealthPositionByKey = {};
+
+      function normalizeWealthName(raw) {
+        let s = String(raw || "").split("\n")[0].trim();
+        s = s.replace(/\([^)]*\)/g, "").replace(/（[^）]*）/g, "");
+        return s.replace(/\s+/g, " ").trim();
+      }
+
+      function buildWealthIndex(obj) {
+        wealthPositionByKey = {};
+        if (!obj || typeof obj !== "object") return;
+        for (const row of Object.values(obj)) {
+          if (!row || typeof row !== "object") continue;
+          const d = String(row.district || "").trim();
+          const n = normalizeWealthName(row.name);
+          if (!d || !n) continue;
+          const k = d + "|" + n;
+          if (!wealthPositionByKey[k]) {
+            wealthPositionByKey[k] = String(row.position || "").trim();
+          }
+        }
+      }
+
+      function wealthDisplayLabel(position) {
+        const p = String(position || "").trim();
+        if (!p) return "";
+        if (p === "구의원") return "현 구의원";
+        if (p === "전)구의원") return "전 구의원";
+        if (p === "구청장") return "현 구청장";
+        if (p === "전)구청장") return "전 구청장";
+        if (p.startsWith("전)")) return "전 " + p.slice(2);
+        return p;
+      }
+
+      function wealthLabelForCandidate(c) {
+        const d = String(c.district || "").trim();
+        const n = normalizeWealthName(c.name);
+        if (!d || !n) return "";
+        return wealthDisplayLabel(wealthPositionByKey[d + "|" + n]);
+      }
+
+      function wealthMatchKeyForCandidate(c) {
+        const d = String(c.district || "").trim();
+        const n = normalizeWealthName(c.name);
+        if (!d || !n) return null;
+        return { district: d, name: n };
+      }
+
+      function wealthControlsHtmlForCandidate(c) {
+        const label = wealthLabelForCandidate(c);
+        const key = wealthMatchKeyForCandidate(c);
+        if (!label || !key) return "";
+        const title =
+          "이 사이트 공직자 재산 공개 명부(data.json)에 등재된 인원입니다.";
+        return `<div class="mt-2 flex flex-wrap items-center gap-2">
+            <span class="inline-flex max-w-full rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-900 ring-1 ring-amber-200/80" title="${escapeHtml(title)}">${escapeHtml(label)}</span>
+            <button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="rounded-lg bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-950 ring-1 ring-amber-300 transition hover:bg-amber-200/90">재산내역</button>
+          </div>`;
+      }
+
+      function wealthModalSnippet(c) {
+        const label = wealthLabelForCandidate(c);
+        const key = wealthMatchKeyForCandidate(c);
+        if (!label || !key) return "";
+        return modalDetailRow(
+          "재산 공개 명부",
+          `<div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-900 ring-1 ring-amber-200/80">${escapeHtml(label)}</span>
+            <button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="rounded-lg bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-950 ring-1 ring-amber-300 transition hover:bg-amber-200/90">재산내역</button>
+          </div>
+          <p class="mt-2 text-xs text-slate-500">재산 공개 데이터에서 이름·자치구가 일치합니다.</p>`
+        );
+      }
 
       function modalDetailRow(label, innerHtml) {
         return `<div class="min-w-0 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
@@ -379,6 +497,7 @@
             ${modalDetailRow("생년월일(연령)", `<span class="whitespace-pre-line">${ageHtml}</span>`)}
             ${modalDetailRow("전과 기록", formatCriminalBlock(c))}
             ${modalDetailRow("등록일자", escapeHtml(c.regDate || "—"))}
+            ${wealthModalSnippet(c)}
           </div>`;
 
         modal.classList.remove("hidden");
@@ -427,6 +546,15 @@
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;");
+      }
+
+      function escapeAttr(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
       }
 
       function normalizeSearch(s) {
@@ -569,6 +697,7 @@
             const necLink = necHref
               ? `<a href="${necHref}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-200">${extIcon}선관위 상세</a>`
               : `<span class="inline-flex cursor-not-allowed items-center gap-1.5 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-400" title="후보 식별자가 없어 링크를 제공할 수 없습니다.">${extIcon}선관위 상세</span>`;
+            const wealthControls = wealthControlsHtmlForCandidate(c);
             return `
           <li>
             <article class="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md ${t.topAccent}">
@@ -598,6 +727,7 @@
                   <p class="mt-2.5 inline-flex max-w-full rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
                     ${escapeHtml(c.district || "—")}<span class="mx-1 text-slate-300">·</span>${escapeHtml(c.constituency || "—")}
                   </p>
+                  ${wealthControls}
                 </div>
               </div>
               <div class="border-t border-slate-100 px-5 py-3.5">
@@ -656,12 +786,18 @@
       document.getElementById("party").addEventListener("change", render);
       document.getElementById("nameQuery").addEventListener("input", render);
 
+      const wealthFetch = fetch("../data.json")
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null);
+
       fetch("../public/data/candidates.json")
         .then((r) => {
           if (!r.ok) throw new Error(`HTTP ${r.status}`);
           return r.json();
         })
-        .then((data) => {
+        .then(async (data) => {
+          const wealthData = await wealthFetch;
+          buildWealthIndex(wealthData);
           const parsed = parseCandidatesPayload(data);
           allCandidates = parsed.list;
           document.getElementById("errorBox").classList.add("hidden");

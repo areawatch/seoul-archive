@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import candidatesFile from '@/public/data/candidates.json';
+import wealthRecords from '../../data.json';
 
 const NEC_ELECTION_ID = '0020260603';
 
@@ -56,6 +57,12 @@ type CandidatesPayload = {
   candidates: Candidate[];
 };
 
+type WealthRow = {
+  district?: string;
+  name?: string;
+  position?: string;
+};
+
 function loadCandidatesFile(raw: unknown): {
   rows: Candidate[];
   updatedAt: string | null;
@@ -78,6 +85,62 @@ function loadCandidatesFile(raw: unknown): {
 }
 
 const { rows, updatedAt: dataUpdatedAt } = loadCandidatesFile(candidatesFile as unknown);
+
+function normalizeWealthName(raw?: string): string {
+  let s = String(raw ?? '')
+    .split('\n')[0]
+    .trim();
+  s = s.replace(/\([^)]*\)/g, '').replace(/（[^）]*）/g, '');
+  return s.replace(/\s+/g, ' ').trim();
+}
+
+function buildWealthLookup(raw: unknown): Map<string, string> {
+  const m = new Map<string, string>();
+  if (!raw || typeof raw !== 'object') return m;
+  for (const row of Object.values(raw as Record<string, WealthRow>)) {
+    if (!row || typeof row !== 'object') continue;
+    const d = String(row.district ?? '').trim();
+    const n = normalizeWealthName(row.name);
+    if (!d || !n) continue;
+    const k = `${d}|${n}`;
+    if (!m.has(k)) m.set(k, String(row.position ?? '').trim());
+  }
+  return m;
+}
+
+function wealthDisplayLabel(position: string): string {
+  const p = position.trim();
+  if (!p) return '';
+  if (p === '구의원') return '현 구의원';
+  if (p === '전)구의원') return '전 구의원';
+  if (p === '구청장') return '현 구청장';
+  if (p === '전)구청장') return '전 구청장';
+  if (p.startsWith('전)')) return `전 ${p.slice(2)}`;
+  return p;
+}
+
+const wealthLookup = buildWealthLookup(wealthRecords as unknown);
+
+function wealthLabelForCandidate(c: Candidate): string {
+  const d = String(c.district ?? '').trim();
+  const n = normalizeWealthName(c.name);
+  if (!d || !n) return '';
+  const pos = wealthLookup.get(`${d}|${n}`);
+  return pos ? wealthDisplayLabel(pos) : '';
+}
+
+/** archive.html 재산 상세 모달 딥링크 (script.js가 쿼리를 읽어 showDetail 호출) */
+function wealthArchiveDetailHref(c: Candidate): string | null {
+  if (!wealthLabelForCandidate(c)) return null;
+  const d = String(c.district ?? '').trim();
+  const n = normalizeWealthName(c.name);
+  if (!d || !n) return null;
+  const q = new URLSearchParams({
+    wealthName: n,
+    wealthDistrict: d,
+  });
+  return `/archive.html?${q.toString()}`;
+}
 
 function formatDataUpdatedLabel(iso: string | null): string | null {
   if (!iso) return null;
@@ -199,6 +262,8 @@ function CandidateDetailModal({ c, onClose }: { c: Candidate | null; onClose: ()
   const ui = partyUi(c.party);
   const pname = primaryNameLine(c.name);
   const sub = subtitleFromName(c.name);
+  const wealthTag = wealthLabelForCandidate(c);
+  const wealthHref = wealthArchiveDetailHref(c);
 
   return (
     <div
@@ -248,6 +313,26 @@ function CandidateDetailModal({ c, onClose }: { c: Candidate | null; onClose: ()
               <p className="mt-1 text-xs text-slate-400">
                 {c.district ?? '—'} · {c.constituency ?? '—'}
               </p>
+              {wealthTag ? (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span
+                    className="inline-flex max-w-full rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-900 ring-1 ring-amber-200/80"
+                    title="이 사이트 공직자 재산 공개 명부(data.json)에 등재된 인원입니다."
+                  >
+                    {wealthTag}
+                  </span>
+                  {wealthHref ? (
+                    <a
+                      href={wealthHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-lg bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-950 ring-1 ring-amber-300 transition hover:bg-amber-200/90"
+                    >
+                      재산내역
+                    </a>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           </div>
           <ModalField label="주소" value={c.address} />
@@ -272,6 +357,27 @@ function CandidateDetailModal({ c, onClose }: { c: Candidate | null; onClose: ()
             </p>
           </div>
           <ModalField label="등록일자" value={c.regDate} />
+          {wealthTag ? (
+            <div className="border-b border-slate-100 pb-3 last:border-0">
+              <h3 className="text-[11px] font-bold uppercase tracking-wide text-slate-400">재산 공개 명부</h3>
+              <p className="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-slate-800">
+                <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-900 ring-1 ring-amber-200/80">
+                  {wealthTag}
+                </span>
+                {wealthHref ? (
+                  <a
+                    href={wealthHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-lg bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-950 ring-1 ring-amber-300 transition hover:bg-amber-200/90"
+                  >
+                    재산내역
+                  </a>
+                ) : null}
+              </p>
+              <p className="mt-2 text-xs text-slate-500">재산 공개 데이터에서 이름·자치구가 일치합니다.</p>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -420,6 +526,8 @@ export default function CandidatesPage() {
             person.huboId != null && String(person.huboId).trim() !== ''
               ? necPreHuboDetailUrl(person.huboId)
               : null;
+          const wealthTag = wealthLabelForCandidate(person);
+          const wealthHref = wealthArchiveDetailHref(person);
 
           return (
             <article
@@ -458,6 +566,26 @@ export default function CandidatesPage() {
                     <span className="mx-1 text-slate-300">·</span>
                     {person.constituency ?? '—'}
                   </p>
+                  {wealthTag ? (
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <span
+                        className="inline-flex max-w-full rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-900 ring-1 ring-amber-200/80"
+                        title="이 사이트 공직자 재산 공개 명부(data.json)에 등재된 인원입니다."
+                      >
+                        {wealthTag}
+                      </span>
+                      {wealthHref ? (
+                        <a
+                          href={wealthHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-lg bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-950 ring-1 ring-amber-300 transition hover:bg-amber-200/90"
+                        >
+                          재산내역
+                        </a>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
               </div>
               <div className="border-t border-slate-100 px-5 py-3.5">
