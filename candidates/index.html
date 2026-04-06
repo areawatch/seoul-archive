@@ -123,14 +123,22 @@
                   id="sortNameBtn"
                   class="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
                 >
-                  이름 <span id="sortNameIcon" class="text-[10px] font-bold" aria-hidden="true">↑</span>
+                  이름
+                  <span id="sortNameIcon" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true">↑</span>
                 </button>
               </th>
               <th scope="col" class="px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
                 정당
               </th>
               <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
-                나이
+                <button
+                  type="button"
+                  id="sortAgeBtn"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
+                >
+                  나이
+                  <span id="sortAgeIcon" class="invisible inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
+                </button>
               </th>
               <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
                 성별
@@ -142,7 +150,14 @@
                 학력
               </th>
               <th scope="col" class="min-w-[4rem] px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
-                전과
+                <button
+                  type="button"
+                  id="sortCriminalBtn"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
+                >
+                  전과
+                  <span id="sortCriminalIcon" class="invisible inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
+                </button>
               </th>
               <th scope="col" class="whitespace-nowrap py-3 pl-3 pr-4 text-xs font-semibold tracking-wide text-sky-600">
                 비고
@@ -305,45 +320,35 @@
       /** 공식·CI에 가까운 메인 컬러 (config.js partyColors와 동기) */
       const PARTY_STYLES = {
         더불어민주당: {
-          borderL: "border-l-[#004EA2]",
           badgeSolid: "bg-[#004EA2] text-white shadow-sm",
         },
         국민의힘: {
-          borderL: "border-l-[#E61E2B]",
           badgeSolid: "bg-[#E61E2B] text-white shadow-sm",
         },
         조국혁신당: {
-          borderL: "border-l-[#06275E]",
           badgeSolid: "bg-[#06275E] text-white shadow-sm",
         },
         정의당: {
-          borderL: "border-l-[#ffca00]",
           badgeSolid: "bg-[#ffca00] text-slate-900 shadow-sm",
         },
         기본소득당: {
-          borderL: "border-l-[#00D2C3]",
           badgeSolid: "bg-[#00D2C3] text-slate-900 shadow-sm",
         },
         개혁신당: {
-          borderL: "border-l-[#FF7F32]",
           badgeSolid: "bg-[#FF7F32] text-white shadow-sm",
         },
         녹색당: {
-          borderL: "border-l-[#5CB531]",
           badgeSolid: "bg-[#5CB531] text-white shadow-sm",
         },
         진보당: {
-          borderL: "border-l-[#E60020]",
           badgeSolid: "bg-[#E60020] text-white shadow-sm",
         },
         무소속: {
-          borderL: "border-l-[#707070]",
           badgeSolid: "bg-[#707070] text-white shadow-sm",
         },
       };
 
       const NEUTRAL_PARTY = {
-        borderL: "border-l-[#64748B]",
         badgeSolid: "bg-[#64748B] text-white shadow-sm",
       };
 
@@ -359,6 +364,25 @@
         if (m2) return m2[1] + "세";
         const t = s.trim();
         return t ? t.split(/\s+/)[0] : "—";
+      }
+
+      /** 정렬용 연령(숫자); 파싱 불가 시 null(목록 맨 뒤) */
+      function sortableAgeYears(ageStr) {
+        const s = String(ageStr || "").replace(/\n/g, " ");
+        const m = s.match(/\((\d+)세\)/);
+        if (m) return parseInt(m[1], 10);
+        const m2 = s.match(/(\d+)세/);
+        if (m2) return parseInt(m2[1], 10);
+        const t = s.trim().split(/\s+/)[0];
+        const m3 = /^(\d+)$/.exec(t);
+        if (m3) return parseInt(m3[1], 10);
+        return null;
+      }
+
+      function criminalSortRank(c) {
+        const t = String(c.criminal ?? "").trim();
+        if (!t || t === "없음" || /^0\s*건$/.test(t)) return 0;
+        return 1;
       }
 
       function elide(str, max) {
@@ -385,7 +409,8 @@
       }
 
       let lastFilteredCandidates = [];
-      let sortNameAsc = true;
+      let sortKey = "name";
+      let sortAsc = true;
       let wealthPositionByKey = {};
 
       function normalizeWealthName(raw) {
@@ -686,12 +711,45 @@
           ? `표시 ${filtered.length}명 / 전체 ${allCandidates.length}명`
           : `전체 ${filtered.length}명`;
 
-        const sortIcon = document.getElementById("sortNameIcon");
-        if (sortIcon) sortIcon.textContent = sortNameAsc ? "↑" : "↓";
+        [["name", "sortNameIcon"], ["age", "sortAgeIcon"], ["criminal", "sortCriminalIcon"]].forEach(function (pair) {
+          const el = document.getElementById(pair[1]);
+          if (!el) return;
+          if (sortKey === pair[0]) {
+            el.textContent = sortAsc ? "↑" : "↓";
+            el.classList.remove("invisible");
+          } else {
+            el.textContent = "";
+            el.classList.add("invisible");
+          }
+        });
 
         const sorted = filtered.slice().sort(function (a, b) {
-          const cmp = primaryName(a.name).localeCompare(primaryName(b.name), "ko");
-          return sortNameAsc ? cmp : -cmp;
+          const nameCmp = primaryName(a.name).localeCompare(primaryName(b.name), "ko");
+          if (sortKey === "name") {
+            const c = primaryName(a.name).localeCompare(primaryName(b.name), "ko");
+            return sortAsc ? c : -c;
+          }
+          if (sortKey === "age") {
+            const na = sortableAgeYears(a.age);
+            const nb = sortableAgeYears(b.age);
+            if (na == null && nb == null) return nameCmp;
+            if (na == null) return 1;
+            if (nb == null) return -1;
+            const d = sortAsc ? na - nb : nb - na;
+            if (d !== 0) return d;
+            return nameCmp;
+          }
+          if (sortKey === "criminal") {
+            const ra = criminalSortRank(a);
+            const rb = criminalSortRank(b);
+            if (ra !== rb) return sortAsc ? ra - rb : rb - ra;
+            const ta = String(a.criminal ?? "").trim();
+            const tb = String(b.criminal ?? "").trim();
+            const c = ta.localeCompare(tb, "ko");
+            if (c !== 0) return sortAsc ? c : -c;
+            return nameCmp;
+          }
+          return 0;
         });
         lastFilteredCandidates = sorted;
 
@@ -701,7 +759,6 @@
           .map(function (c, i) {
             const t = partyTheme(c.party);
             const pname = primaryName(c.name);
-            const sub = subtitleName(c.name);
             const photo = c.photo ? escapeHtml(c.photo) : "";
             const jobShort = elide(c.job, 26) || "—";
             const eduCell = escapeHtml(educationFirstLine(c.education));
@@ -715,7 +772,7 @@
             const wealthByName = wealthInlineByNameHtml(c);
             const distLine = `${escapeHtml(c.district || "—")}<span class="mx-0.5 text-slate-300">·</span>${escapeHtml(c.constituency || "—")}`;
             return `<tr class="border-b border-slate-100 transition hover:bg-slate-50/80">
-              <td class="border-l-[3px] py-3 pl-4 pr-2 align-top ${t.borderL}">
+              <td class="py-3 pl-4 pr-2 align-top">
                 <div class="flex gap-3">
                   <div class="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200/90">
                     <img src="${photo || DEFAULT_AVATAR}" alt="" width="40" height="40" class="h-full w-full object-cover object-top" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
@@ -724,7 +781,6 @@
                     <p class="flex flex-wrap items-center gap-x-1 gap-y-1 font-bold leading-tight text-slate-900">
                       <span>${escapeHtml(pname)}</span>${wealthByName}
                     </p>
-                    ${sub ? `<p class="mt-0.5 text-xs text-slate-500">${escapeHtml(sub)}</p>` : ""}
                     <p class="mt-1 text-[11px] text-slate-400">${distLine}</p>
                   </div>
                 </div>
@@ -732,9 +788,9 @@
               <td class="px-3 py-3 align-middle">
                 <span class="inline-flex max-w-[11rem] items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${t.badgeSolid}">${escapeHtml(c.party || "정당 미상")}</span>
               </td>
-              <td class="whitespace-nowrap px-3 py-3 align-middle text-slate-700">${escapeHtml(ageSummary(c.age))}</td>
-              <td class="whitespace-nowrap px-3 py-3 align-middle text-slate-700">${escapeHtml(c.gender || "—")}</td>
-              <td class="max-w-[8rem] px-3 py-3 align-middle text-slate-700">${escapeHtml(jobShort)}</td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(ageSummary(c.age))}</td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(c.gender || "—")}</td>
+              <td class="max-w-[8rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(jobShort)}</td>
               <td class="max-w-[14rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">${eduCell}</td>
               <td class="max-w-[6rem] px-3 py-3 align-middle text-xs text-slate-600">${crimCell}</td>
               <td class="whitespace-nowrap py-3 pl-2 pr-4 align-middle">
@@ -778,9 +834,22 @@
       document.getElementById("district").addEventListener("change", render);
       document.getElementById("party").addEventListener("change", render);
       document.getElementById("nameQuery").addEventListener("input", render);
-      document.getElementById("sortNameBtn").addEventListener("click", function () {
-        sortNameAsc = !sortNameAsc;
+      function setSort(key) {
+        if (sortKey === key) sortAsc = !sortAsc;
+        else {
+          sortKey = key;
+          sortAsc = true;
+        }
         render();
+      }
+      document.getElementById("sortNameBtn").addEventListener("click", function () {
+        setSort("name");
+      });
+      document.getElementById("sortAgeBtn").addEventListener("click", function () {
+        setSort("age");
+      });
+      document.getElementById("sortCriminalBtn").addEventListener("click", function () {
+        setSort("criminal");
       });
 
       const wealthFetch = fetch("../data.json")

@@ -63,6 +63,8 @@ type WealthRow = {
   position?: string;
 };
 
+type SortKey = 'name' | 'age' | 'criminal';
+
 function loadCandidatesFile(raw: unknown): {
   rows: Candidate[];
   updatedAt: string | null;
@@ -187,23 +189,22 @@ const DEFAULT_AVATAR =
   );
 
 /** config.js partyColors와 동기 (정당 공식 메인 컬러) */
-const PARTY_UI: Record<string, { badgeSolid: string; rowBorder: string }> = {
-  더불어민주당: { badgeSolid: 'bg-[#004EA2] text-white shadow-sm', rowBorder: 'border-l-[3px] border-l-[#004EA2]' },
-  국민의힘: { badgeSolid: 'bg-[#E61E2B] text-white shadow-sm', rowBorder: 'border-l-[3px] border-l-[#E61E2B]' },
-  조국혁신당: { badgeSolid: 'bg-[#06275E] text-white shadow-sm', rowBorder: 'border-l-[3px] border-l-[#06275E]' },
-  정의당: { badgeSolid: 'bg-[#ffca00] text-slate-900 shadow-sm', rowBorder: 'border-l-[3px] border-l-[#ffca00]' },
-  기본소득당: { badgeSolid: 'bg-[#00D2C3] text-slate-900 shadow-sm', rowBorder: 'border-l-[3px] border-l-[#00D2C3]' },
-  개혁신당: { badgeSolid: 'bg-[#FF7F32] text-white shadow-sm', rowBorder: 'border-l-[3px] border-l-[#FF7F32]' },
-  녹색당: { badgeSolid: 'bg-[#5CB531] text-white shadow-sm', rowBorder: 'border-l-[3px] border-l-[#5CB531]' },
-  진보당: { badgeSolid: 'bg-[#E60020] text-white shadow-sm', rowBorder: 'border-l-[3px] border-l-[#E60020]' },
-  무소속: { badgeSolid: 'bg-[#707070] text-white shadow-sm', rowBorder: 'border-l-[3px] border-l-[#707070]' },
+const PARTY_UI: Record<string, { badgeSolid: string }> = {
+  더불어민주당: { badgeSolid: 'bg-[#004EA2] text-white shadow-sm' },
+  국민의힘: { badgeSolid: 'bg-[#E61E2B] text-white shadow-sm' },
+  조국혁신당: { badgeSolid: 'bg-[#06275E] text-white shadow-sm' },
+  정의당: { badgeSolid: 'bg-[#ffca00] text-slate-900 shadow-sm' },
+  기본소득당: { badgeSolid: 'bg-[#00D2C3] text-slate-900 shadow-sm' },
+  개혁신당: { badgeSolid: 'bg-[#FF7F32] text-white shadow-sm' },
+  녹색당: { badgeSolid: 'bg-[#5CB531] text-white shadow-sm' },
+  진보당: { badgeSolid: 'bg-[#E60020] text-white shadow-sm' },
+  무소속: { badgeSolid: 'bg-[#707070] text-white shadow-sm' },
 };
 
 function partyUi(party?: string) {
   return (
     PARTY_UI[party ?? ''] ?? {
       badgeSolid: 'bg-[#64748B] text-white shadow-sm',
-      rowBorder: 'border-l-[3px] border-l-[#64748B]',
     }
   );
 }
@@ -216,6 +217,25 @@ function ageSummary(ageStr?: string) {
   if (m2) return `${m2[1]}세`;
   const t = s.trim();
   return t ? t.split(/\s+/)[0] : '—';
+}
+
+/** 정렬용 연령(숫자); 파싱 불가 시 null(목록 맨 뒤) */
+function sortableAgeYears(ageStr?: string): number | null {
+  const s = String(ageStr ?? '').replace(/\n/g, ' ');
+  const m = s.match(/\((\d+)세\)/);
+  if (m) return parseInt(m[1], 10);
+  const m2 = s.match(/(\d+)세/);
+  if (m2) return parseInt(m2[1], 10);
+  const t = s.trim().split(/\s+/)[0];
+  const m3 = /^(\d+)$/.exec(t);
+  if (m3) return parseInt(m3[1], 10);
+  return null;
+}
+
+function criminalSortRank(criminal?: string): number {
+  const t = String(criminal ?? '').trim();
+  if (!t || t === '없음' || /^0\s*건$/.test(t)) return 0;
+  return 1;
 }
 
 function elideText(str: string | undefined, max: number) {
@@ -428,7 +448,8 @@ export default function CandidatesPage() {
   const [district, setDistrict] = useState('');
   const [party, setParty] = useState('');
   const [nameQ, setNameQ] = useState('');
-  const [sortNameAsc, setSortNameAsc] = useState(true);
+  const [sortKey, setSortKey] = useState<SortKey>('name');
+  const [sortAsc, setSortAsc] = useState(true);
   const [detail, setDetail] = useState<Candidate | null>(null);
 
   const parties = useMemo(() => {
@@ -468,11 +489,43 @@ export default function CandidatesPage() {
   const sortedFiltered = useMemo(() => {
     const copy = [...filtered];
     copy.sort((a, b) => {
-      const c = primaryNameLine(a.name).localeCompare(primaryNameLine(b.name), 'ko');
-      return sortNameAsc ? c : -c;
+      const nameCmp = primaryNameLine(a.name).localeCompare(primaryNameLine(b.name), 'ko');
+      if (sortKey === 'name') {
+        const c = primaryNameLine(a.name).localeCompare(primaryNameLine(b.name), 'ko');
+        return sortAsc ? c : -c;
+      }
+      if (sortKey === 'age') {
+        const na = sortableAgeYears(a.age);
+        const nb = sortableAgeYears(b.age);
+        if (na == null && nb == null) return nameCmp;
+        if (na == null) return 1;
+        if (nb == null) return -1;
+        const d = sortAsc ? na - nb : nb - na;
+        if (d !== 0) return d;
+        return nameCmp;
+      }
+      if (sortKey === 'criminal') {
+        const ra = criminalSortRank(a.criminal);
+        const rb = criminalSortRank(b.criminal);
+        if (ra !== rb) return sortAsc ? ra - rb : rb - ra;
+        const ta = String(a.criminal ?? '').trim();
+        const tb = String(b.criminal ?? '').trim();
+        const c = ta.localeCompare(tb, 'ko');
+        if (c !== 0) return sortAsc ? c : -c;
+        return nameCmp;
+      }
+      return 0;
     });
     return copy;
-  }, [filtered, sortNameAsc]);
+  }, [filtered, sortKey, sortAsc]);
+
+  const setSort = (key: SortKey) => {
+    if (sortKey === key) setSortAsc((v) => !v);
+    else {
+      setSortKey(key);
+      setSortAsc(true);
+    }
+  };
 
   const usingFilter = Boolean(district || party || normalizeSearch(nameQ));
 
@@ -553,17 +606,35 @@ export default function CandidatesPage() {
               <th scope="col" className="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-sky-600">
                 <button
                   type="button"
-                  onClick={() => setSortNameAsc((v) => !v)}
+                  onClick={() => setSort('name')}
                   className="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
                 >
-                  이름 <span className="text-[10px] font-bold">{sortNameAsc ? '↑' : '↓'}</span>
+                  이름
+                  <span
+                    className={`inline-block w-2.5 text-center text-[10px] font-bold ${sortKey === 'name' ? '' : 'invisible'}`}
+                    aria-hidden
+                  >
+                    {sortKey === 'name' ? (sortAsc ? '↑' : '↓') : ''}
+                  </span>
                 </button>
               </th>
               <th scope="col" className="px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
                 정당
               </th>
               <th scope="col" className="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
-                나이
+                <button
+                  type="button"
+                  onClick={() => setSort('age')}
+                  className="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
+                >
+                  나이
+                  <span
+                    className={`inline-block w-2.5 text-center text-[10px] font-bold ${sortKey === 'age' ? '' : 'invisible'}`}
+                    aria-hidden
+                  >
+                    {sortKey === 'age' ? (sortAsc ? '↑' : '↓') : ''}
+                  </span>
+                </button>
               </th>
               <th scope="col" className="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
                 성별
@@ -575,7 +646,19 @@ export default function CandidatesPage() {
                 학력
               </th>
               <th scope="col" className="min-w-[4rem] px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
-                전과
+                <button
+                  type="button"
+                  onClick={() => setSort('criminal')}
+                  className="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
+                >
+                  전과
+                  <span
+                    className={`inline-block w-2.5 text-center text-[10px] font-bold ${sortKey === 'criminal' ? '' : 'invisible'}`}
+                    aria-hidden
+                  >
+                    {sortKey === 'criminal' ? (sortAsc ? '↑' : '↓') : ''}
+                  </span>
+                </button>
               </th>
               <th scope="col" className="whitespace-nowrap py-3 pl-3 pr-4 text-xs font-semibold tracking-wide text-sky-600">
                 비고
@@ -585,7 +668,6 @@ export default function CandidatesPage() {
           <tbody className="divide-y divide-slate-100">
             {sortedFiltered.map((person, index) => {
               const nameMain = primaryNameLine(person.name);
-              const sub = subtitleFromName(person.name);
               const ui = partyUi(person.party);
               const necUrl =
                 person.huboId != null && String(person.huboId).trim() !== ''
@@ -600,7 +682,7 @@ export default function CandidatesPage() {
                   key={`${person.huboId ?? nameMain}-${index}`}
                   className="border-b border-slate-100 transition hover:bg-slate-50/80"
                 >
-                  <td className={`border-l-[3px] py-3 pl-4 pr-2 align-top ${ui.rowBorder}`}>
+                  <td className="py-3 pl-4 pr-2 align-top">
                     <div className="flex gap-3">
                       <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200/90">
                         <img
@@ -630,7 +712,6 @@ export default function CandidatesPage() {
                             </a>
                           ) : null}
                         </p>
-                        {sub ? <p className="mt-0.5 text-xs text-slate-500">{sub}</p> : null}
                         <p className="mt-1 text-[11px] text-slate-400">
                           {person.district ?? '—'}
                           <span className="mx-0.5 text-slate-300">·</span>
@@ -646,9 +727,13 @@ export default function CandidatesPage() {
                       {person.party ?? '정당 미상'}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap px-3 py-3 align-middle text-slate-700">{ageSummary(person.age)}</td>
-                  <td className="whitespace-nowrap px-3 py-3 align-middle text-slate-700">{person.gender ?? '—'}</td>
-                  <td className="max-w-[8rem] px-3 py-3 align-middle text-slate-700">{jobShort}</td>
+                  <td className="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">
+                    {ageSummary(person.age)}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">
+                    {person.gender ?? '—'}
+                  </td>
+                  <td className="max-w-[8rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">{jobShort}</td>
                   <td className="max-w-[14rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">
                     {educationFirstLine(person.education)}
                   </td>
