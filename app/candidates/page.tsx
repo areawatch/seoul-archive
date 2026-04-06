@@ -142,6 +142,12 @@ function wealthArchiveDetailHref(c: Candidate): string | null {
   return `/archive.html?${q.toString()}`;
 }
 
+function wealthDetailLinkCaption(c: Candidate): string | null {
+  const label = wealthLabelForCandidate(c);
+  if (!label) return null;
+  return `${label}(재산내역 보기)`;
+}
+
 function formatDataUpdatedLabel(iso: string | null): string | null {
   if (!iso) return null;
   const d = new Date(iso);
@@ -180,20 +186,26 @@ const DEFAULT_AVATAR =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#e2e8f0"/><circle cx="60" cy="48" r="22" fill="#94a3b8"/><path d="M24 108c4-28 72-28 72 0" fill="#94a3b8"/></svg>`
   );
 
-const PARTY_UI: Record<string, { badgeSolid: string; topAccent: string }> = {
-  더불어민주당: { badgeSolid: 'bg-blue-600 text-white', topAccent: 'border-t-[3px] border-t-blue-600' },
-  국민의힘: { badgeSolid: 'bg-red-600 text-white', topAccent: 'border-t-[3px] border-t-red-600' },
-  조국혁신당: { badgeSolid: 'bg-violet-600 text-white', topAccent: 'border-t-[3px] border-t-violet-600' },
-  개혁신당: { badgeSolid: 'bg-cyan-600 text-white', topAccent: 'border-t-[3px] border-t-cyan-600' },
-  진보당: { badgeSolid: 'bg-emerald-600 text-white', topAccent: 'border-t-[3px] border-t-emerald-600' },
-  무소속: { badgeSolid: 'bg-slate-600 text-white', topAccent: 'border-t-[3px] border-t-slate-500' },
+/** config.js partyColors와 동기 (정당 공식 메인 컬러) */
+const PARTY_UI: Record<string, { badgeSolid: string; rowBorder: string }> = {
+  더불어민주당: { badgeSolid: 'bg-[#004EA2] text-white shadow-sm', rowBorder: 'border-l-[3px] border-l-[#004EA2]' },
+  국민의힘: { badgeSolid: 'bg-[#E61E2B] text-white shadow-sm', rowBorder: 'border-l-[3px] border-l-[#E61E2B]' },
+  조국혁신당: { badgeSolid: 'bg-[#06275E] text-white shadow-sm', rowBorder: 'border-l-[3px] border-l-[#06275E]' },
+  정의당: { badgeSolid: 'bg-[#ffca00] text-slate-900 shadow-sm', rowBorder: 'border-l-[3px] border-l-[#ffca00]' },
+  기본소득당: { badgeSolid: 'bg-[#00D2C3] text-slate-900 shadow-sm', rowBorder: 'border-l-[3px] border-l-[#00D2C3]' },
+  개혁신당: { badgeSolid: 'bg-[#FF7F32] text-white shadow-sm', rowBorder: 'border-l-[3px] border-l-[#FF7F32]' },
+  녹색당: { badgeSolid: 'bg-[#5CB531] text-white shadow-sm', rowBorder: 'border-l-[3px] border-l-[#5CB531]' },
+  진보당: { badgeSolid: 'bg-[#E60020] text-white shadow-sm', rowBorder: 'border-l-[3px] border-l-[#E60020]' },
+  무소속: { badgeSolid: 'bg-[#707070] text-white shadow-sm', rowBorder: 'border-l-[3px] border-l-[#707070]' },
 };
 
 function partyUi(party?: string) {
-  return PARTY_UI[party ?? ''] ?? {
-    badgeSolid: 'bg-slate-600 text-white',
-    topAccent: 'border-t-[3px] border-t-slate-400',
-  };
+  return (
+    PARTY_UI[party ?? ''] ?? {
+      badgeSolid: 'bg-[#64748B] text-white shadow-sm',
+      rowBorder: 'border-l-[3px] border-l-[#64748B]',
+    }
+  );
 }
 
 function ageSummary(ageStr?: string) {
@@ -215,6 +227,39 @@ function elideText(str: string | undefined, max: number) {
   return `${t.slice(0, max - 1)}…`;
 }
 
+function educationFirstLine(education?: string): string {
+  const line = String(education ?? '')
+    .split('\n')
+    .map((x) => x.trim())
+    .filter(Boolean)[0];
+  return line ? elideText(line, 56) : '—';
+}
+
+function criminalTableCell(criminal?: string): string {
+  const t = String(criminal ?? '').trim();
+  if (!t || t === '없음' || /^0\s*건$/.test(t)) return '—';
+  return elideText(t, 24);
+}
+
+function WealthOpenIcon({ className }: { className: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+      />
+    </svg>
+  );
+}
+
+const WEALTH_CHIP_INLINE =
+  'ml-1.5 inline-flex max-w-full items-center gap-0.5 rounded-full border border-slate-200/90 bg-gradient-to-br from-slate-50 via-white to-slate-100/80 px-2 py-0.5 text-[10px] font-semibold leading-none tracking-tight text-slate-600 shadow-[0_1px_2px_rgba(15,23,42,0.05)] ring-1 ring-slate-200/50 transition hover:border-slate-300 hover:from-slate-100 hover:to-slate-50 hover:text-slate-800 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/45';
+
+const WEALTH_CHIP_BLOCK =
+  'inline-flex w-full max-w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200/90 bg-gradient-to-br from-slate-50 via-white to-slate-100/80 px-3 py-2.5 text-sm font-semibold tracking-tight text-slate-700 shadow-sm transition hover:border-slate-300 hover:from-slate-100 hover:to-slate-50 hover:text-slate-900 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40 sm:w-auto sm:justify-start';
+
 function primaryNameLine(name?: string) {
   return String(name ?? '')
     .split('\n')[0]
@@ -227,21 +272,6 @@ function subtitleFromName(name?: string) {
     .map((x) => x.trim())
     .filter(Boolean);
   return lines.length >= 2 ? lines.slice(1).join(' · ') : '';
-}
-
-function summarySnippetLines(c: Candidate): string[] {
-  const edu = String(c.education ?? '')
-    .split('\n')
-    .map((x) => x.trim())
-    .filter(Boolean)[0];
-  const career = String(c.career ?? '')
-    .split('\n')
-    .map((x) => x.trim())
-    .filter(Boolean);
-  const parts: string[] = [];
-  if (edu) parts.push(elideText(edu, 80));
-  career.slice(0, 2).forEach((line) => parts.push(elideText(line, 88)));
-  return parts.slice(0, 3);
 }
 
 function CandidateDetailModal({ c, onClose }: { c: Candidate | null; onClose: () => void }) {
@@ -262,8 +292,8 @@ function CandidateDetailModal({ c, onClose }: { c: Candidate | null; onClose: ()
   const ui = partyUi(c.party);
   const pname = primaryNameLine(c.name);
   const sub = subtitleFromName(c.name);
-  const wealthTag = wealthLabelForCandidate(c);
   const wealthHref = wealthArchiveDetailHref(c);
+  const wealthCaption = wealthDetailLinkCaption(c);
 
   return (
     <div
@@ -305,7 +335,21 @@ function CandidateDetailModal({ c, onClose }: { c: Candidate | null; onClose: ()
               <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-bold ${ui.badgeSolid}`}>
                 {c.party ?? '정당 미상'}
               </span>
-              <p className="mt-2 text-lg font-bold text-slate-900">{pname}</p>
+              <p className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-lg font-bold leading-tight text-slate-900">
+                <span>{pname}</span>
+                {wealthHref && wealthCaption ? (
+                  <a
+                    href={wealthHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={WEALTH_CHIP_INLINE}
+                    title="재산 공개 명부에 등재된 인원입니다."
+                  >
+                    <span className="truncate">{wealthCaption}</span>
+                    <WealthOpenIcon className="h-2.5 w-2.5 shrink-0 text-slate-500" />
+                  </a>
+                ) : null}
+              </p>
               {sub ? <p className="text-sm text-slate-500">{sub}</p> : null}
               <p className="mt-2 text-xs text-slate-500">
                 {ageSummary(c.age)} · {c.gender ?? '—'} · {(c.job ?? '').trim() || '—'}
@@ -313,26 +357,6 @@ function CandidateDetailModal({ c, onClose }: { c: Candidate | null; onClose: ()
               <p className="mt-1 text-xs text-slate-400">
                 {c.district ?? '—'} · {c.constituency ?? '—'}
               </p>
-              {wealthTag ? (
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span
-                    className="inline-flex max-w-full rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-900 ring-1 ring-amber-200/80"
-                    title="이 사이트 공직자 재산 공개 명부(data.json)에 등재된 인원입니다."
-                  >
-                    {wealthTag}
-                  </span>
-                  {wealthHref ? (
-                    <a
-                      href={wealthHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-lg bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-950 ring-1 ring-amber-300 transition hover:bg-amber-200/90"
-                    >
-                      재산내역
-                    </a>
-                  ) : null}
-                </div>
-              ) : null}
             </div>
           </div>
           <ModalField label="주소" value={c.address} />
@@ -357,23 +381,19 @@ function CandidateDetailModal({ c, onClose }: { c: Candidate | null; onClose: ()
             </p>
           </div>
           <ModalField label="등록일자" value={c.regDate} />
-          {wealthTag ? (
+          {wealthHref && wealthCaption ? (
             <div className="border-b border-slate-100 pb-3 last:border-0">
               <h3 className="text-[11px] font-bold uppercase tracking-wide text-slate-400">재산 공개 명부</h3>
-              <p className="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-slate-800">
-                <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-900 ring-1 ring-amber-200/80">
-                  {wealthTag}
-                </span>
-                {wealthHref ? (
-                  <a
-                    href={wealthHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-lg bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-950 ring-1 ring-amber-300 transition hover:bg-amber-200/90"
-                  >
-                    재산내역
-                  </a>
-                ) : null}
+              <p className="mt-1.5">
+                <a
+                  href={wealthHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={WEALTH_CHIP_BLOCK}
+                >
+                  <span className="min-w-0 flex-1 text-left leading-snug">{wealthCaption}</span>
+                  <WealthOpenIcon className="h-3.5 w-3.5 shrink-0 text-slate-500" />
+                </a>
               </p>
               <p className="mt-2 text-xs text-slate-500">재산 공개 데이터에서 이름·자치구가 일치합니다.</p>
             </div>
@@ -408,6 +428,7 @@ export default function CandidatesPage() {
   const [district, setDistrict] = useState('');
   const [party, setParty] = useState('');
   const [nameQ, setNameQ] = useState('');
+  const [sortNameAsc, setSortNameAsc] = useState(true);
   const [detail, setDetail] = useState<Candidate | null>(null);
 
   const parties = useMemo(() => {
@@ -443,6 +464,15 @@ export default function CandidatesPage() {
       return hay.includes(q);
     });
   }, [district, party, nameQ]);
+
+  const sortedFiltered = useMemo(() => {
+    const copy = [...filtered];
+    copy.sort((a, b) => {
+      const c = primaryNameLine(a.name).localeCompare(primaryNameLine(b.name), 'ko');
+      return sortNameAsc ? c : -c;
+    });
+    return copy;
+  }, [filtered, sortNameAsc]);
 
   const usingFilter = Boolean(district || party || normalizeSearch(nameQ));
 
@@ -516,140 +546,148 @@ export default function CandidatesPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3">
-        {filtered.map((person, index) => {
-          const nameMain = primaryNameLine(person.name);
-          const sub = subtitleFromName(person.name);
-          const ui = partyUi(person.party);
-          const snippets = summarySnippetLines(person);
-          const necUrl =
-            person.huboId != null && String(person.huboId).trim() !== ''
-              ? necPreHuboDetailUrl(person.huboId)
-              : null;
-          const wealthTag = wealthLabelForCandidate(person);
-          const wealthHref = wealthArchiveDetailHref(person);
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-200/60">
+        <table className="min-w-[920px] w-full border-collapse text-left text-sm text-slate-800">
+          <thead>
+            <tr className="border-b border-slate-200 bg-slate-50/95">
+              <th scope="col" className="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-sky-600">
+                <button
+                  type="button"
+                  onClick={() => setSortNameAsc((v) => !v)}
+                  className="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
+                >
+                  이름 <span className="text-[10px] font-bold">{sortNameAsc ? '↑' : '↓'}</span>
+                </button>
+              </th>
+              <th scope="col" className="px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                정당
+              </th>
+              <th scope="col" className="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                나이
+              </th>
+              <th scope="col" className="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                성별
+              </th>
+              <th scope="col" className="min-w-[5rem] px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                직업
+              </th>
+              <th scope="col" className="min-w-[8rem] max-w-[14rem] px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                학력
+              </th>
+              <th scope="col" className="min-w-[4rem] px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                전과
+              </th>
+              <th scope="col" className="whitespace-nowrap py-3 pl-3 pr-4 text-xs font-semibold tracking-wide text-sky-600">
+                비고
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {sortedFiltered.map((person, index) => {
+              const nameMain = primaryNameLine(person.name);
+              const sub = subtitleFromName(person.name);
+              const ui = partyUi(person.party);
+              const necUrl =
+                person.huboId != null && String(person.huboId).trim() !== ''
+                  ? necPreHuboDetailUrl(person.huboId)
+                  : null;
+              const wealthHref = wealthArchiveDetailHref(person);
+              const wealthCaption = wealthDetailLinkCaption(person);
+              const jobShort = elideText(person.job, 26) || '—';
 
-          return (
-            <article
-              key={`${person.huboId ?? nameMain}-${index}`}
-              className={`flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md ${ui.topAccent}`}
-            >
-              <div className="flex gap-4 p-5">
-                <div className="relative h-[102px] w-[86px] shrink-0 overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200/80">
-                  <img
-                    src={person.photo || DEFAULT_AVATAR}
-                    alt={`${nameMain} 사진`}
-                    width={86}
-                    height={102}
-                    className="h-full w-full object-cover object-top"
-                    onError={(e) => {
-                      e.currentTarget.src = DEFAULT_AVATAR;
-                    }}
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-xl font-bold leading-tight tracking-tight text-slate-900">{nameMain}</h2>
-                  {sub ? <p className="mt-0.5 text-sm text-slate-500">{sub}</p> : null}
-                  <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+              return (
+                <tr
+                  key={`${person.huboId ?? nameMain}-${index}`}
+                  className="border-b border-slate-100 transition hover:bg-slate-50/80"
+                >
+                  <td className={`border-l-[3px] py-3 pl-4 pr-2 align-top ${ui.rowBorder}`}>
+                    <div className="flex gap-3">
+                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200/90">
+                        <img
+                          src={person.photo || DEFAULT_AVATAR}
+                          alt=""
+                          width={40}
+                          height={40}
+                          className="h-full w-full object-cover object-top"
+                          onError={(e) => {
+                            e.currentTarget.src = DEFAULT_AVATAR;
+                          }}
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="flex flex-wrap items-center gap-x-1 gap-y-1 font-bold leading-tight text-slate-900">
+                          <span>{nameMain}</span>
+                          {wealthHref && wealthCaption ? (
+                            <a
+                              href={wealthHref}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={WEALTH_CHIP_INLINE}
+                              title="재산 공개 명부에 등재된 인원입니다."
+                            >
+                              <span className="truncate">{wealthCaption}</span>
+                              <WealthOpenIcon className="h-2.5 w-2.5 shrink-0 text-slate-500" />
+                            </a>
+                          ) : null}
+                        </p>
+                        {sub ? <p className="mt-0.5 text-xs text-slate-500">{sub}</p> : null}
+                        <p className="mt-1 text-[11px] text-slate-400">
+                          {person.district ?? '—'}
+                          <span className="mx-0.5 text-slate-300">·</span>
+                          {person.constituency ?? '—'}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-3 py-3 align-middle">
                     <span
-                      className={`inline-flex max-w-full items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${ui.badgeSolid}`}
+                      className={`inline-flex max-w-[11rem] items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${ui.badgeSolid}`}
                     >
                       {person.party ?? '정당 미상'}
                     </span>
-                    <span className="text-sm text-slate-500">
-                      {ageSummary(person.age)} · {person.gender ?? '—'} ·{' '}
-                      {elideText(person.job, 32) || '—'}
-                    </span>
-                  </div>
-                  <p className="mt-2.5 inline-flex max-w-full rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-                    {person.district ?? '—'}
-                    <span className="mx-1 text-slate-300">·</span>
-                    {person.constituency ?? '—'}
-                  </p>
-                  {wealthTag ? (
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <span
-                        className="inline-flex max-w-full rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-900 ring-1 ring-amber-200/80"
-                        title="이 사이트 공직자 재산 공개 명부(data.json)에 등재된 인원입니다."
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3 align-middle text-slate-700">{ageSummary(person.age)}</td>
+                  <td className="whitespace-nowrap px-3 py-3 align-middle text-slate-700">{person.gender ?? '—'}</td>
+                  <td className="max-w-[8rem] px-3 py-3 align-middle text-slate-700">{jobShort}</td>
+                  <td className="max-w-[14rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">
+                    {educationFirstLine(person.education)}
+                  </td>
+                  <td className="max-w-[6rem] px-3 py-3 align-middle text-xs text-slate-600">
+                    {criminalTableCell(person.criminal)}
+                  </td>
+                  <td className="whitespace-nowrap py-3 pl-2 pr-4 align-middle">
+                    <div className="flex flex-wrap items-center justify-end gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setDetail(person)}
+                        className="rounded-md bg-white px-2 py-1 text-[11px] font-medium text-slate-800 ring-1 ring-slate-200 hover:bg-slate-50"
                       >
-                        {wealthTag}
-                      </span>
-                      {wealthHref ? (
+                        상세
+                      </button>
+                      {necUrl ? (
                         <a
-                          href={wealthHref}
+                          href={necUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="rounded-lg bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-950 ring-1 ring-amber-300 transition hover:bg-amber-200/90"
+                          className="rounded-md bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-700 ring-1 ring-slate-200/80 hover:bg-slate-200"
                         >
-                          재산내역
+                          선관위
                         </a>
-                      ) : null}
+                      ) : (
+                        <span
+                          className="cursor-not-allowed rounded-md bg-slate-50 px-2 py-1 text-[11px] text-slate-400 ring-1 ring-slate-100"
+                          title="후보 식별자가 없습니다."
+                        >
+                          선관위
+                        </span>
+                      )}
                     </div>
-                  ) : null}
-                </div>
-              </div>
-              <div className="border-t border-slate-100 px-5 py-3.5">
-                {snippets.length ? (
-                  <div className="space-y-1.5">
-                    {snippets.map((line, si) => (
-                      <p key={si} className="text-[13px] leading-relaxed text-slate-600">
-                        {line}
-                      </p>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-slate-400">등록된 학력·경력 요약이 없습니다.</p>
-                )}
-              </div>
-              <div className="mt-auto flex flex-wrap gap-2 border-t border-slate-100 bg-slate-50/70 px-4 py-3">
-                <button
-                  type="button"
-                  onClick={() => setDetail(person)}
-                  className="rounded-lg bg-white px-3 py-2 text-xs font-medium text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-50"
-                >
-                  상세 정보
-                </button>
-                {necUrl ? (
-                  <a
-                    href={necUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-200"
-                  >
-                    선관위 상세
-                  </a>
-                ) : (
-                  <span
-                    className="inline-flex cursor-not-allowed items-center rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-400"
-                    title="후보 식별자가 없습니다."
-                  >
-                    선관위 상세
-                  </span>
-                )}
-                <button
-                  type="button"
-                  onClick={async () => {
-                    const text = `${nameMain} · ${person.party ?? ''} · ${person.district ?? ''} 구의원 예비후보`;
-                    try {
-                      if (navigator.share) await navigator.share({ title: nameMain, text });
-                      else if (navigator.clipboard?.writeText) {
-                        await navigator.clipboard.writeText(text);
-                        alert('후보 요약을 클립보드에 복사했습니다.');
-                      } else {
-                        window.prompt('복사:', text);
-                      }
-                    } catch (err) {
-                      if ((err as Error).name === 'AbortError') return;
-                    }
-                  }}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-sky-50 px-3 py-2 text-xs font-medium text-sky-900 transition hover:bg-sky-100/90"
-                >
-                  공유
-                </button>
-              </div>
-            </article>
-          );
-        })}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
       <CandidateDetailModal c={detail} onClose={() => setDetail(null)} />
