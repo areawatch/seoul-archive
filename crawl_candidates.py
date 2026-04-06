@@ -8,6 +8,7 @@
   python crawl_candidates.py
 
 출력: public/data/candidates.json
+  형식: {"updatedAt": "ISO8601(Asia/Seoul)", "candidates": [ ... ]}
 
 선거구명(constituency)·주소(address)는 이 스크립트가 넣는 필드입니다.
 huboId는 선관위 예비후보 상세(전과 스캔 서류) 링크용입니다.
@@ -21,6 +22,8 @@ import json
 import re
 import sys
 import time
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from html import unescape
 from typing import Any
 from urllib.parse import urlencode, urljoin
@@ -325,10 +328,18 @@ def main() -> None:
     import os
 
     os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
+    updated_at = datetime.now(ZoneInfo("Asia/Seoul")).replace(microsecond=0)
+    payload = {
+        "updatedAt": updated_at.isoformat(),
+        "candidates": rows,
+    }
     with open(args.output, "w", encoding="utf-8") as f:
-        json.dump(rows, f, ensure_ascii=False, indent=2)
+        json.dump(payload, f, ensure_ascii=False, indent=2)
 
-    print(f"저장 완료: {args.output} ({len(rows)}명)", file=sys.stderr)
+    print(
+        f"저장 완료: {args.output} ({len(rows)}명, 갱신시각 {payload['updatedAt']})",
+        file=sys.stderr,
+    )
 
 
 if __name__ == "__main__":

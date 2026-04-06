@@ -44,6 +44,11 @@
           >
           에서 불러옵니다.
         </p>
+        <p
+          id="dataUpdatedLine"
+          class="mt-2 hidden text-sm text-slate-500"
+          aria-live="polite"
+        ></p>
       </header>
 
       <div
@@ -97,8 +102,48 @@
 
       <ul
         id="cardList"
-        class="grid grid-cols-1 gap-6 xl:grid-cols-2"
+        class="grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3"
       ></ul>
+    </div>
+
+    <div
+      id="detailModal"
+      class="fixed inset-0 z-[100] hidden items-center justify-center p-4 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="detailModalTitle"
+    >
+      <div
+        class="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px]"
+        data-modal-backdrop
+        aria-hidden="true"
+      ></div>
+      <div
+        class="relative flex max-h-[min(90vh,720px)] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200"
+      >
+        <div
+          class="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-3"
+        >
+          <h2
+            id="detailModalTitle"
+            class="truncate text-lg font-bold text-slate-900"
+          ></h2>
+          <button
+            type="button"
+            class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+            data-modal-close
+            aria-label="닫기"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div
+          id="detailModalBody"
+          class="min-h-0 flex-1 overflow-y-auto px-4 py-4 text-sm"
+        ></div>
+      </div>
     </div>
 
     <script>
@@ -178,36 +223,48 @@
           ring: "ring-blue-100",
           name: "text-blue-700",
           badge: "bg-blue-50 text-blue-800 ring-blue-200",
+          badgeSolid: "bg-blue-600 text-white",
+          topAccent: "border-t-[3px] border-t-blue-600",
         },
         국민의힘: {
           borderL: "border-l-red-500",
           ring: "ring-red-100",
           name: "text-red-700",
           badge: "bg-red-50 text-red-800 ring-red-200",
+          badgeSolid: "bg-red-600 text-white",
+          topAccent: "border-t-[3px] border-t-red-600",
         },
         조국혁신당: {
           borderL: "border-l-violet-500",
           ring: "ring-violet-100",
           name: "text-violet-700",
           badge: "bg-violet-50 text-violet-800 ring-violet-200",
+          badgeSolid: "bg-violet-600 text-white",
+          topAccent: "border-t-[3px] border-t-violet-600",
         },
         개혁신당: {
           borderL: "border-l-cyan-500",
           ring: "ring-cyan-100",
           name: "text-cyan-700",
           badge: "bg-cyan-50 text-cyan-800 ring-cyan-200",
+          badgeSolid: "bg-cyan-600 text-white",
+          topAccent: "border-t-[3px] border-t-cyan-600",
         },
         진보당: {
           borderL: "border-l-emerald-500",
           ring: "ring-emerald-100",
           name: "text-emerald-700",
           badge: "bg-emerald-50 text-emerald-800 ring-emerald-200",
+          badgeSolid: "bg-emerald-600 text-white",
+          topAccent: "border-t-[3px] border-t-emerald-600",
         },
         무소속: {
           borderL: "border-l-slate-400",
           ring: "ring-slate-100",
           name: "text-slate-800",
           badge: "bg-slate-100 text-slate-700 ring-slate-200",
+          badgeSolid: "bg-slate-600 text-white",
+          topAccent: "border-t-[3px] border-t-slate-500",
         },
       };
 
@@ -216,10 +273,141 @@
         ring: "ring-slate-100",
         name: "text-slate-800",
         badge: "bg-slate-100 text-slate-700 ring-slate-200",
+        badgeSolid: "bg-slate-600 text-white",
+        topAccent: "border-t-[3px] border-t-slate-400",
       };
 
       function partyTheme(party) {
         return PARTY_STYLES[party] || NEUTRAL_PARTY;
+      }
+
+      function ageSummary(ageStr) {
+        const s = String(ageStr || "").replace(/\n/g, " ");
+        const m = s.match(/\((\d+)세\)/);
+        if (m) return m[1] + "세";
+        const m2 = s.match(/(\d+)세/);
+        if (m2) return m2[1] + "세";
+        const t = s.trim();
+        return t ? t.split(/\s+/)[0] : "—";
+      }
+
+      function elide(str, max) {
+        const t = String(str || "")
+          .replace(/\s+/g, " ")
+          .trim();
+        if (!t) return "";
+        if (t.length <= max) return t;
+        return t.slice(0, max - 1) + "…";
+      }
+
+      function summarySnippetHtml(c) {
+        const edu = String(c.education || "")
+          .split("\n")
+          .map((s) => s.trim())
+          .filter(Boolean)[0];
+        const careerLines = String(c.career || "")
+          .split("\n")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const parts = [];
+        if (edu) parts.push(elide(edu, 80));
+        careerLines.slice(0, 2).forEach((line) => parts.push(elide(line, 88)));
+        if (!parts.length) {
+          return '<p class="text-sm text-slate-400">등록된 학력·경력 요약이 없습니다.</p>';
+        }
+        return parts
+          .slice(0, 3)
+          .map(
+            (p) =>
+              `<p class="text-[13px] leading-relaxed text-slate-600">${escapeHtml(p)}</p>`
+          )
+          .join("");
+      }
+
+      let lastFilteredCandidates = [];
+
+      function modalDetailRow(label, innerHtml) {
+        return `<div class="min-w-0 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+          <h3 class="text-[11px] font-bold uppercase tracking-wide text-slate-400">${escapeHtml(label)}</h3>
+          <div class="mt-1.5 text-sm leading-relaxed text-slate-800">${innerHtml}</div>
+        </div>`;
+      }
+
+      function openCandidateModal(c) {
+        const modal = document.getElementById("detailModal");
+        const title = document.getElementById("detailModalTitle");
+        const body = document.getElementById("detailModalBody");
+        const pname = primaryName(c.name);
+        const sub = subtitleName(c.name);
+        const photo = c.photo ? escapeHtml(c.photo) : "";
+        const t = partyTheme(c.party);
+        const age = ageSummary(c.age);
+        const gender = escapeHtml(c.gender || "—");
+        const job = escapeHtml((c.job || "").trim() || "—");
+
+        title.textContent = pname + " · 상세";
+
+        const eduHtml = escapeHtml((c.education || "").trim() || "—").replace(
+          /\n/g,
+          "<br/>"
+        );
+        const carHtml = escapeHtml((c.career || "").trim() || "—").replace(
+          /\n/g,
+          "<br/>"
+        );
+        const ageHtml = escapeHtml(String(c.age || "").trim() || "—").replace(
+          /\n/g,
+          "<br/>"
+        );
+
+        body.innerHTML = `
+          <div class="mb-5 flex gap-4">
+            <img src="${photo || DEFAULT_AVATAR}" width="86" height="102" alt="" class="h-[102px] w-[86px] shrink-0 rounded-xl object-cover object-top ring-1 ring-slate-200" />
+            <div class="min-w-0">
+              <span class="inline-block rounded-full px-2.5 py-1 text-xs font-bold ${t.badgeSolid}">${escapeHtml(c.party || "정당 미상")}</span>
+              <p class="mt-2 text-lg font-bold text-slate-900">${escapeHtml(pname)}</p>
+              ${sub ? `<p class="text-sm text-slate-500">${escapeHtml(sub)}</p>` : ""}
+              <p class="mt-2 text-xs text-slate-500">${escapeHtml(String(age))} · ${gender} · ${job}</p>
+              <p class="mt-1 text-xs text-slate-400">${escapeHtml(c.district || "—")} · ${escapeHtml(c.constituency || "—")}</p>
+            </div>
+          </div>
+          <div class="space-y-3">
+            ${modalDetailRow("주소", escapeHtml((c.address || "").trim() || "—"))}
+            ${modalDetailRow("직업", job)}
+            ${modalDetailRow("학력", `<span class="whitespace-pre-line">${eduHtml}</span>`)}
+            ${modalDetailRow("경력", `<span class="whitespace-pre-line">${carHtml}</span>`)}
+            ${modalDetailRow("생년월일(연령)", `<span class="whitespace-pre-line">${ageHtml}</span>`)}
+            ${modalDetailRow("전과 기록", formatCriminalBlock(c))}
+            ${modalDetailRow("등록일자", escapeHtml(c.regDate || "—"))}
+          </div>`;
+
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeCandidateModal() {
+        const modal = document.getElementById("detailModal");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+        document.body.style.overflow = "";
+      }
+
+      async function shareCandidateSummary(c) {
+        const pname = primaryName(c.name);
+        const text = `${pname} · ${c.party || ""} · ${c.district || ""} 구의원 예비후보`;
+        try {
+          if (navigator.share) {
+            await navigator.share({ title: pname, text });
+          } else if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+            alert("후보 요약을 클립보드에 복사했습니다.");
+          } else {
+            prompt("복사:", text);
+          }
+        } catch (err) {
+          if (err && err.name === "AbortError") return;
+        }
       }
 
       function primaryName(raw) {
@@ -245,6 +433,56 @@
         return String(s || "")
           .toLowerCase()
           .replace(/\s+/g, "");
+      }
+
+      function parseCandidatesPayload(data) {
+        if (Array.isArray(data)) {
+          return { list: data, updatedAt: null };
+        }
+        if (
+          data &&
+          typeof data === "object" &&
+          Array.isArray(data.candidates)
+        ) {
+          return {
+            list: data.candidates,
+            updatedAt:
+              typeof data.updatedAt === "string" ? data.updatedAt : null,
+          };
+        }
+        throw new Error(
+          "JSON은 후보 배열이거나 { updatedAt, candidates } 형식이어야 합니다."
+        );
+      }
+
+      function formatUpdatedAtKo(iso) {
+        if (!iso) return "";
+        try {
+          const d = new Date(iso);
+          if (Number.isNaN(d.getTime())) return "";
+          return (
+            "자료 갱신: " +
+            new Intl.DateTimeFormat("ko-KR", {
+              dateStyle: "medium",
+              timeStyle: "short",
+              timeZone: "Asia/Seoul",
+            }).format(d)
+          );
+        } catch {
+          return "";
+        }
+      }
+
+      function setDataUpdatedLine(iso) {
+        const el = document.getElementById("dataUpdatedLine");
+        const text = formatUpdatedAtKo(iso);
+        if (!text) {
+          el.textContent = "";
+          el.classList.add("hidden");
+          return;
+        }
+        el.textContent = text;
+        el.classList.remove("hidden");
       }
 
       let allCandidates = [];
@@ -308,35 +546,34 @@
           return hay.includes(q);
         });
 
+        lastFilteredCandidates = filtered;
+
         const usingFilter = Boolean(district || party || q);
         countLabel.textContent = usingFilter
           ? `표시 ${filtered.length}명 / 전체 ${allCandidates.length}명`
           : `전체 ${filtered.length}명`;
 
-        function detailRow(label, value, multiline) {
-          const raw = value == null ? "" : String(value).trim();
-          const body = multiline
-            ? escapeHtml(raw).replace(/\n/g, "\n")
-            : escapeHtml(raw);
-          const show = body.length ? body : "—";
-          return `<div class="min-w-0">
-            <h3 class="text-[11px] font-bold uppercase tracking-wide text-slate-400">${escapeHtml(label)}</h3>
-            <p class="mt-1 ${multiline ? "whitespace-pre-line" : ""} text-sm leading-relaxed text-slate-700">${show}</p>
-          </div>`;
-        }
+        const extIcon = `<svg class="h-3.5 w-3.5 shrink-0 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>`;
+        const shareIcon = `<svg class="h-3.5 w-3.5 shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>`;
 
         list.innerHTML = filtered
-          .map((c) => {
+          .map((c, i) => {
             const t = partyTheme(c.party);
             const pname = primaryName(c.name);
             const sub = subtitleName(c.name);
             const photo = c.photo ? escapeHtml(c.photo) : "";
-            const ageDisp = escapeHtml((c.age || "").replace(/\n/g, "\n"));
+            const jobShort = elide(c.job, 32) || "—";
+            const necHref = c.huboId
+              ? escapeHtml(necPreHuboDetailUrl(c.huboId))
+              : "";
+            const necLink = necHref
+              ? `<a href="${necHref}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-200">${extIcon}선관위 상세</a>`
+              : `<span class="inline-flex cursor-not-allowed items-center gap-1.5 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-400" title="후보 식별자가 없어 링크를 제공할 수 없습니다.">${extIcon}선관위 상세</span>`;
             return `
           <li>
-            <article class="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/80 border-l-4 bg-white shadow-md shadow-slate-200/50 ring-1 ring-inset ${t.ring} transition hover:shadow-lg hover:shadow-slate-200/80 ${t.borderL}">
+            <article class="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md ${t.topAccent}">
               <div class="flex gap-4 p-5">
-                <div class="relative h-[102px] w-[86px] shrink-0 overflow-hidden rounded-2xl ring-2 ring-white shadow-md">
+                <div class="relative h-[102px] w-[86px] shrink-0 overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200/80">
                   <img
                     src="${photo || DEFAULT_AVATAR}"
                     alt="${escapeHtml(pname)} 사진"
@@ -348,43 +585,32 @@
                   />
                 </div>
                 <div class="min-w-0 flex-1">
-                  <span class="inline-flex max-w-full items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${t.badge}">
-                    ${escapeHtml(c.party || "정당 미상")}
-                  </span>
-                  <h2 class="mt-2 text-lg font-bold leading-snug ${t.name}">${escapeHtml(pname)}</h2>
+                  <h2 class="text-xl font-bold leading-tight tracking-tight text-slate-900">${escapeHtml(pname)}</h2>
                   ${
                     sub
-                      ? `<p class="mt-0.5 text-xs text-slate-500">${escapeHtml(sub)}</p>`
+                      ? `<p class="mt-0.5 text-sm text-slate-500">${escapeHtml(sub)}</p>`
                       : ""
                   }
-                  <p class="mt-2 text-xs text-slate-600">
-                    <span class="font-semibold text-slate-500">자치구</span>
-                    ${escapeHtml(c.district || "—")}
-                    <span class="mx-1.5 text-slate-300">·</span>
-                    <span class="font-semibold text-slate-500">선거구</span>
-                    ${escapeHtml(c.constituency || "—")}
-                  </p>
-                  <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
-                    <span><span class="font-semibold text-slate-500">성별</span> ${escapeHtml(c.gender || "—")}</span>
-                    <span><span class="font-semibold text-slate-500">생년월일(연령)</span> <span class="whitespace-pre-line align-top">${ageDisp || "—"}</span></span>
+                  <div class="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+                    <span class="inline-flex max-w-full items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${t.badgeSolid}">${escapeHtml(c.party || "정당 미상")}</span>
+                    <span class="text-sm text-slate-500">${escapeHtml(ageSummary(c.age))} · ${escapeHtml(c.gender || "—")} · ${escapeHtml(jobShort)}</span>
                   </div>
+                  <p class="mt-2.5 inline-flex max-w-full rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                    ${escapeHtml(c.district || "—")}<span class="mx-1 text-slate-300">·</span>${escapeHtml(c.constituency || "—")}
+                  </p>
                 </div>
               </div>
-              <div class="mt-auto space-y-3 border-t border-slate-100 bg-slate-50/80 px-5 py-4">
-                ${detailRow("주소", c.address, false)}
-                ${detailRow("직업", c.job, false)}
-                ${detailRow("학력", c.education, true)}
-                ${detailRow("경력", c.career, true)}
-                <div class="flex flex-wrap items-baseline justify-between gap-2 border-t border-slate-200/80 pt-3 text-sm">
-                  <p class="text-slate-700">
-                    <span class="text-[11px] font-bold uppercase tracking-wide text-slate-400">전과 기록</span>
-                    <span class="ml-2">${formatCriminalBlock(c)}</span>
-                  </p>
-                  <p class="text-slate-600">
-                    <span class="text-[11px] font-bold uppercase tracking-wide text-slate-400">등록일자</span>
-                    <span class="ml-2">${escapeHtml(c.regDate || "—")}</span>
-                  </p>
-                </div>
+              <div class="border-t border-slate-100 px-5 py-3.5">
+                <div class="space-y-1.5">${summarySnippetHtml(c)}</div>
+              </div>
+              <div class="mt-auto flex flex-wrap gap-2 border-t border-slate-100 bg-slate-50/70 px-4 py-3">
+                <button type="button" data-open-detail="${i}" class="rounded-lg bg-white px-3 py-2 text-xs font-medium text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-50">
+                  상세 정보
+                </button>
+                ${necLink}
+                <button type="button" data-share-idx="${i}" class="inline-flex items-center gap-1.5 rounded-lg bg-sky-50 px-3 py-2 text-xs font-medium text-sky-900 transition hover:bg-sky-100/90">
+                  ${shareIcon}공유
+                </button>
               </div>
             </article>
           </li>`;
@@ -400,6 +626,32 @@
 
       fillDistrictSelect();
 
+      document.getElementById("cardList").addEventListener("click", function (e) {
+        const openBtn = e.target.closest("[data-open-detail]");
+        if (openBtn) {
+          const i = parseInt(openBtn.getAttribute("data-open-detail"), 10);
+          if (!Number.isNaN(i) && lastFilteredCandidates[i]) {
+            openCandidateModal(lastFilteredCandidates[i]);
+          }
+          return;
+        }
+        const shareBtn = e.target.closest("[data-share-idx]");
+        if (shareBtn) {
+          const i = parseInt(shareBtn.getAttribute("data-share-idx"), 10);
+          if (!Number.isNaN(i) && lastFilteredCandidates[i]) {
+            shareCandidateSummary(lastFilteredCandidates[i]);
+          }
+        }
+      });
+
+      document.querySelectorAll("[data-modal-close], [data-modal-backdrop]").forEach(function (el) {
+        el.addEventListener("click", closeCandidateModal);
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeCandidateModal();
+      });
+
       document.getElementById("district").addEventListener("change", render);
       document.getElementById("party").addEventListener("change", render);
       document.getElementById("nameQuery").addEventListener("input", render);
@@ -410,9 +662,10 @@
           return r.json();
         })
         .then((data) => {
-          if (!Array.isArray(data)) throw new Error("JSON이 배열이 아닙니다.");
-          allCandidates = data;
+          const parsed = parseCandidatesPayload(data);
+          allCandidates = parsed.list;
           document.getElementById("errorBox").classList.add("hidden");
+          setDataUpdatedLine(parsed.updatedAt);
           fillPartySelect();
           render();
         })
