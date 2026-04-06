@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>서울시 구의원 예비후보 — 구·정당·이름 필터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: [
+                "Pretendard Variable",
+                "Pretendard",
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "system-ui",
+                "sans-serif",
+              ],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+    <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+      <header class="mb-10 text-center sm:text-left">
+        <p class="text-sm font-medium uppercase tracking-wider text-slate-500">
+          Seoul Archive
+        </p>
+        <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          후보자 목록
+        </h1>
+        <p class="mt-2 max-w-2xl text-slate-600">
+          구·정당·이름으로 실시간 필터링합니다. 데이터는
+          <code class="rounded bg-slate-200/80 px-1.5 py-0.5 text-sm"
+            >public/data/candidates.json</code
+          >
+          에서 불러옵니다.
+        </p>
+      </header>
+
+      <div
+        class="mb-8 grid grid-cols-1 gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-12 lg:items-end"
+      >
+        <div class="flex w-full flex-col gap-2 lg:col-span-3">
+          <label for="district" class="text-sm font-semibold text-slate-700"
+            >구 선택 <span class="font-normal text-slate-500">(25개구)</span></label
+          >
+          <select
+            id="district"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 shadow-inner outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-200"
+          >
+            <option value="">전체</option>
+          </select>
+        </div>
+        <div class="flex w-full flex-col gap-2 lg:col-span-3">
+          <label for="party" class="text-sm font-semibold text-slate-700">정당</label>
+          <select
+            id="party"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 shadow-inner outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-200"
+          >
+            <option value="">전체</option>
+          </select>
+        </div>
+        <div class="flex w-full flex-col gap-2 sm:col-span-2 lg:col-span-4">
+          <label for="nameQuery" class="text-sm font-semibold text-slate-700"
+            >이름 검색</label
+          >
+          <input
+            id="nameQuery"
+            type="search"
+            placeholder="이름 또는 한자 일부 입력"
+            autocomplete="off"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-inner outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-200"
+          />
+        </div>
+        <p
+          id="countLabel"
+          class="flex items-end justify-center text-sm text-slate-500 lg:col-span-2 lg:justify-end lg:pb-3"
+        >
+          불러오는 중…
+        </p>
+      </div>
+
+      <div
+        id="errorBox"
+        class="mb-6 hidden rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+        role="alert"
+      ></div>
+
+      <ul
+        id="cardList"
+        class="grid grid-cols-1 gap-6 xl:grid-cols-2"
+      ></ul>
+    </div>
+
+    <script>
+      /* 선관위 예비후보 명부「구시군」선택 순서와 동일 */
+      const SEOUL_DISTRICTS = [
+        "종로구",
+        "중구",
+        "용산구",
+        "성동구",
+        "광진구",
+        "동대문구",
+        "중랑구",
+        "성북구",
+        "강북구",
+        "도봉구",
+        "노원구",
+        "은평구",
+        "서대문구",
+        "마포구",
+        "양천구",
+        "강서구",
+        "구로구",
+        "금천구",
+        "영등포구",
+        "동작구",
+        "관악구",
+        "서초구",
+        "강남구",
+        "송파구",
+        "강동구",
+      ];
+
+      const NEC_ELECTION_ID = "0020260603";
+
+      function criminalShowsRecord(criminal) {
+        const t = String(criminal ?? "").trim();
+        if (!t || t === "없음") return false;
+        if (/^0\s*건$/.test(t)) return false;
+        return true;
+      }
+
+      function necPreHuboDetailUrl(huboId) {
+        const q = new URLSearchParams({
+          electionId: NEC_ELECTION_ID,
+          huboId: String(huboId),
+        });
+        return (
+          "https://info.nec.go.kr/electioninfo/precandidate_detail_info.xhtml?" +
+          q.toString()
+        );
+      }
+
+      function formatCriminalBlock(c) {
+        const label = escapeHtml((c.criminal || "").trim() || "—");
+        const hid = c.huboId != null && String(c.huboId).trim() !== "";
+        if (!criminalShowsRecord(c.criminal) || !hid) {
+          return `<span class="font-medium">${label}</span>`;
+        }
+        const href = escapeHtml(necPreHuboDetailUrl(c.huboId));
+        return `<span class="font-medium">${label}</span>
+          <a href="${href}" target="_blank" rel="noopener noreferrer" title="선관위 상세 창에서 「전과」를 누르면 스캔 서류를 볼 수 있습니다." class="ml-2 inline-block font-medium text-blue-700 underline decoration-blue-300 underline-offset-2 hover:text-blue-900">전과 서류 보기</a>`;
+      }
+
+      const DEFAULT_AVATAR =
+        "data:image/svg+xml," +
+        encodeURIComponent(
+          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+            <rect width="120" height="120" fill="#e2e8f0"/>
+            <circle cx="60" cy="48" r="22" fill="#94a3b8"/>
+            <path d="M24 108c4-28 72-28 72 0" fill="#94a3b8"/>
+          </svg>`
+        );
+
+      const PARTY_STYLES = {
+        더불어민주당: {
+          borderL: "border-l-blue-500",
+          ring: "ring-blue-100",
+          name: "text-blue-700",
+          badge: "bg-blue-50 text-blue-800 ring-blue-200",
+        },
+        국민의힘: {
+          borderL: "border-l-red-500",
+          ring: "ring-red-100",
+          name: "text-red-700",
+          badge: "bg-red-50 text-red-800 ring-red-200",
+        },
+        조국혁신당: {
+          borderL: "border-l-violet-500",
+          ring: "ring-violet-100",
+          name: "text-violet-700",
+          badge: "bg-violet-50 text-violet-800 ring-violet-200",
+        },
+        개혁신당: {
+          borderL: "border-l-cyan-500",
+          ring: "ring-cyan-100",
+          name: "text-cyan-700",
+          badge: "bg-cyan-50 text-cyan-800 ring-cyan-200",
+        },
+        진보당: {
+          borderL: "border-l-emerald-500",
+          ring: "ring-emerald-100",
+          name: "text-emerald-700",
+          badge: "bg-emerald-50 text-emerald-800 ring-emerald-200",
+        },
+        무소속: {
+          borderL: "border-l-slate-400",
+          ring: "ring-slate-100",
+          name: "text-slate-800",
+          badge: "bg-slate-100 text-slate-700 ring-slate-200",
+        },
+      };
+
+      const NEUTRAL_PARTY = {
+        borderL: "border-l-slate-300",
+        ring: "ring-slate-100",
+        name: "text-slate-800",
+        badge: "bg-slate-100 text-slate-700 ring-slate-200",
+      };
+
+      function partyTheme(party) {
+        return PARTY_STYLES[party] || NEUTRAL_PARTY;
+      }
+
+      function primaryName(raw) {
+        if (!raw) return "";
+        return String(raw).split("\n")[0].trim();
+      }
+
+      function subtitleName(raw) {
+        const lines = String(raw || "").split("\n").map((s) => s.trim()).filter(Boolean);
+        if (lines.length < 2) return "";
+        return lines.slice(1).join(" · ");
+      }
+
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function normalizeSearch(s) {
+        return String(s || "")
+          .toLowerCase()
+          .replace(/\s+/g, "");
+      }
+
+      let allCandidates = [];
+
+      function fillDistrictSelect() {
+        const sel = document.getElementById("district");
+        SEOUL_DISTRICTS.forEach((d) => {
+          const opt = document.createElement("option");
+          opt.value = d;
+          opt.textContent = d;
+          sel.appendChild(opt);
+        });
+      }
+
+      function fillPartySelect() {
+        const sel = document.getElementById("party");
+        const prev = sel.value;
+        sel.querySelectorAll("option:not([value=''])").forEach((o) => o.remove());
+        const names = new Set();
+        allCandidates.forEach((c) => {
+          const p = String(c.party ?? "").trim();
+          if (p) names.add(p);
+        });
+        Array.from(names)
+          .sort((a, b) => a.localeCompare(b, "ko"))
+          .forEach((p) => {
+            const opt = document.createElement("option");
+            opt.value = p;
+            opt.textContent = p;
+            sel.appendChild(opt);
+          });
+        if (prev && [...sel.options].some((o) => o.value === prev)) sel.value = prev;
+      }
+
+      function render() {
+        const district = document.getElementById("district").value;
+        const party = document.getElementById("party").value;
+        const q = normalizeSearch(document.getElementById("nameQuery").value);
+        const list = document.getElementById("cardList");
+        const countLabel = document.getElementById("countLabel");
+
+        const filtered = allCandidates.filter((c) => {
+          if (district && c.district !== district) return false;
+          if (party && String(c.party ?? "").trim() !== party) return false;
+          if (!q) return true;
+          const hay = normalizeSearch(
+            [
+              c.name,
+              c.party,
+              c.constituency,
+              c.address,
+              c.job,
+              c.gender,
+              c.age,
+              c.education,
+              c.career,
+              c.criminal,
+              c.regDate,
+            ].join(" ")
+          );
+          return hay.includes(q);
+        });
+
+        const usingFilter = Boolean(district || party || q);
+        countLabel.textContent = usingFilter
+          ? `표시 ${filtered.length}명 / 전체 ${allCandidates.length}명`
+          : `전체 ${filtered.length}명`;
+
+        function detailRow(label, value, multiline) {
+          const raw = value == null ? "" : String(value).trim();
+          const body = multiline
+            ? escapeHtml(raw).replace(/\n/g, "\n")
+            : escapeHtml(raw);
+          const show = body.length ? body : "—";
+          return `<div class="min-w-0">
+            <h3 class="text-[11px] font-bold uppercase tracking-wide text-slate-400">${escapeHtml(label)}</h3>
+            <p class="mt-1 ${multiline ? "whitespace-pre-line" : ""} text-sm leading-relaxed text-slate-700">${show}</p>
+          </div>`;
+        }
+
+        list.innerHTML = filtered
+          .map((c) => {
+            const t = partyTheme(c.party);
+            const pname = primaryName(c.name);
+            const sub = subtitleName(c.name);
+            const photo = c.photo ? escapeHtml(c.photo) : "";
+            const ageDisp = escapeHtml((c.age || "").replace(/\n/g, "\n"));
+            return `
+          <li>
+            <article class="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/80 border-l-4 bg-white shadow-md shadow-slate-200/50 ring-1 ring-inset ${t.ring} transition hover:shadow-lg hover:shadow-slate-200/80 ${t.borderL}">
+              <div class="flex gap-4 p-5">
+                <div class="relative h-[102px] w-[86px] shrink-0 overflow-hidden rounded-2xl ring-2 ring-white shadow-md">
+                  <img
+                    src="${photo || DEFAULT_AVATAR}"
+                    alt="${escapeHtml(pname)} 사진"
+                    width="86"
+                    height="102"
+                    class="h-full w-full object-cover object-top"
+                    loading="lazy"
+                    onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'"
+                  />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <span class="inline-flex max-w-full items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${t.badge}">
+                    ${escapeHtml(c.party || "정당 미상")}
+                  </span>
+                  <h2 class="mt-2 text-lg font-bold leading-snug ${t.name}">${escapeHtml(pname)}</h2>
+                  ${
+                    sub
+                      ? `<p class="mt-0.5 text-xs text-slate-500">${escapeHtml(sub)}</p>`
+                      : ""
+                  }
+                  <p class="mt-2 text-xs text-slate-600">
+                    <span class="font-semibold text-slate-500">자치구</span>
+                    ${escapeHtml(c.district || "—")}
+                    <span class="mx-1.5 text-slate-300">·</span>
+                    <span class="font-semibold text-slate-500">선거구</span>
+                    ${escapeHtml(c.constituency || "—")}
+                  </p>
+                  <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
+                    <span><span class="font-semibold text-slate-500">성별</span> ${escapeHtml(c.gender || "—")}</span>
+                    <span><span class="font-semibold text-slate-500">생년월일(연령)</span> <span class="whitespace-pre-line align-top">${ageDisp || "—"}</span></span>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-auto space-y-3 border-t border-slate-100 bg-slate-50/80 px-5 py-4">
+                ${detailRow("주소", c.address, false)}
+                ${detailRow("직업", c.job, false)}
+                ${detailRow("학력", c.education, true)}
+                ${detailRow("경력", c.career, true)}
+                <div class="flex flex-wrap items-baseline justify-between gap-2 border-t border-slate-200/80 pt-3 text-sm">
+                  <p class="text-slate-700">
+                    <span class="text-[11px] font-bold uppercase tracking-wide text-slate-400">전과 기록</span>
+                    <span class="ml-2">${formatCriminalBlock(c)}</span>
+                  </p>
+                  <p class="text-slate-600">
+                    <span class="text-[11px] font-bold uppercase tracking-wide text-slate-400">등록일자</span>
+                    <span class="ml-2">${escapeHtml(c.regDate || "—")}</span>
+                  </p>
+                </div>
+              </div>
+            </article>
+          </li>`;
+          })
+          .join("");
+      }
+
+      function showError(msg) {
+        const box = document.getElementById("errorBox");
+        box.textContent = msg;
+        box.classList.remove("hidden");
+      }
+
+      fillDistrictSelect();
+
+      document.getElementById("district").addEventListener("change", render);
+      document.getElementById("party").addEventListener("change", render);
+      document.getElementById("nameQuery").addEventListener("input", render);
+
+      fetch("../public/data/candidates.json")
+        .then((r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json();
+        })
+        .then((data) => {
+          if (!Array.isArray(data)) throw new Error("JSON이 배열이 아닙니다.");
+          allCandidates = data;
+          document.getElementById("errorBox").classList.add("hidden");
+          fillPartySelect();
+          render();
+        })
+        .catch((e) => {
+          showError(
+            "데이터를 불러오지 못했습니다. 로컬 서버로 열었는지 확인하세요. (예: 프로젝트 루트에서 npx serve . 후 /candidates/index.html) — " +
+              (e && e.message ? e.message : String(e))
+          );
+          document.getElementById("countLabel").textContent = "0명";
+        });
+    </script>
+  </body>
+</html>
