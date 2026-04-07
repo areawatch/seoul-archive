@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>서울시 구의원 예비후보 — 구·정당·이름 필터</title>
+    <title>서울시 구의원·구청장 예비후보 — 직무·구·정당·이름 필터</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -47,7 +47,7 @@
           Seoul Archive
         </p>
         <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          후보자 목록
+          구의원·구청장 후보자 목록
         </h1>
         <p
           id="dataUpdatedLine"
@@ -59,6 +59,40 @@
       <div
         class="mb-8 grid grid-cols-1 gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-12 lg:items-end"
       >
+        <div class="flex flex-col gap-2 lg:col-span-12">
+          <span class="text-sm font-semibold text-slate-700" id="officeFilterLegend">직무</span>
+          <div
+            id="officeFilterSeg"
+            class="flex w-full max-w-xs overflow-hidden rounded-lg border border-slate-200 sm:max-w-sm"
+            role="group"
+            aria-labelledby="officeFilterLegend"
+          >
+            <button
+              type="button"
+              data-office-filter=""
+              aria-pressed="true"
+              class="office-filter-seg flex-1 border-r border-slate-200 px-3 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-slate-700 text-white hover:bg-slate-700"
+            >
+              전체
+            </button>
+            <button
+              type="button"
+              data-office-filter="구청장"
+              aria-pressed="false"
+              class="office-filter-seg flex-1 border-r border-slate-200 px-3 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50"
+            >
+              구청장
+            </button>
+            <button
+              type="button"
+              data-office-filter="구의원"
+              aria-pressed="false"
+              class="office-filter-seg flex-1 border-r border-slate-200 px-3 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50"
+            >
+              구의원
+            </button>
+          </div>
+        </div>
         <div class="flex w-full flex-col gap-1.5 lg:col-span-3">
           <label for="district" class="text-sm font-semibold text-slate-700"
             >구 선택 <span class="font-normal text-slate-500">(25개구)</span></label
@@ -698,7 +732,7 @@
               </p>
               ${sub ? `<p class="text-sm text-slate-500">${escapeHtml(sub)}</p>` : ""}
               <p class="mt-2 text-xs text-slate-500">${escapeHtml(String(age))} · ${gender} · ${job}</p>
-              <p class="mt-1 text-xs text-slate-400">${escapeHtml(c.district || "—")} · ${escapeHtml(c.constituency || "—")}</p>
+              <p class="mt-1 text-xs text-slate-400">${escapeHtml(c.district || "—")} · ${escapeHtml(c.constituency || "—")} · ${escapeHtml(candidateOffice(c))}</p>
             </div>
           </div>
           <div class="space-y-3">
@@ -756,6 +790,32 @@
         return String(s || "")
           .toLowerCase()
           .replace(/\s+/g, "");
+      }
+
+      function candidateOffice(c) {
+        var o = String((c && c.office) || "구의원").trim();
+        return o || "구의원";
+      }
+
+      function getOfficeFilterValue() {
+        var btn = document.querySelector("#officeFilterSeg button[aria-pressed='true']");
+        if (!btn) return "";
+        return String(btn.getAttribute("data-office-filter") || "");
+      }
+
+      function setOfficeSegVisual(value) {
+        var root = document.getElementById("officeFilterSeg");
+        if (!root) return;
+        var onCls =
+          "office-filter-seg flex-1 border-r border-slate-200 px-3 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-slate-700 text-white hover:bg-slate-700";
+        var offCls =
+          "office-filter-seg flex-1 border-r border-slate-200 px-3 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50";
+        root.querySelectorAll("button[data-office-filter]").forEach(function (b) {
+          var v = String(b.getAttribute("data-office-filter") || "");
+          var on = v === value;
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+          b.className = on ? onCls : offCls;
+        });
       }
 
       function parseCandidatesPayload(data) {
@@ -823,9 +883,11 @@
       function fillPartySelect() {
         const sel = document.getElementById("party");
         const prev = sel.value;
+        const office = getOfficeFilterValue();
         sel.querySelectorAll("option:not([value=''])").forEach((o) => o.remove());
         const names = new Set();
         allCandidates.forEach((c) => {
+          if (office && candidateOffice(c) !== office) return;
           const p = String(c.party ?? "").trim();
           if (p) names.add(p);
         });
@@ -844,6 +906,7 @@
         if (resetPaging !== false) visibleRowCount = LIST_PAGE_SIZE;
         const district = document.getElementById("district").value;
         const party = document.getElementById("party").value;
+        const office = getOfficeFilterValue();
         const q = normalizeSearch(document.getElementById("nameQuery").value);
         const list = document.getElementById("cardList");
         const countLabel = document.getElementById("countLabel");
@@ -852,12 +915,14 @@
         const filtered = allCandidates.filter((c) => {
           if (district && c.district !== district) return false;
           if (party && String(c.party ?? "").trim() !== party) return false;
+          if (office && candidateOffice(c) !== office) return false;
           if (!q) return true;
           const hay = normalizeSearch(
             [
               c.name,
               c.party,
               c.constituency,
+              candidateOffice(c),
               c.address,
               c.job,
               c.gender,
@@ -871,7 +936,7 @@
           return hay.includes(q);
         });
 
-        const usingFilter = Boolean(district || party || q);
+        const usingFilter = Boolean(district || party || q || office);
         countLabel.textContent = usingFilter
           ? `표시 ${filtered.length}명 / 전체 ${allCandidates.length}명`
           : `전체 ${filtered.length}명`;
@@ -950,7 +1015,14 @@
               ? `<a href="${necHref}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-700 ring-1 ring-slate-200/80 hover:bg-slate-200">${extIcon}선관위</a>`
               : `<span class="inline-flex cursor-not-allowed items-center gap-1 rounded-md bg-slate-50 px-2 py-1 text-[11px] text-slate-400 ring-1 ring-slate-100" title="후보 식별자 없음">${extIcon}선관위</span>`;
             const wealthByName = wealthInlineByNameHtml(c);
-            const distLine = `${escapeHtml(c.district || "—")}<span class="mx-0.5 text-slate-300">·</span>${escapeHtml(c.constituency || "—")}`;
+            const off = candidateOffice(c);
+            const distLine =
+              escapeHtml(c.district || "—") +
+              '<span class="mx-0.5 text-slate-300">·</span>' +
+              escapeHtml(c.constituency || "—") +
+              (off === "구청장"
+                ? '<span class="mx-0.5 text-slate-300">·</span><span class="font-medium text-slate-500">구청장</span>'
+                : "");
             return `<tr data-row-detail="${i}" class="cursor-pointer border-b border-slate-100 transition hover:bg-slate-50/80">
               <td class="py-3 pl-4 pr-2 align-top">
                 <div class="flex gap-3">
@@ -1010,6 +1082,15 @@
 
       document.addEventListener("keydown", function (e) {
         if (e.key === "Escape") closeCandidateModal();
+      });
+
+      document.getElementById("officeFilterSeg").addEventListener("click", function (e) {
+        var btn = e.target.closest("button[data-office-filter]");
+        if (!btn || !btn.closest("#officeFilterSeg")) return;
+        var v = String(btn.getAttribute("data-office-filter") || "");
+        setOfficeSegVisual(v);
+        fillPartySelect();
+        render(true);
       });
 
       document.getElementById("district").addEventListener("change", function () {

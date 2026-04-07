@@ -46,6 +46,8 @@ type Candidate = {
   name?: string;
   district?: string;
   constituency?: string;
+  /** 구의원(기본) | 구청장 — 없으면 구의원으로 간주 */
+  office?: string;
   party?: string;
   photo?: string;
   gender?: string;
@@ -71,6 +73,8 @@ type WealthRow = {
 };
 
 type SortKey = 'name' | 'age' | 'criminal';
+
+type OfficeFilter = '' | '구청장' | '구의원';
 
 const LIST_PAGE_SIZE = 20;
 
@@ -196,6 +200,11 @@ function necPreHuboDetailUrl(huboId: string | number) {
 
 function normalizeSearch(s: string) {
   return s.toLowerCase().replace(/\s+/g, '');
+}
+
+function candidateOffice(c: Candidate): '구청장' | '구의원' {
+  const o = String(c.office ?? '구의원').trim();
+  return o === '구청장' ? '구청장' : '구의원';
 }
 
 const DEFAULT_AVATAR =
@@ -404,7 +413,7 @@ function CandidateDetailModal({ c, onClose }: { c: Candidate | null; onClose: ()
                 {ageSummary(c.age)} · {c.gender ?? '—'} · {(c.job ?? '').trim() || '—'}
               </p>
               <p className="mt-1 text-xs text-slate-400">
-                {c.district ?? '—'} · {c.constituency ?? '—'}
+                {c.district ?? '—'} · {c.constituency ?? '—'} · {candidateOffice(c)}
               </p>
             </div>
           </div>
@@ -476,6 +485,7 @@ function ModalField({
 export default function CandidatesPage() {
   const [district, setDistrict] = useState('');
   const [party, setParty] = useState('');
+  const [officeRole, setOfficeRole] = useState<OfficeFilter>('');
   const [nameQ, setNameQ] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('name');
   const [sortAsc, setSortAsc] = useState(true);
@@ -485,23 +495,30 @@ export default function CandidatesPage() {
   const parties = useMemo(() => {
     const s = new Set<string>();
     rows.forEach((c) => {
+      if (officeRole && candidateOffice(c) !== officeRole) return;
       const p = String(c.party ?? '').trim();
       if (p) s.add(p);
     });
     return Array.from(s).sort((a, b) => a.localeCompare(b, 'ko'));
-  }, []);
+  }, [rows, officeRole]);
+
+  useEffect(() => {
+    if (party && !parties.includes(party)) setParty('');
+  }, [parties, party]);
 
   const filtered = useMemo(() => {
     const q = normalizeSearch(nameQ);
     return rows.filter((c) => {
       if (district && c.district !== district) return false;
       if (party && String(c.party ?? '').trim() !== party) return false;
+      if (officeRole && candidateOffice(c) !== officeRole) return false;
       if (!q) return true;
       const hay = normalizeSearch(
         [
           c.name,
           c.party,
           c.constituency,
+          candidateOffice(c),
           c.address,
           c.job,
           c.gender,
@@ -514,7 +531,7 @@ export default function CandidatesPage() {
       );
       return hay.includes(q);
     });
-  }, [district, party, nameQ]);
+  }, [district, party, officeRole, nameQ]);
 
   const sortedFiltered = useMemo(() => {
     const copy = [...filtered];
@@ -551,7 +568,7 @@ export default function CandidatesPage() {
 
   useEffect(() => {
     setVisibleCount(LIST_PAGE_SIZE);
-  }, [district, party, nameQ, sortKey, sortAsc]);
+  }, [district, party, officeRole, nameQ, sortKey, sortAsc]);
 
   const visibleRows = useMemo(
     () => sortedFiltered.slice(0, visibleCount),
@@ -642,7 +659,7 @@ export default function CandidatesPage() {
     }
   };
 
-  const usingFilter = Boolean(district || party || normalizeSearch(nameQ));
+  const usingFilter = Boolean(district || party || officeRole || normalizeSearch(nameQ));
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50 text-slate-900">
@@ -666,7 +683,9 @@ export default function CandidatesPage() {
       <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 lg:px-8">
       <header className="mb-10 text-center sm:text-left">
         <h1 className="text-4xl font-black text-gray-900 mb-2">2026 지방선거 예비후보자</h1>
-        <p className="text-gray-600">서울시 구의원 예비후보 데이터입니다. 구·정당·이름으로 필터할 수 있습니다.</p>
+        <p className="text-gray-600">
+          서울시 구의원·구청장 예비후보 데이터입니다. 직무·구·정당·이름으로 필터할 수 있습니다.
+        </p>
         {dataUpdatedLabel && (
           <p className="text-sm text-gray-500 mt-2" aria-live="polite">
             자료 갱신: {dataUpdatedLabel}
@@ -675,6 +694,41 @@ export default function CandidatesPage() {
       </header>
 
       <div className="mb-8 grid grid-cols-1 gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-12 lg:items-end">
+        <div className="flex flex-col gap-2 lg:col-span-12">
+          <span className="text-sm font-semibold text-gray-700" id="office-role-label">
+            직무
+          </span>
+          <div
+            className="flex w-full max-w-xs overflow-hidden rounded-lg border border-gray-200 sm:max-w-sm"
+            role="group"
+            aria-labelledby="office-role-label"
+          >
+            {(
+              [
+                { value: '' as const, label: '전체' },
+                { value: '구청장' as const, label: '구청장' },
+                { value: '구의원' as const, label: '구의원' },
+              ] as const
+            ).map(({ value, label }) => {
+              const on = officeRole === value;
+              return (
+                <button
+                  key={value || 'all'}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => setOfficeRole(value)}
+                  className={`flex-1 border-r border-gray-200 px-3 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-inset ${
+                    on
+                      ? 'bg-slate-700 text-white hover:bg-slate-700'
+                      : 'bg-white text-slate-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         <div className="flex flex-col gap-1.5 lg:col-span-3">
           <label htmlFor="district" className="text-sm font-semibold text-gray-700">
             구 선택 <span className="font-normal text-gray-500">(25개구)</span>
@@ -897,6 +951,7 @@ export default function CandidatesPage() {
             {visibleRows.map((person, index) => {
               const nameMain = primaryNameLine(person.name);
               const ui = partyUi(person.party);
+              const off = candidateOffice(person);
               const necUrl =
                 person.huboId != null && String(person.huboId).trim() !== ''
                   ? necPreHuboDetailUrl(person.huboId)
@@ -907,7 +962,7 @@ export default function CandidatesPage() {
 
               return (
                 <tr
-                  key={`${person.huboId ?? nameMain}-${index}`}
+                  key={`${off}-${person.district ?? ''}-${person.huboId ?? nameMain}-${index}`}
                   className="cursor-pointer border-b border-slate-100 transition hover:bg-slate-50/80"
                   onClick={(e) => {
                     const node = e.target as Node;
@@ -950,6 +1005,12 @@ export default function CandidatesPage() {
                           {person.district ?? '—'}
                           <span className="mx-0.5 text-slate-300">·</span>
                           {person.constituency ?? '—'}
+                          {off === '구청장' ? (
+                            <>
+                              <span className="mx-0.5 text-slate-300">·</span>
+                              <span className="font-medium text-slate-500">구청장</span>
+                            </>
+                          ) : null}
                         </p>
                       </div>
                     </div>

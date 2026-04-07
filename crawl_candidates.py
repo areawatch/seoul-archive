@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
-서울특별시 25개 자치구 — 구·시·군의회의원(구의원) 예비후보자 명부를
+서울특별시 25개 자치구 — 예비후보자 명부를
 중앙선거관리위원회 선거통계시스템(info.nec.go.kr)에서 수집합니다.
+
+- 구·시·군의회의원(구의원): electionCode 6
+- 시장·군수·구청장(서울 자치구 단위 = 구청장): electionCode 4
 
 사용:
   pip install -r requirements-crawl.txt
@@ -9,16 +12,17 @@
 
 출력: public/data/candidates.json
   형식: {"updatedAt": "ISO8601(Asia/Seoul)", "candidates": [ ... ]}
+  각 후보에 "office": "구의원" | "구청장" 필드가 붙습니다(구의원만 있던 구버전 JSON은 화면에서 구의원으로 간주).
 
 선거구명(constituency)·주소(address)는 이 스크립트가 넣는 필드입니다.
 huboId는 선관위 예비후보 상세(전과 스캔 서류) 링크용입니다.
-예전에 받은 JSON에는 없을 수 있으니, 화면에 '—'가 나오면 최신 스크립트로 다시 수집하세요.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 import time
@@ -33,8 +37,17 @@ from bs4 import BeautifulSoup
 
 BASE = "https://info.nec.go.kr"
 ELECTION_ID = "0020260603"
-ELECTION_CODE = "6"  # 구·시·군의회의원선거
 SEOUL_CITY_CODE = "1100"
+
+# 구·시·군의회의원
+COUNCIL_ELECTION_CODE = "6"
+COUNCIL_STATEMENT_ID = "PCRI03_#6"
+COUNCIL_OFFICE = "구의원"
+
+# 시장·군수·구청장 (서울 25구 → 구청장)
+MAYOR_CLASS_ELECTION_CODE = "4"
+MAYOR_CLASS_STATEMENT_ID = "PCRI03_#4"
+MAYOR_OFFICE = "구청장"
 
 REPORT_PATH = "/electioninfo/electionInfo_report.xhtml"
 TOWN_JSON = "/bizcommon/selectbox/selectbox_townCodeBySgJson.json"
@@ -43,7 +56,6 @@ SGG_JSON = "/bizcommon/selectbox/selectbox_getSggTownCodeJson.json"
 DEFAULT_OUT = "public/data/candidates.json"
 REQUEST_PAUSE_SEC = 0.35
 
-# 선관위 시도>구시군 드롭다운과 동일한 순서 (수집·진행 로그 정렬)
 SEOUL_GU_ORDER = [
     "종로구",
     "중구",
@@ -98,12 +110,12 @@ def nec_get_json(path: str, params: dict[str, str]) -> list[dict[str, Any]]:
     return body
 
 
-def fetch_seoul_towns() -> list[dict[str, str]]:
+def fetch_seoul_towns(*, election_code: str) -> list[dict[str, str]]:
     rows = nec_get_json(
         TOWN_JSON,
         {
             "electionId": ELECTION_ID,
-            "electionCode": ELECTION_CODE,
+            "electionCode": election_code,
             "cityCode": SEOUL_CITY_CODE,
         },
     )
@@ -112,12 +124,12 @@ def fetch_seoul_towns() -> list[dict[str, str]]:
     return towns
 
 
-def fetch_sgg_town_codes(town_code: str) -> list[dict[str, str]]:
+def fetch_sgg_town_codes(town_code: str, *, election_code: str) -> list[dict[str, str]]:
     rows = nec_get_json(
         SGG_JSON,
         {
             "electionId": ELECTION_ID,
-            "electionCode": ELECTION_CODE,
+            "electionCode": election_code,
             "townCode": town_code,
         },
     )
@@ -133,18 +145,25 @@ def fetch_sgg_town_codes(town_code: str) -> list[dict[str, str]]:
 def post_report_html(
     town_code: str,
     sgg_town_code: str,
+    *,
+    election_code: str,
+    statement_id: str,
 ) -> str:
+    # 선관위 폼은 electionCode=4(구·시·군의 장)일 때 sggCityCode 없이는
+    # townCode+sggTownCode만으로는 표가 비어 「검색된 결과가 없습니다」만 온다.
+    # 웹 화면은 sggCityCode(선거구)를 쓰므로, API에서 받은 코드를 동일 값으로 넣는다.
     form = {
         "electionId": ELECTION_ID,
         "requestURI": f"/electioninfo/{ELECTION_ID}/pc/pcri03_ex.jsp",
         "topMenuId": "PC",
         "secondMenuId": "PCRI03",
         "menuId": "PCRI03",
-        "statementId": "PCRI03_#6",
-        "electionCode": ELECTION_CODE,
+        "statementId": statement_id,
+        "electionCode": election_code,
         "cityCode": SEOUL_CITY_CODE,
         "townCode": town_code,
         "sggTownCode": sgg_town_code,
+        "sggCityCode": sgg_town_code,
     }
     url = urljoin(BASE, REPORT_PATH)
     r = SESSION.post(url, data=form, timeout=90)
@@ -187,7 +206,12 @@ def _hubo_id_from_cell(td) -> str | None:
     return m.group(1) if m else None
 
 
-def parse_candidates_from_report(html: str, gu_name: str) -> list[dict[str, Any]]:
+def parse_candidates_from_report(
+    html: str,
+    gu_name: str,
+    *,
+    office: str,
+) -> list[dict[str, Any]]:
     soup = BeautifulSoup(html, "html.parser")
     table = soup.select_one("table#table01")
     if not table:
@@ -200,6 +224,8 @@ def parse_candidates_from_report(html: str, gu_name: str) -> list[dict[str, Any]
     for tr in tbody.find_all("tr", recursive=False):
         tds = tr.find_all("td", recursive=False)
         if len(tds) < 12:
+            continue
+        if tds[0].get("colspan"):
             continue
 
         constituency = tds[0].get_text(" ", strip=True)
@@ -237,6 +263,7 @@ def parse_candidates_from_report(html: str, gu_name: str) -> list[dict[str, Any]
             "career": career,
             "criminal": criminal,
             "regDate": reg_date,
+            "office": office,
         }
         if hubo_id:
             row["huboId"] = hubo_id
@@ -245,60 +272,117 @@ def parse_candidates_from_report(html: str, gu_name: str) -> list[dict[str, Any]
     return rows_out
 
 
-def crawl(
+def crawl_office(
     *,
-    towns_filter: set[str] | None = None,
-    dry_run: bool = False,
-) -> list[dict[str, Any]]:
-    towns = fetch_seoul_towns()
+    election_code: str,
+    statement_id: str,
+    office_label: str,
+    towns_filter: set[str] | None,
+    dry_run: bool,
+) -> tuple[list[dict[str, Any]], int]:
+    towns = fetch_seoul_towns(election_code=election_code)
     if towns_filter is not None:
         towns = [t for t in towns if t["name"] in towns_filter]
 
     seen_ids: set[str] = set()
-    seen_fallback: set[tuple[str, str, str, str]] = set()
+    seen_fallback: set[tuple[str, str, str, str, str]] = set()
     merged: list[dict[str, Any]] = []
-    dry_count = 0
+    request_count = 0
 
     for town in towns:
-        sggs = fetch_sgg_town_codes(town["code"])
+        sggs = fetch_sgg_town_codes(town["code"], election_code=election_code)
         if not sggs:
-            print(f"[skip] {town['name']}: 선거구 코드 없음", file=sys.stderr)
+            print(f"[skip] [{office_label}] {town['name']}: 선거구 코드 없음", file=sys.stderr)
             continue
 
         for sgg in sggs:
+            request_count += 1
             if dry_run:
-                dry_count += 1
-                print(f"would fetch {town['name']} / {sgg['name']} ({sgg['code']})")
+                print(
+                    f"would fetch [{office_label}] {town['name']} / {sgg['name']} ({sgg['code']})",
+                    file=sys.stderr,
+                )
                 continue
 
-            html = post_report_html(town["code"], sgg["code"])
-            batch = parse_candidates_from_report(html, town["name"])
+            html = post_report_html(
+                town["code"],
+                sgg["code"],
+                election_code=election_code,
+                statement_id=statement_id,
+            )
+            batch = parse_candidates_from_report(html, town["name"], office=office_label)
             added = 0
             for c in batch:
                 hid = c.get("huboId")
                 if hid:
-                    if hid in seen_ids:
+                    key = f"{office_label}:{hid}"
+                    if key in seen_ids:
                         continue
-                    seen_ids.add(hid)
+                    seen_ids.add(key)
                 else:
-                    fb = (c.get("name", ""), c.get("party", ""), c.get("regDate", ""), sgg["code"])
+                    fb = (
+                        office_label,
+                        c.get("name", ""),
+                        c.get("party", ""),
+                        c.get("regDate", ""),
+                        sgg["code"],
+                    )
                     if fb in seen_fallback:
                         continue
                     seen_fallback.add(fb)
                 merged.append(c)
                 added += 1
-            print(f"  {town['name']} / {sgg['name']}: +{added}명", file=sys.stderr)
+            print(
+                f"  [{office_label}] {town['name']} / {sgg['name']}: +{added}명",
+                file=sys.stderr,
+            )
             time.sleep(REQUEST_PAUSE_SEC)
 
+    return merged, request_count
+
+
+def crawl(
+    *,
+    mode: str,
+    towns_filter: set[str] | None,
+    dry_run: bool,
+) -> list[dict[str, Any]]:
+    total_requests = 0
+    out: list[dict[str, Any]] = []
+
+    if mode in ("all", "council"):
+        batch, nreq = crawl_office(
+            election_code=COUNCIL_ELECTION_CODE,
+            statement_id=COUNCIL_STATEMENT_ID,
+            office_label=COUNCIL_OFFICE,
+            towns_filter=towns_filter,
+            dry_run=dry_run,
+        )
+        total_requests += nreq
+        out.extend(batch)
+
+    if mode in ("all", "mayor"):
+        batch, nreq = crawl_office(
+            election_code=MAYOR_CLASS_ELECTION_CODE,
+            statement_id=MAYOR_CLASS_STATEMENT_ID,
+            office_label=MAYOR_OFFICE,
+            towns_filter=towns_filter,
+            dry_run=dry_run,
+        )
+        total_requests += nreq
+        out.extend(batch)
+
     if dry_run:
-        print(f"dry-run: {dry_count}회 요청 예정", file=sys.stderr)
+        print(f"dry-run: 총 {total_requests}회 요청 예정", file=sys.stderr)
         return []
 
-    return merged
+    return out
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="NEC 서울 구의원 예비후보 JSON 수집")
+    parser = argparse.ArgumentParser(
+        description="NEC 서울 구의원·구청장 예비후보 JSON 수집",
+    )
     parser.add_argument(
         "-o",
         "--output",
@@ -313,19 +397,23 @@ def main() -> None:
         help="해당 구만 수집 (여러 번 지정 가능). 예: --district 종로구",
     )
     parser.add_argument(
+        "--only",
+        choices=("all", "council", "mayor"),
+        default="all",
+        help="구의원만 / 구청장만 / 둘 다 (기본: all)",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="HTTP 요청 없이 조회할 URL 범위만 출력",
+        help="HTTP 요청 없이 조회할 범위만 출력",
     )
     args = parser.parse_args()
 
     filt = set(args.districts) if args.districts else None
-    rows = crawl(towns_filter=filt, dry_run=args.dry_run)
+    rows = crawl(mode=args.only, towns_filter=filt, dry_run=args.dry_run)
 
     if args.dry_run:
         return
-
-    import os
 
     os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
     updated_at = datetime.now(ZoneInfo("Asia/Seoul")).replace(microsecond=0)
