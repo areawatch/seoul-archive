@@ -207,6 +207,42 @@ function candidateOffice(c: Candidate): '구청장' | '구의원' {
   return o === '구청장' ? '구청장' : '구의원';
 }
 
+function candidateListAreaLine(person: Candidate) {
+  const d = person.district ?? '—';
+  if (candidateOffice(person) === '구청장') {
+    return (
+      <>
+        {d}{' '}
+        <span className="font-medium text-slate-500">구청장</span>
+      </>
+    );
+  }
+  return (
+    <>
+      {d}
+      <span className="mx-0.5 text-slate-300">·</span>
+      {person.constituency ?? '—'}
+    </>
+  );
+}
+
+function candidateModalAreaLine(c: Candidate) {
+  const d = c.district ?? '—';
+  if (candidateOffice(c) === '구청장') {
+    return (
+      <>
+        {d}{' '}
+        <span className="font-medium text-slate-500">구청장</span>
+      </>
+    );
+  }
+  return (
+    <>
+      {d} · {c.constituency ?? '—'} · {candidateOffice(c)}
+    </>
+  );
+}
+
 const DEFAULT_AVATAR =
   'data:image/svg+xml,' +
   encodeURIComponent(
@@ -222,6 +258,7 @@ const PARTY_UI: Record<string, { badgeSolid: string }> = {
   기본소득당: { badgeSolid: 'bg-[#00D2C3] text-slate-900 shadow-sm' },
   개혁신당: { badgeSolid: 'bg-[#FF7F32] text-white shadow-sm' },
   녹색당: { badgeSolid: 'bg-[#5CB531] text-white shadow-sm' },
+  노동당: { badgeSolid: 'bg-[#FF0000] text-white shadow-sm' },
   진보당: { badgeSolid: 'bg-[#E60020] text-white shadow-sm' },
   무소속: { badgeSolid: 'bg-[#707070] text-white shadow-sm' },
 };
@@ -412,9 +449,7 @@ function CandidateDetailModal({ c, onClose }: { c: Candidate | null; onClose: ()
               <p className="mt-2 text-xs text-slate-500">
                 {ageSummary(c.age)} · {c.gender ?? '—'} · {(c.job ?? '').trim() || '—'}
               </p>
-              <p className="mt-1 text-xs text-slate-400">
-                {c.district ?? '—'} · {c.constituency ?? '—'} · {candidateOffice(c)}
-              </p>
+              <p className="mt-1 text-xs text-slate-400">{candidateModalAreaLine(c)}</p>
             </div>
           </div>
           <ModalField label="주소" value={c.address} />
@@ -698,35 +733,51 @@ export default function CandidatesPage() {
           <span className="text-sm font-semibold text-gray-700" id="office-role-label">
             직무
           </span>
-          <div
-            className="flex w-full max-w-xs overflow-hidden rounded-lg border border-gray-200 sm:max-w-sm"
-            role="group"
-            aria-labelledby="office-role-label"
-          >
-            {(
-              [
-                { value: '' as const, label: '전체' },
-                { value: '구청장' as const, label: '구청장' },
-                { value: '구의원' as const, label: '구의원' },
-              ] as const
-            ).map(({ value, label }) => {
-              const on = officeRole === value;
-              return (
-                <button
-                  key={value || 'all'}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => setOfficeRole(value)}
-                  className={`flex-1 border-r border-gray-200 px-3 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-inset ${
-                    on
-                      ? 'bg-slate-700 text-white hover:bg-slate-700'
-                      : 'bg-white text-slate-700 hover:bg-gray-50'
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <div
+              className="flex min-w-[12rem] max-w-xs flex-1 overflow-hidden rounded-lg border border-gray-200 sm:max-w-sm"
+              role="group"
+              aria-labelledby="office-role-label"
+            >
+              {(
+                [
+                  { value: '' as const, label: '전체' },
+                  { value: '구청장' as const, label: '구청장' },
+                  { value: '구의원' as const, label: '구의원' },
+                ] as const
+              ).map(({ value, label }) => {
+                const on = officeRole === value;
+                return (
+                  <button
+                    key={value || 'all'}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => setOfficeRole(value)}
+                    className={`flex-1 border-r border-gray-200 px-3 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-inset ${
+                      on
+                        ? 'bg-slate-700 text-white hover:bg-slate-700'
+                        : 'bg-white text-slate-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              className="shrink-0 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+              onClick={() => {
+                setDistrict('');
+                setParty('');
+                setOfficeRole('');
+                setNameQ('');
+                setSortKey('name');
+                setSortAsc(true);
+              }}
+            >
+              필터 초기화
+            </button>
           </div>
         </div>
         <div className="flex flex-col gap-1.5 lg:col-span-3">
@@ -1001,17 +1052,7 @@ export default function CandidatesPage() {
                             </a>
                           ) : null}
                         </p>
-                        <p className="mt-1 text-[11px] text-slate-400">
-                          {person.district ?? '—'}
-                          <span className="mx-0.5 text-slate-300">·</span>
-                          {person.constituency ?? '—'}
-                          {off === '구청장' ? (
-                            <>
-                              <span className="mx-0.5 text-slate-300">·</span>
-                              <span className="font-medium text-slate-500">구청장</span>
-                            </>
-                          ) : null}
-                        </p>
+                        <p className="mt-1 text-[11px] text-slate-400">{candidateListAreaLine(person)}</p>
                       </div>
                     </div>
                   </td>
