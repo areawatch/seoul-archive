@@ -140,6 +140,13 @@ function wealthLabelForCandidate(c: Candidate): string {
   return pos ? wealthDisplayLabel(pos) : '';
 }
 
+function wealthRawPositionForCandidate(c: Candidate): string {
+  const d = String(c.district ?? '').trim();
+  const n = normalizeWealthName(c.name);
+  if (!d || !n) return '';
+  return String(wealthLookup.get(`${d}|${n}`) ?? '').trim();
+}
+
 /** archive.html 재산 상세 모달 딥링크 (script.js가 쿼리를 읽어 showDetail 호출) */
 function wealthArchiveDetailHref(c: Candidate): string | null {
   if (!wealthLabelForCandidate(c)) return null;
@@ -245,6 +252,17 @@ function criminalSortRank(criminal?: string): number {
   const t = String(criminal ?? '').trim();
   if (!t || t === '없음' || /^0\s*건$/.test(t)) return 0;
   return 1;
+}
+
+/** 전과 문자열에서 N건 합산; 숫자 없으면 1 */
+function parseCriminalCaseCount(criminal?: string): number {
+  const s = String(criminal ?? '').trim();
+  if (!s || s === '없음' || /^0\s*건$/.test(s)) return 0;
+  const re = /(\d+)\s*건/g;
+  let sum = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(s)) !== null) sum += parseInt(m[1], 10);
+  return sum > 0 ? sum : 1;
 }
 
 function elideText(str: string | undefined, max: number) {
@@ -540,6 +558,82 @@ export default function CandidatesPage() {
     [sortedFiltered, visibleCount]
   );
 
+  const filterStats = useMemo(() => {
+    const n = filtered.length;
+    if (n === 0) {
+      return {
+        avgAge: null as number | null,
+        criminalPct: null as number | null,
+        femalePct: null as number | null,
+        n: 0,
+        oldest: null as Candidate | null,
+        youngest: null as Candidate | null,
+        oldestAge: null as number | null,
+        youngestAge: null as number | null,
+        withCriminalCount: 0,
+        topCriminal: null as Candidate | null,
+        topCriminalCases: 0,
+        femaleCount: 0,
+        wealthCurrentCouncilorCount: 0,
+      };
+    }
+    let ageSum = 0;
+    let ageN = 0;
+    let maxY = -Infinity;
+    let minY = Infinity;
+    let oldest: Candidate | null = null;
+    let youngest: Candidate | null = null;
+    for (const c of filtered) {
+      const y = sortableAgeYears(c.age);
+      if (y != null) {
+        ageSum += y;
+        ageN += 1;
+        if (y > maxY) {
+          maxY = y;
+          oldest = c;
+        }
+        if (y < minY) {
+          minY = y;
+          youngest = c;
+        }
+      }
+    }
+    const avgAge = ageN > 0 ? ageSum / ageN : null;
+    const withCriminalCount = filtered.filter((c) => criminalSortRank(c.criminal) === 1).length;
+    const criminalPct = (withCriminalCount / n) * 100;
+    const femaleCount = filtered.filter((c) => String(c.gender ?? '').trim() === '여').length;
+    const femalePct = (femaleCount / n) * 100;
+    let topCriminal: Candidate | null = null;
+    let topCriminalCases = -1;
+    for (const c of filtered) {
+      if (criminalSortRank(c.criminal) !== 1) continue;
+      const cnt = parseCriminalCaseCount(c.criminal);
+      if (cnt > topCriminalCases) {
+        topCriminalCases = cnt;
+        topCriminal = c;
+      }
+    }
+    const wealthCurrentCouncilorCount = filtered.filter(
+      (c) => wealthRawPositionForCandidate(c) === '구의원'
+    ).length;
+    const hasAgeRange = ageN > 0 && oldest != null && youngest != null;
+    return {
+      avgAge,
+      criminalPct,
+      femalePct,
+      n,
+      oldest: hasAgeRange ? oldest : null,
+      youngest: hasAgeRange ? youngest : null,
+      oldestAge: hasAgeRange ? maxY : null,
+      youngestAge: hasAgeRange ? minY : null,
+      withCriminalCount,
+      topCriminal: withCriminalCount > 0 ? topCriminal : null,
+      topCriminalCases: withCriminalCount > 0 && topCriminal ? topCriminalCases : 0,
+      femaleCount,
+      wealthCurrentCouncilorCount,
+    };
+  }, [filtered]);
+
   const setSort = (key: SortKey) => {
     if (sortKey === key) setSortAsc((v) => !v);
     else {
@@ -639,6 +733,99 @@ export default function CandidatesPage() {
             : `전체 ${filtered.length}명`}
         </p>
       </div>
+
+      <section
+        className="mb-8 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
+        aria-label="필터 결과 요약 통계"
+      >
+        {filterStats.n === 0 ? (
+          <p className="text-sm text-gray-500">필터와 일치하는 후보가 없어 통계를 표시할 수 없습니다.</p>
+        ) : (
+          <>
+            <h2 className="mb-3 text-base font-bold tracking-tight text-gray-900">👀구정감시 브리핑</h2>
+            <ol className="m-0 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-gray-700">
+              <li>
+                평균 나이는{' '}
+                <span className="font-semibold text-gray-900">
+                  {filterStats.avgAge != null ? `${filterStats.avgAge.toFixed(1)}세` : '산출 불가'}
+                </span>{' '}
+                입니다.
+                {filterStats.oldest &&
+                filterStats.youngest &&
+                filterStats.oldestAge != null &&
+                filterStats.youngestAge != null ? (
+                  <>
+                    {' '}
+                    최고령자는{' '}
+                    <span
+                      className={`mr-1 inline-flex max-w-[9rem] shrink-0 items-center truncate rounded px-1 py-px text-[10px] font-bold leading-none ${partyUi(filterStats.oldest.party).badgeSolid}`}
+                    >
+                      {String(filterStats.oldest.party ?? '').trim() || '정당 미상'}
+                    </span>
+                    <strong className="font-bold text-gray-900">
+                      {primaryNameLine(filterStats.oldest.name)}
+                    </strong>{' '}
+                    후보({filterStats.oldestAge}세), 최연소자는{' '}
+                    <span
+                      className={`mr-1 inline-flex max-w-[9rem] shrink-0 items-center truncate rounded px-1 py-px text-[10px] font-bold leading-none ${partyUi(filterStats.youngest.party).badgeSolid}`}
+                    >
+                      {String(filterStats.youngest.party ?? '').trim() || '정당 미상'}
+                    </span>
+                    <strong className="font-bold text-gray-900">
+                      {primaryNameLine(filterStats.youngest.name)}
+                    </strong>{' '}
+                    후보({filterStats.youngestAge}세)입니다.
+                  </>
+                ) : null}
+              </li>
+              <li>
+                전과가 있는 후보는 전체 후보의{' '}
+                <span className="font-semibold text-gray-900">
+                  {filterStats.criminalPct!.toFixed(1)}%
+                </span>
+                입니다
+                {filterStats.withCriminalCount > 0 && filterStats.topCriminal ? (
+                  <>
+                    이며, 가장 건수가 많은 후보는{' '}
+                    <span className="font-semibold text-gray-900">
+                      {filterStats.topCriminalCases}
+                    </span>
+                    건으로{' '}
+                    <span
+                      className={`mr-1 inline-flex max-w-[9rem] shrink-0 items-center truncate rounded px-1 py-px text-[10px] font-bold leading-none ${partyUi(filterStats.topCriminal.party).badgeSolid}`}
+                    >
+                      {String(filterStats.topCriminal.party ?? '').trim() || '정당 미상'}
+                    </span>
+                    <strong className="font-bold text-gray-900">
+                      {primaryNameLine(filterStats.topCriminal.name)}
+                    </strong>{' '}
+                    후보입니다
+                  </>
+                ) : null}
+                .
+              </li>
+              <li>
+                여성 후보는{' '}
+                <span className="font-semibold text-gray-900">{filterStats.femaleCount}</span>명으로 전체
+                후보의{' '}
+                <span className="font-semibold text-gray-900">{filterStats.femalePct!.toFixed(1)}%</span>
+                입니다.
+              </li>
+              <li>
+                예비후보자 중 현역 의원은{' '}
+                <span className="font-semibold text-gray-900">
+                  {filterStats.wealthCurrentCouncilorCount}
+                </span>
+                명으로, 재산내역을 열람할 수 있습니다.
+              </li>
+            </ol>
+            <p className="mt-3 border-t border-gray-100 pt-3 text-xs text-gray-400">
+              ※ 위 통계는 현재 필터·검색에 해당하는{' '}
+              <span className="font-medium text-gray-600">{filterStats.n}명</span>을 기준으로 합니다.
+            </p>
+          </>
+        )}
+      </section>
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-200/60">
         <table className="min-w-[920px] w-full border-collapse text-left text-sm text-slate-800">

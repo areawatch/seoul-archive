@@ -106,6 +106,13 @@
       </div>
 
       <div
+        id="candidatesStatsPanel"
+        class="mb-8 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm"
+        role="region"
+        aria-label="필터 결과 요약 통계"
+      ></div>
+
+      <div
         id="errorBox"
         class="mb-6 hidden rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
         role="alert"
@@ -407,6 +414,133 @@
         return 1;
       }
 
+      /** 전과 문자열에서 N건 합산; 숫자 없으면 1 */
+      function parseCriminalCaseCount(criminal) {
+        var s = String(criminal ?? "").trim();
+        if (!s || s === "없음" || /^0\s*건$/.test(s)) return 0;
+        var re = /(\d+)\s*건/g;
+        var sum = 0;
+        var m;
+        while ((m = re.exec(s)) !== null) sum += parseInt(m[1], 10);
+        return sum > 0 ? sum : 1;
+      }
+
+      /** 브리핑 1항: 정당색 뱃지 + 볼드 이름 */
+      function statsBriefPartyBoldName(c) {
+        var p = String(c.party || "정당 미상").trim() || "정당 미상";
+        var t = partyTheme(c.party);
+        return (
+          '<span class="mr-1 inline-flex max-w-[9rem] shrink-0 items-center truncate rounded px-1 py-px text-[10px] font-bold leading-none ' +
+          t.badgeSolid +
+          '">' +
+          escapeHtml(p) +
+          '</span><strong class="font-bold text-slate-900">' +
+          escapeHtml(primaryName(c.name)) +
+          "</strong>"
+        );
+      }
+
+      function updateCandidatesStatsPanel(filtered) {
+        var el = document.getElementById("candidatesStatsPanel");
+        if (!el) return;
+        var n = filtered.length;
+        if (n === 0) {
+          el.innerHTML =
+            '<p class="text-sm text-slate-500">필터와 일치하는 후보가 없어 통계를 표시할 수 없습니다.</p>';
+          return;
+        }
+        var ageSum = 0;
+        var ageN = 0;
+        filtered.forEach(function (c) {
+          var y = sortableAgeYears(c.age);
+          if (y != null) {
+            ageSum += y;
+            ageN++;
+          }
+        });
+        var avgAgeStr = ageN > 0 ? (ageSum / ageN).toFixed(1) + "세" : "산출 불가";
+        var maxY = -Infinity;
+        var minY = Infinity;
+        var oldestC = null;
+        var youngestC = null;
+        filtered.forEach(function (c) {
+          var y = sortableAgeYears(c.age);
+          if (y == null) return;
+          if (y > maxY) {
+            maxY = y;
+            oldestC = c;
+          }
+          if (y < minY) {
+            minY = y;
+            youngestC = c;
+          }
+        });
+        var ageExt =
+          ageN > 0 && oldestC && youngestC
+            ? " 최고령자는 " +
+              statsBriefPartyBoldName(oldestC) +
+              " 후보(" +
+              maxY +
+              "세), 최연소자는 " +
+              statsBriefPartyBoldName(youngestC) +
+              " 후보(" +
+              minY +
+              "세)입니다."
+            : "";
+        var withCr = filtered.filter(function (c) {
+          return criminalSortRank(c) === 1;
+        }).length;
+        var crPct = ((withCr / n) * 100).toFixed(1);
+        var topCrC = null;
+        var topCrN = -1;
+        filtered.forEach(function (c) {
+          if (criminalSortRank(c) !== 1) return;
+          var cnt = parseCriminalCaseCount(c.criminal);
+          if (cnt > topCrN) {
+            topCrN = cnt;
+            topCrC = c;
+          }
+        });
+        var female = filtered.filter(function (c) {
+          return String(c.gender || "").trim() === "여";
+        }).length;
+        var fPct = ((female / n) * 100).toFixed(1);
+        var wealthCur = filtered.filter(function (c) {
+          return wealthRawPositionForCandidate(c) === "구의원";
+        }).length;
+        el.innerHTML =
+          '<h2 class="mb-3 text-base font-bold tracking-tight text-slate-900">👀구정감시 브리핑</h2>' +
+          '<ol class="m-0 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-slate-700">' +
+          '<li>평균 나이는 <span class="font-semibold text-slate-900">' +
+          escapeHtml(avgAgeStr) +
+          "</span> 입니다." +
+          ageExt +
+          "</li>" +
+          '<li>전과가 있는 후보는 전체 후보의 <span class="font-semibold text-slate-900">' +
+          escapeHtml(crPct) +
+          "%</span>입니다" +
+          (withCr > 0 && topCrC
+            ? " 이며, 가장 건수가 많은 후보는 " +
+              escapeHtml(String(topCrN)) +
+              "건으로 " +
+              statsBriefPartyBoldName(topCrC) +
+              " 후보입니다"
+            : "") +
+          ".</li>" +
+          '<li>여성 후보는 <span class="font-semibold text-slate-900">' +
+          escapeHtml(String(female)) +
+          '</span>명으로 전체 후보의 <span class="font-semibold text-slate-900">' +
+          escapeHtml(fPct) +
+          "%</span>입니다.</li>" +
+          '<li>예비후보자 중 현역 의원은 <span class="font-semibold text-slate-900">' +
+          escapeHtml(String(wealthCur)) +
+          "</span>명으로, 재산내역을 열람할 수 있습니다.</li>" +
+          "</ol>" +
+          '<p class="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-400">※ 위 통계는 현재 필터·검색에 해당하는 <span class="font-medium text-slate-600">' +
+          n +
+          "</span>명을 기준으로 합니다.</p>";
+      }
+
       function elide(str, max) {
         const t = String(str || "")
           .replace(/\s+/g, " ")
@@ -474,6 +608,13 @@
         const n = normalizeWealthName(c.name);
         if (!d || !n) return "";
         return wealthDisplayLabel(wealthPositionByKey[d + "|" + n]);
+      }
+
+      function wealthRawPositionForCandidate(c) {
+        const d = String(c.district || "").trim();
+        const n = normalizeWealthName(c.name);
+        if (!d || !n) return "";
+        return String(wealthPositionByKey[d + "|" + n] || "").trim();
       }
 
       function wealthMatchKeyForCandidate(c) {
@@ -734,6 +875,8 @@
         countLabel.textContent = usingFilter
           ? `표시 ${filtered.length}명 / 전체 ${allCandidates.length}명`
           : `전체 ${filtered.length}명`;
+
+        updateCandidatesStatsPanel(filtered);
 
         [["name", "sortNameIcon"], ["age", "sortAgeIcon"], ["criminal", "sortCriminalIcon"]].forEach(function (pair) {
           const el = document.getElementById(pair[1]);
