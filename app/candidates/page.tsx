@@ -548,23 +548,7 @@ export default function CandidatesPage() {
       if (party && String(c.party ?? '').trim() !== party) return false;
       if (officeRole && candidateOffice(c) !== officeRole) return false;
       if (!q) return true;
-      const hay = normalizeSearch(
-        [
-          c.name,
-          c.party,
-          c.constituency,
-          candidateOffice(c),
-          c.address,
-          c.job,
-          c.gender,
-          c.age,
-          c.education,
-          c.career,
-          c.criminal,
-          c.regDate,
-        ].join(' ')
-      );
-      return hay.includes(q);
+      return normalizeSearch(String(c.name ?? '')).includes(q);
     });
   }, [district, party, officeRole, nameQ]);
 

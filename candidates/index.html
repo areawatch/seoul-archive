@@ -953,23 +953,7 @@
           if (party && String(c.party ?? "").trim() !== party) return false;
           if (office && candidateOffice(c) !== office) return false;
           if (!q) return true;
-          const hay = normalizeSearch(
-            [
-              c.name,
-              c.party,
-              c.constituency,
-              candidateOffice(c),
-              c.address,
-              c.job,
-              c.gender,
-              c.age,
-              c.education,
-              c.career,
-              c.criminal,
-              c.regDate,
-            ].join(" ")
-          );
-          return hay.includes(q);
+          return normalizeSearch(c.name).includes(q);
         });
 
         const usingFilter = Boolean(district || party || q || office);
