@@ -12,22 +12,22 @@ function formatItemType(type) {
     const longNamePoliticalFunds = "정치자금법에 따른 정치자금의 수입 및 지출을 위한 예금계좌의 예금";
 
     if (type.includes("정치자금법")) {
-        return `<span class="text-nowrap">정치자금</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNamePoliticalFunds}"></i>`;
+        return `<span class="text-nowrap">정치자금</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.65rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNamePoliticalFunds}"></i>`;
     }
     if (/자동차|항공기|선박|건설기계/.test(type)) {
-        return `<span class="text-nowrap">자동차 등</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameAutomobile}"></i>`;
+        return `<span class="text-nowrap">자동차 등</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.65rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameAutomobile}"></i>`;
     }
     if (type.includes("고지거부") || type.includes("등록제외")) {
-        return `<span class="text-nowrap">고지거부</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameRefusal}"></i>`;
+        return `<span class="text-nowrap">고지거부</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.65rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameRefusal}"></i>`;
     }
     if (type.includes("출자지분") || type.includes("유한회사") || type.includes("합명")) {
-        return `<span class="text-nowrap">출자지분</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameInvestment}"></i>`;
+        return `<span class="text-nowrap">출자지분</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.65rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameInvestment}"></i>`;
     }
     if (type.includes("비영리법인") || type === "재산") {
-        return `<span class="text-nowrap">비영리</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameNonProfit}"></i>`;
+        return `<span class="text-nowrap">비영리</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.65rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameNonProfit}"></i>`;
     }
     if (!/예금|적금|현금/.test(type) && (type.includes("금") || type.includes("백금"))) {
-        return `<span class="text-nowrap">금</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.8rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameGold}"></i>`;
+        return `<span class="text-nowrap">금</span><i class="bi bi-info-circle text-secondary ms-1" style="cursor: help; font-size: 0.65rem; opacity: 0.7;" data-bs-toggle="tooltip" data-bs-placement="top" title="${longNameGold}"></i>`;
     }
 
     return type; 
@@ -446,11 +446,11 @@ function showDetail(name, district) {
             .replace(/"/g, "&quot;");
     const partyColor = (typeof partyColors !== 'undefined' && partyColors[partyText]) ? partyColors[partyText] : "#666";
     const partyBadge = partyText
-        ? `<span class="badge ms-2 align-middle" style="background-color:${partyColor}; font-size: 0.75rem;">${escTitle(partyText)}</span>`
+        ? `<span class="badge ms-2 align-middle" style="background-color:${partyColor}; font-size: 0.62rem;">${escTitle(partyText)}</span>`
         : "";
     document.getElementById("detailModalLabel").innerHTML =
-        `<span class="fw-bold" style="font-size:1.1rem; letter-spacing:-0.02em;">${escTitle(name)}</span>` +
-        ` <span class="text-muted fw-light" style="font-size:0.82rem;">${escTitle(locLabel)}</span>` +
+        `<span class="fw-bold" style="font-size:0.95rem; letter-spacing:-0.02em;">${escTitle(name)}</span>` +
+        ` <span class="text-muted fw-light" style="font-size:0.7rem;">${escTitle(locLabel)}</span>` +
         partyBadge;
 
     const escapeAttr = (s) => String(s)
@@ -465,10 +465,10 @@ function showDetail(name, district) {
         const a = note1 ? escapeAttr(note1) : "";
         const b = note2 ? escapeAttr(note2) : "";
         const icon1 = a
-            ? `<i class="bi bi-chat-left-dots me-1" style="cursor: help; font-size: 0.7rem; color: #555555; opacity: 0.85;" data-bs-toggle="tooltip" data-bs-placement="top" title="${a}"></i>`
+            ? `<i class="bi bi-chat-left-dots me-1" style="cursor: help; font-size: 0.58rem; color: #555555; opacity: 0.85;" data-bs-toggle="tooltip" data-bs-placement="top" title="${a}"></i>`
             : "";
         const icon2 = b
-            ? `<i class="bi bi-exclamation-circle-fill me-1" style="cursor: help; font-size: 0.75rem; color: #dc3545; opacity: 0.95;" data-bs-toggle="tooltip" data-bs-placement="top" title="❗ ${b}"></i>`
+            ? `<i class="bi bi-exclamation-circle-fill me-1" style="cursor: help; font-size: 0.62rem; color: #dc3545; opacity: 0.95;" data-bs-toggle="tooltip" data-bs-placement="top" title="❗ ${b}"></i>`
             : "";
         return icon2 + icon1;
     };

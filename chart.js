@@ -96,14 +96,14 @@ function updateDetailChart(allPersonData) {
                 data: dataValues,
                 borderColor: '#e61e2b', // 최신 연도 강조를 위해 붉은 계열 포인트
                 backgroundColor: 'rgba(230, 30, 43, 0.1)',
-                borderWidth: 3,
+                borderWidth: 2,
                 fill: true,
                 tension: 0.3, // 곡선 처리
-                pointRadius: 6,
-                pointHoverRadius: 8,
+                pointRadius: 4,
+                pointHoverRadius: 6,
                 pointBackgroundColor: '#e61e2b',
                 pointBorderColor: '#fff',
-                pointBorderWidth: 2
+                pointBorderWidth: 1.5
             }]
         },
         options: {
@@ -119,12 +119,12 @@ function updateDetailChart(allPersonData) {
                             if (v === 0) return '0';
                             return (v / 100000).toFixed(1) + '억';
                         },
-                        font: { size: 10 }
+                        font: { size: 8 }
                     },
                     grid: { color: 'rgba(0,0,0,0.05)' }
                 },
                 x: {
-                    ticks: { font: { size: 11, fontWeight: 'bold' } },
+                    ticks: { font: { size: 9, weight: '500' } },
                     grid: { display: false }
                 }
             },

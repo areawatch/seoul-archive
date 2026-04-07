@@ -1,0 +1,61 @@
+/**
+ * 재산 상세 모달 (#detailModal, #archiveWealthModal) — 컴팩트 타이포
+ * archive.html · archive-district.html · candidates/index.html 공통
+ */
+#detailModal .modal-body,
+#archiveWealthModal .modal-body {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+#detailModal .modal-body > .mb-4,
+#archiveWealthModal .modal-body > .mb-4 {
+  margin-bottom: 0.75rem !important;
+}
+
+#detailModal .text-muted.small.mb-2,
+#archiveWealthModal .text-muted.small.mb-2 {
+  font-size: 0.6875rem !important;
+  line-height: 1.35;
+  margin-bottom: 0.35rem !important;
+  color: #868e96 !important;
+}
+
+#detailModal .custom-detail-table,
+#archiveWealthModal .custom-detail-table {
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+#detailModal .custom-detail-table thead th,
+#archiveWealthModal .custom-detail-table thead th {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.3rem 0.35rem;
+  vertical-align: middle;
+}
+
+#detailModal .custom-detail-table tbody td,
+#detailModal .custom-detail-table tfoot td,
+#archiveWealthModal .custom-detail-table tbody td,
+#archiveWealthModal .custom-detail-table tfoot td {
+  padding: 0.3rem 0.35rem;
+  vertical-align: middle;
+}
+
+#detailModal .custom-detail-table .small,
+#archiveWealthModal .custom-detail-table .small {
+  font-size: 0.68rem !important;
+}
+
+#detailModal .modal-footer .btn,
+#archiveWealthModal .modal-footer .btn {
+  font-size: 0.8125rem;
+  padding: 0.3rem 0.7rem;
+}
+
+#detailModal .modal-title,
+#archiveWealthModal .modal-title {
+  font-size: 1rem;
+  line-height: 1.25;
+}

@@ -35,6 +35,13 @@ const SEOUL_DISTRICTS = [
   '강동구',
 ] as const;
 
+/** 구·정당 셀렉트: 네이티브 화살표 대신 살짝 안쪽에 배치 */
+const FILTER_SELECT_BG_IMAGE =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")";
+
+const filterSelectClass =
+  'w-full cursor-pointer appearance-none rounded-lg border border-gray-200 bg-gray-50 bg-[length:14px_14px] bg-[position:right_0.65rem_center] bg-no-repeat px-3 py-2 pr-9 text-xs font-medium text-gray-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-200';
+
 type Candidate = {
   name?: string;
   district?: string;
@@ -275,10 +282,10 @@ function WealthOpenIcon({ className }: { className: string }) {
 }
 
 const WEALTH_CHIP_INLINE =
-  'ml-1.5 inline-flex max-w-full items-center gap-0.5 rounded-full border border-slate-200/90 bg-gradient-to-br from-slate-50 via-white to-slate-100/80 px-2 py-0.5 text-[10px] font-semibold leading-none tracking-tight text-slate-600 shadow-[0_1px_2px_rgba(15,23,42,0.05)] ring-1 ring-slate-200/50 transition hover:border-slate-300 hover:from-slate-100 hover:to-slate-50 hover:text-slate-800 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/45';
+  'ml-1.5 inline-flex max-w-full items-center gap-0.5 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold leading-none tracking-tight text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800 focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-400';
 
 const WEALTH_CHIP_BLOCK =
-  'inline-flex w-full max-w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200/90 bg-gradient-to-br from-slate-50 via-white to-slate-100/80 px-3 py-2.5 text-sm font-semibold tracking-tight text-slate-700 shadow-sm transition hover:border-slate-300 hover:from-slate-100 hover:to-slate-50 hover:text-slate-900 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40 sm:w-auto sm:justify-start';
+  'inline-flex w-full max-w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold tracking-tight text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-400 sm:w-auto sm:justify-start';
 
 function primaryNameLine(name?: string) {
   return String(name ?? '')
@@ -352,7 +359,9 @@ function CandidateDetailModal({ c, onClose }: { c: Candidate | null; onClose: ()
               className="h-[102px] w-[86px] shrink-0 rounded-xl object-cover object-top ring-1 ring-slate-200"
             />
             <div className="min-w-0">
-              <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-bold ${ui.badgeSolid}`}>
+              <span
+                className={`inline-block rounded px-1 py-[3px] text-[11px] font-bold leading-none ${ui.badgeSolid}`}
+              >
                 {c.party ?? '정당 미상'}
               </span>
               <p className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-lg font-bold leading-tight text-slate-900">
@@ -541,8 +550,8 @@ export default function CandidatesPage() {
         )}
       </header>
 
-      <div className="mb-8 grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-12 lg:items-end">
-        <div className="flex flex-col gap-2 lg:col-span-3">
+      <div className="mb-8 grid grid-cols-1 gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-12 lg:items-end">
+        <div className="flex flex-col gap-1.5 lg:col-span-3">
           <label htmlFor="district" className="text-sm font-semibold text-gray-700">
             구 선택 <span className="font-normal text-gray-500">(25개구)</span>
           </label>
@@ -550,7 +559,8 @@ export default function CandidatesPage() {
             id="district"
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-900 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-200"
+            className={filterSelectClass}
+            style={{ backgroundImage: FILTER_SELECT_BG_IMAGE }}
           >
             <option value="">전체</option>
             {SEOUL_DISTRICTS.map((d) => (
@@ -560,7 +570,7 @@ export default function CandidatesPage() {
             ))}
           </select>
         </div>
-        <div className="flex flex-col gap-2 lg:col-span-3">
+        <div className="flex flex-col gap-1.5 lg:col-span-3">
           <label htmlFor="party" className="text-sm font-semibold text-gray-700">
             정당
           </label>
@@ -568,7 +578,8 @@ export default function CandidatesPage() {
             id="party"
             value={party}
             onChange={(e) => setParty(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-900 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-200"
+            className={filterSelectClass}
+            style={{ backgroundImage: FILTER_SELECT_BG_IMAGE }}
           >
             <option value="">전체</option>
             {parties.map((p) => (
@@ -578,7 +589,7 @@ export default function CandidatesPage() {
             ))}
           </select>
         </div>
-        <div className="flex flex-col gap-2 sm:col-span-2 lg:col-span-4">
+        <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-4">
           <label htmlFor="nameQ" className="text-sm font-semibold text-gray-700">
             이름 검색
           </label>
@@ -589,10 +600,10 @@ export default function CandidatesPage() {
             onChange={(e) => setNameQ(e.target.value)}
             placeholder="이름 또는 한자 일부 입력"
             autoComplete="off"
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-200"
+            className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-900 outline-none placeholder:text-gray-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-200"
           />
         </div>
-        <p className="flex items-end justify-center text-sm text-gray-500 lg:col-span-2 lg:justify-end lg:pb-3">
+        <p className="flex items-end justify-center text-xs text-gray-500 lg:col-span-2 lg:justify-end lg:pb-2">
           {usingFilter
             ? `표시 ${filtered.length}명 / 전체 ${rows.length}명`
             : `전체 ${filtered.length}명`}
@@ -680,7 +691,13 @@ export default function CandidatesPage() {
               return (
                 <tr
                   key={`${person.huboId ?? nameMain}-${index}`}
-                  className="border-b border-slate-100 transition hover:bg-slate-50/80"
+                  className="cursor-pointer border-b border-slate-100 transition hover:bg-slate-50/80"
+                  onClick={(e) => {
+                    const node = e.target as Node;
+                    const el = node instanceof Element ? node : node.parentElement;
+                    if (el?.closest('a')) return;
+                    setDetail(person);
+                  }}
                 >
                   <td className="py-3 pl-4 pr-2 align-top">
                     <div className="flex gap-3">
@@ -722,7 +739,7 @@ export default function CandidatesPage() {
                   </td>
                   <td className="px-3 py-3 align-middle">
                     <span
-                      className={`inline-flex max-w-[11rem] items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${ui.badgeSolid}`}
+                      className={`inline-flex max-w-[11rem] items-center rounded px-1 py-[3px] text-[11px] font-bold leading-none ${ui.badgeSolid}`}
                     >
                       {person.party ?? '정당 미상'}
                     </span>
@@ -742,13 +759,6 @@ export default function CandidatesPage() {
                   </td>
                   <td className="whitespace-nowrap py-3 pl-2 pr-4 align-middle">
                     <div className="flex flex-wrap items-center justify-end gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => setDetail(person)}
-                        className="rounded-md bg-white px-2 py-1 text-[11px] font-medium text-slate-800 ring-1 ring-slate-200 hover:bg-slate-50"
-                      >
-                        상세
-                      </button>
                       {necUrl ? (
                         <a
                           href={necUrl}
