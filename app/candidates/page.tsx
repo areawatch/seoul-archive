@@ -901,7 +901,7 @@ export default function CandidatesPage() {
                 입니다.
               </li>
               <li>
-                예비후보자 중 현역 의원은{' '}
+                예비후보자 중 현직은{' '}
                 <span className="font-semibold text-gray-900">
                   {filterStats.wealthCurrentCouncilorCount}
                 </span>
