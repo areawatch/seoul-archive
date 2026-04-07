@@ -35,10 +35,13 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     />
+    <link rel="stylesheet" href="../style.css" />
     <link rel="stylesheet" href="../wealth-detail-modal.css" />
   </head>
   <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
-    <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+    <div id="header-plugin"></div>
+
+    <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
       <header class="mb-10 text-center sm:text-left">
         <p class="text-sm font-medium uppercase tracking-wider text-slate-500">
           Seoul Archive
@@ -46,13 +49,6 @@
         <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
           후보자 목록
         </h1>
-        <p class="mt-2 max-w-2xl text-slate-600">
-          구·정당·이름으로 실시간 필터링합니다. 데이터는
-          <code class="rounded bg-slate-200/80 px-1.5 py-0.5 text-sm"
-            >public/data/candidates.json</code
-          >
-          에서 불러옵니다.
-        </p>
         <p
           id="dataUpdatedLine"
           class="mt-2 hidden text-sm text-slate-500"
@@ -173,8 +169,11 @@
           </thead>
           <tbody id="cardList" class="divide-y divide-slate-100"></tbody>
         </table>
+        <div id="candidatesLoadMoreWrap" class="border-t border-slate-100"></div>
       </div>
     </div>
+
+    <div id="footer-plugin"></div>
 
     <div
       id="detailModal"
@@ -249,6 +248,22 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      (function () {
+        async function inject(id, url) {
+          try {
+            const r = await fetch(url);
+            if (!r.ok) return;
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = await r.text();
+          } catch (e) {
+            console.warn("[candidates] 헤더·푸터 로드:", e);
+          }
+        }
+        inject("header-plugin", "header.html");
+        inject("footer-plugin", "footer.html");
+      })();
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../config.js"></script>
     <script src="../archive-wealth-modal.js"></script>
@@ -418,6 +433,8 @@
       let lastFilteredCandidates = [];
       let sortKey = "name";
       let sortAsc = true;
+      var LIST_PAGE_SIZE = 20;
+      var visibleRowCount = LIST_PAGE_SIZE;
       let wealthPositionByKey = {};
 
       function normalizeWealthName(raw) {
@@ -682,12 +699,14 @@
         if (prev && [...sel.options].some((o) => o.value === prev)) sel.value = prev;
       }
 
-      function render() {
+      function render(resetPaging) {
+        if (resetPaging !== false) visibleRowCount = LIST_PAGE_SIZE;
         const district = document.getElementById("district").value;
         const party = document.getElementById("party").value;
         const q = normalizeSearch(document.getElementById("nameQuery").value);
         const list = document.getElementById("cardList");
         const countLabel = document.getElementById("countLabel");
+        const loadMoreWrap = document.getElementById("candidatesLoadMoreWrap");
 
         const filtered = allCandidates.filter((c) => {
           if (district && c.district !== district) return false;
@@ -710,8 +729,6 @@
           );
           return hay.includes(q);
         });
-
-        lastFilteredCandidates = filtered;
 
         const usingFilter = Boolean(district || party || q);
         countLabel.textContent = usingFilter
@@ -760,9 +777,22 @@
         });
         lastFilteredCandidates = sorted;
 
+        const slice = sorted.slice(0, visibleRowCount);
+        const remaining = sorted.length - slice.length;
+        if (loadMoreWrap) {
+          loadMoreWrap.innerHTML =
+            remaining > 0
+              ? `<div class="flex justify-center bg-slate-50/90 px-4 py-4">
+  <button type="button" id="candidatesLoadMore" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-sm ring-1 ring-slate-200/80 transition hover:bg-slate-50">
+    더보기 <span class="font-normal text-slate-500">(${remaining}명 더)</span>
+  </button>
+</div>`
+              : "";
+        }
+
         const extIcon = `<svg class="h-3 w-3 shrink-0 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>`;
 
-        list.innerHTML = sorted
+        list.innerHTML = slice
           .map(function (c, i) {
             const t = partyTheme(c.party);
             const pname = primaryName(c.name);
@@ -839,16 +869,28 @@
         if (e.key === "Escape") closeCandidateModal();
       });
 
-      document.getElementById("district").addEventListener("change", render);
-      document.getElementById("party").addEventListener("change", render);
-      document.getElementById("nameQuery").addEventListener("input", render);
+      document.getElementById("district").addEventListener("change", function () {
+        render(true);
+      });
+      document.getElementById("party").addEventListener("change", function () {
+        render(true);
+      });
+      document.getElementById("nameQuery").addEventListener("input", function () {
+        render(true);
+      });
+      document.getElementById("candidatesLoadMoreWrap").addEventListener("click", function (e) {
+        var btn = e.target && e.target.closest && e.target.closest("#candidatesLoadMore");
+        if (!btn) return;
+        visibleRowCount += LIST_PAGE_SIZE;
+        render(false);
+      });
       function setSort(key) {
         if (sortKey === key) sortAsc = !sortAsc;
         else {
           sortKey = key;
           sortAsc = true;
         }
-        render();
+        render(true);
       }
       document.getElementById("sortNameBtn").addEventListener("click", function () {
         setSort("name");

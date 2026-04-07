@@ -72,6 +72,8 @@ type WealthRow = {
 
 type SortKey = 'name' | 'age' | 'criminal';
 
+const LIST_PAGE_SIZE = 20;
+
 function loadCandidatesFile(raw: unknown): {
   rows: Candidate[];
   updatedAt: string | null;
@@ -460,6 +462,7 @@ export default function CandidatesPage() {
   const [sortKey, setSortKey] = useState<SortKey>('name');
   const [sortAsc, setSortAsc] = useState(true);
   const [detail, setDetail] = useState<Candidate | null>(null);
+  const [visibleCount, setVisibleCount] = useState(LIST_PAGE_SIZE);
 
   const parties = useMemo(() => {
     const s = new Set<string>();
@@ -528,6 +531,15 @@ export default function CandidatesPage() {
     return copy;
   }, [filtered, sortKey, sortAsc]);
 
+  useEffect(() => {
+    setVisibleCount(LIST_PAGE_SIZE);
+  }, [district, party, nameQ, sortKey, sortAsc]);
+
+  const visibleRows = useMemo(
+    () => sortedFiltered.slice(0, visibleCount),
+    [sortedFiltered, visibleCount]
+  );
+
   const setSort = (key: SortKey) => {
     if (sortKey === key) setSortAsc((v) => !v);
     else {
@@ -539,7 +551,25 @@ export default function CandidatesPage() {
   const usingFilter = Boolean(district || party || normalizeSearch(nameQ));
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen">
+    <div className="flex min-h-screen flex-col bg-gray-50 text-slate-900">
+      <nav className="mb-4 bg-gray-900 text-white shadow-sm">
+        <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
+          <a
+            href="/index.html"
+            className="text-lg font-bold tracking-tight text-white no-underline hover:text-white/90"
+          >
+            👀 서울아카이브
+          </a>
+          <ul
+            id="candidates-header-nav-slot"
+            className="mb-0 min-h-[1.25rem] list-none"
+            data-candidates-nav-placeholder
+            aria-label="추가 메뉴(예정)"
+          />
+        </div>
+      </nav>
+
+      <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 lg:px-8">
       <header className="mb-10 text-center sm:text-left">
         <h1 className="text-4xl font-black text-gray-900 mb-2">2026 지방선거 예비후보자</h1>
         <p className="text-gray-600">서울시 구의원 예비후보 데이터입니다. 구·정당·이름으로 필터할 수 있습니다.</p>
@@ -677,7 +707,7 @@ export default function CandidatesPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {sortedFiltered.map((person, index) => {
+            {visibleRows.map((person, index) => {
               const nameMain = primaryNameLine(person.name);
               const ui = partyUi(person.party);
               const necUrl =
@@ -783,9 +813,71 @@ export default function CandidatesPage() {
             })}
           </tbody>
         </table>
+        {visibleCount < sortedFiltered.length ? (
+          <div className="flex justify-center border-t border-slate-100 bg-slate-50/90 px-4 py-4">
+            <button
+              type="button"
+              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-sm ring-1 ring-slate-200/80 transition hover:bg-slate-50"
+              onClick={() => setVisibleCount((n) => n + LIST_PAGE_SIZE)}
+            >
+              더보기{' '}
+              <span className="font-normal text-slate-500">
+                ({sortedFiltered.length - visibleCount}명 더)
+              </span>
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <CandidateDetailModal c={detail} onClose={() => setDetail(null)} />
+      </div>
+
+      <footer className="mt-auto border-t border-black/10 bg-[#f4f6f9] pt-8 pb-6 text-center text-gray-600">
+        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-center gap-x-3 gap-y-2 px-3 text-sm text-gray-600">
+          <span className="inline-flex items-center gap-1">
+            <span className="text-xs">제작 :</span>
+            <a
+              href="https://areawatch.tistory.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center no-underline"
+            >
+              <img
+                src="/logo.svg"
+                alt="구정감시서울네트워크(준)"
+                width={80}
+                height={24}
+                className="h-6 w-auto"
+                decoding="async"
+              />
+            </a>
+          </span>
+          <span className="text-gray-400" aria-hidden>
+            |
+          </span>
+          <span className="inline-flex flex-wrap items-center justify-center gap-x-1 text-xs sm:text-sm">
+            <span>데이터 출처 :</span>
+            <a
+              href="https://www.nec.go.kr/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 underline-offset-2 hover:underline"
+            >
+              중앙선거관리위원회
+            </a>
+          </span>
+        </div>
+        <p className="mt-4 mb-0 text-sm text-gray-600">
+          <a
+            href="/analysis-internal.html"
+            className="text-gray-500 no-underline hover:text-gray-700"
+            aria-label="연도·항목 집계(내부)"
+          >
+            ©
+          </a>{' '}
+          2026 구정감시서울네트워크(준)
+        </p>
+      </footer>
     </div>
   );
 }
