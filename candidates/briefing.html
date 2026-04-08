@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📋 브리핑 — 서울시 구의원·구청장 예비후보</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: [
+                "Pretendard Variable",
+                "Pretendard",
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "system-ui",
+                "sans-serif",
+              ],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+    <div id="header-plugin"></div>
+
+    <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <header class="mb-10 text-center sm:text-left">
+        <p class="text-sm font-medium uppercase tracking-wider text-slate-500">Seoul Archive</p>
+        <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">📋 브리핑</h1>
+        <p class="mt-2 text-sm text-slate-600">
+          서울시 구의원·구청장 예비후보 명부를 바탕으로 한 요약입니다.
+        </p>
+        <p
+          id="briefingDataUpdatedLine"
+          class="mt-2 hidden text-sm text-slate-500"
+          aria-live="polite"
+        ></p>
+      </header>
+
+      <section
+        class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-6"
+        aria-labelledby="briefing-party-chart-heading"
+      >
+        <h2
+          id="briefing-party-chart-heading"
+          class="text-lg font-semibold text-slate-900 sm:text-xl"
+        >
+          정당별 출마자 수
+        </h2>
+        <p class="mt-1 text-sm text-slate-600">
+          예비후보 등록 기준 정당별 인원입니다. 색상은 후보 목록 페이지의 정당 뱃지와 같은 기준입니다.
+        </p>
+        <p id="briefingPartyChartError" class="mt-4 hidden text-sm text-red-600" role="alert"></p>
+        <div
+          id="briefingPartyChartOuter"
+          class="relative mt-6 w-full"
+          style="min-height: 22rem; height: var(--briefing-chart-h, 28rem)"
+        >
+          <canvas id="briefingPartyChart" aria-label="정당별 출마자 수 막대 그래프"></canvas>
+        </div>
+      </section>
+    </div>
+
+    <div id="footer-plugin"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      (function () {
+        async function inject(id, url) {
+          try {
+            const r = await fetch(url);
+            if (!r.ok) return;
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = await r.text();
+          } catch (e) {
+            console.warn("[candidates] 헤더·푸터 로드:", e);
+          }
+        }
+        function highlightCandidatesSubnav() {
+          var p = (location.pathname || "").split("/").pop() || "";
+          var listLink = document.querySelector("a[data-candidates-subnav='list']");
+          var briefLink = document.querySelector("a[data-candidates-subnav='briefing']");
+          if (!listLink || !briefLink) return;
+          listLink.classList.remove("active");
+          briefLink.classList.remove("active");
+          listLink.removeAttribute("aria-current");
+          briefLink.removeAttribute("aria-current");
+          if (p === "briefing.html") {
+            briefLink.classList.add("active");
+            briefLink.setAttribute("aria-current", "page");
+          } else {
+            listLink.classList.add("active");
+            listLink.setAttribute("aria-current", "page");
+          }
+        }
+        (async function () {
+          await inject("header-plugin", "header.html");
+          highlightCandidatesSubnav();
+          await inject("footer-plugin", "footer.html");
+        })();
+      })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../config.js"></script>
+    <script>
+      (function () {
+        function parseCandidatesPayload(data) {
+          if (Array.isArray(data)) return { list: data, updatedAt: null };
+          if (data && typeof data === "object" && Array.isArray(data.candidates)) {
+            return {
+              list: data.candidates,
+              updatedAt: typeof data.updatedAt === "string" ? data.updatedAt : null,
+            };
+          }
+          throw new Error("JSON 형식이 올바르지 않습니다.");
+        }
+
+        function formatUpdatedAtKo(iso) {
+          if (!iso) return "";
+          try {
+            var d = new Date(iso);
+            if (Number.isNaN(d.getTime())) return "";
+            return (
+              "자료 갱신: " +
+              new Intl.DateTimeFormat("ko-KR", {
+                dateStyle: "medium",
+                timeStyle: "short",
+                timeZone: "Asia/Seoul",
+              }).format(d)
+            );
+          } catch (e) {
+            return "";
+          }
+        }
+
+        function partyBarColor(name) {
+          if (typeof partyColors !== "undefined" && partyColors[name]) return partyColors[name];
+          if (name === "정당 미상") return "#94a3b8";
+          return "#64748B";
+        }
+
+        function aggregateByParty(list) {
+          var map = new Map();
+          list.forEach(function (c) {
+            var p = String(c.party ?? "").trim() || "정당 미상";
+            map.set(p, (map.get(p) || 0) + 1);
+          });
+          return Array.from(map.entries()).sort(function (a, b) {
+            if (b[1] !== a[1]) return b[1] - a[1];
+            return a[0].localeCompare(b[0], "ko");
+          });
+        }
+
+        function showError(msg) {
+          var el = document.getElementById("briefingPartyChartError");
+          if (!el) return;
+          el.textContent = msg;
+          el.classList.remove("hidden");
+        }
+
+        function setChartHeight(partyCount) {
+          var outer = document.getElementById("briefingPartyChartOuter");
+          if (!outer) return;
+          var h = Math.min(1200, Math.max(280, partyCount * 32 + 80));
+          outer.style.setProperty("--briefing-chart-h", h + "px");
+        }
+
+        fetch("../public/data/candidates.json")
+          .then(function (r) {
+            if (!r.ok) throw new Error("HTTP " + r.status);
+            return r.json();
+          })
+          .then(function (data) {
+            var parsed = parseCandidatesPayload(data);
+            var list = parsed.list;
+            var updatedEl = document.getElementById("briefingDataUpdatedLine");
+            var u = formatUpdatedAtKo(parsed.updatedAt);
+            if (updatedEl && u) {
+              updatedEl.textContent = u;
+              updatedEl.classList.remove("hidden");
+            }
+
+            var pairs = aggregateByParty(list);
+            if (pairs.length === 0) {
+              showError("정당별로 집계할 후보 데이터가 없습니다.");
+              return;
+            }
+
+            var labels = pairs.map(function (x) {
+              return x[0];
+            });
+            var values = pairs.map(function (x) {
+              return x[1];
+            });
+            var colors = labels.map(partyBarColor);
+
+            setChartHeight(labels.length);
+
+            var canvas = document.getElementById("briefingPartyChart");
+            if (!canvas || typeof Chart === "undefined") {
+              showError("차트를 불러오지 못했습니다.");
+              return;
+            }
+
+            var font =
+              "'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
+
+            /*
+             * 기본 tooltip.position 'average'는 막대(요소)의 기하학적 중심에 툴팁을 붙인다.
+             * 가로 막대에서는 마우스와 무관하게 한곳에 고정된 것처럼 보이므로, 포인터 좌표(eventPosition)를 쓴다.
+             */
+            if (Chart.Tooltip && Chart.Tooltip.positioners) {
+              Chart.Tooltip.positioners.briefingPointer = function (elements, eventPosition) {
+                if (!elements.length || !eventPosition) return false;
+                return {
+                  x: eventPosition.x + 14,
+                  y: eventPosition.y + 6,
+                };
+              };
+            }
+
+            new Chart(canvas.getContext("2d"), {
+              type: "bar",
+              data: {
+                labels: labels,
+                datasets: [
+                  {
+                    label: "출마자 수",
+                    data: values,
+                    backgroundColor: colors,
+                    borderColor: colors,
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    maxBarThickness: 22,
+                  },
+                ],
+              },
+              options: {
+                indexAxis: "y",
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: "nearest", axis: "y", intersect: false },
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    position: Chart.Tooltip && Chart.Tooltip.positioners && Chart.Tooltip.positioners.briefingPointer ? "briefingPointer" : "nearest",
+                    callbacks: {
+                      label: function (ctx) {
+                        var n = ctx.parsed.x;
+                        return " " + n + "명";
+                      },
+                    },
+                  },
+                },
+                scales: {
+                  x: {
+                    beginAtZero: true,
+                    ticks: {
+                      font: { family: font, size: 11 },
+                      precision: 0,
+                      maxTicksLimit: 12,
+                    },
+                    grid: { color: "rgba(148, 163, 184, 0.25)" },
+                  },
+                  y: {
+                    ticks: {
+                      font: { family: font, size: 11 },
+                      autoSkip: false,
+                    },
+                    grid: { display: false },
+                  },
+                },
+              },
+            });
+          })
+          .catch(function (e) {
+            showError(
+              "데이터를 불러오지 못했습니다. 로컬 서버로 열었는지 확인하세요. (예: 프로젝트 루트에서 npx serve . 후 /candidates/briefing.html) — " +
+                (e && e.message ? e.message : String(e))
+            );
+          });
+      })();
+    </script>
+  </body>
+</html>

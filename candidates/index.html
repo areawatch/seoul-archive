@@ -64,7 +64,7 @@
           <div class="flex flex-wrap items-center gap-2 sm:gap-3">
             <div
               id="officeFilterSeg"
-              class="flex min-w-[12rem] max-w-xs flex-1 overflow-hidden rounded-lg border border-slate-200 sm:max-w-sm"
+              class="flex min-w-[14rem] max-w-md flex-1 overflow-hidden rounded-lg border border-slate-200 sm:max-w-lg"
               role="group"
               aria-labelledby="officeFilterLegend"
             >
@@ -91,6 +91,14 @@
                 class="office-filter-seg flex-1 border-r border-slate-200 px-3 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50"
               >
                 구의원
+              </button>
+              <button
+                type="button"
+                data-office-filter="현직"
+                aria-pressed="false"
+                class="office-filter-seg flex-1 border-r border-slate-200 px-2 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50"
+              >
+                현직
               </button>
             </div>
             <button
@@ -180,7 +188,7 @@
                   <span id="sortNameIcon" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true">↑</span>
                 </button>
               </th>
-              <th scope="col" class="px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
                 정당
               </th>
               <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
@@ -310,8 +318,28 @@
             console.warn("[candidates] 헤더·푸터 로드:", e);
           }
         }
-        inject("header-plugin", "header.html");
-        inject("footer-plugin", "footer.html");
+        function highlightCandidatesSubnav() {
+          var p = (location.pathname || "").split("/").pop() || "";
+          var listLink = document.querySelector("a[data-candidates-subnav='list']");
+          var briefLink = document.querySelector("a[data-candidates-subnav='briefing']");
+          if (!listLink || !briefLink) return;
+          listLink.classList.remove("active");
+          briefLink.classList.remove("active");
+          listLink.removeAttribute("aria-current");
+          briefLink.removeAttribute("aria-current");
+          if (p === "briefing.html") {
+            briefLink.classList.add("active");
+            briefLink.setAttribute("aria-current", "page");
+          } else {
+            listLink.classList.add("active");
+            listLink.setAttribute("aria-current", "page");
+          }
+        }
+        (async function () {
+          await inject("header-plugin", "header.html");
+          highlightCandidatesSubnav();
+          await inject("footer-plugin", "footer.html");
+        })();
       })();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -476,7 +504,7 @@
         var p = String(c.party || "정당 미상").trim() || "정당 미상";
         var t = partyTheme(c.party);
         return (
-          '<span class="mr-1 inline-flex max-w-[9rem] shrink-0 items-center truncate rounded px-1 py-px text-[10px] font-bold leading-none ' +
+          '<span class="relative top-[-1px] mr-1 inline-flex max-w-[9rem] shrink-0 items-center truncate rounded px-1 py-px text-[10px] font-bold leading-none ' +
           t.badgeSolid +
           '">' +
           escapeHtml(p) +
@@ -537,16 +565,19 @@
           return criminalSortRank(c) === 1;
         }).length;
         var crPct = ((withCr / n) * 100).toFixed(1);
-        var topCrC = null;
         var topCrN = -1;
         filtered.forEach(function (c) {
           if (criminalSortRank(c) !== 1) return;
           var cnt = parseCriminalCaseCount(c.criminal);
-          if (cnt > topCrN) {
-            topCrN = cnt;
-            topCrC = c;
-          }
+          if (cnt > topCrN) topCrN = cnt;
         });
+        var topCrList = [];
+        if (topCrN >= 0) {
+          filtered.forEach(function (c) {
+            if (criminalSortRank(c) !== 1) return;
+            if (parseCriminalCaseCount(c.criminal) === topCrN) topCrList.push(c);
+          });
+        }
         var female = filtered.filter(function (c) {
           return String(c.gender || "").trim() === "여";
         }).length;
@@ -562,15 +593,21 @@
           "</span> 입니다." +
           ageExt +
           "</li>" +
-          '<li>전과가 있는 후보는 전체 후보의 <span class="font-semibold text-slate-900">' +
+          '<li>전과가 있는 후보는 총 <span class="font-semibold text-slate-900">' +
+          escapeHtml(String(withCr)) +
+          '</span>명으로 전체 후보의 <span class="font-semibold text-slate-900">' +
           escapeHtml(crPct) +
           "%</span>입니다" +
-          (withCr > 0 && topCrC
+          (withCr > 0 && topCrList.length > 0
             ? " 이며, 가장 건수가 많은 후보는 " +
               escapeHtml(String(topCrN)) +
               "건으로 " +
-              statsBriefPartyBoldName(topCrC) +
-              " 후보입니다"
+              topCrList
+                .map(function (c) {
+                  return statsBriefPartyBoldName(c) + " 후보";
+                })
+                .join(", ") +
+              "입니다"
             : "") +
           ".</li>" +
           '<li>여성 후보는 <span class="font-semibold text-slate-900">' +
@@ -809,6 +846,18 @@
         return o || "구의원";
       }
 
+      /** 재산 공개 명부 직책이 「구의원」(현 구의원) — 브리핑 현직 인원과 동일 */
+      function isWealthCurrentCouncilMember(c) {
+        return wealthRawPositionForCandidate(c) === "구의원";
+      }
+
+      /** 직무 세그먼트: 전체·구청장·구의원·현직(명부 매칭) */
+      function matchesOfficeFilter(c, office) {
+        if (!office) return true;
+        if (office === "현직") return isWealthCurrentCouncilMember(c);
+        return candidateOffice(c) === office;
+      }
+
       /** 테이블 부가 줄: 구청장은 선거구 생략 → 「송파구 구청장」, 구의원은 「구 · 선거구」 */
       function candidateListAreaLineHtml(c) {
         var d = escapeHtml(c.district || "—");
@@ -923,7 +972,7 @@
         sel.querySelectorAll("option:not([value=''])").forEach((o) => o.remove());
         const names = new Set();
         allCandidates.forEach((c) => {
-          if (office && candidateOffice(c) !== office) return;
+          if (!matchesOfficeFilter(c, office)) return;
           const p = String(c.party ?? "").trim();
           if (p) names.add(p);
         });
@@ -951,7 +1000,7 @@
         const filtered = allCandidates.filter((c) => {
           if (district && c.district !== district) return false;
           if (party && String(c.party ?? "").trim() !== party) return false;
-          if (office && candidateOffice(c) !== office) return false;
+          if (!matchesOfficeFilter(c, office)) return false;
           if (!q) return true;
           return normalizeSearch(c.name).includes(q);
         });
@@ -1050,8 +1099,8 @@
                   </div>
                 </div>
               </td>
-              <td class="px-3 py-3 align-middle">
-                <span class="inline-flex max-w-[11rem] items-center rounded px-1 py-[3px] text-[11px] font-bold leading-none ${t.badgeSolid}">${escapeHtml(c.party || "정당 미상")}</span>
+              <td class="whitespace-nowrap px-3 py-3 align-middle">
+                <span class="inline-flex whitespace-nowrap items-center rounded px-1.5 py-[3px] text-[11px] font-bold leading-none ${t.badgeSolid}">${escapeHtml(c.party || "정당 미상")}</span>
               </td>
               <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(ageSummary(c.age))}</td>
               <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(c.gender || "—")}</td>

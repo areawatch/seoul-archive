@@ -83,6 +83,40 @@ body {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-miterlimit='10' stroke-width='3.25' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
+/*
+ * 후보 페이지(candidates/header.html): Tailwind CDN이 생성하는 .collapse 유틸과
+ * Bootstrap navbar-collapse가 같은 클래스명을 쓰면 데스크톱에서 메뉴가 사라질 수 있음.
+ * #candidatesSiteNavbar 범위에서만 Bootstrap 동작을 !important로 고정.
+ */
+.candidates-page-navbar .navbar-collapse.collapse {
+    visibility: visible !important;
+}
+@media (max-width: 991.98px) {
+    .candidates-page-navbar .navbar-collapse.collapse:not(.show):not(.collapsing) {
+        display: none !important;
+    }
+    .candidates-page-navbar .navbar-collapse.collapse.show {
+        display: flex !important;
+        flex-basis: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    #candidatesSiteNavbar {
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        margin-top: 0.5rem;
+        padding-top: 0.35rem;
+    }
+}
+@media (min-width: 992px) {
+    .candidates-page-navbar.navbar-expand-lg .navbar-collapse.collapse {
+        display: flex !important;
+        flex-basis: auto !important;
+        flex-grow: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+}
+
 .site-nav-links .nav-link {
     font-size: 0.8125rem;
     padding-top: 0.35rem !important;
@@ -107,6 +141,14 @@ body {
         align-items: center;
         gap: 0.25rem;
     }
+}
+
+/* 후보 목록 / 브리핑 서브네비 (candidates/header.html) */
+.navbar-dark .site-nav-links .nav-link.active {
+    color: #fff !important;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 0.2rem;
 }
 
 
