@@ -95,11 +95,25 @@ body {
     .candidates-page-navbar .navbar-collapse.collapse:not(.show):not(.collapsing) {
         display: none !important;
     }
+    /*
+     * 열림 애니메이션(.collapsing)과 완료(.show)에 동일한 flex를 써야 한 프레임은 왼쪽·다음은 오른쪽처럼 보이지 않는다.
+     * ms-auto는 lg 미만에서 제거(ms-lg-auto) — 아니면 margin-left:auto가 세로 메뉴 전체를 오른쪽으로 밀었다가 레이아웃이 바뀌는 현상이 난다.
+     */
+    .candidates-page-navbar .navbar-collapse.collapsing {
+        display: flex !important;
+        flex-basis: 100% !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
     .candidates-page-navbar .navbar-collapse.collapse.show {
         display: flex !important;
         flex-basis: 100%;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
+    }
+    .candidates-page-navbar .candidates-header-subnav {
+        width: 100%;
+        margin-left: 0 !important;
     }
     #candidatesSiteNavbar {
         border-top: 1px solid rgba(255, 255, 255, 0.12);
@@ -146,9 +160,8 @@ body {
 /* 후보 목록 / 브리핑 서브네비 (candidates/header.html) */
 .navbar-dark .site-nav-links .nav-link.active {
     color: #fff !important;
-    font-weight: 600;
-    text-decoration: underline;
-    text-underline-offset: 0.2rem;
+    font-weight: 700;
+    text-decoration: none !important;
 }
 
 
