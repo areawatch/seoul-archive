@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-08T15:56:34+09:00",
+  "updatedAt": "2026-04-09T15:08:37+09:00",
   "candidates": [
     {
       "district": "종로구",
@@ -3088,7 +3088,7 @@
       "age": "1989.02.25\n(37세)",
       "address": "서울특별시 노원구 동일로",
       "job": "정당인",
-      "education": "서울 중앙대학교 정치외교학과 졸업",
+      "education": "중앙대학교 정치외교학과 졸업",
       "career": "(현)국민의힘 노원구을 당원협의회 청년위원회 부위원장\n(전)국회사무처 5급상당(선임비서관)",
       "criminal": "없음",
       "regDate": "2026-04-06",
@@ -4355,6 +4355,23 @@
     },
     {
       "district": "양천구",
+      "constituency": "양천구다선거구",
+      "party": "국민의힘",
+      "name": "이인락\n(李仁洛)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1115/Hb100162002/gicho/thumbnail.100162002.JPG?ver=2039798",
+      "gender": "남",
+      "age": "1961.08.15\n(64세)",
+      "address": "서울특별시 양천구 목동로",
+      "job": "자영업",
+      "education": "성균관대학교 경영대학원 경영학석사(글로벌경영학)",
+      "career": "(전)제8대 양천구의회의원\n(현)재경양천구 영남향우회 사무총장",
+      "criminal": "없음",
+      "regDate": "2026-04-08",
+      "office": "구의원",
+      "huboId": "100162002"
+    },
+    {
+      "district": "양천구",
       "constituency": "양천구라선거구",
       "party": "국민의힘",
       "name": "김대섭\n(金大燮)",
@@ -4777,6 +4794,23 @@
       "regDate": "2026-03-17",
       "office": "구의원",
       "huboId": "100158571"
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구다선거구",
+      "party": "무소속",
+      "name": "안성현\n(安成鉉)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1116/Hb100162001/gicho/thumbnail.100162001.JPG?ver=2039785",
+      "gender": "남",
+      "age": "1962.03.08\n(64세)",
+      "address": "서울특별시 강서구 강서로",
+      "job": "행정사",
+      "education": "국민대학교 정치대학원 리더쉽개발학과 졸업(정치학 석사)",
+      "career": "(전) 육군 예비역 소령\n(전) 우장산동 주민자치회 회장",
+      "criminal": "없음",
+      "regDate": "2026-04-08",
+      "office": "구의원",
+      "huboId": "100162001"
     },
     {
       "district": "강서구",
@@ -6328,6 +6362,23 @@
     {
       "district": "동작구",
       "constituency": "동작구다선거구",
+      "party": "더불어민주당",
+      "name": "정동연\n(鄭同衍)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1120/Hb100162014/gicho/thumbnail.100162014.JPG?ver=2040028",
+      "gender": "남",
+      "age": "1966.03.03\n(60세)",
+      "address": "서울특별시 동작구 상도로15길",
+      "job": "직장인",
+      "education": "전남공업고등학교 졸업",
+      "career": "(현) 더불어민주당 서울시당 노동위원회 부위원장\n(현) 더불어민주당 동작갑 노동위원장",
+      "criminal": "1건",
+      "regDate": "2026-04-08",
+      "office": "구의원",
+      "huboId": "100162014"
+    },
+    {
+      "district": "동작구",
+      "constituency": "동작구다선거구",
       "party": "국민의힘",
       "name": "최무근\n(崔武根)",
       "photo": "https://info.nec.go.kr/photo_20260603/Gsg1120/Hb100158176/gicho/thumbnail.100158176.JPEG?ver=2011574",
@@ -7382,6 +7433,23 @@
     {
       "district": "서초구",
       "constituency": "서초구다선거구",
+      "party": "더불어민주당",
+      "name": "조현선\n(趙玹旋)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1122/Hb100161981/gicho/thumbnail.100161981.JPG?ver=2039711",
+      "gender": "여",
+      "age": "1965.03.10\n(61세)",
+      "address": "서울특별시 서초구 서초대로64길",
+      "job": "주식회사 케이앤엘 대표",
+      "education": "연세대학교 이과대학 전산과학과 학사 졸업",
+      "career": "(전) LG전자 연구원\n(전) 세원텔레콤 팀장",
+      "criminal": "1건",
+      "regDate": "2026-04-08",
+      "office": "구의원",
+      "huboId": "100161981"
+    },
+    {
+      "district": "서초구",
+      "constituency": "서초구다선거구",
       "party": "국민의힘",
       "name": "안병두\n(安炳斗)",
       "photo": "https://info.nec.go.kr/photo_20260603/Gsg1122/Hb100159218/gicho/thumbnail.100159218.JPG?ver=2016179",
@@ -7565,6 +7633,23 @@
       "regDate": "2026-03-27",
       "office": "구의원",
       "huboId": "100160953"
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구자선거구",
+      "party": "더불어민주당",
+      "name": "복진경\n(卜鎭京)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1123/Hb100161960/gicho/thumbnail.100161960.JPG?ver=2039513",
+      "gender": "남",
+      "age": "1961.11.26\n(64세)",
+      "address": "서울특별시 강남구 밤고개로26길",
+      "job": "강남구의회 의원",
+      "education": "중앙대학교 심리학 학사",
+      "career": "(현)더불어민주당 정책위원회 부의장\n(현)강남구의회 8대 · 9대 의원",
+      "criminal": "없음",
+      "regDate": "2026-04-08",
+      "office": "구의원",
+      "huboId": "100161960"
     },
     {
       "district": "강남구",
@@ -7775,7 +7860,7 @@
       "constituency": "송파구바선거구",
       "party": "더불어민주당",
       "name": "이성자\n(李成子)",
-      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1124/Hb100158908/gicho/thumbnail.100158908.JPG?ver=2015333",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1124/Hb100158908/gicho/thumbnail.100158908.JPG?ver=2040717",
       "gender": "여",
       "age": "1956.08.20\n(69세)",
       "address": "서울특별시 송파구 백제고분로18길",
@@ -8381,6 +8466,23 @@
       "regDate": "2026-03-30",
       "office": "구의원",
       "huboId": "100161122"
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구바선거구",
+      "party": "개혁신당",
+      "name": "김영민\n(金迎民)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1125/Hb100161964/gicho/thumbnail.100161964.JPG?ver=2039611",
+      "gender": "남",
+      "age": "1994.12.10\n(31세)",
+      "address": "서울특별시 강동구 아리수로93다길",
+      "job": "정당인",
+      "education": "서울대학교 조경.지역시스템공학부 졸업(조경학 전공)",
+      "career": "(전)국토교통부 청년정책위원단\n(현)개혁신당 서울시당 환경위원장",
+      "criminal": "없음",
+      "regDate": "2026-04-08",
+      "office": "구의원",
+      "huboId": "100161964"
     },
     {
       "district": "강동구",
@@ -9911,6 +10013,23 @@
       "regDate": "2026-03-23",
       "office": "구청장",
       "huboId": "100160057"
+    },
+    {
+      "district": "관악구",
+      "constituency": "관악구",
+      "party": "개혁신당",
+      "name": "이혜숙\n(李惠淑)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1121/Hb100162020/gicho/thumbnail.100162020.JPG?ver=2040774",
+      "gender": "여",
+      "age": "1964.04.26\n(62세)",
+      "address": "서울특별시 관악구 남현1길",
+      "job": "정치컨설팅 공론 대표",
+      "education": "광운대학교 대학원 행정학과 졸업(행정학 박사)",
+      "career": "(현)개혁신당 관악갑 당협위원장\n(전)개혁신당 이준석 대통령 후보 선대위 부대변인",
+      "criminal": "없음",
+      "regDate": "2026-04-08",
+      "office": "구청장",
+      "huboId": "100162020"
     },
     {
       "district": "서초구",
