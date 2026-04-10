@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-09T15:08:37+09:00",
+  "updatedAt": "2026-04-10T15:21:37+09:00",
   "candidates": [
     {
       "district": "종로구",
@@ -357,6 +357,23 @@
       "regDate": "2026-04-06",
       "office": "구의원",
       "huboId": "100161759"
+    },
+    {
+      "district": "중구",
+      "constituency": "중구나선거구",
+      "party": "국민의힘",
+      "name": "박창배\n(朴昌培)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1102/Hb100162073/gicho/thumbnail.100162073.JPG?ver=2041157",
+      "gender": "남",
+      "age": "1969.07.24\n(56세)",
+      "address": "서울특별시 중구 퇴계로88가길",
+      "job": "자영업",
+      "education": "국민대학교 행정대학원 행정학과 재학(석사과정)",
+      "career": "(전)서울 중구성동을 국민의힘 당원협의회 사무국장\n(현)국민의힘 중앙위원회 환경분과위 부위원장",
+      "criminal": "1건",
+      "regDate": "2026-04-09",
+      "office": "구의원",
+      "huboId": "100162073"
     },
     {
       "district": "중구",
@@ -765,6 +782,23 @@
       "regDate": "2026-04-02",
       "office": "구의원",
       "huboId": "100161465"
+    },
+    {
+      "district": "광진구",
+      "constituency": "광진구다선거구",
+      "party": "더불어민주당",
+      "name": "이동길\n(李東吉)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1105/Hb100162030/gicho/thumbnail.100162030.JPG?ver=2040689",
+      "gender": "남",
+      "age": "1955.05.14\n(71세)",
+      "address": "서울특별시 광진구 아차산로",
+      "job": "광진구의회 의원",
+      "education": "김제농업고등학교 중퇴(1970. 02. 10. ~ 1971. 10. 13.)",
+      "career": "(현)더불어민주당 정책위원회 부의장\n(전)더불어민주당 광진구의회 원내대표",
+      "criminal": "3건",
+      "regDate": "2026-04-09",
+      "office": "구의원",
+      "huboId": "100162030"
     },
     {
       "district": "광진구",
@@ -1466,6 +1500,23 @@
     {
       "district": "중랑구",
       "constituency": "중랑구가선거구",
+      "party": "더불어민주당",
+      "name": "박열완\n(朴烈完)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1107/Hb100162094/gicho/thumbnail.100162094.JPG?ver=2041416",
+      "gender": "남",
+      "age": "1970.07.10\n(55세)",
+      "address": "서울특별시 중랑구 면목천로6길",
+      "job": "중랑구의회 의원",
+      "education": "건국대학교 행정대학원 공공정책학과 휴학중(석사과정)",
+      "career": "(현) 제9대 중랑구의회 의원\n(현) 더불어민주당 전국기초의회의원협의회 대표",
+      "criminal": "없음",
+      "regDate": "2026-04-09",
+      "office": "구의원",
+      "huboId": "100162094"
+    },
+    {
+      "district": "중랑구",
+      "constituency": "중랑구가선거구",
       "party": "국민의힘",
       "name": "남궁일주\n(南宮一柱)",
       "photo": "https://info.nec.go.kr/photo_20260603/Gsg1107/Hb100159192/gicho/thumbnail.100159192.JPG?ver=2016156",
@@ -1975,6 +2026,23 @@
     },
     {
       "district": "성북구",
+      "constituency": "성북구나선거구",
+      "party": "국민의힘",
+      "name": "송영옥\n(宋永玉)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1108/Hb100162065/gicho/thumbnail.100162065.JPG?ver=2041044",
+      "gender": "여",
+      "age": "1962.01.23\n(64세)",
+      "address": "서울특별시 성북구 동소문로",
+      "job": "정당인",
+      "education": "호원대학교 전기공학부 졸업(전기공학전공, 사회복지학 복수전공)",
+      "career": "(현) 국민의힘 중앙위원회 서울시당연합회지회장\n(전) 성북구 5대, 7대 구의원",
+      "criminal": "없음",
+      "regDate": "2026-04-09",
+      "office": "구의원",
+      "huboId": "100162065"
+    },
+    {
+      "district": "성북구",
       "constituency": "성북구다선거구",
       "party": "더불어민주당",
       "name": "권영숙\n(權英淑)",
@@ -2057,6 +2125,23 @@
       "regDate": "2026-04-07",
       "office": "구의원",
       "huboId": "100161908"
+    },
+    {
+      "district": "성북구",
+      "constituency": "성북구라선거구",
+      "party": "더불어민주당",
+      "name": "이인순\n(李仁順)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1108/Hb100162093/gicho/thumbnail.100162093.JPG?ver=2041423",
+      "gender": "여",
+      "age": "1961.11.20\n(64세)",
+      "address": "서울특별시 성북구 오패산로3가길",
+      "job": "성북구의회의원",
+      "education": "한성대학교 교육대학원 졸업(교육학석사)",
+      "career": "(전)목자어린이집 원장\n(현)성북구의회의원",
+      "criminal": "없음",
+      "regDate": "2026-04-09",
+      "office": "구의원",
+      "huboId": "100162093"
     },
     {
       "district": "성북구",
@@ -3795,6 +3880,23 @@
     {
       "district": "서대문구",
       "constituency": "서대문구라선거구",
+      "party": "더불어민주당",
+      "name": "조영일\n(趙英一)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1113/Hb100162050/gicho/thumbnail.100162050.JPG?ver=2040832",
+      "gender": "남",
+      "age": "1972.10.16\n(53세)",
+      "address": "서울특별시 서대문구 세검정로1길",
+      "job": "정당인",
+      "education": "고려대학교 정책대학원 석사과정 글로벌정치학과 휴학중",
+      "career": "(전)민주당 전 사무국장\n(현)더불어민주당 서대문을 직능위원장",
+      "criminal": "1건",
+      "regDate": "2026-04-09",
+      "office": "구의원",
+      "huboId": "100162050"
+    },
+    {
+      "district": "서대문구",
+      "constituency": "서대문구라선거구",
       "party": "국민의힘",
       "name": "황상용\n(黃相勇)",
       "photo": "https://info.nec.go.kr/photo_20260603/Gsg1113/Hb100160757/gicho/thumbnail.100160757.JPEG?ver=2027280",
@@ -5087,6 +5189,23 @@
     {
       "district": "구로구",
       "constituency": "구로구가선거구",
+      "party": "더불어민주당",
+      "name": "이건진\n(李建珍)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1117/Hb100162035/gicho/thumbnail.100162035.JPG?ver=2040688",
+      "gender": "남",
+      "age": "1983.07.09\n(42세)",
+      "address": "서울특별시 구로구 경인로33길",
+      "job": "회사원",
+      "education": "호원대학교 무역경영학과 졸업",
+      "career": "(전)구로갑 청년위원장\n(현)JCI 서울구로청년회의소 2026년 회장",
+      "criminal": "1건",
+      "regDate": "2026-04-09",
+      "office": "구의원",
+      "huboId": "100162035"
+    },
+    {
+      "district": "구로구",
+      "constituency": "구로구가선거구",
       "party": "국민의힘",
       "name": "김연식\n(金蓮植)",
       "photo": "https://info.nec.go.kr/photo_20260603/Gsg1117/Hb100157391/gicho/thumbnail.100157391.JPG?ver=2006764",
@@ -5117,6 +5236,23 @@
       "regDate": "2026-03-19",
       "office": "구의원",
       "huboId": "100158926"
+    },
+    {
+      "district": "구로구",
+      "constituency": "구로구가선거구",
+      "party": "국민의힘",
+      "name": "김철규\n(金哲圭)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1117/Hb100162049/gicho/thumbnail.100162049.JPEG?ver=2040788",
+      "gender": "남",
+      "age": "1998.10.15\n(27세)",
+      "address": "서울특별시 구로구 개봉로17바길",
+      "job": "리오스 스튜디오 공동대표",
+      "education": "한동대학교 상담심리사회복지학부 졸업",
+      "career": "(현)리오스 스튜디오 공동대표\n(전) 28대 한동대학교 총학생회장",
+      "criminal": "없음",
+      "regDate": "2026-04-09",
+      "office": "구의원",
+      "huboId": "100162049"
     },
     {
       "district": "구로구",
@@ -5185,6 +5321,23 @@
       "regDate": "2026-03-16",
       "office": "구의원",
       "huboId": "100158423"
+    },
+    {
+      "district": "구로구",
+      "constituency": "구로구나선거구",
+      "party": "더불어민주당",
+      "name": "임영택\n(林榮澤)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1117/Hb100162028/gicho/thumbnail.100162028.JPG?ver=2040607",
+      "gender": "남",
+      "age": "1980.11.07\n(45세)",
+      "address": "서울특별시 구로구 개봉로3길",
+      "job": "새벽번역행정사사무소 대표행정사",
+      "education": "성균관대학교 법학과 졸업",
+      "career": "(현)대한행정사회 구로구지회장\n(현)구로구 주민참여예산위원회 행정기획분과위원장",
+      "criminal": "없음",
+      "regDate": "2026-04-09",
+      "office": "구의원",
+      "huboId": "100162028"
     },
     {
       "district": "구로구",
@@ -7755,6 +7908,23 @@
     },
     {
       "district": "송파구",
+      "constituency": "송파구나선거구",
+      "party": "국민의힘",
+      "name": "이주현\n(李周炫)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1124/Hb100161976/gicho/thumbnail.100161976.JPG?ver=2042783",
+      "gender": "남",
+      "age": "1988.06.08\n(37세)",
+      "address": "서울특별시 송파구 중대로",
+      "job": "더브랜디드 회사 대표",
+      "education": "래플스 디자인 상업대학 디자인 학사 수여(2010.9.~2014.7.)",
+      "career": "(전)송파구 청소년 노동인권교육 강사\n(전)(사)한국청년회의소 여성청소년정책실 위원장",
+      "criminal": "1건",
+      "regDate": "2026-04-09",
+      "office": "구의원",
+      "huboId": "100161976"
+    },
+    {
+      "district": "송파구",
       "constituency": "송파구다선거구",
       "party": "더불어민주당",
       "name": "오문열\n(吳文烈)",
@@ -8330,6 +8500,23 @@
       "regDate": "2026-02-25",
       "office": "구의원",
       "huboId": "100156214"
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구라선거구",
+      "party": "개혁신당",
+      "name": "정민우\n(鄭敏愚)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1125/Hb100162074/gicho/thumbnail.100162074.JPG?ver=2041173",
+      "gender": "남",
+      "age": "1986.07.12\n(39세)",
+      "address": "서울특별시 강동구 양재대로89길",
+      "job": "자영업자",
+      "education": "칭다오궈지외국어학교 졸업(2002.9.~2005.6.)",
+      "career": "(현)개혁신당 강동구 지역발전특별위원회 부위원장\n(현)개혁신당 서울특별시당 대변인",
+      "criminal": "없음",
+      "regDate": "2026-04-09",
+      "office": "구의원",
+      "huboId": "100162074"
     },
     {
       "district": "강동구",
