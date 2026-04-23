@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-22T15:26:18+09:00",
+  "updatedAt": "2026-04-23T15:30:43+09:00",
   "candidates": [
     {
       "district": "종로구",
@@ -816,6 +816,23 @@
       "regDate": "2026-04-20",
       "office": "구의원",
       "huboId": "100162657"
+    },
+    {
+      "district": "성동구",
+      "constituency": "성동구라선거구",
+      "party": "더불어민주당",
+      "name": "유영희\n(劉英熙)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1104/Hb100162773/gicho/thumbnail.100162773.JPG?ver=2070242",
+      "gender": "여",
+      "age": "1961.02.26\n(65세)",
+      "address": "서울특별시 성동구 성덕정15길",
+      "job": "영희한복 대표",
+      "education": "미기재",
+      "career": "(현)더불어민주당 중구성동구갑 지역위원회 여성위원장\n(현)사)뚝도시장 번영회 회장(31,32대)",
+      "criminal": "없음",
+      "regDate": "2026-04-22",
+      "office": "구의원",
+      "huboId": "100162773"
     },
     {
       "district": "성동구",
@@ -3070,9 +3087,9 @@
       "gender": "여",
       "age": "1984.06.29\n(41세)",
       "address": "서울특별시 강북구 솔매로",
-      "job": "민주평화통일자문회의 서울강북구협의회 행정실장",
+      "job": "정당인",
       "education": "고려대학교 대학원 졸업(체육학박사)",
-      "career": "(전)서울호서예술실용전문학교 전임교수\n(현)국민의힘 강북구(을) 당원협의회 차세대여성위원장",
+      "career": "(전)서울현대실용전문학교 전임교수\n(전)민주평화통일자문회의 강북구협의회 행정실장",
       "criminal": "없음",
       "regDate": "2026-04-13",
       "office": "구의원",
@@ -5663,6 +5680,23 @@
       "huboId": "100158333"
     },
     {
+      "district": "양천구",
+      "constituency": "양천구아선거구",
+      "party": "국민의힘",
+      "name": "최혜숙\n(崔惠淑)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1115/Hb100162726/gicho/thumbnail.100162726.JPG?ver=2068824",
+      "gender": "여",
+      "age": "1966.06.27\n(59세)",
+      "address": "서울특별시 양천구 중앙로29길",
+      "job": "양천구의회의원",
+      "education": "성덕전문대학 사회복지계열 졸업(현 성운대학교)",
+      "career": "(현)제9대 양천구의회의원\n(전)제7대 양천구의회의원",
+      "criminal": "없음",
+      "regDate": "2026-04-22",
+      "office": "구의원",
+      "huboId": "100162726"
+    },
+    {
       "district": "강서구",
       "constituency": "강서구가선거구",
       "party": "더불어민주당",
@@ -5695,6 +5729,23 @@
       "regDate": "2026-04-07",
       "office": "구의원",
       "huboId": "100161871"
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구가선거구",
+      "party": "국민의힘",
+      "name": "김순옥\n(金順玉)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1116/Hb100162757/gicho/thumbnail.100162757.JPG?ver=2069483",
+      "gender": "여",
+      "age": "1988.03.02\n(38세)",
+      "address": "서울특별시 강서구 곰달래로31마길",
+      "job": "강서구의회의원",
+      "education": "중국인민대학 정치학과(행정학)졸업 (2006.09~2010.07)",
+      "career": "(전) 청년이만드는세상 대표\n(전) 자유민주연구원 정책연구원",
+      "criminal": "없음",
+      "regDate": "2026-04-22",
+      "office": "구의원",
+      "huboId": "100162757"
     },
     {
       "district": "강서구",
@@ -7618,6 +7669,23 @@
       "huboId": "100157152"
     },
     {
+      "district": "영등포구",
+      "constituency": "영등포구사선거구",
+      "party": "무소속",
+      "name": "이상해\n(李相海)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1119/Hb100162754/gicho/thumbnail.100162754.JPG?ver=2069349",
+      "gender": "남",
+      "age": "1962.01.24\n(64세)",
+      "address": "서울특별시 영등포구 신풍로25가길",
+      "job": "대표이사(한강마케팅(주))",
+      "education": "미기재",
+      "career": "(현)서시련 영등포구 지회장\n(현)장애인인권강사",
+      "criminal": "없음",
+      "regDate": "2026-04-22",
+      "office": "구의원",
+      "huboId": "100162754"
+    },
+    {
       "district": "동작구",
       "constituency": "동작구가선거구",
       "party": "더불어민주당",
@@ -9241,7 +9309,7 @@
       "gender": "남",
       "age": "1976.12.25\n(49세)",
       "address": "서울특별시 강남구 논현로67길",
-      "job": "아나운서",
+      "job": "대변인((사)12·3민주주권연대)",
       "education": "고려대학교 정책대학원 글로벌정치학 석사 졸업",
       "career": "(현)더불어민주당 서울특별시당 홍보소통위원회 부위원장\n(현)민주평화통일자문회의 강남구협의회 국민소통분과위원장",
       "criminal": "없음",
@@ -10170,6 +10238,23 @@
     {
       "district": "강동구",
       "constituency": "강동구나선거구",
+      "party": "국민의힘",
+      "name": "서회원\n(徐會源)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1125/Hb100162731/gicho/thumbnail.100162731.JPG?ver=2069087",
+      "gender": "남",
+      "age": "1960.02.14\n(66세)",
+      "address": "서울특별시 강동구 진황도로49길",
+      "job": "르노코리아자동차지정정비센터 강동정비(주)대표",
+      "education": "고려사이버대학교 법학과 졸업",
+      "career": "(전)주민자치위원회 회장\n(현)강동구의회의원(문화복지위원장)",
+      "criminal": "2건",
+      "regDate": "2026-04-22",
+      "office": "구의원",
+      "huboId": "100162731"
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구나선거구",
       "party": "개혁신당",
       "name": "김성준\n(金成雋)",
       "photo": "https://info.nec.go.kr/photo_20260603/Gsg1125/Hb100161944/gicho/thumbnail.100161944.JPG?ver=2039218",
@@ -10285,6 +10370,23 @@
       "regDate": "2026-02-25",
       "office": "구의원",
       "huboId": "100156214"
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구라선거구",
+      "party": "국민의힘",
+      "name": "제갑섭\n(諸甲燮)",
+      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1125/Hb100162774/gicho/thumbnail.100162774.JPG?ver=2069888",
+      "gender": "남",
+      "age": "1961.10.23\n(64세)",
+      "address": "서울특별시 강동구 진황도로31길",
+      "job": "강동구의회의원",
+      "education": "중부대학교 인문산업대학원 도시행정학과 졸업(행정학석사)",
+      "career": "(현)제9대 강동구의회 의원\n(현)강동구공직자윤리위원회 부위원장",
+      "criminal": "없음",
+      "regDate": "2026-04-22",
+      "office": "구의원",
+      "huboId": "100162774"
     },
     {
       "district": "강동구",
@@ -10574,23 +10676,6 @@
       "regDate": "2026-03-16",
       "office": "구청장",
       "huboId": "100158248"
-    },
-    {
-      "district": "종로구",
-      "constituency": "종로구",
-      "party": "더불어민주당",
-      "name": "김종보\n(金鍾甫)",
-      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1101/Hb100158600/gicho/thumbnail.100158600.JPG?ver=2013974",
-      "gender": "남",
-      "age": "1966.07.29\n(59세)",
-      "address": "서울특별시 종로구 동망산길",
-      "job": "정당인",
-      "education": "동국대학교 행정대학원 졸업 (행정학 석사)",
-      "career": "(현)더불어민주당 서울특별시당 부위원장\n(현)대통령직속 민주평화통일자문회의 종로구협의회 간사",
-      "criminal": "없음",
-      "regDate": "2026-03-18",
-      "office": "구청장",
-      "huboId": "100158600"
     },
     {
       "district": "중구",
@@ -11594,23 +11679,6 @@
       "regDate": "2026-03-09",
       "office": "구청장",
       "huboId": "100157541"
-    },
-    {
-      "district": "강서구",
-      "constituency": "강서구",
-      "party": "국민의힘",
-      "name": "김경훈\n(金熲勲)",
-      "photo": "https://info.nec.go.kr/photo_20260603/Gsg1116/Hb100160728/gicho/thumbnail.100160728.JPG?ver=2027131",
-      "gender": "남",
-      "age": "1986.12.08\n(39세)",
-      "address": "서울특별시 강서구 양천로",
-      "job": "서울특별시의회 의원",
-      "education": "연세대학교 교육대학원 졸업(교육학 석사)",
-      "career": "(전) 국민의힘 서울시당 대외협력위원장\n(현) 국민의힘 전국청년지방의원협의회 대변인",
-      "criminal": "없음",
-      "regDate": "2026-03-26",
-      "office": "구청장",
-      "huboId": "100160728"
     },
     {
       "district": "강서구",
