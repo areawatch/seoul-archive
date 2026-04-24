@@ -152,8 +152,8 @@ function formatCheonDeltaEokMan(cheonDelta) {
 
 window.onload = () => {
     if (typeof loadComponent === 'function') {
-        loadComponent('header-plugin', 'header.html');
-        loadComponent('footer-plugin', 'footer.html');
+        loadComponent('header-plugin', '/header.html');
+        loadComponent('footer-plugin', '/footer.html');
     }
     if (typeof loadArchiveDataFromJson === 'function') {
         // data.json/detail.json 기반으로 1회 로드 후 라우터 렌더

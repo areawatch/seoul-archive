@@ -8,10 +8,20 @@ async function loadComponent(id, file) {
         const response = await fetch(file);
         const data = await response.text();
         el.innerHTML = data;
+        function pathKey(pathname) {
+            let s = (pathname || "").replace(/\/$/, "") || "/";
+            if (s.endsWith("/index.html")) s = s.slice(0, -"/index.html".length) || "/";
+            return s;
+        }
         const links = el.querySelectorAll('.nav-link');
-        const currPage = window.location.pathname.split('/').pop() || 'index.html';
-        links.forEach(link => {
-            if (link.getAttribute('href') === currPage) link.classList.add('active');
+        const here = pathKey(window.location.pathname);
+        links.forEach((link) => {
+            try {
+                const href = link.getAttribute('href');
+                if (!href) return;
+                const there = pathKey(new URL(href, window.location.origin).pathname);
+                if (there === here) link.classList.add('active');
+            } catch (_) {}
         });
     } catch (e) { console.error(file + " 로드 실패", e); }
 }

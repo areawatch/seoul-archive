@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서울아카이브 | 공직자 재산 투명성 프로젝트</title>
+    <meta name="description" content="서울시 25개 자치구 구청장·구의원 등 공직자의 재산 신고 데이터를 한눈에 비교합니다. 구정감시서울네트워크(준) 구정감시프로젝트.">
+    <meta name="keywords" content="서울아카이브, 공직자 재산, 구청장, 구의원, 서울시, 구정감시, 재산공개, 투명성">
+    <meta name="author" content="구정감시서울네트워크(준)">
+
+    <link rel="canonical" href="https://seoularchive.net/wealth/">
+    <meta property="og:site_name" content="서울아카이브">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="서울아카이브 | 공직자 재산 공개 프로젝트">
+    <meta property="og:description" content="서울시 25개 자치구 구청장·구의원 등 공직자의 재산 신고 데이터를 한눈에 비교합니다. 구정감시서울네트워크(준) 시민 프로젝트.">
+    <meta property="og:url" content="https://seoularchive.net/wealth/">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:image" content="https://seoularchive.net/ogimage.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="서울아카이브 — 서울 공직자 재산 공개 프로젝트">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="서울아카이브 | 공직자 재산 공개 프로젝트">
+    <meta name="twitter:description" content="서울시 25개 자치구 구청장·구의원 등 공직자의 재산 신고 데이터를 한눈에 비교합니다.">
+    <meta name="twitter:image" content="https://seoularchive.net/ogimage.png">
+    <meta name="twitter:image:alt" content="서울아카이브 — 서울 공직자 재산 투명성 프로젝트">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <div id="header-plugin"></div>
+
+    <section class="hero-section">
+        <div class="container index-main text-center">
+            <h1 class="display-4 fw-bold mb-3 hero-title">내 동네 공직자의 재산,<br><strong>얼마나 변했을까요?</strong></h1>
+            <p class="small text-white-50 mb-4 px-2 hero-meta">
+                서울시 <span id="hero-district-count">25</span>개 자치구 구청장 <span id="hero-mayor-count">0</span>명,
+                구의원 <span id="hero-member-count">0</span>명의 재산을 분석 중입니다. (전/현직 포함)
+            </p>
+            <div class="d-grid gap-2 d-sm-flex flex-sm-wrap justify-content-sm-center align-items-stretch align-items-sm-center">
+                <a href="/wealth/archive.html" class="btn btn-sm hero-archive-btn px-4 py-2 shadow-sm fw-bold d-inline-flex align-items-center justify-content-center gap-2" style="font-size: 0.875rem;">
+                    <i class="bi bi-list-ul" aria-hidden="true"></i>
+                    재산 세부 목록 바로가기
+                </a>
+                <a href="/wealth/archive-district.html" class="btn btn-sm hero-district-btn px-4 py-2 shadow-sm fw-bold d-inline-flex align-items-center justify-content-center gap-2" style="font-size: 0.875rem;">
+                    <i class="bi bi-buildings" aria-hidden="true"></i>
+                    자치구별 재산 목록
+                </a>
+                <a href="/intro.html" class="btn btn-sm hero-intro-btn px-4 py-2 shadow-sm fw-bold d-inline-flex align-items-center justify-content-center gap-2" style="font-size: 0.875rem;">
+                    <i class="bi bi-journal-text" aria-hidden="true"></i>
+                    프로젝트 소개
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <main class="py-5 index-main-lead" aria-labelledby="overview-heading">
+        <div class="container index-main">
+            <div class="index-section-head">
+                <h2 id="overview-heading" class="h4 fw-bold text-center mb-0 index-section-title">👀 개요</h2>
+                <p class="text-center text-muted small index-section-sub">Overview</p>
+            </div>
+            <div class="row g-4 mb-5 justify-content-center">
+                <!-- 카드 1: 2026년 재산 총액 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 stat-card stat-card-metric">
+                        <div class="stat-card-index" aria-hidden="true">01</div>
+                        <div class="card-body p-4">
+                            <div class="fs-6 fw-bold mb-3 text-center stat-card-heading stat-card-heading--c1">💴 2026년 재산 총액</div>
+                            <div class="row g-0 text-center stat-triple">
+                                <div class="col-4 border-end stat-triple-col">
+                                    <div class="stat-metric-col-title stat-metric-col-title--tight">전체</div>
+                                    <div class="text-muted stat-metric-sublabel">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line stat-value-total" id="c1-total-all">0</div>
+                                    <div class="text-muted stat-metric-sublabel">평균</div>
+                                    <div class="stat-avg-value" id="c1-avg-all">0</div>
+                                </div>
+                                <div class="col-4 border-end stat-triple-col">
+                                    <div class="stat-metric-col-title">구청장</div>
+                                    <div class="text-muted stat-metric-sublabel">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line" id="c1-total-mayor">0</div>
+                                    <div class="text-muted stat-metric-sublabel">평균</div>
+                                    <div class="stat-avg-value" id="c1-avg-mayor">0</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stat-metric-col-title">구의원</div>
+                                    <div class="text-muted stat-metric-sublabel">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line" id="c1-total-member">0</div>
+                                    <div class="text-muted stat-metric-sublabel">평균</div>
+                                    <div class="stat-avg-value" id="c1-avg-member">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 카드 2: 부동산 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 stat-card stat-card-metric">
+                        <div class="stat-card-index" aria-hidden="true">02</div>
+                        <div class="card-body p-4">
+                            <div class="fs-6 fw-bold mb-3 text-center stat-card-heading stat-card-heading--c2">🏠 부동산(토지+건물) 총액</div>
+                            <div class="row g-0 text-center stat-triple">
+                                <div class="col-4 border-end stat-triple-col">
+                                    <div class="stat-metric-col-title stat-metric-col-title--tight">전체</div>
+                                    <div class="text-muted stat-metric-sublabel">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line stat-value-total" id="c2-total-all">0</div>
+                                    <div class="text-muted stat-metric-sublabel">평균</div>
+                                    <div class="stat-avg-value" id="c2-avg-all">0</div>
+                                </div>
+                                <div class="col-4 border-end stat-triple-col">
+                                    <div class="stat-metric-col-title">구청장</div>
+                                    <div class="text-muted stat-metric-sublabel">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line" id="c2-total-mayor">0</div>
+                                    <div class="text-muted stat-metric-sublabel">평균</div>
+                                    <div class="stat-avg-value" id="c2-avg-mayor">0</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stat-metric-col-title">구의원</div>
+                                    <div class="text-muted stat-metric-sublabel">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line" id="c2-total-member">0</div>
+                                    <div class="text-muted stat-metric-sublabel">평균</div>
+                                    <div class="stat-avg-value" id="c2-avg-member">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 카드 3: 금융자산 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 stat-card stat-card-metric">
+                        <div class="stat-card-index" aria-hidden="true">03</div>
+                        <div class="card-body p-4">
+                            <div class="fs-6 fw-bold mb-3 text-center stat-card-heading stat-card-heading--c3">📈 금융자산(현금·예금·증권·채권·가상자산) 총액</div>
+                            <div class="row g-0 text-center stat-triple">
+                                <div class="col-4 border-end stat-triple-col">
+                                    <div class="stat-metric-col-title stat-metric-col-title--tight">전체</div>
+                                    <div class="text-muted stat-metric-sublabel">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line stat-value-total" id="c3-total-all">0</div>
+                                    <div class="text-muted stat-metric-sublabel">평균</div>
+                                    <div class="stat-avg-value" id="c3-avg-all">0</div>
+                                </div>
+                                <div class="col-4 border-end stat-triple-col">
+                                    <div class="stat-metric-col-title">구청장</div>
+                                    <div class="text-muted stat-metric-sublabel">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line" id="c3-total-mayor">0</div>
+                                    <div class="text-muted stat-metric-sublabel">평균</div>
+                                    <div class="stat-avg-value" id="c3-avg-mayor">0</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stat-metric-col-title">구의원</div>
+                                    <div class="text-muted stat-metric-sublabel">총액</div>
+                                    <div class="fw-bold text-dark mb-2 stat-value-line" id="c3-total-member">0</div>
+                                    <div class="text-muted stat-metric-sublabel">평균</div>
+                                    <div class="stat-avg-value" id="c3-avg-member">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="index-overview-year-table-wrap">
+                <div class="index-overview-year-inner">
+                    <div class="index-section-head index-overview-year-head">
+                        <h2 id="overview-year-heading" class="h4 fw-bold text-center mb-0 index-section-title">
+                            연도별 합계
+                        </h2>
+                        <p class="text-center text-muted small index-section-sub">
+                            2026년 신고액이 있는 인원 기준
+                        </p>
+                    </div>
+                    <div class="table-responsive index-overview-year-table-card">
+                        <table
+                            class="table table-sm align-middle index-overview-year-table mb-0"
+                            id="overview-year-table"
+                            aria-labelledby="overview-year-heading"
+                        >
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="ov-yt-col-year">연도</th>
+                                    <th scope="col" class="ov-yt-col-num">재산 총액</th>
+                                    <th scope="col" class="ov-yt-col-num">부동산 총액</th>
+                                    <th scope="col" class="ov-yt-col-num">금융자산 총액</th>
+                                </tr>
+                            </thead>
+                            <tbody id="overview-year-tbody">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">데이터를 불러오는 중입니다.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <section class="data-spotlight py-5" style="background-color: #ffffff;" aria-labelledby="spotlight-heading">
+        <div class="container index-main">
+            <div class="index-section-head">
+                <h2 id="spotlight-heading" class="h4 fw-bold text-center mb-0 index-section-title">🔥 데이터 스포트라이트</h2>
+                <p class="text-center text-muted small index-section-sub">Data Spotlight</p>
+            </div>
+            <div class="spotlight-body">
+                <div class="d-flex gap-3 align-items-start spotlight-row">
+                    <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    <p class="mb-0 spotlight-text lh-lg" id="spotlight-top10share">데이터를 불러오는 중입니다.</p>
+                </div>
+                <div class="d-flex gap-3 align-items-start spotlight-row">
+                    <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    <p class="mb-0 spotlight-text lh-lg" id="spotlight-top100party">데이터를 불러오는 중입니다.</p>
+                </div>
+                <div class="d-flex gap-3 align-items-start spotlight-row">
+                    <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    <p class="mb-0 spotlight-text lh-lg" id="spotlight-council">데이터를 불러오는 중입니다.</p>
+                </div>
+                <div class="d-flex gap-3 align-items-start spotlight-row">
+                    <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    <p class="mb-0 spotlight-text lh-lg" id="spotlight-party">데이터를 불러오는 중입니다.</p>
+                </div>
+                <div class="d-flex gap-3 align-items-start spotlight-row">
+                    <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    <p class="mb-0 spotlight-text lh-lg" id="spotlight-highfin">데이터를 불러오는 중입니다.</p>
+                </div>
+                <div class="d-flex gap-3 align-items-start spotlight-row">
+                    <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    <p class="mb-0 spotlight-text lh-lg" id="spotlight-max-realestate">데이터를 불러오는 중입니다.</p>
+                </div>
+                <div class="d-flex gap-3 align-items-start spotlight-row">
+                    <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    <p class="mb-0 spotlight-text lh-lg" id="spotlight-max-finance">데이터를 불러오는 중입니다.</p>
+                </div>
+                <div class="d-flex gap-3 align-items-start spotlight-row">
+                    <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    <p class="mb-0 spotlight-text lh-lg" id="spotlight-mayor-growth">데이터를 불러오는 중입니다.</p>
+                </div>
+                <div class="d-flex gap-3 align-items-start spotlight-row">
+                    <i class="bi bi-check-circle-fill spotlight-check flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    <p class="mb-0 spotlight-text lh-lg" id="spotlight-council-growth">데이터를 불러오는 중입니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-plugin"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/config.js"></script>
+    <script src="/cf-analytics.js"></script>
+    <script>
+        async function loadComponent(id, file) {
+            try {
+                const response = await fetch(file);
+                if (!response.ok) return;
+                const data = await response.text();
+                const container = document.getElementById(id);
+                if (container) {
+                    container.innerHTML = data;
+                    if (id === 'header-plugin') {
+                        const nav = container.querySelector('nav');
+                        if (nav) { nav.classList.remove('mb-4'); nav.classList.add('mb-0'); }
+                    }
+                }
+            } catch (err) { console.error(file + " 로드 실패:", err); }
+        }
+
+        /** 만원 기준 → 조·억·만 (0은 0조 0억 0만) */
+        function formatKoreanUnit(manValue) {
+            if (manValue === 0) return "0조 0억 0만";
+            const sign = manValue < 0 ? "-" : "";
+            let absVal = Math.abs(Math.round(manValue));
+            const jo = Math.floor(absVal / 100000000);
+            const eok = Math.floor((absVal % 100000000) / 10000);
+            const man = absVal % 10000;
+            let result = "";
+            if (jo > 0) result += `${jo}조 `;
+            if (eok > 0) result += `${eok}억 `;
+            if (man > 0 || result === "") result += `${man}만`;
+            return sign + result.trim();
+        }
+
+        /** 개요 카드용: 조·억 줄 / 만 줄 분리(모바일에서 세로로만 쌓음) */
+        function formatKoreanUnitStatHtml(manRounded) {
+            const plain = formatKoreanUnit(manRounded);
+            const sign = plain.startsWith("-") ? "-" : "";
+            const body = (sign ? plain.slice(1) : plain).trim();
+            const wrapSingle = (inner) =>
+                sign + '<span class="stat-ko-stack stat-ko-stack--single">' + inner + "</span>";
+            if (body === "0조 0억 0만") return wrapSingle(escapeHtml(body));
+            const tokens = body.split(/\s+/).filter(Boolean);
+            const manToks = tokens.filter((t) => t.endsWith("만"));
+            const restToks = tokens.filter((t) => !t.endsWith("만"));
+            if (manToks.length === 0) return wrapSingle(escapeHtml(body));
+            if (restToks.length === 0) return wrapSingle(escapeHtml(manToks.join(" ")));
+            return (
+                sign +
+                '<span class="stat-ko-stack">' +
+                '<span class="stat-ko-eok-line">' +
+                escapeHtml(restToks.join(" ")) +
+                "</span>" +
+                '<span class="stat-ko-man-line">' +
+                escapeHtml(manToks.join(" ")) +
+                "</span>" +
+                "</span>"
+            );
+        }
+
+        function animateValue(id, start, end, duration, isKorean = false, prefix = "") {
+            const obj = document.getElementById(id);
+            if (!obj) return;
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const current = progress * (end - start) + start;
+
+                if (isKorean) {
+                    obj.innerHTML = prefix + formatKoreanUnitStatHtml(Math.round(current));
+                } else {
+                    obj.innerText = prefix + Math.floor(current).toLocaleString();
+                }
+
+                if (progress < 1) { window.requestAnimationFrame(step); }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function isMayor(p) {
+            return p.position && String(p.position).includes("구청장");
+        }
+
+        function activeWithY2026(arr) {
+            return arr.filter(i => Number(i.y2026) > 0);
+        }
+
+        function toMan(cheon) {
+            return (Number(cheon) || 0) / 10;
+        }
+
+        function sumY2026(arr) {
+            return arr.reduce((a, i) => a + (Number(i.y2026) || 0), 0);
+        }
+
+        function sumRealEstateCheon(arr) {
+            return arr.reduce((a, i) => {
+                return a + (Number(i.land2026) || 0) + (Number(i.building2026) || 0);
+            }, 0);
+        }
+
+        function sumFinanceCheon(arr) {
+            return arr.reduce((a, i) => {
+                return (
+                    a +
+                    (Number(i.cash2026) || 0) +
+                    (Number(i.deposit2026) || 0) +
+                    (Number(i.stock2026) || 0) +
+                    (Number(i.bond2026) || 0) +
+                    (Number(i.virtual2026) || 0)
+                );
+            }, 0);
+        }
+
+        function avgManFromCheonSum(sumCheon, count) {
+            if (!count) return 0;
+            return toMan(sumCheon / count);
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        /** formatKoreanUnit 결과에 만 단위 뒤 '원' 부착 (예: 18억 2598만원) */
+        function formatKoreanWonFromMan(manRounded) {
+            const base = formatKoreanUnit(Math.round(manRounded));
+            if (base === "0조 0억 0만") return "0원";
+            return base.endsWith("만") ? base + "원" : base;
+        }
+
+        /** 정당명과 괄호 안 금액을 config.js partyColors와 동일 색으로 */
+        function partyNameAndAmountColored(name, amountWonText) {
+            const fallback = "#212529";
+            const hex =
+                typeof partyColors !== "undefined" && partyColors[name] ? partyColors[name] : fallback;
+            return (
+                '<strong style="color:' +
+                escapeHtml(hex) +
+                ';font-weight:700">' +
+                escapeHtml(name) +
+                "(" +
+                escapeHtml(amountWonText) +
+                ")</strong>"
+            );
+        }
+
+        /** 스포트라이트: 정당명 N명 — 정당명만 config 색상 */
+        function spotlightPartyJeongdangCount(name, count, emFn) {
+            const fallback = "#212529";
+            const hex =
+                typeof partyColors !== "undefined" && partyColors[name] ? partyColors[name] : fallback;
+            return (
+                '<strong style="color:' +
+                escapeHtml(hex) +
+                ';font-weight:700">' +
+                escapeHtml(name) +
+                "</strong> " +
+                emFn(String(count) + "명")
+            );
+        }
+
+        function financeCheonPerson(p) {
+            return (
+                (Number(p.cash2026) || 0) +
+                (Number(p.deposit2026) || 0) +
+                (Number(p.stock2026) || 0) +
+                (Number(p.bond2026) || 0) +
+                (Number(p.virtual2026) || 0)
+            );
+        }
+
+        function realEstateCheonPerson(p) {
+            return (Number(p.land2026) || 0) + (Number(p.building2026) || 0);
+        }
+
+        /** 예: 강남구 + 구청장 → 강남구청장, 양천구 + 구의원 → 양천구의원 */
+        function spotlightDistrictRoleSuffix(p) {
+            const d = (p.district || "미상").trim() || "미상";
+            const pos = String(p.position || "");
+            if (pos.includes("구청장")) return d + "청장";
+            if (pos.includes("구의원")) return d + "의원";
+            return d;
+        }
+
+        /** 정당(색) 이름 자치구직함 — 스포트라이트 ⑥·증가액 문장 공통 */
+        function spotlightPersonPartyNameRoleHtml(p) {
+            const party = (p.party || "").trim() || "정당 미상";
+            const name = (p.name || "이름 미상").trim() || "이름 미상";
+            const role = spotlightDistrictRoleSuffix(p);
+            const fallback = "#212529";
+            const hex =
+                typeof partyColors !== "undefined" && partyColors[party] ? partyColors[party] : fallback;
+            const partyHtml =
+                '<strong style="color:' +
+                escapeHtml(hex) +
+                ';font-weight:700">' +
+                escapeHtml(party) +
+                "</strong>";
+            const nameRoleHtml =
+                '<strong style="font-weight:700;color:#212529">' +
+                escapeHtml(name) +
+                " " +
+                escapeHtml(role) +
+                "</strong>";
+            return partyHtml + " " + nameRoleHtml;
+        }
+
+        /** 천원 합 기준 최댓값 보유 1인 (동률 시 이름·자치구 순) */
+        function topPersonByCheon(arr, getCheon) {
+            if (!arr.length) return null;
+            return [...arr].sort((a, b) => {
+                const dv = getCheon(b) - getCheon(a);
+                if (dv !== 0) return dv;
+                return String(a.name || "").localeCompare(String(b.name || ""), "ko") ||
+                    String(a.district || "").localeCompare(String(b.district || ""), "ko");
+            })[0];
+        }
+
+        /** y2026−y2023 증가(천원) 최대 1인. y2023>0만 포함(0이면 순위 제외), delta>0만 (동률 시 이름·자치구) */
+        function topPersonByWealthIncreaseSince2023(arr) {
+            if (!arr.length) return null;
+            const delta = (p) => (Number(p.y2026) || 0) - (Number(p.y2023) || 0);
+            const y2023Cheon = (p) => Number(p.y2023) || 0;
+            const positive = arr.filter((p) => y2023Cheon(p) > 0 && delta(p) > 0);
+            if (!positive.length) return null;
+            return [...positive].sort((a, b) => {
+                const dv = delta(b) - delta(a);
+                if (dv !== 0) return dv;
+                return String(a.name || "").localeCompare(String(b.name || ""), "ko") ||
+                    String(a.district || "").localeCompare(String(b.district || ""), "ko");
+            })[0];
+        }
+
+        // activeData = 2026년 신고액(y2026)이 0보다 큰 인원
+        function renderDataSpotlight(activeAll) {
+            const elTop10 = document.getElementById("spotlight-top10share");
+            const elTop100Party = document.getElementById("spotlight-top100party");
+            const elCouncil = document.getElementById("spotlight-council");
+            const elParty = document.getElementById("spotlight-party");
+            const elHigh = document.getElementById("spotlight-highfin");
+            const elMaxRe = document.getElementById("spotlight-max-realestate");
+            const elMaxFin = document.getElementById("spotlight-max-finance");
+            const elMayorGrowth = document.getElementById("spotlight-mayor-growth");
+            const elCouncilGrowth = document.getElementById("spotlight-council-growth");
+            if (
+                !elTop10 ||
+                !elTop100Party ||
+                !elCouncil ||
+                !elParty ||
+                !elHigh ||
+                !elMaxRe ||
+                !elMaxFin ||
+                !elMayorGrowth ||
+                !elCouncilGrowth
+            ) {
+                return;
+            }
+
+            const em = (s) => `<strong class="spotlight-em">${s}</strong>`;
+
+            // ① 재산 상위 10%(인원 기준)가 차지하는 총액 비중
+            if (activeAll.length === 0) {
+                elTop10.textContent =
+                    "2026년 신고액이 있는 데이터가 없어 이 항목을 계산할 수 없습니다.";
+            } else {
+                const byWealth = [...activeAll].sort(
+                    (a, b) => (Number(b.y2026) || 0) - (Number(a.y2026) || 0)
+                );
+                const n = byWealth.length;
+                const k = Math.max(1, Math.ceil(n * 0.1));
+                const totalSum = sumY2026(byWealth);
+                const topSum = byWealth.slice(0, k).reduce((a, p) => a + (Number(p.y2026) || 0), 0);
+                const sharePct =
+                    totalSum > 0 ? ((topSum / totalSum) * 100).toFixed(1) : "0.0";
+                elTop10.innerHTML =
+                    "상위 10%의 재산은 전체 총량의 " + em(sharePct + "%") + "입니다.";
+            }
+
+            // ② 재산 TOP100(최대 100명) 내 정당별 인원 — 상위 3개 정당
+            if (activeAll.length === 0) {
+                elTop100Party.textContent =
+                    "2026년 신고액이 있는 데이터가 없어 이 항목을 계산할 수 없습니다.";
+            } else {
+                const byWealthTop = [...activeAll].sort(
+                    (a, b) => (Number(b.y2026) || 0) - (Number(a.y2026) || 0)
+                );
+                const top100 = byWealthTop.slice(0, 100);
+                const partyCounts = {};
+                top100.forEach((p) => {
+                    const party = (p.party || "").trim() || "정당 미상";
+                    partyCounts[party] = (partyCounts[party] || 0) + 1;
+                });
+                const rankedParties = Object.entries(partyCounts).sort(
+                    (a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ko")
+                );
+                const top3Parties = rankedParties.slice(0, 3);
+                const phrases = top3Parties.map(([name, cnt]) =>
+                    spotlightPartyJeongdangCount(name, cnt, em)
+                );
+                elTop100Party.innerHTML =
+                    "재산 TOP100에 속한 사람들은 " + phrases.join(", ") + " 입니다.";
+            }
+
+            // ③ 구의원(직위 정확히 "구의원") 지역별 재산 집중도
+            const councilOnly = activeAll.filter((p) => p.position === "구의원");
+            if (councilOnly.length === 0) {
+                elCouncil.textContent =
+                    "2026년 신고액이 있는 현직 구의원 데이터가 없어 이 항목을 계산할 수 없습니다.";
+            } else {
+                const byDistrict = {};
+                councilOnly.forEach((p) => {
+                    const d = (p.district || "미상").trim() || "미상";
+                    byDistrict[d] = (byDistrict[d] || 0) + (Number(p.y2026) || 0);
+                });
+                const totalCouncil = Object.values(byDistrict).reduce((a, b) => a + b, 0);
+                const sorted = Object.entries(byDistrict)
+                    .map(([d, s]) => ({
+                        d,
+                        s,
+                        pct: totalCouncil > 0 ? (s / totalCouncil) * 100 : 0
+                    }))
+                    .sort((a, b) => b.s - a.s || a.d.localeCompare(b.d, "ko"));
+                const top3 = sorted.slice(0, 3);
+                const top3Html = top3
+                    .map(({ d, pct }) => em(escapeHtml(d) + "(" + pct.toFixed(1) + "%)"))
+                    .join(",");
+                const top3Sum = top3.reduce((acc, x) => acc + x.s, 0);
+                const combinedPct =
+                    totalCouncil > 0 ? ((top3Sum / totalCouncil) * 100).toFixed(1) : "0.0";
+                elCouncil.innerHTML =
+                    "재산 총액이 가장 많은 곳은 " +
+                    top3Html +
+                    " 순서이며, 전체 재산의 " +
+                    em(combinedPct + "%") +
+                    "를 차지합니다.(구의원 기준)";
+            }
+
+            // ④ 정당별 평균 재산 순위
+            const byParty = {};
+            activeAll.forEach((p) => {
+                const party = (p.party || "").trim();
+                if (!party) return;
+                if (!byParty[party]) byParty[party] = { sum: 0, n: 0 };
+                byParty[party].sum += Number(p.y2026) || 0;
+                byParty[party].n += 1;
+            });
+            const ranked = Object.entries(byParty)
+                .map(([name, { sum, n }]) => ({
+                    name,
+                    avgCheon: sum / n
+                }))
+                .sort((a, b) => b.avgCheon - a.avgCheon);
+
+            if (ranked.length === 0) {
+                elParty.textContent =
+                    "소속 정당 정보가 있는 신고 데이터가 없어 이 항목을 계산할 수 없습니다.";
+            } else if (ranked.length === 1) {
+                const a = ranked[0];
+                const amt = formatKoreanWonFromMan(toMan(a.avgCheon));
+                elParty.innerHTML =
+                    "정당별 평균액수가 가장 큰 곳은 " +
+                    partyNameAndAmountColored(a.name, amt) +
+                    "입니다.";
+            } else {
+                const a = ranked[0];
+                const b = ranked[1];
+                const avgMan1 = toMan(a.avgCheon);
+                const avgMan2 = toMan(b.avgCheon);
+                const amtA = formatKoreanWonFromMan(avgMan1);
+                const amtB = formatKoreanWonFromMan(avgMan2);
+                let pctHigher = "0.0";
+                if (avgMan2 > 0) {
+                    pctHigher = (((avgMan1 - avgMan2) / avgMan2) * 100).toFixed(1);
+                } else if (avgMan1 > 0) {
+                    pctHigher = "—";
+                }
+                elParty.innerHTML =
+                    "정당별 평균액수가 가장 큰 곳은 " +
+                    partyNameAndAmountColored(a.name, amtA) +
+                    "이며, 다음인 " +
+                    partyNameAndAmountColored(b.name, amtB) +
+                    "에 비해 " +
+                    em(pctHigher === "—" ? "—" : pctHigher + "%") +
+                    " 높습니다.";
+            }
+
+            // ⑤ 금융 ≥10억·부동산 ≥30억 (1억=100,000천원, chart.js와 동일)
+            const CHEON_PER_EOK = 100000;
+            const fin10eokCheon = 10 * CHEON_PER_EOK;
+            const re30eokCheon = 30 * CHEON_PER_EOK;
+            const highFinCount = activeAll.filter((p) => financeCheonPerson(p) >= fin10eokCheon).length;
+            const highReCount = activeAll.filter((p) => realEstateCheonPerson(p) >= re30eokCheon).length;
+            const thr = (t) => '<strong class="spotlight-threshold">' + t + "</strong>";
+            elHigh.innerHTML =
+                "금융자산(현금·예금·증권·채권·가상자산)을 " +
+                thr("10억원 이상") +
+                " 보유한 공직자는 총 " +
+                em(String(highFinCount)) +
+                "명이고, 부동산(토지+건물)을 " +
+                thr("30억 이상") +
+                " 보유한 공직자는 " +
+                em(String(highReCount)) +
+                "명입니다.";
+
+            // ⑥ 부동산(토지+건물)·금융자산 최다 보유 1인 (2026 필드 기준)
+            if (activeAll.length === 0) {
+                elMaxRe.textContent =
+                    "2026년 신고액이 있는 데이터가 없어 이 항목을 계산할 수 없습니다.";
+                elMaxFin.textContent =
+                    "2026년 신고액이 있는 데이터가 없어 이 항목을 계산할 수 없습니다.";
+            } else {
+                const pRe = topPersonByCheon(activeAll, realEstateCheonPerson);
+                const cheonRe = realEstateCheonPerson(pRe);
+                const wonRe = formatKoreanWonFromMan(toMan(cheonRe));
+                elMaxRe.innerHTML =
+                    "가장 부동산(토지+건물)이 많은 사람은 " +
+                    spotlightPersonPartyNameRoleHtml(pRe) +
+                    "이며, 금액은 " +
+                    em(wonRe) +
+                    " 입니다.";
+
+                const pFin = topPersonByCheon(activeAll, financeCheonPerson);
+                const cheonFin = financeCheonPerson(pFin);
+                const wonFin = formatKoreanWonFromMan(toMan(cheonFin));
+                elMaxFin.innerHTML =
+                    "가장 금융자산(현금·예금·증권·채권·가상자산)이 많은 사람은 " +
+                    spotlightPersonPartyNameRoleHtml(pFin) +
+                    "이며, 금액은 " +
+                    em(wonFin) +
+                    " 입니다.";
+            }
+
+            // ⑦⑧ 2023년 대비 총재산(y2026−y2023) 증가 최다 — y2023>0만, 현직 구청장·구의원
+            const mayorActive = activeAll.filter((p) => p.position === "구청장");
+            const councilActive = activeAll.filter((p) => p.position === "구의원");
+            const mayorTop = topPersonByWealthIncreaseSince2023(mayorActive);
+            const councilTop = topPersonByWealthIncreaseSince2023(councilActive);
+
+            if (!mayorTop) {
+                elMayorGrowth.textContent =
+                    "2023년 재산 신고가 있는 인원 중, 2023년 대비 재산이 늘어난 구청장이 없어 이 항목을 계산할 수 없습니다.";
+            } else {
+                const dCheon =
+                    (Number(mayorTop.y2026) || 0) - (Number(mayorTop.y2023) || 0);
+                const wonInc = formatKoreanWonFromMan(toMan(dCheon));
+                elMayorGrowth.innerHTML =
+                    "2023년 재산 신고가 있는 구청장 중, 2023년 대비 재산이 가장 많이 늘어난 이는 " +
+                    spotlightPersonPartyNameRoleHtml(mayorTop) +
+                    " 으로 " +
+                    em(wonInc) +
+                    " 증가했습니다.";
+            }
+
+            if (!councilTop) {
+                elCouncilGrowth.textContent =
+                    "2023년 재산 신고가 있는 인원 중, 2023년 대비 재산이 늘어난 구의원이 없어 이 항목을 계산할 수 없습니다.";
+            } else {
+                const dCheon =
+                    (Number(councilTop.y2026) || 0) - (Number(councilTop.y2023) || 0);
+                const wonInc = formatKoreanWonFromMan(toMan(dCheon));
+                elCouncilGrowth.innerHTML =
+                    "2023년 재산 신고가 있는 구의원 중, 2023년 대비 재산이 가장 많이 늘어난 이는 " +
+                    spotlightPersonPartyNameRoleHtml(councilTop) +
+                    " 으로 " +
+                    em(wonInc) +
+                    " 증가했습니다.";
+            }
+        }
+
+        /**
+         * 개요 연도별 표: 천원 합 → HTML (조·)억·만, 억·만 숫자는 최소 4자리 0 패딩
+         */
+        function formatCheonSumEokManHtml(cheonSum) {
+            const man = Math.round(toMan(Number(cheonSum) || 0));
+            const pad4 = (n) => String(Math.max(0, Math.floor(n))).padStart(4, "0");
+            const fig = (numStr, unit) =>
+                '<span class="ov-yt-fig"><span class="ov-yt-num">' +
+                escapeHtml(numStr) +
+                '</span><span class="ov-yt-unit">' +
+                escapeHtml(unit) +
+                "</span></span>";
+            if (man === 0) {
+                return '<span class="ov-yt-amt">' + fig("0000", "억") + fig("0000", "만") + "</span>";
+            }
+            const sign = man < 0 ? "-" : "";
+            const absVal = Math.abs(man);
+            const jo = Math.floor(absVal / 100000000);
+            const eok = Math.floor((absVal % 100000000) / 10000);
+            const manRem = absVal % 10000;
+            let parts = "";
+            if (jo > 0) {
+                parts += fig(jo.toLocaleString(), "조");
+            }
+            parts += fig(pad4(eok), "억");
+            parts += fig(pad4(manRem), "만");
+            return sign + '<span class="ov-yt-amt">' + parts + "</span>";
+        }
+
+        function overviewYearCheonPerson(p, year, kind) {
+            const y = String(year);
+            if (kind === "total") return Number(p["y" + y]) || 0;
+            if (kind === "re") {
+                const k = "re" + y;
+                if (p[k] != null && p[k] !== "") return Number(p[k]) || 0;
+                if (y === "2026") return realEstateCheonPerson(p);
+                return 0;
+            }
+            if (kind === "fin") {
+                const k = "fin" + y;
+                if (p[k] != null && p[k] !== "") return Number(p[k]) || 0;
+                if (y === "2026") return financeCheonPerson(p);
+                return 0;
+            }
+            return 0;
+        }
+
+        function renderOverviewYearTable(activeAll) {
+            const tb = document.getElementById("overview-year-tbody");
+            if (!tb) return;
+            const years = ["2023", "2024", "2025", "2026"];
+            const kinds = ["total", "re", "fin"];
+            if (!activeAll.length) {
+                tb.innerHTML =
+                    '<tr><td colspan="4" class="text-center text-muted py-4">2026년 신고 데이터가 없어 표시할 수 없습니다.</td></tr>';
+                return;
+            }
+            let html = "";
+            years.forEach((y) => {
+                html += '<tr><th scope="row" class="ov-yt-col-year">' + escapeHtml(y + "년") + "</th>";
+                kinds.forEach((kind) => {
+                    const sum = activeAll.reduce(
+                        (acc, p) => acc + overviewYearCheonPerson(p, y, kind),
+                        0
+                    );
+                    html += '<td class="ov-yt-col-num">' + formatCheonSumEokManHtml(sum) + "</td>";
+                });
+                html += "</tr>";
+            });
+            tb.innerHTML = html;
+        }
+
+        function renderStats(allData) {
+            const data = Object.values(allData);
+            const mayorAll = data.filter(isMayor);
+            const memberAll = data.filter(p => p.position && !isMayor(p));
+
+            const activeAll = activeWithY2026(data);
+            const activeMayors = activeWithY2026(mayorAll);
+            const activeMembers = activeWithY2026(memberAll);
+
+            const duration = 1500;
+            const districts = new Set(data.map(i => i.district).filter(Boolean)).size;
+
+            animateValue("hero-district-count", 0, districts, duration, false);
+            animateValue("hero-mayor-count", 0, mayorAll.length, duration, false);
+            animateValue("hero-member-count", 0, memberAll.length, duration, false);
+
+            const packs = [
+                {
+                    prefix: "c1",
+                    sumCheonAll: sumY2026(activeAll),
+                    sumCheonMayor: sumY2026(activeMayors),
+                    sumCheonMember: sumY2026(activeMembers),
+                    nAll: activeAll.length,
+                    nMayor: activeMayors.length,
+                    nMember: activeMembers.length
+                },
+                {
+                    prefix: "c2",
+                    sumCheonAll: sumRealEstateCheon(activeAll),
+                    sumCheonMayor: sumRealEstateCheon(activeMayors),
+                    sumCheonMember: sumRealEstateCheon(activeMembers),
+                    nAll: activeAll.length,
+                    nMayor: activeMayors.length,
+                    nMember: activeMembers.length
+                },
+                {
+                    prefix: "c3",
+                    sumCheonAll: sumFinanceCheon(activeAll),
+                    sumCheonMayor: sumFinanceCheon(activeMayors),
+                    sumCheonMember: sumFinanceCheon(activeMembers),
+                    nAll: activeAll.length,
+                    nMayor: activeMayors.length,
+                    nMember: activeMembers.length
+                }
+            ];
+
+            packs.forEach((p) => {
+                const totalManAll = toMan(p.sumCheonAll);
+                const totalManMayor = toMan(p.sumCheonMayor);
+                const totalManMember = toMan(p.sumCheonMember);
+                const avgAll = avgManFromCheonSum(p.sumCheonAll, p.nAll);
+                const avgMayor = avgManFromCheonSum(p.sumCheonMayor, p.nMayor);
+                const avgMember = avgManFromCheonSum(p.sumCheonMember, p.nMember);
+
+                animateValue(`${p.prefix}-total-all`, 0, totalManAll, duration, true);
+                animateValue(`${p.prefix}-avg-all`, 0, avgAll, duration, true);
+                animateValue(`${p.prefix}-total-mayor`, 0, totalManMayor, duration, true);
+                animateValue(`${p.prefix}-avg-mayor`, 0, avgMayor, duration, true);
+                animateValue(`${p.prefix}-total-member`, 0, totalManMember, duration, true);
+                animateValue(`${p.prefix}-avg-member`, 0, avgMember, duration, true);
+            });
+
+            renderDataSpotlight(activeAll);
+            renderOverviewYearTable(activeAll);
+        }
+
+        async function init() {
+            await loadComponent('header-plugin', '/header.html');
+            await loadComponent('footer-plugin', '/footer.html');
+
+            try {
+                const response = await fetch("/data.json");
+                if (!response.ok) throw new Error("JSON 파일을 찾을 수 없습니다.");
+                const data = await response.json();
+                console.log("✅ 데이터 로드 성공");
+                renderStats(data);
+            } catch (err) {
+                console.error("데이터 초기화 에러:", err);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

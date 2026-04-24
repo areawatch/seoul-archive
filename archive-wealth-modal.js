@@ -11,7 +11,8 @@
   function archiveJsonPath(filename) {
     const p = window.location.pathname || "";
     if (/\/candidates\//.test(p)) return "../" + filename;
-    return filename;
+    if (/\/wealth\//.test(p)) return "/" + filename;
+    return "/" + filename;
   }
 
   function isDebtType(type) {

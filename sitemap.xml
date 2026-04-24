@@ -11,17 +11,22 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://seoularchive.net/archive.html</loc>
+    <loc>https://seoularchive.net/wealth/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://seoularchive.net/wealth/archive.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://seoularchive.net/archive-district.html</loc>
+    <loc>https://seoularchive.net/wealth/archive-district.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://seoularchive.net/analysis.html</loc>
+    <loc>https://seoularchive.net/wealth/analysis.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
