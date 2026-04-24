@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>📋 브리핑 — 서울시 구의원·구청장 예비후보</title>
+    <title>📋 브리핑 — 서울시 구청장·구의원·시의원 예비후보</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -45,7 +45,7 @@
         <p class="text-sm font-medium uppercase tracking-wider text-slate-500">Seoul Archive</p>
         <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">📋 브리핑</h1>
         <p class="mt-2 text-sm text-slate-600">
-          서울시 구의원·구청장 예비후보 명부를 바탕으로 한 요약입니다.
+          서울시 구청장·구의원·시의원 예비후보 명부를 바탕으로 한 요약입니다.
         </p>
         <p
           id="briefingDataUpdatedLine"
@@ -101,7 +101,10 @@
           정당별 현직 인원
         </h2>
         <p class="mt-1 text-sm text-slate-600">
-          후보 목록의 「현직」과 같이, <strong class="font-medium text-slate-800">재산 공개 명부</strong>에서 자치구·이름이 일치하고 직책이 「구의원」인 경우만 현직으로 집계합니다.
+          후보 목록에서 <strong class="font-medium text-slate-800">「현직만」</strong>을 켠 뒤 직무를 전체로 두었을 때와 같습니다.
+          <strong class="font-medium text-slate-800">재산 공개 명부</strong>에 이름·자치구가 일치해 등재된 후보만 집계합니다. 여기서 말하는 현직은
+          <strong class="font-medium text-slate-800">구정감시서울네트워크</strong>가 재산 내역을 조사한
+          <strong class="font-medium text-slate-800">현직 구청장·구의원</strong>을 의미하며, 해당 명부에 맞는 인원은 공개된 재산 내역을 확인할 수 있습니다.
         </p>
         <p class="mt-2 text-xs text-slate-500">
           현직이 0명인 정당은 기본으로 숨기며, 아래 <span class="font-medium text-slate-600">더보기</span>로 펼칠 수 있습니다.
@@ -262,7 +265,7 @@
           return rows;
         }
 
-        /** 후보 목록 index.html 의 isWealthCurrentCouncilMember 와 동일 */
+        /** 후보 목록 index.html 의 hasWealthDisclosureInArchive 와 동일 */
         var wealthPositionByKey = {};
 
         function normalizeWealthName(raw) {
@@ -295,8 +298,8 @@
           return String(wealthPositionByKey[d + "|" + n] || "").trim();
         }
 
-        function isWealthCurrentCouncilMember(c) {
-          return wealthRawPositionForCandidate(c) === "구의원";
+        function hasWealthDisclosureInArchive(c) {
+          return !!String(wealthRawPositionForCandidate(c) || "").trim();
         }
 
         /** @returns {{ party: string, total: number, incumbent: number }[]} */
@@ -307,7 +310,7 @@
             if (!map.has(p)) map.set(p, { total: 0, incumbent: 0 });
             var row = map.get(p);
             row.total += 1;
-            if (isWealthCurrentCouncilMember(c)) row.incumbent += 1;
+            if (hasWealthDisclosureInArchive(c)) row.incumbent += 1;
           });
           var rows = Array.from(map.entries()).map(function (entry) {
             return {
@@ -391,7 +394,7 @@
 
           if (nonZero.length === 0 && zeroRows.length > 0) {
             visibleOl.innerHTML =
-              '<li class="px-4 py-3 text-sm text-slate-600">명부 기준 현직(구의원)이 0명인 정당만 있습니다. 아래 더보기에서 전체 정당을 확인할 수 있습니다.</li>';
+              '<li class="px-4 py-3 text-sm text-slate-600">재산 명부에 등재된 후보가 없는 정당만 있습니다. 아래 더보기에서 전체 정당을 확인할 수 있습니다.</li>';
           }
 
           zeroRows.forEach(function (row) {

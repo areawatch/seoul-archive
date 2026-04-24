@@ -4,6 +4,7 @@
 중앙선거관리위원회 선거통계시스템(info.nec.go.kr)에서 수집합니다.
 
 - 구·시·군의회의원(구의원): electionCode 6
+- 시·도의회의원(서울 = 시의원, 자치구 단위 선거구): electionCode 5
 - 시장·군수·구청장(서울 자치구 단위 = 구청장): electionCode 4
 
 사용:
@@ -12,7 +13,7 @@
 
 출력: public/data/candidates.json
   형식: {"updatedAt": "ISO8601(Asia/Seoul)", "candidates": [ ... ]}
-  각 후보에 "office": "구의원" | "구청장" 필드가 붙습니다(구의원만 있던 구버전 JSON은 화면에서 구의원으로 간주).
+  각 후보에 "office": "구의원" | "시의원" | "구청장" 필드가 붙습니다(없으면 화면에서 구의원으로 간주).
 
 선거구명(constituency)·주소(address)는 이 스크립트가 넣는 필드입니다.
 huboId는 선관위 예비후보 상세(전과 스캔 서류) 링크용입니다.
@@ -48,6 +49,11 @@ COUNCIL_OFFICE = "구의원"
 MAYOR_CLASS_ELECTION_CODE = "4"
 MAYOR_CLASS_STATEMENT_ID = "PCRI03_#4"
 MAYOR_OFFICE = "구청장"
+
+# 시·도의회의원 (서울시의회 = 시의원, 구 단위 선거구)
+METRO_COUNCIL_ELECTION_CODE = "5"
+METRO_COUNCIL_STATEMENT_ID = "PCRI03_#5"
+METRO_OFFICE = "시의원"
 
 REPORT_PATH = "/electioninfo/electionInfo_report.xhtml"
 TOWN_JSON = "/bizcommon/selectbox/selectbox_townCodeBySgJson.json"
@@ -173,13 +179,17 @@ def post_report_html(
 
 
 def _district_from_constituency(constituency: str) -> str:
-    """'종로구가선거구' -> '종로구'"""
-    m = re.match(r"^(.+구)[가-힣]선거구$", constituency.strip())
+    """선거구명에서 자치구명 추출. '종로구가선거구', '종로구제1선거구' 등."""
+    c = constituency.strip()
+    for gu in sorted(SEOUL_GU_ORDER, key=len, reverse=True):
+        if c.startswith(gu):
+            return gu
+    m = re.match(r"^(.+구)[가-힣]선거구$", c)
     if m:
         return m.group(1)
-    if constituency.endswith("구"):
-        return constituency
-    return constituency
+    if c.endswith("구"):
+        return c
+    return c
 
 
 def _abs_photo_url(src: str | None) -> str | None:
@@ -372,6 +382,17 @@ def crawl(
         total_requests += nreq
         out.extend(batch)
 
+    if mode in ("all", "metro"):
+        batch, nreq = crawl_office(
+            election_code=METRO_COUNCIL_ELECTION_CODE,
+            statement_id=METRO_COUNCIL_STATEMENT_ID,
+            office_label=METRO_OFFICE,
+            towns_filter=towns_filter,
+            dry_run=dry_run,
+        )
+        total_requests += nreq
+        out.extend(batch)
+
     if dry_run:
         print(f"dry-run: 총 {total_requests}회 요청 예정", file=sys.stderr)
         return []
@@ -381,7 +402,7 @@ def crawl(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="NEC 서울 구의원·구청장 예비후보 JSON 수집",
+        description="NEC 서울 구의원·시의원·구청장 예비후보 JSON 수집",
     )
     parser.add_argument(
         "-o",
@@ -398,9 +419,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--only",
-        choices=("all", "council", "mayor"),
+        choices=("all", "council", "mayor", "metro"),
         default="all",
-        help="구의원만 / 구청장만 / 둘 다 (기본: all)",
+        help="구의원만 / 시의원만 / 구청장만 / 전체 (기본: all)",
     )
     parser.add_argument(
         "--dry-run",

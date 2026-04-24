@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>서울시 구의원·구청장 예비후보 — 직무·구·정당·이름 필터</title>
+    <title>서울시 구청장·구의원·시의원 예비후보 — 직무·구·정당·이름 필터</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -47,7 +47,7 @@
           Seoul Archive
         </p>
         <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          구의원·구청장 후보자 목록
+          구청장·구의원·시의원 후보자 목록
         </h1>
         <p
           id="dataUpdatedLine"
@@ -64,7 +64,7 @@
           <div class="flex flex-wrap items-center gap-2 sm:gap-3">
             <div
               id="officeFilterSeg"
-              class="flex min-w-[14rem] max-w-md flex-1 overflow-hidden rounded-lg border border-slate-200 sm:max-w-lg"
+              class="inline-flex max-w-full min-w-0 flex-nowrap justify-start overflow-x-auto rounded-lg border border-slate-200 sm:max-w-2xl [&>button]:flex-none"
               role="group"
               aria-labelledby="officeFilterLegend"
             >
@@ -72,7 +72,7 @@
                 type="button"
                 data-office-filter=""
                 aria-pressed="true"
-                class="office-filter-seg flex-1 border-r border-slate-200 px-3 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-slate-700 text-white hover:bg-slate-700"
+                class="office-filter-seg border-r border-slate-200 px-2.5 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-slate-700 text-white hover:bg-slate-700 sm:px-3"
               >
                 전체
               </button>
@@ -80,7 +80,7 @@
                 type="button"
                 data-office-filter="구청장"
                 aria-pressed="false"
-                class="office-filter-seg flex-1 border-r border-slate-200 px-3 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50"
+                class="office-filter-seg border-r border-slate-200 px-2.5 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3"
               >
                 구청장
               </button>
@@ -88,17 +88,17 @@
                 type="button"
                 data-office-filter="구의원"
                 aria-pressed="false"
-                class="office-filter-seg flex-1 border-r border-slate-200 px-3 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50"
+                class="office-filter-seg border-r border-slate-200 px-2.5 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3"
               >
                 구의원
               </button>
               <button
                 type="button"
-                data-office-filter="현직"
+                data-office-filter="시의원"
                 aria-pressed="false"
-                class="office-filter-seg flex-1 border-r border-slate-200 px-2 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50"
+                class="office-filter-seg border-r border-slate-200 px-2.5 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3"
               >
-                현직
+                시의원
               </button>
             </div>
             <button
@@ -108,6 +108,27 @@
             >
               필터 초기화
             </button>
+          </div>
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-0.5">
+            <label
+              for="incumbentOnlyFilter"
+              class="inline-flex max-w-full cursor-pointer select-none items-start gap-2 text-sm text-slate-700"
+            >
+              <input
+                type="checkbox"
+                id="incumbentOnlyFilter"
+                class="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-sky-600 focus:ring-2 focus:ring-sky-200"
+              />
+              <span class="leading-snug">
+                <span class="font-semibold text-slate-800">현직만</span>
+                <span class="mt-0.5 block text-xs font-normal text-slate-600">
+                  위에서 고른 직무(또는 전체)에 해당하면서, <strong class="font-medium text-slate-700">재산 공개 명부에 이름·자치구가 일치해 등재된 후보</strong>만 표시합니다. 여기서 말하는 현직은
+                  <strong class="font-medium text-slate-800">구정감시서울네트워크</strong>가 재산 내역을 조사한
+                  <strong class="font-medium text-slate-800">현직 구청장·구의원</strong>을 의미하며, 해당 명부에 맞는 인원은
+                  <strong class="font-medium text-slate-800">공개된 재산 내역</strong>을 눌러 확인할 수 있습니다.
+                </span>
+              </span>
+            </label>
           </div>
         </div>
         <div class="flex w-full flex-col gap-1.5 lg:col-span-3">
@@ -583,7 +604,7 @@
         }).length;
         var fPct = ((female / n) * 100).toFixed(1);
         var wealthCur = filtered.filter(function (c) {
-          return wealthRawPositionForCandidate(c) === "구의원";
+          return hasWealthDisclosureInArchive(c);
         }).length;
         el.innerHTML =
           '<h2 class="mb-3 text-base font-bold tracking-tight text-slate-900">👀구정감시 브리핑</h2>' +
@@ -615,9 +636,9 @@
           '</span>명으로 전체 후보의 <span class="font-semibold text-slate-900">' +
           escapeHtml(fPct) +
           "%</span>입니다.</li>" +
-          '<li>예비후보자 중 현직은 <span class="font-semibold text-slate-900">' +
+          '<li>재산 공개 명부에 등재되어 재산 내역을 열람할 수 있는 후보는 <span class="font-semibold text-slate-900">' +
           escapeHtml(String(wealthCur)) +
-          "</span>명으로, 재산내역을 열람할 수 있습니다.</li>" +
+          "</span>명입니다.</li>" +
           "</ol>" +
           '<p class="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-400">※ 위 통계는 현재 필터·검색에 해당하는 <span class="font-medium text-slate-600">' +
           n +
@@ -846,28 +867,44 @@
         return o || "구의원";
       }
 
-      /** 재산 공개 명부 직책이 「구의원」(현 구의원) — 브리핑 현직 인원과 동일 */
-      function isWealthCurrentCouncilMember(c) {
-        return wealthRawPositionForCandidate(c) === "구의원";
+      /** 구정감시 재산 공개 data.json 명부에 이름·구가 일치해 재산을 열람할 수 있는 경우(직책 문자열 유무) */
+      function hasWealthDisclosureInArchive(c) {
+        return !!String(wealthRawPositionForCandidate(c) || "").trim();
       }
 
-      /** 직무 세그먼트: 전체·구청장·구의원·현직(명부 매칭) */
-      function matchesOfficeFilter(c, office) {
-        if (!office) return true;
-        if (office === "현직") return isWealthCurrentCouncilMember(c);
-        return candidateOffice(c) === office;
+      function getIncumbentOnlyChecked() {
+        var el = document.getElementById("incumbentOnlyFilter");
+        return !!(el && el.checked);
       }
 
-      /** 테이블 부가 줄: 구청장은 선거구 생략 → 「송파구 구청장」, 구의원은 「구 · 선거구」 */
+      /** 직무 세그먼트 + 「현직만」(명부 등재·재산 열람 가능) AND */
+      function candidateMatchesJobFilters(c) {
+        var office = getOfficeFilterValue();
+        if (office && candidateOffice(c) !== office) return false;
+        if (!getIncumbentOnlyChecked()) return true;
+        return hasWealthDisclosureInArchive(c);
+      }
+
+      /** 테이블 부가 줄: 구청장은 선거구 생략, 구의원·시의원은 「구 · 선거구」 */
       function candidateListAreaLineHtml(c) {
         var d = escapeHtml(c.district || "—");
         if (candidateOffice(c) === "구청장") {
           return d + ' <span class="font-medium text-slate-500">구청장</span>';
         }
-        return d + '<span class="mx-0.5 text-slate-300">·</span>' + escapeHtml(c.constituency || "—");
+        var off = candidateOffice(c);
+        var suf =
+          off === "시의원"
+            ? ' <span class="font-medium text-slate-500">시의원</span>'
+            : "";
+        return (
+          d +
+          '<span class="mx-0.5 text-slate-300">·</span>' +
+          escapeHtml(c.constituency || "—") +
+          suf
+        );
       }
 
-      /** 상세 모달 부가 줄: 구청장은 동일, 구의원은 직무까지 표시 */
+      /** 상세 모달 부가 줄: 구청장은 동일, 그 외는 선거구·직무 표시 */
       function candidateModalAreaLineHtml(c) {
         var d = escapeHtml(c.district || "—");
         if (candidateOffice(c) === "구청장") {
@@ -892,9 +929,9 @@
         var root = document.getElementById("officeFilterSeg");
         if (!root) return;
         var onCls =
-          "office-filter-seg flex-1 border-r border-slate-200 px-3 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-slate-700 text-white hover:bg-slate-700";
+          "office-filter-seg flex-none border-r border-slate-200 px-2.5 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-slate-700 text-white hover:bg-slate-700 sm:px-3";
         var offCls =
-          "office-filter-seg flex-1 border-r border-slate-200 px-3 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50";
+          "office-filter-seg flex-none border-r border-slate-200 px-2.5 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3";
         root.querySelectorAll("button[data-office-filter]").forEach(function (b) {
           var v = String(b.getAttribute("data-office-filter") || "");
           var on = v === value;
@@ -968,11 +1005,10 @@
       function fillPartySelect() {
         const sel = document.getElementById("party");
         const prev = sel.value;
-        const office = getOfficeFilterValue();
         sel.querySelectorAll("option:not([value=''])").forEach((o) => o.remove());
         const names = new Set();
         allCandidates.forEach((c) => {
-          if (!matchesOfficeFilter(c, office)) return;
+          if (!candidateMatchesJobFilters(c)) return;
           const p = String(c.party ?? "").trim();
           if (p) names.add(p);
         });
@@ -992,6 +1028,7 @@
         const district = document.getElementById("district").value;
         const party = document.getElementById("party").value;
         const office = getOfficeFilterValue();
+        const incumbentOnly = getIncumbentOnlyChecked();
         const q = normalizeSearch(document.getElementById("nameQuery").value);
         const list = document.getElementById("cardList");
         const countLabel = document.getElementById("countLabel");
@@ -1000,12 +1037,12 @@
         const filtered = allCandidates.filter((c) => {
           if (district && c.district !== district) return false;
           if (party && String(c.party ?? "").trim() !== party) return false;
-          if (!matchesOfficeFilter(c, office)) return false;
+          if (!candidateMatchesJobFilters(c)) return false;
           if (!q) return true;
           return normalizeSearch(c.name).includes(q);
         });
 
-        const usingFilter = Boolean(district || party || q || office);
+        const usingFilter = Boolean(district || party || q || office || incumbentOnly);
         countLabel.textContent = usingFilter
           ? `표시 ${filtered.length}명 / 전체 ${allCandidates.length}명`
           : `전체 ${filtered.length}명`;
@@ -1165,10 +1202,20 @@
         render(true);
       });
 
+      var incumbentOnlyEl = document.getElementById("incumbentOnlyFilter");
+      if (incumbentOnlyEl) {
+        incumbentOnlyEl.addEventListener("change", function () {
+          fillPartySelect();
+          render(true);
+        });
+      }
+
       function resetFilters() {
         document.getElementById("district").value = "";
         document.getElementById("nameQuery").value = "";
         setOfficeSegVisual("");
+        var inc = document.getElementById("incumbentOnlyFilter");
+        if (inc) inc.checked = false;
         sortKey = "name";
         sortAsc = true;
         fillPartySelect();
