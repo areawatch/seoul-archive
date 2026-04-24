@@ -37,93 +37,515 @@
     <meta name="twitter:image:alt" content="서울아카이브" />
     <meta name="naver-site-verification" content="4defe095b8774b672592ae03022044e061d4064b" />
 
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="/style.css" />
     <style>
-      .landing-hero {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e3a5f 100%);
+      .landing-root {
+        --landing-slate-950: #020617;
+        --landing-slate-900: #0f172a;
+        --landing-sky-400: #38bdf8;
+        --landing-indigo-400: #818cf8;
+        --landing-accent: #0ea5e9;
+        font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        background: linear-gradient(180deg, #e2e8f0 0%, #f1f5f9 35%, #f8fafc 100%);
+        color: var(--landing-slate-900);
+        min-height: 100vh;
+      }
+
+      .landing-hero-wrap {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(128deg, #060d18 0%, #0f1c33 38%, #132a45 62%, #0c1829 100%);
         color: #fff;
-        padding: 3.5rem 0 4rem;
+        padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(3rem, 8vw, 5rem);
       }
-      .landing-card {
-        border-radius: 1rem;
-        border: 1px solid rgba(15, 23, 42, 0.08);
-        transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+      .landing-hero-wrap::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse 90% 55% at 15% -10%, rgba(56, 189, 248, 0.28), transparent 55%),
+          radial-gradient(ellipse 70% 45% at 95% 5%, rgba(129, 140, 248, 0.22), transparent 50%),
+          radial-gradient(ellipse 55% 40% at 50% 110%, rgba(14, 165, 233, 0.14), transparent 45%);
+        pointer-events: none;
+      }
+
+      .landing-hero-grid {
+        position: absolute;
+        inset: 0;
+        opacity: 0.45;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        background-size: 56px 56px;
+        mask-image: linear-gradient(180deg, black 0%, black 55%, transparent 100%);
+        -webkit-mask-image: linear-gradient(180deg, black 0%, black 55%, transparent 100%);
+        pointer-events: none;
+      }
+
+      .landing-hero-glow {
+        position: absolute;
+        width: min(42rem, 90vw);
+        height: min(42rem, 90vw);
+        left: 50%;
+        top: 0;
+        transform: translate(-50%, -42%);
+        background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 68%);
+        pointer-events: none;
+      }
+
+      .landing-hero-inner {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        max-width: 44rem;
+        margin: 0 auto;
+      }
+
+      .landing-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.55);
+        margin-bottom: 1rem;
+      }
+
+      .landing-eyebrow::before,
+      .landing-eyebrow::after {
+        content: "";
+        width: 1.5rem;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35));
+      }
+
+      .landing-eyebrow::after {
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.35), transparent);
+      }
+
+      .landing-title {
+        font-size: clamp(2rem, 5.5vw, 3.25rem);
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 1.15;
+        margin-bottom: 1.25rem;
+        background: linear-gradient(135deg, #fff 0%, #e0f2fe 45%, #bae6fd 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 0 40px rgba(56, 189, 248, 0.15);
+      }
+
+      /* 전역 style.css 의 h1(Paperozi)보다 랜딩 타이포가 우선 */
+      .landing-root h1.landing-title {
+        font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.04em !important;
+        line-height: 1.15 !important;
+      }
+
+      .landing-lead {
+        font-size: clamp(1rem, 2.4vw, 1.15rem);
+        line-height: 1.65;
+        color: rgba(226, 232, 240, 0.88);
+        margin-bottom: 0;
+        max-width: 32rem;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .landing-hero-pills {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem 0.65rem;
+        margin-top: 1.75rem;
+      }
+
+      .landing-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.4rem 0.85rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: rgba(241, 245, 249, 0.95);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 9999px;
+        backdrop-filter: blur(8px);
+      }
+
+      .landing-pill i {
+        font-size: 0.85rem;
+        opacity: 0.9;
+      }
+
+      .landing-main {
+        padding: clamp(2.5rem, 5vw, 4rem) 0 clamp(3rem, 6vw, 5rem);
+      }
+
+      .landing-main-inner {
+        max-width: 1040px;
+        margin: 0 auto;
+      }
+
+      .landing-section-kicker {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 0.35rem;
+        text-align: center;
+      }
+
+      .landing-section-title {
+        font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: #0f172a;
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .landing-feature-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
         height: 100%;
+        border-radius: 1.25rem;
       }
-      .landing-card:hover {
-        box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
-        transform: translateY(-2px);
+
+      .landing-feature-link:focus-visible {
+        outline: 2px solid #38bdf8;
+        outline-offset: 4px;
       }
-      .landing-card-icon {
-        width: 3rem;
-        height: 3rem;
-        border-radius: 0.75rem;
+
+      .landing-feature {
+        position: relative;
+        height: 100%;
+        border-radius: 1.25rem;
+        padding: 1.75rem 1.6rem;
+        background: #fff;
+        border: 1px solid rgba(15, 23, 42, 0.07);
+        box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 18px 38px -14px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+        transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+      }
+
+      .landing-feature::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        opacity: 0;
+        transition: opacity 0.28s ease;
+      }
+
+      .landing-feature--wealth::before {
+        background: linear-gradient(90deg, #0369a1, #0ea5e9, #38bdf8);
+      }
+
+      .landing-feature--candidates::before {
+        background: linear-gradient(90deg, #047857, #10b981, #34d399);
+      }
+
+      .landing-feature-link:hover .landing-feature,
+      .landing-feature-link:focus-visible .landing-feature {
+        transform: translateY(-5px);
+        box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.18);
+        border-color: rgba(15, 23, 42, 0.1);
+      }
+
+      .landing-feature-link:hover .landing-feature::before,
+      .landing-feature-link:focus-visible .landing-feature::before {
+        opacity: 1;
+      }
+
+      .landing-feature-bg {
+        position: absolute;
+        right: -20%;
+        bottom: -25%;
+        width: 55%;
+        height: 55%;
+        border-radius: 50%;
+        opacity: 0.07;
+        pointer-events: none;
+        transition: opacity 0.28s ease, transform 0.28s ease;
+      }
+
+      .landing-feature--wealth .landing-feature-bg {
+        background: radial-gradient(circle, #0284c7, transparent 70%);
+      }
+
+      .landing-feature--candidates .landing-feature-bg {
+        background: radial-gradient(circle, #059669, transparent 70%);
+      }
+
+      .landing-feature-link:hover .landing-feature-bg {
+        opacity: 0.11;
+        transform: scale(1.05);
+      }
+
+      .landing-feature-top {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.1rem;
+      }
+
+      .landing-icon-ring {
+        width: 3.35rem;
+        height: 3.35rem;
+        border-radius: 1rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.35rem;
+        font-size: 1.45rem;
+        flex-shrink: 0;
+      }
+
+      .landing-feature--wealth .landing-icon-ring {
+        background: linear-gradient(145deg, #e0f2fe 0%, #bae6fd 100%);
+        color: #0369a1;
+        box-shadow: 0 4px 14px rgba(14, 165, 233, 0.25);
+      }
+
+      .landing-feature--candidates .landing-icon-ring {
+        background: linear-gradient(145deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #047857;
+        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+      }
+
+      .landing-arrow {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: #94a3b8;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        transition: transform 0.25s ease, color 0.25s ease, background 0.25s ease;
+      }
+
+      .landing-feature-link:hover .landing-arrow,
+      .landing-feature-link:focus-visible .landing-arrow {
+        transform: translateX(3px);
+        color: #475569;
+        background: #e2e8f0;
+      }
+
+      .landing-feature h2 {
+        position: relative;
+        font-size: 1.2rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: #0f172a;
+        margin-bottom: 0.65rem;
+      }
+
+      .landing-feature-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-bottom: 0.85rem;
+      }
+
+      .landing-tag {
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.35rem;
+        letter-spacing: -0.01em;
+      }
+
+      .landing-feature--wealth .landing-tag {
+        background: #f0f9ff;
+        color: #0369a1;
+      }
+
+      .landing-feature--candidates .landing-tag {
+        background: #ecfdf5;
+        color: #047857;
+      }
+
+      .landing-feature p {
+        position: relative;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        color: #64748b;
+        margin-bottom: 0;
+      }
+
+      .landing-cta-wrap {
+        margin-top: 2.5rem;
+        text-align: center;
+      }
+
+      .landing-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.85rem 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #334155;
+        text-decoration: none;
+        background: #fff;
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        border-radius: 9999px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+        transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+      }
+
+      .landing-cta:hover {
+        color: #0f172a;
+        border-color: rgba(15, 23, 42, 0.16);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .landing-cta i {
+        font-size: 1.1rem;
+        color: #64748b;
+      }
+
+      .landing-cta:hover i {
+        color: #0f172a;
+      }
+
+      .landing-cta:focus-visible {
+        outline: 2px solid #38bdf8;
+        outline-offset: 3px;
+      }
+
+      @keyframes landing-fade-up {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .landing-animate {
+        animation: landing-fade-up 0.65s ease both;
+      }
+
+      .landing-animate-2 {
+        animation: landing-fade-up 0.65s ease 0.1s both;
+      }
+
+      .landing-animate-3 {
+        animation: landing-fade-up 0.65s ease 0.2s both;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .landing-animate,
+        .landing-animate-2,
+        .landing-animate-3 {
+          animation: none;
+        }
+        .landing-feature-link:hover .landing-feature,
+        .landing-feature-link:focus-visible .landing-feature {
+          transform: none;
+        }
       }
     </style>
   </head>
-  <body class="bg-light">
+  <body class="landing-root">
     <div id="header-plugin"></div>
 
-    <header class="landing-hero">
-      <div class="container text-center px-3">
-        <p class="text-white-50 small mb-2 text-uppercase tracking-wide">Seoul Archive</p>
-        <h1 class="display-5 fw-bold mb-3">서울아카이브</h1>
-        <p class="lead text-white-50 mx-auto mb-0" style="max-width: 36rem">
-          공직자 재산 공개 데이터와<br class="d-sm-none" />
-          구청장·구의원·시의원 예비후보 정보를 한곳에서 확인합니다.
-        </p>
+    <header class="landing-hero-wrap">
+      <div class="landing-hero-glow" aria-hidden="true"></div>
+      <div class="landing-hero-grid" aria-hidden="true"></div>
+      <div class="container px-3">
+        <div class="landing-hero-inner landing-animate">
+          <p class="landing-eyebrow mb-0">Seoul Archive</p>
+          <h1 class="landing-title mb-0">서울아카이브</h1>
+          <p class="landing-lead mt-4">
+            공직자 재산 공개 데이터와<br class="d-md-none" />
+            구청장·구의원·시의원 예비후보 정보를 한곳에서 확인합니다.
+          </p>
+          <div class="landing-hero-pills" aria-hidden="true">
+            <span class="landing-pill"><i class="bi bi-building" aria-hidden="true"></i> 서울시 25개 자치구</span>
+            <span class="landing-pill"><i class="bi bi-shield-check" aria-hidden="true"></i> 투명성·감시</span>
+            <span class="landing-pill"><i class="bi bi-table" aria-hidden="true"></i> 비교·검색</span>
+          </div>
+        </div>
       </div>
     </header>
 
-    <main class="py-5">
-      <div class="container px-3" style="max-width: 960px">
+    <main class="landing-main">
+      <div class="container px-3 landing-main-inner">
+        <p class="landing-section-kicker landing-animate-2">Explore</p>
+        <h2 class="landing-section-title landing-animate-2">데이터 둘러보기</h2>
         <div class="row g-4 justify-content-center">
-          <div class="col-md-6">
-            <a href="/wealth/" class="text-decoration-none text-dark">
-              <div class="card landing-card shadow-sm h-100 p-4">
-                <div class="d-flex align-items-start gap-3">
-                  <div class="landing-card-icon bg-primary bg-opacity-10 text-primary">
-                    <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+          <div class="col-lg-6">
+            <a href="/wealth/" class="landing-feature-link landing-animate-2">
+              <div class="landing-feature landing-feature--wealth">
+                <div class="landing-feature-bg" aria-hidden="true"></div>
+                <div class="landing-feature-top">
+                  <div class="landing-icon-ring" aria-hidden="true">
+                    <i class="bi bi-graph-up-arrow"></i>
                   </div>
-                  <div>
-                    <h2 class="h4 fw-bold mb-2">공직자 재산내역</h2>
-                    <p class="text-muted small mb-3">
-                      서울시 25개 자치구 구청장·구의원 등 재산 신고 데이터, 목록·자치구별 비교·개요 대시보드
-                    </p>
-                    <span class="fw-semibold text-primary">바로가기 <i class="bi bi-arrow-right-short" aria-hidden="true"></i></span>
-                  </div>
+                  <span class="landing-arrow" aria-hidden="true"><i class="bi bi-arrow-up-right"></i></span>
                 </div>
+                <h2>공직자 재산내역</h2>
+                <div class="landing-feature-tags">
+                  <span class="landing-tag">대시보드</span>
+                  <span class="landing-tag">목록·자치구별</span>
+                  <span class="landing-tag">연도 비교</span>
+                </div>
+                <p>
+                  서울시 25개 자치구 구청장·구의원 등 재산 신고 데이터를 시각화하고, 목록·자치구별 화면에서 비교할 수 있습니다.
+                </p>
               </div>
             </a>
           </div>
-          <div class="col-md-6">
-            <a href="/candidates/" class="text-decoration-none text-dark">
-              <div class="card landing-card shadow-sm h-100 p-4">
-                <div class="d-flex align-items-start gap-3">
-                  <div class="landing-card-icon bg-success bg-opacity-10 text-success">
-                    <i class="bi bi-people-fill" aria-hidden="true"></i>
+          <div class="col-lg-6">
+            <a href="/candidates/" class="landing-feature-link landing-animate-3">
+              <div class="landing-feature landing-feature--candidates">
+                <div class="landing-feature-bg" aria-hidden="true"></div>
+                <div class="landing-feature-top">
+                  <div class="landing-icon-ring" aria-hidden="true">
+                    <i class="bi bi-people-fill"></i>
                   </div>
-                  <div>
-                    <h2 class="h4 fw-bold mb-2">구청장·구의원·시의원 예비후보</h2>
-                    <p class="text-muted small mb-3">
-                      직무·구·정당·이름으로 예비후보 명부를 검색하고, 재산·전과 등 비고를 확인합니다.
-                    </p>
-                    <span class="fw-semibold text-success">바로가기 <i class="bi bi-arrow-right-short" aria-hidden="true"></i></span>
-                  </div>
+                  <span class="landing-arrow" aria-hidden="true"><i class="bi bi-arrow-up-right"></i></span>
                 </div>
+                <h2>예비후보 명부</h2>
+                <div class="landing-feature-tags">
+                  <span class="landing-tag">구청장·구의원·시의원</span>
+                  <span class="landing-tag">필터·검색</span>
+                </div>
+                <p>
+                  직무·구·정당·이름으로 예비후보를 찾고, 재산 공개 명부와 연계된 정보·전과 등 비고를 확인합니다.
+                </p>
               </div>
             </a>
           </div>
         </div>
-        <div class="text-center mt-5">
-          <a href="/intro.html" class="btn btn-outline-secondary btn-sm px-4">
-            <i class="bi bi-journal-text me-1" aria-hidden="true"></i>프로젝트 소개
+        <div class="landing-cta-wrap landing-animate-3">
+          <a href="/intro.html" class="landing-cta">
+            <i class="bi bi-journal-text" aria-hidden="true"></i>
+            프로젝트 소개
           </a>
         </div>
       </div>
