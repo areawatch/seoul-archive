@@ -253,7 +253,7 @@
       <div
         class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-200/60"
       >
-        <table class="min-w-[920px] w-full border-collapse text-left text-sm text-slate-800">
+        <table class="min-w-[1120px] w-full border-collapse text-left text-sm text-slate-800">
           <thead>
             <tr class="border-b border-slate-200 bg-slate-50/95">
               <th
@@ -263,10 +263,17 @@
                 <button
                   type="button"
                   id="sortNameBtn"
+                  data-sort-key="name"
                   class="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
                 >
                   이름
-                  <span id="sortNameIcon" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true">↑</span>
+                  <span
+                    id="sortNameIcon"
+                    data-sort-icon-for="name"
+                    class="inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                    >↑</span
+                  >
                 </button>
               </th>
               <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
@@ -275,11 +282,47 @@
               <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
                 <button
                   type="button"
+                  id="sortOfficeBtn"
+                  data-sort-key="office"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
+                >
+                  종류
+                  <span
+                    data-sort-icon-for="office"
+                    class="invisible inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                  ></span>
+                </button>
+              </th>
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                <button
+                  type="button"
+                  id="sortConstituencyBtn"
+                  data-sort-key="constituency"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
+                >
+                  선거구
+                  <span
+                    data-sort-icon-for="constituency"
+                    class="invisible inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                  ></span>
+                </button>
+              </th>
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                <button
+                  type="button"
                   id="sortAgeBtn"
+                  data-sort-key="age"
                   class="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
                 >
                   나이
-                  <span id="sortAgeIcon" class="invisible inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
+                  <span
+                    id="sortAgeIcon"
+                    data-sort-icon-for="age"
+                    class="invisible inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                  ></span>
                 </button>
               </th>
               <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
@@ -295,10 +338,16 @@
                 <button
                   type="button"
                   id="sortCriminalBtn"
+                  data-sort-key="criminal"
                   class="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
                 >
                   전과
-                  <span id="sortCriminalIcon" class="invisible inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
+                  <span
+                    id="sortCriminalIcon"
+                    data-sort-icon-for="criminal"
+                    class="invisible inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                  ></span>
                 </button>
               </th>
               <th scope="col" class="whitespace-nowrap py-3 pl-3 pr-4 text-xs font-semibold tracking-wide text-sky-600">
@@ -1323,11 +1372,28 @@
         }
         emptyEl.classList.add("hidden");
         listEl.innerHTML = `<div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-200/60">
-          <table class="min-w-[980px] w-full border-collapse text-left text-sm text-slate-800">
+          <table class="min-w-[1240px] w-full border-collapse text-left text-sm text-slate-800">
             <thead>
               <tr class="border-b border-slate-200 bg-slate-50/95">
-                <th class="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-rose-600">후보</th>
+                <th class="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-rose-600">
+                  <button type="button" data-sort-key="name" class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-800">
+                    후보
+                    <span data-sort-icon-for="name" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
+                  </button>
+                </th>
                 <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">정당</th>
+                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">
+                  <button type="button" data-sort-key="office" class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-800">
+                    종류
+                    <span data-sort-icon-for="office" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
+                  </button>
+                </th>
+                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">
+                  <button type="button" data-sort-key="constituency" class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-800">
+                    선거구
+                    <span data-sort-icon-for="constituency" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
+                  </button>
+                </th>
                 <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">검증등급</th>
                 <th class="px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">범죄이력</th>
                 <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">코멘트</th>
@@ -1360,6 +1426,12 @@
                         party
                       ).badgeSolid}">${escapeHtml(party)}</span>
                     </td>
+                    <td class="whitespace-nowrap px-3 py-3 text-xs font-medium text-slate-700">${escapeHtml(
+                      candidateOffice(c)
+                    )}</td>
+                    <td class="whitespace-nowrap px-3 py-3 text-xs text-slate-600">${escapeHtml(
+                      c.constituency || "—"
+                    )}</td>
                     <td class="whitespace-nowrap px-3 py-3 text-xs font-semibold text-slate-700">${escapeHtml(
                       meta.grade || "미기재"
                     )}</td>
@@ -1442,16 +1514,18 @@
         updateCandidatesStatsPanel(filtered);
         renderVerifiedCandidates(filtered);
 
-        [["name", "sortNameIcon"], ["age", "sortAgeIcon"], ["criminal", "sortCriminalIcon"]].forEach(function (pair) {
-          const el = document.getElementById(pair[1]);
-          if (!el) return;
-          if (sortKey === pair[0]) {
-            el.textContent = sortAsc ? "↑" : "↓";
-            el.classList.remove("invisible");
-          } else {
-            el.textContent = "";
-            el.classList.add("invisible");
-          }
+        ["name", "age", "criminal", "office", "constituency"].forEach(function (key) {
+          document
+            .querySelectorAll('[data-sort-icon-for="' + key + '"]')
+            .forEach(function (el) {
+              if (sortKey === key) {
+                el.textContent = sortAsc ? "↑" : "↓";
+                el.classList.remove("invisible");
+              } else {
+                el.textContent = "";
+                el.classList.add("invisible");
+              }
+            });
         });
 
         const sorted = filtered.slice().sort(function (a, b) {
@@ -1477,6 +1551,20 @@
             const ta = String(a.criminal ?? "").trim();
             const tb = String(b.criminal ?? "").trim();
             const c = ta.localeCompare(tb, "ko");
+            if (c !== 0) return sortAsc ? c : -c;
+            return nameCmp;
+          }
+          if (sortKey === "office") {
+            const oa = candidateOffice(a);
+            const ob = candidateOffice(b);
+            const c = oa.localeCompare(ob, "ko");
+            if (c !== 0) return sortAsc ? c : -c;
+            return nameCmp;
+          }
+          if (sortKey === "constituency") {
+            const ca = String(a.constituency || "").trim();
+            const cb = String(b.constituency || "").trim();
+            const c = ca.localeCompare(cb, "ko");
             if (c !== 0) return sortAsc ? c : -c;
             return nameCmp;
           }
@@ -1534,6 +1622,12 @@
               <td class="whitespace-nowrap px-3 py-3 align-middle">
                 <span class="inline-flex whitespace-nowrap items-center rounded px-1.5 py-[3px] text-[11px] font-bold leading-none ${t.badgeSolid}">${escapeHtml(c.party || "정당 미상")}</span>
               </td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs font-medium text-slate-700">${escapeHtml(
+                candidateOffice(c)
+              )}</td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs text-slate-600">${escapeHtml(
+                c.constituency || "—"
+              )}</td>
               <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(ageSummary(c.age))}</td>
               <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(c.gender || "—")}</td>
               <td class="max-w-[8rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(jobShort)}</td>
@@ -1754,14 +1848,12 @@
         }
         render(true);
       }
-      document.getElementById("sortNameBtn").addEventListener("click", function () {
-        setSort("name");
-      });
-      document.getElementById("sortAgeBtn").addEventListener("click", function () {
-        setSort("age");
-      });
-      document.getElementById("sortCriminalBtn").addEventListener("click", function () {
-        setSort("criminal");
+      document.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-sort-key]");
+        if (!btn) return;
+        var key = String(btn.getAttribute("data-sort-key") || "").trim();
+        if (!key) return;
+        setSort(key);
       });
 
       const wealthFetch = fetch("../data.json")
