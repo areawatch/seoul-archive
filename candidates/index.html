@@ -200,6 +200,34 @@
         role="alert"
       ></div>
 
+      <section class="mb-8" aria-labelledby="verifiedCandidatesTitle">
+        <div class="mb-3 flex items-end justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-rose-500">Red Line</p>
+            <h2 id="verifiedCandidatesTitle" class="text-2xl font-bold tracking-tight text-slate-900">
+              RED LINE 심층 검증 후보
+            </h2>
+            <p class="mt-1 text-sm text-slate-500">
+              구글 시트에 등재된 후보만 표시됩니다. 필터와 검색이 실시간 반영됩니다.
+            </p>
+          </div>
+          <p id="verifiedCountLabel" class="shrink-0 text-sm font-medium text-slate-500">0명</p>
+        </div>
+        <div
+          id="verifiedCandidatesEmpty"
+          class="hidden rounded-xl border border-dashed border-slate-300 bg-white px-4 py-5 text-sm text-slate-500"
+        >
+          현재 필터 조건과 일치하는 심층 검증 후보가 없습니다.
+        </div>
+        <div id="verifiedCandidatesList" class="w-full"></div>
+      </section>
+
+      <section aria-labelledby="allCandidatesTitle">
+        <div class="mb-3 flex items-end justify-between gap-3">
+          <h2 id="allCandidatesTitle" class="text-xl font-bold tracking-tight text-slate-900">
+            전체 예비후보자 명부
+          </h2>
+        </div>
       <div
         class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-200/60"
       >
@@ -260,9 +288,17 @@
         </table>
         <div id="candidatesLoadMoreWrap" class="border-t border-slate-100"></div>
       </div>
+      </section>
     </div>
 
     <div id="footer-plugin"></div>
+
+    <div
+      id="verifiedFloatingTooltip"
+      class="pointer-events-none fixed z-[140] hidden max-w-[min(20rem,calc(100vw-1rem))] rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs leading-relaxed text-slate-700 shadow-xl"
+      role="tooltip"
+      aria-hidden="true"
+    ></div>
 
     <div
       id="detailModal"
@@ -408,6 +444,191 @@
       ];
 
       const NEC_ELECTION_ID = "0020260603";
+      const VERIFIED_SHEET_CSV_URL =
+        "https://docs.google.com/spreadsheets/d/1HZOgA2XGNQe9RTyZsDDZdqfgdHIrUIfGqBKRs62cugA/gviz/tq?tqx=out:csv";
+
+      function normalizeLooseText(value) {
+        return String(value || "")
+          .trim()
+          .replace(/\s+/g, "")
+          .replace(/[()（）]/g, "")
+          .toLowerCase();
+      }
+
+      function normalizeDistrictName(value) {
+        return String(value || "")
+          .trim()
+          .replace(/\s+/g, "")
+          .replace(/서울특별시|서울시|서울/g, "")
+          .replace(/자치구/g, "구");
+      }
+
+      function parseCsvText(csvText) {
+        const text = String(csvText || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+        const rows = [];
+        let row = [];
+        let cell = "";
+        let inQuotes = false;
+        for (let i = 0; i < text.length; i++) {
+          const ch = text[i];
+          if (ch === '"') {
+            if (inQuotes && text[i + 1] === '"') {
+              cell += '"';
+              i++;
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (ch === "," && !inQuotes) {
+            row.push(cell);
+            cell = "";
+          } else if (ch === "\n" && !inQuotes) {
+            row.push(cell);
+            rows.push(row);
+            row = [];
+            cell = "";
+          } else {
+            cell += ch;
+          }
+        }
+        if (cell.length || row.length) {
+          row.push(cell);
+          rows.push(row);
+        }
+        const meaningfulRows = rows.filter((cells) => cells.some((c) => String(c || "").trim() !== ""));
+        if (!meaningfulRows.length) return [];
+        const headers = meaningfulRows[0].map((h) => String(h || "").trim());
+        if (!headers.length) return [];
+        return meaningfulRows.slice(1).map((cells) => {
+          const obj = {};
+          headers.forEach((header, idx) => {
+            obj[header] = String(cells[idx] || "").trim();
+          });
+          return obj;
+        });
+      }
+
+      function findSheetColumn(row, candidates) {
+        const keys = Object.keys(row || {});
+        for (const c of candidates) {
+          const exact = keys.find((k) => k === c);
+          if (exact) return exact;
+        }
+        for (const c of candidates) {
+          const contains = keys.find((k) => k.includes(c));
+          if (contains) return contains;
+        }
+        return "";
+      }
+
+      function findSheetColumnsByContains(row, token) {
+        return Object.keys(row || {}).filter((key) => key.includes(token));
+      }
+
+      function parseSheetNewsLinks(raw) {
+        const text = String(raw || "").trim();
+        if (!text) return [];
+        return text
+          .split(/\n|,|;/g)
+          .map((item) => item.trim())
+          .filter(Boolean)
+          .map((item) => {
+            const m = item.match(/https?:\/\/\S+/);
+            return m ? m[0] : "";
+          })
+          .filter(Boolean);
+      }
+
+      function guessArticleTitleFromUrl(link) {
+        const raw = String(link || "").trim();
+        if (!raw) return "기사 보기";
+        try {
+          const u = new URL(raw);
+          const seg = decodeURIComponent((u.pathname || "").split("/").filter(Boolean).pop() || "");
+          const cleaned = seg
+            .replace(/\.[a-z0-9]+$/i, "")
+            .replace(/[-_]+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+          if (cleaned) return cleaned;
+          return u.hostname.replace(/^www\./, "");
+        } catch {
+          return "기사 보기";
+        }
+      }
+
+      let redlineNewsTitleByUrl = {};
+
+      function getNewsTooltipTitle(link) {
+        const key = String(link || "").trim();
+        const cached = redlineNewsTitleByUrl[key];
+        if (cached) return cached;
+        return guessArticleTitleFromUrl(link);
+      }
+
+      function normalizeVerifiedRow(row) {
+        if (!row || typeof row !== "object") return null;
+        const nameCol = findSheetColumn(row, ["이름", "성명"]);
+        const districtCol = findSheetColumn(row, ["지역구", "자치구", "구"]);
+        if (!nameCol || !districtCol) return null;
+        const name = String(row[nameCol] || "").trim();
+        const district = String(row[districtCol] || "").trim();
+        if (!name || !district) return null;
+        const gradeCol = findSheetColumn(row, ["검증등급", "등급"]);
+        const commentCol = findSheetColumn(row, ["구서넷 코멘트", "코멘트", "comment"]);
+        const crimeCol = findSheetColumn(row, ["범죄이력", "범죄", "전과"]);
+        const newsCol = findSheetColumn(row, ["뉴스링크", "뉴스 링크", "뉴스"]);
+        const imageCol = findSheetColumn(row, ["이미지 주소", "사진 주소", "이미지", "photo"]);
+        const insurrectionCols = findSheetColumnsByContains(row, "내란");
+        const corruptionCols = findSheetColumnsByContains(row, "부패");
+        const democracyCols = findSheetColumnsByContains(row, "민주");
+        const newsCols = findSheetColumnsByContains(row, "뉴스링크");
+        const insurrectionText = insurrectionCols
+          .map((col) => String(row[col] || "").trim())
+          .filter(Boolean)
+          .join("\n");
+        const corruptionText = corruptionCols
+          .map((col) => String(row[col] || "").trim())
+          .filter(Boolean)
+          .join("\n");
+        const democracyText = democracyCols
+          .map((col) => String(row[col] || "").trim())
+          .filter(Boolean)
+          .join("\n");
+        const newsRaw = newsCols.length
+          ? newsCols.map((col) => String(row[col] || "").trim()).filter(Boolean).join("\n")
+          : String(row[newsCol] || "");
+        return {
+          name,
+          district,
+          grade: String(row[gradeCol] || "").trim(),
+          comment: String(row[commentCol] || "").trim(),
+          criminalHistory: String(row[crimeCol] || "").trim(),
+          newsLinks: parseSheetNewsLinks(newsRaw),
+          imageUrl: String(row[imageCol] || "").trim(),
+          qaInsurrection: insurrectionText,
+          qaCorruption: corruptionText,
+          qaDemocracy: democracyText,
+        };
+      }
+
+      function buildVerifiedRowIndex(rows) {
+        const map = new Map();
+        (rows || []).forEach((row) => {
+          const normalized = normalizeVerifiedRow(row);
+          if (!normalized) return;
+          const key = normalizeLooseText(normalized.name) + "|" + normalizeDistrictName(normalized.district);
+          if (!map.has(key)) map.set(key, normalized);
+        });
+        return map;
+      }
+
+      function verificationBorderClass(grade) {
+        const g = String(grade || "").trim().toUpperCase();
+        if (g.includes("위험")) return "border-red-500 ring-red-100";
+        if (g.includes("주의")) return "border-amber-500 ring-amber-100";
+        if (g.includes("PASS")) return "border-emerald-500 ring-emerald-100";
+        return "border-slate-200 ring-slate-100";
+      }
 
       function criminalShowsRecord(criminal) {
         const t = String(criminal ?? "").trim();
@@ -781,7 +1002,9 @@
         const body = document.getElementById("detailModalBody");
         const pname = primaryName(c.name);
         const sub = subtitleName(c.name);
-        const photo = c.photo ? escapeHtml(c.photo) : "";
+        const photo = mergedCandidatePhoto(c)
+          ? escapeHtml(mergedCandidatePhoto(c))
+          : "";
         const t = partyTheme(c.party);
         const age = ageSummary(c.age);
         const gender = escapeHtml(c.gender || "—");
@@ -1001,6 +1224,7 @@
       }
 
       let allCandidates = [];
+      let verifiedCandidates = [];
 
       function fillDistrictSelect() {
         const sel = document.getElementById("district");
@@ -1033,6 +1257,141 @@
         if (prev && [...sel.options].some((o) => o.value === prev)) sel.value = prev;
       }
 
+      function mergedCandidatePhoto(c) {
+        if (c && c.verifiedMeta && c.verifiedMeta.imageUrl) return c.verifiedMeta.imageUrl;
+        return c.photo || "";
+      }
+
+      function makeQaAccordionHtml(meta) {
+        const items = [
+          { key: "내란", value: meta.qaInsurrection },
+          { key: "부패", value: meta.qaCorruption },
+          { key: "민주", value: meta.qaDemocracy },
+        ].filter((it) => it.value);
+        if (!items.length) {
+          return '<p class="text-xs text-slate-500">등록된 내란/부패/민주 질의 응답이 없습니다.</p>';
+        }
+        return items
+          .map((item, idx) => {
+            return `<details class="rounded-lg border border-slate-200 bg-slate-50/70" ${
+              idx === 0 ? "open" : ""
+            }>
+              <summary class="cursor-pointer list-none px-3 py-2 text-sm font-semibold text-slate-800 marker:content-none">${escapeHtml(
+                item.key
+              )} 관련 질의 응답</summary>
+              <div class="border-t border-slate-200 px-3 py-2 text-xs leading-relaxed text-slate-700 whitespace-pre-line">${escapeHtml(
+                item.value
+              )}</div>
+            </details>`;
+          })
+          .join("");
+      }
+
+      function renderVerifiedCandidates(filtered) {
+        const listEl = document.getElementById("verifiedCandidatesList");
+        const emptyEl = document.getElementById("verifiedCandidatesEmpty");
+        const countEl = document.getElementById("verifiedCountLabel");
+        if (!listEl || !emptyEl || !countEl) return;
+        const filteredVerified = filtered.filter((c) => !!c.verifiedMeta);
+        countEl.textContent = `${filteredVerified.length}명`;
+        if (!filteredVerified.length) {
+          listEl.innerHTML = "";
+          emptyEl.classList.remove("hidden");
+          return;
+        }
+        emptyEl.classList.add("hidden");
+        listEl.innerHTML = `<div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-200/60">
+          <table class="min-w-[980px] w-full border-collapse text-left text-sm text-slate-800">
+            <thead>
+              <tr class="border-b border-slate-200 bg-slate-50/95">
+                <th class="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-rose-600">후보</th>
+                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">정당</th>
+                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">검증등급</th>
+                <th class="px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">범죄이력</th>
+                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">코멘트</th>
+                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">뉴스1</th>
+                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">뉴스2</th>
+                <th class="min-w-[20rem] px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">내란/부패/민주</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              ${filteredVerified
+                .map((c, idx) => {
+                  const meta = c.verifiedMeta;
+                  const party = c.party || "정당 미상";
+                  const news1 = meta.newsLinks && meta.newsLinks[0] ? meta.newsLinks[0] : "";
+                  const news2 = meta.newsLinks && meta.newsLinks[1] ? meta.newsLinks[1] : "";
+                  const news1Title = getNewsTooltipTitle(news1);
+                  const news2Title = getNewsTooltipTitle(news2);
+                  return `<tr class="align-top ${verificationBorderClass(meta.grade)} border-l-4">
+                    <td class="py-3 pl-4 pr-2">
+                      <div class="flex gap-2.5">
+                        <img src="${escapeAttr(mergedCandidatePhoto(c) || DEFAULT_AVATAR)}" alt="" class="h-10 w-10 shrink-0 rounded-full object-cover object-top ring-1 ring-slate-200" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
+                        <div class="min-w-0">
+                          <p class="font-bold text-slate-900">${escapeHtml(primaryName(c.name))}</p>
+                          <p class="mt-0.5 text-[11px] text-slate-500">${candidateListAreaLineHtml(c)}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-3">
+                      <span class="inline-flex rounded px-1.5 py-[3px] text-[11px] font-bold leading-none ${partyTheme(
+                        party
+                      ).badgeSolid}">${escapeHtml(party)}</span>
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-3 text-xs font-semibold text-slate-700">${escapeHtml(
+                      meta.grade || "미기재"
+                    )}</td>
+                    <td class="max-w-[14rem] px-3 py-3 text-xs leading-relaxed text-slate-700 whitespace-pre-line">${escapeHtml(
+                      meta.criminalHistory || "기재 없음"
+                    )}</td>
+                    <td class="whitespace-nowrap px-3 py-3">
+                      ${
+                        meta.comment
+                          ? `<button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" aria-label="코멘트 보기" data-v-tooltip-trigger data-v-tooltip-text="${escapeAttr(
+                              meta.comment
+                            )}">
+                            <span aria-hidden="true">💬</span>
+                          </button>`
+                          : '<span class="text-xs text-slate-400">—</span>'
+                      }
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-3">
+                      ${
+                        news1
+                          ? `<a href="${escapeAttr(
+                            news1
+                          )}" target="_blank" rel="noopener noreferrer" class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" aria-label="뉴스1 보기" data-v-news-trigger data-v-tooltip-text="${escapeAttr(
+                              news1Title
+                            )}" data-v-tooltip-url="${escapeAttr(news1)}">
+                            <span aria-hidden="true">📰</span>
+                          </a>`
+                          : '<span class="text-xs text-slate-400">—</span>'
+                      }
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-3">
+                      ${
+                        news2
+                          ? `<a href="${escapeAttr(
+                            news2
+                          )}" target="_blank" rel="noopener noreferrer" class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" aria-label="뉴스2 보기" data-v-news-trigger data-v-tooltip-text="${escapeAttr(
+                              news2Title
+                            )}" data-v-tooltip-url="${escapeAttr(news2)}">
+                            <span aria-hidden="true">📰</span>
+                          </a>`
+                          : '<span class="text-xs text-slate-400">—</span>'
+                      }
+                    </td>
+                    <td class="px-3 py-3">
+                      <div class="space-y-1.5">${makeQaAccordionHtml(meta)}</div>
+                    </td>
+                  </tr>`;
+                })
+                .join("")}
+            </tbody>
+          </table>
+        </div>`;
+      }
+
       function render(resetPaging) {
         if (resetPaging !== false) visibleRowCount = LIST_PAGE_SIZE;
         const district = document.getElementById("district").value;
@@ -1053,11 +1412,13 @@
         });
 
         const usingFilter = Boolean(district || party || q || office || incumbentOnly);
+        const verifiedCount = filtered.filter((c) => !!c.verifiedMeta).length;
         countLabel.textContent = usingFilter
-          ? `표시 ${filtered.length}명 / 전체 ${allCandidates.length}명`
-          : `전체 ${filtered.length}명`;
+          ? `표시 ${filtered.length}명 / 전체 ${allCandidates.length}명 (심층검증 ${verifiedCount}명)`
+          : `전체 ${filtered.length}명 (심층검증 ${verifiedCount}명)`;
 
         updateCandidatesStatsPanel(filtered);
+        renderVerifiedCandidates(filtered);
 
         [["name", "sortNameIcon"], ["age", "sortAgeIcon"], ["criminal", "sortCriminalIcon"]].forEach(function (pair) {
           const el = document.getElementById(pair[1]);
@@ -1120,7 +1481,9 @@
           .map(function (c, i) {
             const t = partyTheme(c.party);
             const pname = primaryName(c.name);
-            const photo = c.photo ? escapeHtml(c.photo) : "";
+            const photo = mergedCandidatePhoto(c)
+              ? escapeHtml(mergedCandidatePhoto(c))
+              : "";
             const jobShort = elide(c.job, 26) || "—";
             const eduCell = escapeHtml(educationFirstLine(c.education));
             const crimCell = escapeHtml(criminalTableCell(c));
@@ -1182,6 +1545,124 @@
         const i = parseInt(row.getAttribute("data-row-detail"), 10);
         if (!Number.isNaN(i) && lastFilteredCandidates[i]) {
           openCandidateModal(lastFilteredCandidates[i]);
+        }
+      });
+
+      var verifiedTooltipEl = document.getElementById("verifiedFloatingTooltip");
+      var verifiedTooltipTriggerEl = null;
+
+      function closeVerifiedTooltips() {
+        if (!verifiedTooltipEl) return;
+        verifiedTooltipEl.classList.add("hidden");
+        verifiedTooltipEl.classList.add("pointer-events-none");
+        verifiedTooltipEl.classList.remove("pointer-events-auto");
+        verifiedTooltipEl.innerHTML = "";
+        verifiedTooltipEl.setAttribute("aria-hidden", "true");
+        verifiedTooltipTriggerEl = null;
+      }
+
+      function placeVerifiedTooltip(triggerEl) {
+        if (!verifiedTooltipEl || !triggerEl) return;
+        var rect = triggerEl.getBoundingClientRect();
+        var gap = 10;
+        var ttRect = verifiedTooltipEl.getBoundingClientRect();
+        var vw = window.innerWidth;
+        var vh = window.innerHeight;
+        var left = rect.left + rect.width / 2 - ttRect.width / 2;
+        left = Math.max(8, Math.min(left, vw - ttRect.width - 8));
+        var top = rect.bottom + gap;
+        if (top + ttRect.height > vh - 8) {
+          top = Math.max(8, rect.top - ttRect.height - gap);
+        }
+        verifiedTooltipEl.style.left = Math.round(left) + "px";
+        verifiedTooltipEl.style.top = Math.round(top) + "px";
+      }
+
+      function openVerifiedTooltip(triggerEl) {
+        if (!verifiedTooltipEl || !triggerEl) return;
+        var text = String(triggerEl.getAttribute("data-v-tooltip-text") || "").trim();
+        if (!text) return;
+        var link = String(triggerEl.getAttribute("data-v-tooltip-url") || "").trim();
+        if (link) {
+          verifiedTooltipEl.innerHTML =
+            '<a href="' +
+            escapeAttr(link) +
+            '" target="_blank" rel="noopener noreferrer" class="block text-xs leading-relaxed text-slate-700 hover:text-slate-900 underline decoration-slate-300 underline-offset-2">' +
+            escapeHtml(text) +
+            "</a>";
+        } else {
+          verifiedTooltipEl.textContent = text;
+        }
+        verifiedTooltipEl.classList.remove("hidden");
+        verifiedTooltipEl.setAttribute("aria-hidden", "false");
+        placeVerifiedTooltip(triggerEl);
+        var isMobile = window.matchMedia("(max-width: 767px)").matches;
+        verifiedTooltipEl.classList.toggle("pointer-events-auto", isMobile && !!link);
+        verifiedTooltipEl.classList.toggle("pointer-events-none", !(isMobile && !!link));
+        verifiedTooltipTriggerEl = triggerEl;
+      }
+
+      var verifiedListEl = document.getElementById("verifiedCandidatesList");
+      if (verifiedListEl) {
+        verifiedListEl.addEventListener("mouseover", function (e) {
+          var trigger = e.target.closest("[data-v-news-trigger], [data-v-tooltip-trigger]");
+          if (!trigger) return;
+          if (window.matchMedia("(max-width: 767px)").matches) return;
+          openVerifiedTooltip(trigger);
+        });
+
+        verifiedListEl.addEventListener("mouseout", function (e) {
+          if (window.matchMedia("(max-width: 767px)").matches) return;
+          var toEl = e.relatedTarget;
+          if (
+            toEl &&
+            (toEl.closest &&
+              (toEl.closest("[data-v-news-trigger], [data-v-tooltip-trigger]") ||
+                toEl.closest("#verifiedFloatingTooltip")))
+          ) {
+            return;
+          }
+          closeVerifiedTooltips();
+        });
+
+        verifiedListEl.addEventListener("click", function (e) {
+          var trigger = e.target.closest("[data-v-news-trigger], [data-v-tooltip-trigger]");
+          if (!trigger) return;
+          var isMobile = window.matchMedia("(max-width: 767px)").matches;
+          if (!isMobile) return;
+          e.preventDefault();
+          if (verifiedTooltipTriggerEl === trigger && !verifiedTooltipEl.classList.contains("hidden")) {
+            closeVerifiedTooltips();
+          } else {
+            openVerifiedTooltip(trigger);
+          }
+        });
+      }
+
+      document.addEventListener("click", function (e) {
+        var inVerified = e.target.closest("#verifiedCandidatesList");
+        if (!inVerified) {
+          closeVerifiedTooltips();
+          return;
+        }
+        if (
+          e.target.closest(
+            "[data-v-news-trigger], [data-v-tooltip-trigger], #verifiedFloatingTooltip"
+          )
+        ) {
+          return;
+        }
+        closeVerifiedTooltips();
+      });
+
+      window.addEventListener("resize", function () {
+        if (verifiedTooltipTriggerEl && !verifiedTooltipEl.classList.contains("hidden")) {
+          placeVerifiedTooltip(verifiedTooltipTriggerEl);
+        }
+      });
+      window.addEventListener("scroll", function () {
+        if (verifiedTooltipTriggerEl && !verifiedTooltipEl.classList.contains("hidden")) {
+          placeVerifiedTooltip(verifiedTooltipTriggerEl);
         }
       });
 
@@ -1264,17 +1745,56 @@
       const wealthFetch = fetch("../data.json")
         .then((r) => (r.ok ? r.json() : null))
         .catch(() => null);
+      const candidatesFetch = fetch("../public/data/candidates.json").then((r) => {
+        if (!r.ok) throw new Error(`candidates.json HTTP ${r.status}`);
+        return r.json();
+      });
+      const verifiedSheetFetch = fetch(VERIFIED_SHEET_CSV_URL).then((r) => {
+        if (!r.ok) throw new Error(`google sheet CSV HTTP ${r.status}`);
+        return r.text();
+      });
+      const redlineNewsCacheFetch = fetch("../public/data/redline-news-cache.json")
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null);
 
-      fetch("../public/data/candidates.json")
-        .then((r) => {
-          if (!r.ok) throw new Error(`HTTP ${r.status}`);
-          return r.json();
-        })
-        .then(async (data) => {
-          const wealthData = await wealthFetch;
+      Promise.all([candidatesFetch, verifiedSheetFetch, wealthFetch, redlineNewsCacheFetch])
+        .then((results) => {
+          const candidatesPayload = results[0];
+          const verifiedCsvText = results[1];
+          const wealthData = results[2];
+          const newsCacheData = results[3];
           buildWealthIndex(wealthData);
-          const parsed = parseCandidatesPayload(data);
-          allCandidates = parsed.list;
+          if (newsCacheData && typeof newsCacheData === "object") {
+            const map = {};
+            Object.entries(newsCacheData).forEach(function (entry) {
+              const key = String(entry[0] || "").trim();
+              const meta = entry[1];
+              if (!key) return;
+              if (meta && typeof meta === "object") {
+                map[key] = String(meta.title || "").trim();
+              } else {
+                map[key] = String(meta || "").trim();
+              }
+            });
+            redlineNewsTitleByUrl = map;
+          } else {
+            redlineNewsTitleByUrl = {};
+          }
+
+          const parsed = parseCandidatesPayload(candidatesPayload);
+          const verifiedRows = parseCsvText(verifiedCsvText);
+          const verifiedIndex = buildVerifiedRowIndex(verifiedRows);
+
+          allCandidates = parsed.list.map((candidate) => {
+            const key =
+              normalizeLooseText(primaryName(candidate.name)) +
+              "|" +
+              normalizeDistrictName(candidate.district);
+            const matched = verifiedIndex.get(key) || null;
+            return matched ? { ...candidate, verifiedMeta: matched } : { ...candidate };
+          });
+          verifiedCandidates = allCandidates.filter((candidate) => !!candidate.verifiedMeta);
+
           document.getElementById("errorBox").classList.add("hidden");
           setDataUpdatedLine(parsed.updatedAt);
           fillPartySelect();
@@ -1286,6 +1806,8 @@
               (e && e.message ? e.message : String(e))
           );
           document.getElementById("countLabel").textContent = "0명";
+          var vCount = document.getElementById("verifiedCountLabel");
+          if (vCount) vCount.textContent = "0명";
         });
     </script>
   </body>

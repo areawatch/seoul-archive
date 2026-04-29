@@ -22,6 +22,7 @@ huboId는 선관위 예비후보 상세(전과 스캔 서류) 링크용입니다
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import os
 import re
@@ -60,6 +61,11 @@ TOWN_JSON = "/bizcommon/selectbox/selectbox_townCodeBySgJson.json"
 SGG_JSON = "/bizcommon/selectbox/selectbox_getSggTownCodeJson.json"
 
 DEFAULT_OUT = "public/data/candidates.json"
+DEFAULT_REDLINE_SHEET_CSV_URL = (
+    "https://docs.google.com/spreadsheets/d/"
+    "1HZOgA2XGNQe9RTyZsDDZdqfgdHIrUIfGqBKRs62cugA/gviz/tq?tqx=out:csv"
+)
+DEFAULT_NEWS_CACHE_OUT = "public/data/redline-news-cache.json"
 REQUEST_PAUSE_SEC = 0.35
 
 SEOUL_GU_ORDER = [
@@ -400,6 +406,101 @@ def crawl(
     return out
 
 
+def _normalize_news_url(raw: str) -> str:
+    return re.sub(r"\s+", "", str(raw or "").strip())
+
+
+def _extract_sheet_news_urls(sheet_csv_url: str) -> set[str]:
+    r = SESSION.get(sheet_csv_url, timeout=60)
+    r.raise_for_status()
+    r.encoding = "utf-8"
+    text = r.text
+    rows = csv.DictReader(text.splitlines())
+    out: set[str] = set()
+    for row in rows:
+        if not row:
+            continue
+        for key, value in row.items():
+            k = str(key or "").strip()
+            if not k.startswith("뉴스링크"):
+                continue
+            u = _normalize_news_url(str(value or ""))
+            if u.startswith("http://") or u.startswith("https://"):
+                out.add(u)
+    return out
+
+
+def _extract_og_title_from_html(html_text: str) -> str:
+    soup = BeautifulSoup(html_text, "html.parser")
+    for selector in (
+        'meta[property="og:title"]',
+        'meta[name="og:title"]',
+        'meta[name="twitter:title"]',
+    ):
+        tag = soup.select_one(selector)
+        if tag and tag.get("content"):
+            t = str(tag.get("content")).strip()
+            if t:
+                return t
+    if soup.title and soup.title.string:
+        t = str(soup.title.string).strip()
+        if t:
+            return t
+    return ""
+
+
+def _fetch_og_title(url: str) -> str:
+    try:
+        r = SESSION.get(url, timeout=20, allow_redirects=True)
+        r.raise_for_status()
+        if not r.encoding:
+            r.encoding = r.apparent_encoding or "utf-8"
+        return _extract_og_title_from_html(r.text)
+    except Exception:
+        return ""
+
+
+def update_redline_news_cache(
+    *,
+    sheet_csv_url: str,
+    cache_output_path: str,
+) -> tuple[int, int]:
+    urls = _extract_sheet_news_urls(sheet_csv_url)
+    os.makedirs(os.path.dirname(cache_output_path) or ".", exist_ok=True)
+    cache: dict[str, dict[str, str]] = {}
+    if os.path.exists(cache_output_path):
+        try:
+            with open(cache_output_path, encoding="utf-8") as f:
+                old = json.load(f)
+            if isinstance(old, dict):
+                for url, meta in old.items():
+                    u = _normalize_news_url(url)
+                    if not u:
+                        continue
+                    if isinstance(meta, dict):
+                        title = str(meta.get("title") or "").strip()
+                        fetched_at = str(meta.get("fetchedAt") or "").strip()
+                    else:
+                        title = str(meta or "").strip()
+                        fetched_at = ""
+                    cache[u] = {"title": title, "fetchedAt": fetched_at}
+        except Exception:
+            cache = {}
+
+    now_iso = datetime.now(ZoneInfo("Asia/Seoul")).replace(microsecond=0).isoformat()
+    miss_urls = sorted([u for u in urls if not cache.get(u, {}).get("title")])
+    for u in miss_urls:
+        title = _fetch_og_title(u)
+        cache[u] = {"title": title, "fetchedAt": now_iso}
+        time.sleep(0.15)
+
+    # 현재 시트에 남아있는 URL만 유지 (증분 수집 + 정리)
+    final_cache = {u: cache.get(u, {"title": "", "fetchedAt": ""}) for u in sorted(urls)}
+    with open(cache_output_path, "w", encoding="utf-8") as f:
+        json.dump(final_cache, f, ensure_ascii=False, indent=2)
+    return len(urls), len(miss_urls)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="NEC 서울 구의원·시의원·구청장 예비후보 JSON 수집",
@@ -428,6 +529,16 @@ def main() -> None:
         action="store_true",
         help="HTTP 요청 없이 조회할 범위만 출력",
     )
+    parser.add_argument(
+        "--sheet-csv-url",
+        default=DEFAULT_REDLINE_SHEET_CSV_URL,
+        help="RED LINE 구글 시트 CSV URL",
+    )
+    parser.add_argument(
+        "--news-cache-output",
+        default=DEFAULT_NEWS_CACHE_OUT,
+        help=f"RED LINE 뉴스 OG 제목 캐시 출력 경로 (기본: {DEFAULT_NEWS_CACHE_OUT})",
+    )
     args = parser.parse_args()
 
     filt = set(args.districts) if args.districts else None
@@ -449,6 +560,17 @@ def main() -> None:
         f"저장 완료: {args.output} ({len(rows)}명, 갱신시각 {payload['updatedAt']})",
         file=sys.stderr,
     )
+    try:
+        total_urls, fetched_new = update_redline_news_cache(
+            sheet_csv_url=args.sheet_csv_url,
+            cache_output_path=args.news_cache_output,
+        )
+        print(
+            f"뉴스 OG 캐시 저장: {args.news_cache_output} (총 {total_urls}개, 신규 수집 {fetched_new}개)",
+            file=sys.stderr,
+        )
+    except Exception as e:
+        print(f"[warn] 뉴스 OG 캐시 갱신 실패: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":
