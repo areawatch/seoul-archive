@@ -463,6 +463,7 @@
         const corruptionCols = findSheetColumnsByContains(row, "부패");
         const democracyCols = findSheetColumnsByContains(row, "민주");
         const newsCols = findSheetColumnsByContains(row, "뉴스링크");
+        const questionnaireCols = findSheetColumnsByContains(row, "질의서");
         const insurrectionText = insurrectionCols
           .map((col) => String(row[col] || "").trim())
           .filter(Boolean)
@@ -478,6 +479,10 @@
         const newsRaw = newsCols.length
           ? newsCols.map((col) => String(row[col] || "").trim()).filter(Boolean).join("\n")
           : String(row[newsCol] || "");
+        const questionnaireText = questionnaireCols
+          .map((col) => String(row[col] || "").trim())
+          .filter(Boolean)
+          .join("\n");
         return {
           name,
           district,
@@ -489,6 +494,7 @@
           qaInsurrection: insurrectionText,
           qaCorruption: corruptionText,
           qaDemocracy: democracyText,
+          qaQuestionnaire: questionnaireText,
         };
       }
 
@@ -1155,17 +1161,15 @@
           return '<p class="text-xs text-slate-500">등록된 내란/부패/민주 질의 응답이 없습니다.</p>';
         }
         return items
-          .map((item, idx) => {
-            return `<details class="rounded-lg border border-slate-200 bg-slate-50/70" ${
-              idx === 0 ? "open" : ""
-            }>
-              <summary class="cursor-pointer list-none px-3 py-2 text-sm font-semibold text-slate-800 marker:content-none">${escapeHtml(
+          .map((item) => {
+            return `<section class="rounded-lg border border-slate-200 bg-slate-50/70">
+              <h4 class="px-3 py-2 text-sm font-semibold text-slate-800">${escapeHtml(
                 item.key
-              )} 관련 질의 응답</summary>
+              )} 관련 질의 응답</h4>
               <div class="border-t border-slate-200 px-3 py-2 text-xs leading-relaxed text-slate-700 whitespace-pre-line">${escapeHtml(
                 item.value
               )}</div>
-            </details>`;
+            </section>`;
           })
           .join("");
       }
@@ -1213,6 +1217,7 @@
                 </th>
                 <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">검증등급</th>
                 <th class="px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">범죄이력</th>
+                <th class="min-w-[14rem] px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">질의서</th>
                 <th class="min-w-[20rem] px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">내란/부패/민주</th>
               </tr>
             </thead>
@@ -1283,7 +1288,10 @@
                       meta.grade || "미기재"
                     )}</td>
                     <td class="max-w-[14rem] px-3 py-3 text-xs leading-relaxed text-slate-700 whitespace-pre-line">${escapeHtml(
-                      meta.criminalHistory || "기재 없음"
+                      meta.criminalHistory || "-"
+                    )}</td>
+                    <td class="max-w-[16rem] px-3 py-3 text-xs leading-relaxed text-slate-700 whitespace-pre-line">${escapeHtml(
+                      meta.qaQuestionnaire || "-"
                     )}</td>
                     <td class="px-3 py-3">
                       <div class="space-y-1.5">${makeQaAccordionHtml(meta)}</div>
