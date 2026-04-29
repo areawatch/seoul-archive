@@ -213,14 +213,24 @@
           </div>
           <div class="flex shrink-0 items-center gap-2">
             <a
-              id="runCrawlerBtn"
+              id="runCandidatesCrawlerBtn"
               href="https://github.com/areawatch/seoul-archive/actions/workflows/crawl-candidates.yml"
               target="_blank"
               rel="noopener noreferrer"
               class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
-              title="GitHub Actions에서 수동 실행"
+              title="선관위 예비후보 수집 수동 실행"
             >
-              수동 수집 실행
+              선관위 크롤
+            </a>
+            <a
+              id="runNewsCrawlerBtn"
+              href="https://github.com/areawatch/seoul-archive/actions/workflows/crawl-redline-news.yml"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+              title="RED LINE 뉴스 제목 수집 수동 실행"
+            >
+              뉴스기사 수집
             </a>
             <p id="verifiedCountLabel" class="text-sm font-medium text-slate-500">0명</p>
           </div>

@@ -1,24 +1,20 @@
-# 서울 구의원·시의원·구청장 예비후보 명부 (NEC)
-# 스케줄은 UTC 기준입니다. 한국은 일광절이 없어 KST = UTC+9 고정.
-name: Crawl NEC candidates (Seoul)
+# RED LINE 뉴스 링크 OG 제목 캐시 갱신
+name: Crawl RED LINE news titles
 
 on:
   workflow_dispatch: {}
-  schedule:
-    # 매일 09:00 KST = 00:00 UTC
-    - cron: "0 0 * * *"
 
 permissions:
   contents: write
 
 concurrency:
-  group: crawl-candidates
+  group: crawl-redline-news
   cancel-in-progress: true
 
 jobs:
   crawl:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,17 +29,17 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements-crawl.txt
 
-      - name: Run candidates crawl
-        run: python crawl_candidates.py --task candidates
+      - name: Run RED LINE news crawl
+        run: python crawl_candidates.py --task news
 
       - name: Commit if changed
         run: |
-          if git diff --quiet -- public/data/candidates.json; then
-            echo "No changes to candidates.json"
+          if git diff --quiet -- public/data/redline-news-cache.json; then
+            echo "No changes to redline-news-cache.json"
             exit 0
           fi
-          git add public/data/candidates.json
+          git add public/data/redline-news-cache.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "자동 갱신: 예비후보 명부 (candidates.json)"
+          git commit -m "자동 갱신: RED LINE 뉴스 OG 캐시"
           git push

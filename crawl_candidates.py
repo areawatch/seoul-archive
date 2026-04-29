@@ -558,6 +558,12 @@ def main() -> None:
         help="구의원만 / 시의원만 / 구청장만 / 전체 (기본: all)",
     )
     parser.add_argument(
+        "--task",
+        choices=("all", "candidates", "news"),
+        default="all",
+        help="실행 작업: all(기본) | candidates(선관위 명부만) | news(RED LINE 뉴스 OG만)",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="HTTP 요청 없이 조회할 범위만 출력",
@@ -575,35 +581,37 @@ def main() -> None:
     args = parser.parse_args()
 
     filt = set(args.districts) if args.districts else None
-    rows = crawl(mode=args.only, towns_filter=filt, dry_run=args.dry_run)
+    if args.task in ("all", "candidates"):
+        rows = crawl(mode=args.only, towns_filter=filt, dry_run=args.dry_run)
+        if not args.dry_run:
+            os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
+            updated_at = datetime.now(ZoneInfo("Asia/Seoul")).replace(microsecond=0)
+            payload = {
+                "updatedAt": updated_at.isoformat(),
+                "candidates": rows,
+            }
+            with open(args.output, "w", encoding="utf-8") as f:
+                json.dump(payload, f, ensure_ascii=False, indent=2)
+            print(
+                f"저장 완료: {args.output} ({len(rows)}명, 갱신시각 {payload['updatedAt']})",
+                file=sys.stderr,
+            )
 
-    if args.dry_run:
-        return
-
-    os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
-    updated_at = datetime.now(ZoneInfo("Asia/Seoul")).replace(microsecond=0)
-    payload = {
-        "updatedAt": updated_at.isoformat(),
-        "candidates": rows,
-    }
-    with open(args.output, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
-
-    print(
-        f"저장 완료: {args.output} ({len(rows)}명, 갱신시각 {payload['updatedAt']})",
-        file=sys.stderr,
-    )
-    try:
-        total_urls, fetched_new = update_redline_news_cache(
-            sheet_csv_url=args.sheet_csv_url,
-            cache_output_path=args.news_cache_output,
-        )
-        print(
-            f"뉴스 OG 캐시 저장: {args.news_cache_output} (총 {total_urls}개, 신규 수집 {fetched_new}개)",
-            file=sys.stderr,
-        )
-    except Exception as e:
-        print(f"[warn] 뉴스 OG 캐시 갱신 실패: {e}", file=sys.stderr)
+    if args.task in ("all", "news"):
+        if args.dry_run:
+            print("dry-run: 뉴스 OG 캐시 갱신은 건너뜁니다.", file=sys.stderr)
+        else:
+            try:
+                total_urls, fetched_new = update_redline_news_cache(
+                    sheet_csv_url=args.sheet_csv_url,
+                    cache_output_path=args.news_cache_output,
+                )
+                print(
+                    f"뉴스 OG 캐시 저장: {args.news_cache_output} (총 {total_urls}개, 신규 수집 {fetched_new}개)",
+                    file=sys.stderr,
+                )
+            except Exception as e:
+                print(f"[warn] 뉴스 OG 캐시 갱신 실패: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":
