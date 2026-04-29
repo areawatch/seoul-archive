@@ -45,105 +45,43 @@
     <link rel="stylesheet" href="../style.css" />
   </head>
 
-  <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+  <body class="min-h-screen bg-white text-slate-900 antialiased">
     <div id="header-plugin"></div>
 
     <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <style>
+        /* SVG 클릭 시 브라우저 기본 focus outline 제거 */
+        #seoulMap:focus,
+        #seoulMap *:focus {
+          outline: none !important;
+        }
+        /* 배경과 분리되도록 지도 대비 강화 */
+        #mapPaths path {
+          filter: drop-shadow(0 1px 0 rgba(15, 23, 42, 0.08));
+        }
+      </style>
+
       <header class="mb-10 text-center">
         <p class="text-sm font-medium uppercase tracking-wider text-slate-500">Seoul Archive</p>
         <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
           우리 동네 후보자 연락처, 얼마나 모였을까요?
         </h1>
-        <p class="mt-3 text-sm text-slate-600">
-          선관위 전체 명부와 구글 시트 수집 데이터를 매칭해, 자치구별 수집률을 계산합니다.
-        </p>
+        <p class="mt-2 text-xs text-slate-500">선관위 명부 + 구글시트 매칭 기준</p>
       </header>
 
-      <section class="mb-6 grid grid-cols-1 gap-4 sm:mb-10 sm:grid-cols-2">
-        <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm ring-1 ring-slate-200/60">
-          <div class="flex items-center justify-between gap-3">
-            <div class="min-w-0">
-              <p class="text-sm font-semibold text-slate-700">서울 전체 평균 수집률</p>
-              <p class="mt-1 text-xs text-slate-500">정보 확보됨 / 전체 후보자</p>
-            </div>
-            <div class="relative h-16 w-16 shrink-0">
-              <svg viewBox="0 0 36 36" class="h-16 w-16">
-                <path
-                  d="M18 2.0845
-                     a 15.9155 15.9155 0 0 1 0 31.831
-                     a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none"
-                  stroke="#E5E7EB"
-                  stroke-width="3.5"
-                />
-                <path
-                  id="donutArc"
-                  d="M18 2.0845
-                     a 15.9155 15.9155 0 0 1 0 31.831
-                     a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none"
-                  stroke="#EF4444"
-                  stroke-linecap="round"
-                  stroke-width="3.5"
-                  stroke-dasharray="0, 100"
-                />
-              </svg>
-              <div class="absolute inset-0 grid place-items-center">
-                <div class="text-center leading-none">
-                  <div id="overallPct" class="text-lg font-extrabold text-slate-900">—%</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600">
-            <span id="overallCount" class="font-semibold text-slate-800">—</span>
-            <span class="text-slate-400">·</span>
-            <span id="overallUpdated" class="text-slate-500">—</span>
-          </div>
-        </div>
-
-        <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm ring-1 ring-slate-200/60">
-          <p class="text-sm font-semibold text-slate-700">색상 범례</p>
-          <div class="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-700 sm:grid-cols-1">
-            <div class="flex items-center gap-2">
-              <span class="h-3.5 w-3.5 rounded bg-[#F3F4F6] ring-1 ring-slate-200"></span>
-              <span>0%</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="h-3.5 w-3.5 rounded bg-[#FEE2E2] ring-1 ring-slate-200"></span>
-              <span>1~30%</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="h-3.5 w-3.5 rounded bg-[#FCA5A5] ring-1 ring-slate-200"></span>
-              <span>31~70%</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="h-3.5 w-3.5 rounded bg-[#EF4444] ring-1 ring-slate-200"></span>
-              <span>71~100%</span>
-            </div>
-          </div>
-          <p class="mt-4 text-xs leading-relaxed text-slate-500">
-            지도는 각 자치구 경계 위에 마우스를 올리면 진행 상황을 보여줍니다.
-          </p>
-        </div>
-      </section>
-
-      <section class="mb-8 -mt-2 sm:mt-0">
-        <div class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm ring-1 ring-slate-200/60">
-          <div class="flex flex-col items-center gap-3">
-            <div class="w-full max-w-[460px] sm:max-w-[560px]">
-              <svg
-                id="seoulMap"
-                viewBox="0 0 520 520"
-                class="h-auto w-full select-none"
-                role="img"
-                aria-label="서울 25개 자치구 수집률 지도"
-              >
-                <rect x="0" y="0" width="520" height="520" fill="transparent" />
-                <g id="mapPaths"></g>
-              </svg>
-            </div>
-            <p class="text-xs text-slate-500">실제 자치구 경계 지도로 표시합니다.</p>
+      <section class="mb-3 -mt-1 sm:mt-0">
+        <div class="flex flex-col items-center gap-3">
+          <div class="w-full max-w-[460px] sm:max-w-[560px]">
+            <svg
+              id="seoulMap"
+              viewBox="0 0 520 520"
+              class="h-auto w-full select-none"
+              role="img"
+              aria-label="서울 25개 자치구 수집률 지도"
+            >
+              <rect x="0" y="0" width="520" height="520" fill="transparent" />
+              <g id="mapPaths"></g>
+            </svg>
           </div>
         </div>
 
@@ -155,15 +93,66 @@
         ></div>
       </section>
 
+      <section class="mb-8">
+        <p class="text-center text-[11px] text-slate-500">
+          <span class="inline-flex items-center gap-1.5">
+            <span class="h-2.5 w-2.5 rounded-sm bg-[#F3F4F6] ring-1 ring-slate-200"></span>0%
+          </span>
+          <span class="mx-2 text-slate-300">|</span>
+          <span class="inline-flex items-center gap-1.5">
+            <span class="h-2.5 w-2.5 rounded-sm bg-[#FEE2E2] ring-1 ring-slate-200"></span>1~30%
+          </span>
+          <span class="mx-2 text-slate-300">|</span>
+          <span class="inline-flex items-center gap-1.5">
+            <span class="h-2.5 w-2.5 rounded-sm bg-[#FCA5A5] ring-1 ring-slate-200"></span>31~70%
+          </span>
+          <span class="mx-2 text-slate-300">|</span>
+          <span class="inline-flex items-center gap-1.5">
+            <span class="h-2.5 w-2.5 rounded-sm bg-[#EF4444] ring-1 ring-slate-200"></span>71~100%
+          </span>
+        </p>
+      </section>
+
+      <section class="mb-8">
+        <div class="mx-auto max-w-4xl">
+          <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <p class="text-sm font-semibold tracking-tight text-slate-900">서울 전체</p>
+            <div class="flex items-baseline gap-2 text-[11px] text-slate-500">
+              <span id="overallCount" class="font-semibold text-slate-700">—</span>
+              <span class="text-slate-300">·</span>
+              <span id="overallUpdated">—</span>
+            </div>
+          </div>
+
+          <div class="mt-2 flex items-center gap-3">
+            <div class="h-2 w-full overflow-hidden rounded-full bg-slate-200/60">
+              <div
+                id="overallBar"
+                class="h-full rounded-full bg-red-500"
+                style="width: 0%"
+                role="progressbar"
+                aria-label="서울 전체 수집률"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+              ></div>
+            </div>
+            <div id="overallPct" class="w-12 shrink-0 text-right text-sm font-extrabold tabular-nums text-slate-900">
+              —%
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="mb-10">
-        <div class="mb-3 flex items-end justify-between gap-3">
-          <h2 class="text-xl font-bold tracking-tight text-slate-900">자치구별 수집률 (낮은 순)</h2>
+        <div class="mb-2 flex items-baseline justify-between gap-3">
+          <h2 class="text-base font-bold tracking-tight text-slate-900">자치구별 수집률 (낮은 순)</h2>
           <a
             id="sheetLinkTop"
             href="#"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-sm font-semibold text-slate-600 underline decoration-slate-300 underline-offset-2 hover:text-slate-900"
+            class="text-xs font-semibold text-slate-600 underline decoration-slate-300 underline-offset-2 hover:text-slate-900"
           >
             구글 시트 열기 →
           </a>
@@ -362,17 +351,18 @@
 
         function rateToColor(pct) {
           const v = typeof pct === "number" ? pct : 0;
-          if (v <= 0) return "#F3F4F6";
+          if (v <= 0) return "#E2E8F0";
           if (v <= 30) return "#FEE2E2";
           if (v <= 70) return "#FCA5A5";
           return "#EF4444";
         }
 
-        function setDonut(pct) {
-          const arc = document.getElementById("donutArc");
-          if (!arc) return;
+        function setOverallBar(pct) {
+          const bar = document.getElementById("overallBar");
+          if (!bar) return;
           const p = Math.max(0, Math.min(100, pct));
-          arc.setAttribute("stroke-dasharray", p.toFixed(1) + ", 100");
+          bar.style.width = p.toFixed(1) + "%";
+          bar.setAttribute("aria-valuenow", p.toFixed(1));
         }
 
         function tooltipShow(x, y, html) {
@@ -427,17 +417,23 @@
             const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
             p.setAttribute("d", path(f) || "");
             p.setAttribute("fill", rateToColor(st.pct));
-            p.setAttribute("stroke", "#E5E7EB");
-            p.setAttribute("stroke-width", "2");
+            p.setAttribute("stroke", "#CBD5E1");
+            p.setAttribute("stroke-width", "1");
             p.setAttribute("vector-effect", "non-scaling-stroke");
             p.setAttribute("data-district", name);
+            p.setAttribute("tabindex", "-1");
             p.style.cursor = "pointer";
+            p.style.outline = "none";
             frag.appendChild(p);
           });
           g.appendChild(frag);
 
           // Interactions
           g.querySelectorAll("path[data-district]").forEach((el) => {
+            el.addEventListener("click", () => {
+              // 클릭 후 포커스가 남아 테두리가 뜨는 것 방지
+              if (el && typeof el.blur === "function") el.blur();
+            });
             el.addEventListener("mousemove", (e) => {
               const d = el.getAttribute("data-district") || "";
               const st = statsByDistrict[d] || { total: 0, done: 0, pct: 0 };
@@ -475,29 +471,30 @@
             .map((r) => {
               const bar = Math.max(0, Math.min(100, r.pct));
               const c = rateToColor(r.pct);
-              return `<li class="px-4 py-4">
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div class="min-w-0">
-                    <div class="flex items-center gap-2">
-                      <span class="text-base font-bold text-slate-900">${escapeHtml(r.district)}</span>
-                      <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
-                            style="background:${c}; color:#7F1D1D;">${r.pct.toFixed(0)}%</span>
+              return `<li class="px-3 py-2">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-baseline gap-2">
+                      <span class="truncate text-[13px] font-bold leading-tight text-slate-900">${escapeHtml(
+                        r.district
+                      )}</span>
+                      <span class="shrink-0 text-[10px] font-semibold leading-none tabular-nums text-slate-600">${r.pct.toFixed(
+                        0
+                      )}%</span>
+                      <span class="shrink-0 text-[10px] leading-none tabular-nums text-slate-400">(${r.done}/${r.total})</span>
                     </div>
-                    <div class="mt-1 text-sm text-slate-600">${r.total}명 중 ${r.done}명 정보 확보됨</div>
-                    <div class="mt-2 h-2 w-full max-w-[420px] overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200/70">
+                    <div class="mt-1 h-1 w-full max-w-[420px] overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200/50">
                       <div class="h-full rounded-full" style="width:${bar.toFixed(1)}%; background:${c};"></div>
                     </div>
                   </div>
-                  <div class="shrink-0">
-                    <a
-                      href="${SHEET_VIEW_URL}"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-sm ring-1 ring-red-700/30 transition hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
-                    >
-                      제보하기
-                    </a>
-                  </div>
+                  <a
+                    href="${SHEET_VIEW_URL}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="shrink-0 rounded-md bg-red-600 px-2 py-1 text-[10px] font-bold leading-none text-white shadow-sm ring-1 ring-red-700/30 transition hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                  >
+                    제보하기
+                  </a>
                 </div>
               </li>`;
             })
@@ -586,7 +583,7 @@
           document.getElementById("overallPct").textContent = overallPct.toFixed(0) + "%";
           document.getElementById("overallCount").textContent =
             "서울 전체: " + doneAll + " / " + totalAll + "명";
-          setDonut(overallPct);
+          setOverallBar(overallPct);
 
           buildSeoulMap(topoJson, statsByDistrict);
           renderDistrictList(statsByDistrict);
