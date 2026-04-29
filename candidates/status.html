@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HXSD5K4LM6"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-HXSD5K4LM6");
+    </script>
+
+    <title>서울시 후보자 연락처 수집 현황</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: [
+                "Pretendard Variable",
+                "Pretendard",
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "system-ui",
+                "sans-serif",
+              ],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+    <div id="header-plugin"></div>
+
+    <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <header class="mb-10 text-center">
+        <p class="text-sm font-medium uppercase tracking-wider text-slate-500">Seoul Archive</p>
+        <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          우리 동네 후보자 연락처, 얼마나 모였을까요?
+        </h1>
+        <p class="mt-3 text-sm text-slate-600">
+          선관위 전체 명부와 구글 시트 수집 데이터를 매칭해, 자치구별 수집률을 계산합니다.
+        </p>
+      </header>
+
+      <section class="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm ring-1 ring-slate-200/60">
+          <div class="flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-slate-700">서울 전체 평균 수집률</p>
+              <p class="mt-1 text-xs text-slate-500">정보 확보됨 / 전체 후보자</p>
+            </div>
+            <div class="relative h-16 w-16 shrink-0">
+              <svg viewBox="0 0 36 36" class="h-16 w-16">
+                <path
+                  d="M18 2.0845
+                     a 15.9155 15.9155 0 0 1 0 31.831
+                     a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  stroke="#E5E7EB"
+                  stroke-width="3.5"
+                />
+                <path
+                  id="donutArc"
+                  d="M18 2.0845
+                     a 15.9155 15.9155 0 0 1 0 31.831
+                     a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  stroke="#EF4444"
+                  stroke-linecap="round"
+                  stroke-width="3.5"
+                  stroke-dasharray="0, 100"
+                />
+              </svg>
+              <div class="absolute inset-0 grid place-items-center">
+                <div class="text-center leading-none">
+                  <div id="overallPct" class="text-lg font-extrabold text-slate-900">—%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600">
+            <span id="overallCount" class="font-semibold text-slate-800">—</span>
+            <span class="text-slate-400">·</span>
+            <span id="overallUpdated" class="text-slate-500">—</span>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm ring-1 ring-slate-200/60">
+          <p class="text-sm font-semibold text-slate-700">색상 범례</p>
+          <div class="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-700 sm:grid-cols-1">
+            <div class="flex items-center gap-2">
+              <span class="h-3.5 w-3.5 rounded bg-[#F3F4F6] ring-1 ring-slate-200"></span>
+              <span>0%</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="h-3.5 w-3.5 rounded bg-[#FEE2E2] ring-1 ring-slate-200"></span>
+              <span>1~30%</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="h-3.5 w-3.5 rounded bg-[#FCA5A5] ring-1 ring-slate-200"></span>
+              <span>31~70%</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="h-3.5 w-3.5 rounded bg-[#EF4444] ring-1 ring-slate-200"></span>
+              <span>71~100%</span>
+            </div>
+          </div>
+          <p class="mt-4 text-xs leading-relaxed text-slate-500">
+            지도는 각 자치구를 클릭/호버하면 진행 상황을 보여줍니다. (타일형 표현)
+          </p>
+        </div>
+      </section>
+
+      <section class="mb-8">
+        <div class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm ring-1 ring-slate-200/60">
+          <div class="flex flex-col items-center gap-3">
+            <div class="w-full max-w-[520px]">
+              <svg
+                id="seoulMap"
+                viewBox="0 0 520 520"
+                class="h-auto w-full select-none"
+                role="img"
+                aria-label="서울 25개 자치구 수집률 지도"
+              >
+                <rect x="0" y="0" width="520" height="520" fill="transparent" />
+                <g id="mapTiles"></g>
+              </svg>
+            </div>
+            <p class="text-xs text-slate-500">모바일에서도 한눈에 들어오도록, 정사각 타일 지도로 표시합니다.</p>
+          </div>
+        </div>
+
+        <div
+          id="mapTooltip"
+          class="pointer-events-none fixed z-[200] hidden max-w-[min(22rem,calc(100vw-1rem))] rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 shadow-xl"
+          role="tooltip"
+          aria-hidden="true"
+        ></div>
+      </section>
+
+      <section class="mb-10">
+        <div class="mb-3 flex items-end justify-between gap-3">
+          <h2 class="text-xl font-bold tracking-tight text-slate-900">자치구별 수집률 (낮은 순)</h2>
+          <a
+            id="sheetLinkTop"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-sm font-semibold text-slate-600 underline decoration-slate-300 underline-offset-2 hover:text-slate-900"
+          >
+            구글 시트 열기 →
+          </a>
+        </div>
+
+        <div class="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm ring-1 ring-slate-200/60">
+          <ul id="districtList" class="divide-y divide-slate-100"></ul>
+        </div>
+      </section>
+
+      <div id="footer-plugin"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      (function () {
+        const SHEET_CSV_URL =
+          "https://docs.google.com/spreadsheets/d/1vWnrVF0wdJyhL6OnEZh3LpXNQnc3owKYovrd5jo6jfY/gviz/tq?tqx=out:csv";
+        const SHEET_VIEW_URL =
+          "https://docs.google.com/spreadsheets/d/1vWnrVF0wdJyhL6OnEZh3LpXNQnc3owKYovrd5jo6jfY/edit";
+
+        const CONTACT_FIELDS = [
+          "전화번호",
+          "이메일",
+          "페이스북",
+          "인스타그램",
+          "트위터(X)",
+          "트위터",
+          "유튜브",
+          "블로그",
+          "홈페이지",
+        ];
+
+        const SEOUL_DISTRICTS = [
+          "종로구",
+          "중구",
+          "용산구",
+          "성동구",
+          "광진구",
+          "동대문구",
+          "중랑구",
+          "성북구",
+          "강북구",
+          "도봉구",
+          "노원구",
+          "은평구",
+          "서대문구",
+          "마포구",
+          "양천구",
+          "강서구",
+          "구로구",
+          "금천구",
+          "영등포구",
+          "동작구",
+          "관악구",
+          "서초구",
+          "강남구",
+          "송파구",
+          "강동구",
+        ];
+
+        const TILE_LAYOUT = [
+          ["은평구", "서대문구", "종로구", "중구", "동대문구"],
+          ["강서구", "마포구", "용산구", "성동구", "중랑구"],
+          ["양천구", "영등포구", "동작구", "광진구", "강북구"],
+          ["구로구", "금천구", "관악구", "서초구", "도봉구"],
+          ["", "", "강남구", "송파구", "강동구"],
+          ["", "", "노원구", "성북구", ""],
+        ];
+
+        function escapeHtml(str) {
+          return String(str ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
+
+        function normalizeLooseText(s) {
+          return String(s ?? "")
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, "");
+        }
+
+        function normalizeDistrictName(s) {
+          const t = String(s ?? "").trim();
+          if (!t) return "";
+          return t.replace(/\s+/g, "");
+        }
+
+        function primaryName(name) {
+          const t = String(name ?? "").trim();
+          if (!t) return "";
+          return t.split("(")[0].trim().split(/\s+/)[0].trim();
+        }
+
+        function parseCandidatesPayload(data) {
+          if (Array.isArray(data)) return { list: data, updatedAt: null };
+          if (data && typeof data === "object" && Array.isArray(data.candidates)) {
+            return {
+              list: data.candidates,
+              updatedAt: typeof data.updatedAt === "string" ? data.updatedAt : null,
+            };
+          }
+          throw new Error("candidates.json 형식이 올바르지 않습니다.");
+        }
+
+        // Minimal CSV parser that handles quoted commas/newlines.
+        function parseCsv(text) {
+          const rows = [];
+          let row = [];
+          let cur = "";
+          let i = 0;
+          let inQuotes = false;
+          const s = String(text ?? "");
+          while (i < s.length) {
+            const ch = s[i];
+            if (inQuotes) {
+              if (ch === '"') {
+                if (s[i + 1] === '"') {
+                  cur += '"';
+                  i += 2;
+                  continue;
+                }
+                inQuotes = false;
+                i += 1;
+                continue;
+              }
+              cur += ch;
+              i += 1;
+              continue;
+            }
+            if (ch === '"') {
+              inQuotes = true;
+              i += 1;
+              continue;
+            }
+            if (ch === ",") {
+              row.push(cur);
+              cur = "";
+              i += 1;
+              continue;
+            }
+            if (ch === "\n") {
+              row.push(cur);
+              cur = "";
+              rows.push(row);
+              row = [];
+              i += 1;
+              continue;
+            }
+            if (ch === "\r") {
+              i += 1;
+              continue;
+            }
+            cur += ch;
+            i += 1;
+          }
+          row.push(cur);
+          rows.push(row);
+          return rows;
+        }
+
+        function csvToObjects(text) {
+          const table = parseCsv(text);
+          const header = (table[0] || []).map((h) => String(h || "").trim());
+          return table
+            .slice(1)
+            .map((r) => {
+              const obj = {};
+              header.forEach((h, idx) => {
+                obj[h] = r[idx] == null ? "" : r[idx];
+              });
+              return obj;
+            })
+            .filter((o) => Object.values(o).some((v) => String(v || "").trim() !== ""));
+        }
+
+        function findSheetColumn(row, candidates) {
+          const keys = Object.keys(row || {});
+          for (const c of candidates) {
+            const exact = keys.find((k) => k === c);
+            if (exact) return exact;
+          }
+          for (const c of candidates) {
+            const contains = keys.find((k) => k.includes(c));
+            if (contains) return contains;
+          }
+          return "";
+        }
+
+        function hasAnyContactInfo(row) {
+          if (!row || typeof row !== "object") return false;
+          return CONTACT_FIELDS.some((field) => {
+            const col = findSheetColumn(row, [field]);
+            if (!col) return false;
+            return String(row[col] || "").trim() !== "";
+          });
+        }
+
+        function rateToColor(pct) {
+          const v = typeof pct === "number" ? pct : 0;
+          if (v <= 0) return "#F3F4F6";
+          if (v <= 30) return "#FEE2E2";
+          if (v <= 70) return "#FCA5A5";
+          return "#EF4444";
+        }
+
+        function setDonut(pct) {
+          const arc = document.getElementById("donutArc");
+          if (!arc) return;
+          const p = Math.max(0, Math.min(100, pct));
+          arc.setAttribute("stroke-dasharray", p.toFixed(1) + ", 100");
+        }
+
+        function tooltipShow(x, y, html) {
+          const tip = document.getElementById("mapTooltip");
+          if (!tip) return;
+          tip.innerHTML = html;
+          tip.classList.remove("hidden");
+          tip.setAttribute("aria-hidden", "false");
+          const pad = 10;
+          const rect = tip.getBoundingClientRect();
+          let left = x + 12;
+          let top = y + 12;
+          if (left + rect.width + pad > window.innerWidth) left = window.innerWidth - rect.width - pad;
+          if (top + rect.height + pad > window.innerHeight) top = window.innerHeight - rect.height - pad;
+          tip.style.left = left + "px";
+          tip.style.top = top + "px";
+        }
+
+        function tooltipHide() {
+          const tip = document.getElementById("mapTooltip");
+          if (!tip) return;
+          tip.classList.add("hidden");
+          tip.setAttribute("aria-hidden", "true");
+        }
+
+        function buildTileMap(statsByDistrict) {
+          const g = document.getElementById("mapTiles");
+          if (!g) return;
+          const size = 86;
+          const gap = 10;
+          const radius = 14;
+          const x0 = 20;
+          const y0 = 20;
+          const tiles = [];
+
+          TILE_LAYOUT.forEach((row, r) => {
+            row.forEach((name, c) => {
+              if (!name) return;
+              const x = x0 + c * (size + gap);
+              const y = y0 + r * (size + gap);
+              const stat = statsByDistrict[name] || { total: 0, done: 0, pct: 0 };
+              const fill = rateToColor(stat.pct);
+              tiles.push(
+                `<g data-district="${escapeHtml(name)}" class="cursor-pointer">
+                  <rect x="${x}" y="${y}" width="${size}" height="${size}" rx="${radius}" fill="${fill}" stroke="#E5E7EB" stroke-width="2"></rect>
+                  <text x="${x + size / 2}" y="${y + size / 2}" text-anchor="middle" dominant-baseline="middle"
+                        font-size="14" font-weight="700" fill="#111827">${escapeHtml(name.replace("구", ""))}</text>
+                </g>`
+              );
+            });
+          });
+
+          g.innerHTML = tiles.join("");
+
+          const map = document.getElementById("seoulMap");
+          if (!map) return;
+          map.querySelectorAll("[data-district]").forEach((el) => {
+            el.addEventListener("mousemove", (e) => {
+              const d = el.getAttribute("data-district") || "";
+              const st = statsByDistrict[d] || { total: 0, done: 0, pct: 0 };
+              tooltipShow(
+                e.clientX,
+                e.clientY,
+                `<div class="font-semibold text-slate-900">${escapeHtml(d)}</div>
+                 <div class="mt-0.5 text-slate-700">${st.total}명 중 ${st.done}명 완료 (${st.pct.toFixed(0)}%)</div>`
+              );
+            });
+            el.addEventListener("mouseleave", tooltipHide);
+            el.addEventListener("touchstart", (e) => {
+              const t = e.touches && e.touches[0] ? e.touches[0] : null;
+              if (!t) return;
+              const d = el.getAttribute("data-district") || "";
+              const st = statsByDistrict[d] || { total: 0, done: 0, pct: 0 };
+              tooltipShow(
+                t.clientX,
+                t.clientY,
+                `<div class="font-semibold text-slate-900">${escapeHtml(d)}</div>
+                 <div class="mt-0.5 text-slate-700">${st.total}명 중 ${st.done}명 완료 (${st.pct.toFixed(0)}%)</div>`
+              );
+              setTimeout(tooltipHide, 2000);
+            });
+          });
+        }
+
+        function renderDistrictList(statsByDistrict) {
+          const list = document.getElementById("districtList");
+          if (!list) return;
+          const rows = SEOUL_DISTRICTS.map((d) => statsByDistrict[d] || { district: d, total: 0, done: 0, pct: 0 });
+          rows.sort((a, b) => (a.pct - b.pct) || a.district.localeCompare(b.district, "ko"));
+          list.innerHTML = rows
+            .map((r) => {
+              const bar = Math.max(0, Math.min(100, r.pct));
+              const c = rateToColor(r.pct);
+              return `<li class="px-4 py-4">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="text-base font-bold text-slate-900">${escapeHtml(r.district)}</span>
+                      <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
+                            style="background:${c}; color:#7F1D1D;">${r.pct.toFixed(0)}%</span>
+                    </div>
+                    <div class="mt-1 text-sm text-slate-600">${r.total}명 중 ${r.done}명 정보 확보됨</div>
+                    <div class="mt-2 h-2 w-full max-w-[420px] overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200/70">
+                      <div class="h-full rounded-full" style="width:${bar.toFixed(1)}%; background:${c};"></div>
+                    </div>
+                  </div>
+                  <div class="shrink-0">
+                    <a
+                      href="${SHEET_VIEW_URL}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-sm ring-1 ring-red-700/30 transition hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                    >
+                      제보하기
+                    </a>
+                  </div>
+                </div>
+              </li>`;
+            })
+            .join("");
+        }
+
+        async function inject(id, url) {
+          try {
+            const r = await fetch(url);
+            if (!r.ok) return;
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = await r.text();
+          } catch (e) {
+            console.warn("[status] 헤더·푸터 로드:", e);
+          }
+        }
+
+        function highlightCandidatesSubnav() {
+          // 기존 서브네비 하이라이트 로직과 충돌 방지: status는 별도 페이지라 active 변경 안 함
+        }
+
+        function setUpdatedLine(updatedAt) {
+          const el = document.getElementById("overallUpdated");
+          if (!el) return;
+          if (!updatedAt) {
+            el.textContent = "데이터 갱신일: —";
+            return;
+          }
+          el.textContent = "데이터 갱신일: " + updatedAt;
+        }
+
+        async function main() {
+          document.getElementById("sheetLinkTop").href = SHEET_VIEW_URL;
+
+          const candidatesFetch = fetch("../public/data/candidates.json").then((r) => r.json());
+          const sheetFetch = fetch(SHEET_CSV_URL, { cache: "no-store" }).then((r) => r.text());
+          const [candidatesPayload, sheetCsv] = await Promise.all([candidatesFetch, sheetFetch]);
+
+          const parsed = parseCandidatesPayload(candidatesPayload);
+          setUpdatedLine(parsed.updatedAt);
+
+          const sheetRows = csvToObjects(sheetCsv);
+          const nameCol = sheetRows.length ? findSheetColumn(sheetRows[0], ["이름", "성명"]) : "";
+          const distCol = sheetRows.length ? findSheetColumn(sheetRows[0], ["지역구", "자치구", "구"]) : "";
+
+          const collectedKeySet = new Set();
+          sheetRows.forEach((row) => {
+            if (!hasAnyContactInfo(row)) return;
+            const name = nameCol ? String(row[nameCol] || "").trim() : "";
+            const dist = distCol ? String(row[distCol] || "").trim() : "";
+            if (!name || !dist) return;
+            const key = normalizeLooseText(primaryName(name)) + "|" + normalizeDistrictName(dist);
+            collectedKeySet.add(key);
+          });
+
+          const statsByDistrict = {};
+          SEOUL_DISTRICTS.forEach((d) => {
+            statsByDistrict[d] = { district: d, total: 0, done: 0, pct: 0 };
+          });
+
+          let totalAll = 0;
+          let doneAll = 0;
+
+          parsed.list.forEach((c) => {
+            const d = normalizeDistrictName(c.district);
+            if (!statsByDistrict[d]) return;
+            statsByDistrict[d].total += 1;
+            totalAll += 1;
+            const key = normalizeLooseText(primaryName(c.name)) + "|" + d;
+            if (collectedKeySet.has(key)) {
+              statsByDistrict[d].done += 1;
+              doneAll += 1;
+            }
+          });
+
+          Object.values(statsByDistrict).forEach((st) => {
+            st.pct = st.total ? (st.done / st.total) * 100 : 0;
+          });
+
+          const overallPct = totalAll ? (doneAll / totalAll) * 100 : 0;
+          document.getElementById("overallPct").textContent = overallPct.toFixed(0) + "%";
+          document.getElementById("overallCount").textContent =
+            "서울 전체: " + doneAll + " / " + totalAll + "명";
+          setDonut(overallPct);
+
+          buildTileMap(statsByDistrict);
+          renderDistrictList(statsByDistrict);
+        }
+
+        (async function () {
+          await inject("header-plugin", "header.html");
+          highlightCandidatesSubnav();
+          await inject("footer-plugin", "footer.html");
+          try {
+            await main();
+          } catch (e) {
+            console.error(e);
+            const list = document.getElementById("districtList");
+            if (list) {
+              list.innerHTML =
+                '<li class="px-4 py-6 text-sm text-slate-600">데이터를 불러오지 못했습니다. 로컬 서버로 열었는지 확인하세요. (예: 프로젝트 루트에서 npx serve . 후 /candidates/status.html)</li>';
+            }
+          }
+        })();
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") tooltipHide();
+        });
+      })();
+    </script>
+  </body>
+</html>
+
