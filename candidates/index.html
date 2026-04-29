@@ -326,9 +326,6 @@
                   ></span>
                 </button>
               </th>
-              <th scope="col" class="whitespace-nowrap py-3 pl-3 pr-4 text-xs font-semibold tracking-wide text-sky-600">
-                비고
-              </th>
             </tr>
           </thead>
           <tbody id="cardList" class="divide-y divide-slate-100"></tbody>
@@ -831,7 +828,7 @@
       }
 
       function wealthDetailLinkCaption(label) {
-        return String(label || "").trim() + "(재산내역 보기)";
+        return "재산내역";
       }
 
       const WEALTH_CHIP_ICON_SM = `<svg class="h-2.5 w-2.5 shrink-0 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>`;
@@ -845,7 +842,7 @@
         const title =
           "재산 공개 명부에 등재된 인원입니다. 클릭하면 재산 상세를 봅니다.";
         const cap = escapeHtml(wealthDetailLinkCaption(label));
-        return `<button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="ml-1.5 inline-flex max-w-full items-center gap-0.5 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold leading-none tracking-tight text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800 focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-400" title="${escapeHtml(title)}"><span class="truncate">${cap}</span>${WEALTH_CHIP_ICON_SM}</button>`;
+        return `<button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="inline-flex max-w-full items-center gap-0.5 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold leading-none tracking-tight text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800 focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-400" title="${escapeHtml(title)}"><span class="truncate">${cap}</span>${WEALTH_CHIP_ICON_SM}</button>`;
       }
 
       function wealthModalSnippet(c) {
@@ -1248,10 +1245,9 @@
               ? escapeHtml(necPreHuboDetailUrl(c.huboId))
               : "";
             const necLink = necHref
-              ? `<a href="${necHref}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-700 ring-1 ring-slate-200/80 hover:bg-slate-200">${extIcon}선관위</a>`
-              : `<span class="inline-flex cursor-not-allowed items-center gap-1 rounded-md bg-slate-50 px-2 py-1 text-[11px] text-slate-400 ring-1 ring-slate-100" title="후보 식별자 없음">${extIcon}선관위</span>`;
+              ? `<a href="${necHref}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-md p-0.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800" title="선관위 후보 상세 보기" aria-label="선관위 후보 상세 보기">${extIcon}</a>`
+              : `<span class="inline-flex cursor-not-allowed items-center rounded-md p-0.5 text-slate-300" title="후보 식별자 없음" aria-label="후보 식별자 없음">${extIcon}</span>`;
             const wealthByName = wealthInlineByNameHtml(c);
-            const distLine = candidateListAreaLineHtml(c);
             return `<tr data-row-detail="${i}" class="cursor-pointer border-b border-slate-100 transition hover:bg-slate-50/80">
               <td class="py-3 pl-4 pr-2 align-top">
                 <div class="flex gap-3">
@@ -1260,14 +1256,14 @@
                   </div>
                   <div class="min-w-0">
                     <p class="flex flex-wrap items-center gap-x-1 gap-y-1 font-bold leading-tight text-slate-900">
-                      <span>${escapeHtml(pname)}</span>${wealthByName}
+                      <span>${escapeHtml(pname)}</span>${necLink}
                     </p>
-                    <p class="mt-1 text-[11px] text-slate-400">${distLine}</p>
+                    ${wealthByName ? `<div class="mt-1">${wealthByName}</div>` : ""}
                   </div>
                 </div>
               </td>
               <td class="whitespace-nowrap px-3 py-3 align-middle">
-                <span class="inline-flex whitespace-nowrap items-center rounded px-1.5 py-[3px] text-[11px] font-bold leading-none ${t.badgeSolid}">${escapeHtml(c.party || "정당 미상")}</span>
+                <span class="inline-flex whitespace-nowrap items-center rounded px-1.5 py-[3px] text-[10px] font-bold leading-none ${t.badgeSolid}">${escapeHtml(c.party || "정당 미상")}</span>
               </td>
               <td class="whitespace-nowrap px-3 py-3 align-middle text-xs font-medium text-slate-700">${escapeHtml(
                 candidateOffice(c)
@@ -1280,11 +1276,6 @@
               <td class="max-w-[8rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(jobShort)}</td>
               <td class="max-w-[14rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">${eduCell}</td>
               <td class="max-w-[6rem] px-3 py-3 align-middle text-xs text-slate-600">${crimCell}</td>
-              <td class="whitespace-nowrap py-3 pl-2 pr-4 align-middle">
-                <div class="flex flex-wrap items-center justify-end gap-1.5">
-                  ${necLink}
-                </div>
-              </td>
             </tr>`;
           })
           .join("");
