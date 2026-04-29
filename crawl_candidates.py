@@ -67,6 +67,8 @@ DEFAULT_REDLINE_SHEET_CSV_URL = (
 )
 DEFAULT_NEWS_CACHE_OUT = "public/data/redline-news-cache.json"
 REQUEST_PAUSE_SEC = 0.35
+REQUEST_RETRY_COUNT = 4
+REQUEST_BACKOFF_BASE_SEC = 1.2
 
 SEOUL_GU_ORDER = [
     "종로구",
@@ -106,10 +108,29 @@ SESSION.headers.update(
 )
 
 
+def _request_with_retry(method: str, url: str, *, timeout: int, **kwargs) -> requests.Response:
+    last_err: Exception | None = None
+    for attempt in range(1, REQUEST_RETRY_COUNT + 1):
+        try:
+            r = SESSION.request(method, url, timeout=timeout, **kwargs)
+            r.raise_for_status()
+            return r
+        except requests.RequestException as e:
+            last_err = e
+            if attempt >= REQUEST_RETRY_COUNT:
+                break
+            sleep_s = REQUEST_BACKOFF_BASE_SEC * (2 ** (attempt - 1))
+            print(
+                f"[retry {attempt}/{REQUEST_RETRY_COUNT}] {method} {url} 실패: {e} (대기 {sleep_s:.1f}s)",
+                file=sys.stderr,
+            )
+            time.sleep(sleep_s)
+    raise RuntimeError(f"{method} {url} 요청 실패(재시도 소진): {last_err}")
+
+
 def nec_get_json(path: str, params: dict[str, str]) -> list[dict[str, Any]]:
     url = urljoin(BASE, path) + "?" + urlencode(params)
-    r = SESSION.get(url, timeout=60)
-    r.raise_for_status()
+    r = _request_with_retry("GET", url, timeout=60)
     data = r.json()
     jr = data.get("jsonResult") or {}
     if jr.get("header", {}).get("result") != "ok":
@@ -178,8 +199,7 @@ def post_report_html(
         "sggCityCode": sgg_town_code,
     }
     url = urljoin(BASE, REPORT_PATH)
-    r = SESSION.post(url, data=form, timeout=90)
-    r.raise_for_status()
+    r = _request_with_retry("POST", url, timeout=90, data=form)
     r.encoding = r.apparent_encoding or "utf-8"
     return r.text
 
@@ -296,7 +316,11 @@ def crawl_office(
     towns_filter: set[str] | None,
     dry_run: bool,
 ) -> tuple[list[dict[str, Any]], int]:
-    towns = fetch_seoul_towns(election_code=election_code)
+    try:
+        towns = fetch_seoul_towns(election_code=election_code)
+    except Exception as e:
+        print(f"[error] [{office_label}] 자치구 목록 조회 실패: {e}", file=sys.stderr)
+        return [], 0
     if towns_filter is not None:
         towns = [t for t in towns if t["name"] in towns_filter]
 
@@ -306,7 +330,11 @@ def crawl_office(
     request_count = 0
 
     for town in towns:
-        sggs = fetch_sgg_town_codes(town["code"], election_code=election_code)
+        try:
+            sggs = fetch_sgg_town_codes(town["code"], election_code=election_code)
+        except Exception as e:
+            print(f"[skip] [{office_label}] {town['name']}: 선거구 조회 실패 ({e})", file=sys.stderr)
+            continue
         if not sggs:
             print(f"[skip] [{office_label}] {town['name']}: 선거구 코드 없음", file=sys.stderr)
             continue
@@ -320,12 +348,19 @@ def crawl_office(
                 )
                 continue
 
-            html = post_report_html(
-                town["code"],
-                sgg["code"],
-                election_code=election_code,
-                statement_id=statement_id,
-            )
+            try:
+                html = post_report_html(
+                    town["code"],
+                    sgg["code"],
+                    election_code=election_code,
+                    statement_id=statement_id,
+                )
+            except Exception as e:
+                print(
+                    f"[skip] [{office_label}] {town['name']} / {sgg['name']}: 본문 조회 실패 ({e})",
+                    file=sys.stderr,
+                )
+                continue
             batch = parse_candidates_from_report(html, town["name"], office=office_label)
             added = 0
             for c in batch:
@@ -411,8 +446,7 @@ def _normalize_news_url(raw: str) -> str:
 
 
 def _extract_sheet_news_urls(sheet_csv_url: str) -> set[str]:
-    r = SESSION.get(sheet_csv_url, timeout=60)
-    r.raise_for_status()
+    r = _request_with_retry("GET", sheet_csv_url, timeout=60)
     r.encoding = "utf-8"
     text = r.text
     rows = csv.DictReader(text.splitlines())
@@ -451,8 +485,7 @@ def _extract_og_title_from_html(html_text: str) -> str:
 
 def _fetch_og_title(url: str) -> str:
     try:
-        r = SESSION.get(url, timeout=20, allow_redirects=True)
-        r.raise_for_status()
+        r = _request_with_retry("GET", url, timeout=20, allow_redirects=True)
         if not r.encoding:
             r.encoding = r.apparent_encoding or "utf-8"
         return _extract_og_title_from_html(r.text)
