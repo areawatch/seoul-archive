@@ -42,6 +42,10 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
     <link rel="stylesheet" href="../style.css" />
   </head>
 
@@ -58,6 +62,11 @@
         /* 배경과 분리되도록 지도 대비 강화 */
         #mapPaths path {
           filter: drop-shadow(0 1px 0 rgba(15, 23, 42, 0.08));
+        }
+        /* 후보 칩 툴팁 아이콘 */
+        #chipTooltip i {
+          font-size: 14px;
+          line-height: 1;
         }
       </style>
 
@@ -163,6 +172,13 @@
         </div>
       </section>
 
+      <div
+        id="chipTooltip"
+        class="pointer-events-none fixed z-[210] hidden max-w-[min(22rem,calc(100vw-1rem))] rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 shadow-xl"
+        role="tooltip"
+        aria-hidden="true"
+      ></div>
+
       <div id="footer-plugin"></div>
     </div>
 
@@ -176,16 +192,15 @@
         const SHEET_VIEW_URL =
           "https://docs.google.com/spreadsheets/d/1vWnrVF0wdJyhL6OnEZh3LpXNQnc3owKYovrd5jo6jfY/edit";
 
-        const CONTACT_FIELDS = [
-          "전화번호",
-          "이메일",
-          "페이스북",
-          "인스타그램",
-          "트위터(X)",
-          "트위터",
-          "유튜브",
-          "블로그",
-          "홈페이지",
+        const CONTACT_DEFS = [
+          { key: "phone", labels: ["전화번호"], icon: "bi-telephone" },
+          { key: "email", labels: ["이메일"], icon: "bi-envelope" },
+          { key: "facebook", labels: ["페이스북"], icon: "bi-facebook" },
+          { key: "instagram", labels: ["인스타그램"], icon: "bi-instagram" },
+          { key: "twitter", labels: ["트위터(X)", "트위터"], icon: "bi-twitter-x" },
+          { key: "youtube", labels: ["유튜브"], icon: "bi-youtube" },
+          { key: "blog", labels: ["블로그"], icon: "bi-journal-text" },
+          { key: "homepage", labels: ["홈페이지"], icon: "bi-globe" },
         ];
 
         const SEOUL_DISTRICTS = [
@@ -342,11 +357,28 @@
 
         function hasAnyContactInfo(row) {
           if (!row || typeof row !== "object") return false;
-          return CONTACT_FIELDS.some((field) => {
-            const col = findSheetColumn(row, [field]);
+          return CONTACT_DEFS.some((def) => {
+            const col = findSheetColumn(row, def.labels);
             if (!col) return false;
             return String(row[col] || "").trim() !== "";
           });
+        }
+
+        function extractContactBadges(row) {
+          if (!row || typeof row !== "object") return [];
+          const out = [];
+          CONTACT_DEFS.forEach((def) => {
+            const col = findSheetColumn(row, def.labels);
+            if (!col) return;
+            const v = String(row[col] || "").trim();
+            if (!v) return;
+            out.push({
+              key: def.key,
+              icon: def.icon,
+              label: def.labels[0],
+            });
+          });
+          return out;
         }
 
         function rateToColor(pct) {
@@ -386,6 +418,31 @@
           if (!tip) return;
           tip.classList.add("hidden");
           tip.setAttribute("aria-hidden", "true");
+        }
+
+        let lastMapTouchAt = 0;
+
+        function chipTooltipHide() {
+          const tip = document.getElementById("chipTooltip");
+          if (!tip) return;
+          tip.classList.add("hidden");
+          tip.setAttribute("aria-hidden", "true");
+        }
+
+        function chipTooltipShow(x, y, html) {
+          const tip = document.getElementById("chipTooltip");
+          if (!tip) return;
+          tip.innerHTML = html;
+          tip.classList.remove("hidden");
+          tip.setAttribute("aria-hidden", "false");
+          const pad = 10;
+          const rect = tip.getBoundingClientRect();
+          let left = x + 12;
+          let top = y + 12;
+          if (left + rect.width + pad > window.innerWidth) left = window.innerWidth - rect.width - pad;
+          if (top + rect.height + pad > window.innerHeight) top = window.innerHeight - rect.height - pad;
+          tip.style.left = left + "px";
+          tip.style.top = top + "px";
         }
 
         function buildSeoulMap(topoJson, statsByDistrict) {
@@ -434,7 +491,8 @@
               // 클릭 후 포커스가 남아 테두리가 뜨는 것 방지
               if (el && typeof el.blur === "function") el.blur();
             });
-            el.addEventListener("mousemove", (e) => {
+            el.addEventListener("pointermove", (e) => {
+              if (e && e.pointerType === "touch") return;
               const d = el.getAttribute("data-district") || "";
               const st = statsByDistrict[d] || { total: 0, done: 0, pct: 0 };
               tooltipShow(
@@ -444,58 +502,90 @@
                  <div class="mt-0.5 text-slate-700">${st.total}명 중 ${st.done}명 완료 (${st.pct.toFixed(0)}%)</div>`
               );
             });
-            el.addEventListener("mouseleave", tooltipHide);
+            el.addEventListener("pointerleave", (e) => {
+              // 모바일 터치 직후 pointerleave가 따라오며 즉시 숨겨지는 현상 방지
+              if (Date.now() - lastMapTouchAt < 800) return;
+              tooltipHide();
+            });
             el.addEventListener("focus", tooltipHide);
-            el.addEventListener("touchstart", (e) => {
-              const t = e.touches && e.touches[0] ? e.touches[0] : null;
-              if (!t) return;
+            el.addEventListener("pointerdown", (e) => {
+              if (!e || e.pointerType !== "touch") return;
+              lastMapTouchAt = Date.now();
               const d = el.getAttribute("data-district") || "";
               const st = statsByDistrict[d] || { total: 0, done: 0, pct: 0 };
               tooltipShow(
-                t.clientX,
-                t.clientY,
+                e.clientX,
+                e.clientY,
                 `<div class="font-semibold text-slate-900">${escapeHtml(d)}</div>
                  <div class="mt-0.5 text-slate-700">${st.total}명 중 ${st.done}명 완료 (${st.pct.toFixed(0)}%)</div>`
               );
-              setTimeout(tooltipHide, 2000);
+              setTimeout(() => {
+                if (Date.now() - lastMapTouchAt >= 2400) tooltipHide();
+              }, 2500);
             });
           });
         }
 
-        function renderDistrictList(statsByDistrict) {
+        function renderDistrictList(statsByDistrict, candidatesByDistrictOffice) {
           const list = document.getElementById("districtList");
           if (!list) return;
           const rows = SEOUL_DISTRICTS.map((d) => statsByDistrict[d] || { district: d, total: 0, done: 0, pct: 0 });
           rows.sort((a, b) => (a.pct - b.pct) || a.district.localeCompare(b.district, "ko"));
+          function sectionHtml(title, items) {
+            const chips = (items || [])
+              .map((it) => {
+                const base =
+                  "inline-flex items-center rounded-full px-2 py-1 text-[11px] leading-none ring-1 transition-colors";
+                const cls = it.collected
+                  ? "bg-red-50 text-red-700 ring-red-200 hover:bg-red-100"
+                  : "bg-slate-100 text-slate-500 ring-slate-200 hover:bg-slate-200/70";
+                const tip = escapeHtml(it.tooltip || "");
+                return `<span class="${base} ${cls}" data-chip-tooltip="${escapeHtml(
+                  JSON.stringify({ name: it.name, collected: it.collected, badges: it.badges })
+                )}">${escapeHtml(it.name)}</span>`;
+              })
+              .join("");
+            return `<div class="mt-2">
+              <div class="text-[11px] font-semibold text-slate-600">${escapeHtml(title)}</div>
+              <div class="mt-1 flex flex-wrap gap-1.5">${chips || '<span class="text-[11px] text-slate-400">—</span>'}</div>
+            </div>`;
+          }
+
           list.innerHTML = rows
             .map((r) => {
               const bar = Math.max(0, Math.min(100, r.pct));
               const c = rateToColor(r.pct);
+              const bundles = candidatesByDistrictOffice[r.district] || {};
+              const mayor = bundles["구청장"] || [];
+              const city = bundles["시의원"] || [];
+              const gu = bundles["구의원"] || [];
               return `<li class="px-3 py-2">
-                <div class="flex items-center justify-between gap-3">
-                  <div class="min-w-0 flex-1">
-                    <div class="flex items-baseline gap-2">
-                      <span class="truncate text-[13px] font-bold leading-tight text-slate-900">${escapeHtml(
-                        r.district
-                      )}</span>
-                      <span class="shrink-0 text-[10px] font-semibold leading-none tabular-nums text-slate-600">${r.pct.toFixed(
-                        0
-                      )}%</span>
-                      <span class="shrink-0 text-[10px] leading-none tabular-nums text-slate-400">(${r.done}/${r.total})</span>
+                <details class="group">
+                  <summary class="flex cursor-pointer list-none items-center justify-between gap-3 py-1 marker:content-none">
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-baseline gap-2">
+                        <span class="truncate text-[13px] font-bold leading-tight text-slate-900">${escapeHtml(
+                          r.district
+                        )}</span>
+                        <span class="shrink-0 text-[10px] font-semibold leading-none tabular-nums text-slate-600">${r.pct.toFixed(
+                          0
+                        )}%</span>
+                        <span class="shrink-0 text-[10px] leading-none tabular-nums text-slate-400">(${r.done}/${r.total})</span>
+                      </div>
+                      <div class="mt-1 h-1 w-full max-w-[420px] overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200/50">
+                        <div class="h-full rounded-full" style="width:${bar.toFixed(1)}%; background:${c};"></div>
+                      </div>
                     </div>
-                    <div class="mt-1 h-1 w-full max-w-[420px] overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200/50">
-                      <div class="h-full rounded-full" style="width:${bar.toFixed(1)}%; background:${c};"></div>
-                    </div>
+                    <span class="shrink-0 text-slate-400 group-open:rotate-180 transition-transform">
+                      <i class="bi bi-chevron-down"></i>
+                    </span>
+                  </summary>
+                  <div class="pb-2 pt-1">
+                    ${sectionHtml("구청장 후보", mayor)}
+                    ${sectionHtml("시의원 후보", city)}
+                    ${sectionHtml("구의원 후보", gu)}
                   </div>
-                  <a
-                    href="${SHEET_VIEW_URL}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="shrink-0 rounded-md bg-red-600 px-2 py-1 text-[10px] font-bold leading-none text-white shadow-sm ring-1 ring-red-700/30 transition hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
-                  >
-                    제보하기
-                  </a>
-                </div>
+                </details>
               </li>`;
             })
             .join("");
@@ -545,14 +635,24 @@
           const nameCol = sheetRows.length ? findSheetColumn(sheetRows[0], ["이름", "성명"]) : "";
           const distCol = sheetRows.length ? findSheetColumn(sheetRows[0], ["지역구", "자치구", "구"]) : "";
 
-          const collectedKeySet = new Set();
+          const contactByKey = new Map();
           sheetRows.forEach((row) => {
-            if (!hasAnyContactInfo(row)) return;
             const name = nameCol ? String(row[nameCol] || "").trim() : "";
             const dist = distCol ? String(row[distCol] || "").trim() : "";
             if (!name || !dist) return;
             const key = normalizeLooseText(primaryName(name)) + "|" + normalizeDistrictName(dist);
-            collectedKeySet.add(key);
+            const badges = extractContactBadges(row);
+            // sheet에 같은 키가 여러 줄 있으면 합집합
+            const prev = contactByKey.get(key);
+            if (prev) {
+              const merged = {};
+              prev.badges.forEach((b) => (merged[b.key] = b));
+              badges.forEach((b) => (merged[b.key] = b));
+              const mergedArr = Object.values(merged);
+              contactByKey.set(key, { badges: mergedArr, collected: mergedArr.length > 0 });
+            } else {
+              contactByKey.set(key, { badges, collected: badges.length > 0 });
+            }
           });
 
           const statsByDistrict = {};
@@ -569,7 +669,8 @@
             statsByDistrict[d].total += 1;
             totalAll += 1;
             const key = normalizeLooseText(primaryName(c.name)) + "|" + d;
-            if (collectedKeySet.has(key)) {
+            const sheetMeta = contactByKey.get(key);
+            if (sheetMeta && sheetMeta.collected) {
               statsByDistrict[d].done += 1;
               doneAll += 1;
             }
@@ -586,7 +687,32 @@
           setOverallBar(overallPct);
 
           buildSeoulMap(topoJson, statsByDistrict);
-          renderDistrictList(statsByDistrict);
+          const candidatesByDistrictOffice = {};
+          SEOUL_DISTRICTS.forEach((d) => {
+            candidatesByDistrictOffice[d] = { 구청장: [], 시의원: [], 구의원: [] };
+          });
+          parsed.list.forEach((c) => {
+            const dist = normalizeDistrictName(c.district);
+            if (!candidatesByDistrictOffice[dist]) return;
+            const office = String(c.office || "").trim();
+            if (!candidatesByDistrictOffice[dist][office]) return;
+            const name = primaryName(c.name);
+            const key = normalizeLooseText(name) + "|" + dist;
+            const meta = contactByKey.get(key);
+            const collected = meta ? !!meta.collected : false;
+            const badges = meta ? meta.badges : [];
+            candidatesByDistrictOffice[dist][office].push({
+              name,
+              collected,
+              badges,
+            });
+          });
+          Object.values(candidatesByDistrictOffice).forEach((bundle) => {
+            Object.values(bundle).forEach((arr) => {
+              arr.sort((a, b) => a.name.localeCompare(b.name, "ko"));
+            });
+          });
+          renderDistrictList(statsByDistrict, candidatesByDistrictOffice);
         }
 
         (async function () {
@@ -606,8 +732,49 @@
         })();
 
         document.addEventListener("keydown", function (e) {
-          if (e.key === "Escape") tooltipHide();
+          if (e.key === "Escape") {
+            tooltipHide();
+            chipTooltipHide();
+          }
         });
+
+        document.getElementById("districtList").addEventListener("pointermove", function (e) {
+          const t = e.target;
+          const el = t && t.closest ? t.closest("[data-chip-tooltip]") : null;
+          if (!el) {
+            chipTooltipHide();
+            return;
+          }
+          let payload = null;
+          try {
+            payload = JSON.parse(el.getAttribute("data-chip-tooltip") || "null");
+          } catch {}
+          if (!payload || !payload.name) {
+            chipTooltipHide();
+            return;
+          }
+          const badges = Array.isArray(payload.badges) ? payload.badges : [];
+          const icons = badges
+            .map((b) => {
+              const cls = String(b.icon || "").trim();
+              const label = String(b.label || "").trim();
+              if (!cls) return "";
+              return `<span class="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-1 ring-1 ring-slate-200">
+                <i class="bi ${escapeHtml(cls)}" aria-hidden="true"></i>
+                <span class="text-[11px] text-slate-700">${escapeHtml(label)}</span>
+              </span>`;
+            })
+            .join("");
+          chipTooltipShow(
+            e.clientX,
+            e.clientY,
+            `<div class="font-semibold text-slate-900">${escapeHtml(payload.name)}</div>
+             <div class="mt-1 flex flex-wrap gap-1.5">${
+               icons || '<span class="text-[11px] text-slate-400">연락처 없음</span>'
+             }</div>`
+          );
+        });
+        document.getElementById("districtList").addEventListener("mouseleave", chipTooltipHide);
       })();
     </script>
   </body>
