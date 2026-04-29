@@ -14,7 +14,7 @@
       gtag("config", "G-HXSD5K4LM6");
     </script>
 
-    <title>서울시 후보자 연락처 수집 현황</title>
+    <title>연락처 수집 현황 · RED LINE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -48,6 +48,15 @@
     />
     <link rel="stylesheet" href="../style.css" />
     <style>
+      @font-face {
+        font-family: "DungGeunMo";
+        src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/DungGeunMo.woff")
+          format("woff");
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+
       /* 이 페이지도 RED 톤 selection */
       ::selection {
         background-color: rgba(239, 68, 68, 0.28);
@@ -60,19 +69,120 @@
     </style>
   </head>
 
-  <body class="min-h-screen bg-white text-slate-900 antialiased">
+  <body class="min-h-screen bg-[#1a1a2e] text-slate-100 antialiased">
     <div id="header-plugin"></div>
 
     <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
       <style>
+        /* Mesh Gradient background */
+        body {
+          font-family: "DungGeunMo", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+            "Courier New", monospace;
+          background-color: #1a1a2e;
+          background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+          background-size: 18px 18px;
+        }
+        /* 기본 텍스트 8-bit 느낌 */
+        body,
+        p,
+        span,
+        a,
+        button,
+        h1,
+        h2,
+        h3,
+        h4 {
+          text-shadow: 1px 1px 0 #000;
+        }
+
         /* SVG 클릭 시 브라우저 기본 focus outline 제거 */
         #seoulMap:focus,
         #seoulMap *:focus {
           outline: none !important;
         }
-        /* 배경과 분리되도록 지도 대비 강화 */
+        /* 지도 스타일 */
+        #seoulMap {
+          shape-rendering: crispEdges;
+        }
         #mapPaths path {
-          filter: drop-shadow(0 1px 0 rgba(15, 23, 42, 0.08));
+          transition: transform 180ms ease, filter 180ms ease, opacity 180ms ease;
+          transform-origin: center;
+          transform-box: fill-box;
+          opacity: 0.96;
+        }
+        #mapPaths path:hover {
+          transform: translateY(-2px);
+          opacity: 1;
+          filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0))
+            drop-shadow(0 0 14px rgba(255, 77, 77, 0.75))
+            drop-shadow(0 0 28px rgba(255, 77, 77, 0.30));
+        }
+        #mapPaths path.is-hot {
+          filter: drop-shadow(0 0 18px rgba(255, 77, 77, 0.65)) drop-shadow(0 0 32px rgba(255, 77, 77, 0.25));
+        }
+
+        .dash-card {
+          background: #23234a;
+          border: 4px solid #000;
+          border-radius: 0;
+          box-shadow: 0 6px 0 #000, 0 18px 30px rgba(0, 0, 0, 0.35);
+        }
+        .dash-in {
+          opacity: 0;
+          transform: translateY(12px);
+          animation: dashIn 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        @keyframes dashIn {
+          from {
+            opacity: 0;
+            transform: translateY(16px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .mono {
+          font-family: "DungGeunMo", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+            "Courier New", monospace;
+          font-variant-numeric: tabular-nums;
+        }
+        .status-badge {
+          border: 2px solid #000;
+          background: #101023;
+          box-shadow: 0 2px 0 #000;
+        }
+
+        .pixel-btn:active {
+          transform: translateY(2px);
+        }
+        .pixel-btn {
+          box-shadow: 0 4px 0 #000;
+          border: 2px solid #000;
+          background: #101023;
+        }
+
+        /* status 페이지 전용: 푸터 다크 톤으로 정렬 */
+        #footer-plugin .site-footer {
+          background: transparent !important;
+          border-top: 2px solid rgba(0, 0, 0, 0.7) !important;
+          box-shadow: 0 -4px 0 #000;
+        }
+        #footer-plugin .site-footer .text-muted,
+        #footer-plugin .site-footer,
+        #footer-plugin .site-footer p,
+        #footer-plugin .site-footer span {
+          color: rgba(226, 232, 240, 0.78) !important;
+        }
+        #footer-plugin .site-footer a {
+          color: rgba(226, 232, 240, 0.88) !important;
+        }
+        #footer-plugin .site-footer a:hover {
+          color: #fff !important;
+          text-decoration: underline !important;
+        }
+        #footer-plugin .site-footer .text-secondary {
+          color: rgba(148, 163, 184, 0.7) !important;
         }
         /* 후보 칩 툴팁 아이콘 */
         #chipTooltip i {
@@ -81,17 +191,87 @@
         }
       </style>
 
-      <header class="mb-10 text-center">
-        <p class="text-sm font-medium uppercase tracking-wider text-slate-500">Seoul Archive</p>
-        <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          우리 동네 후보자 연락처, 얼마나 모였을까요?
-        </h1>
-        <p class="mt-2 text-xs text-slate-500">선관위 명부 + 구글시트 매칭 기준</p>
+      <header class="mb-8 text-center">
+        <p class="mono text-xs font-bold uppercase tracking-[0.25em] text-slate-300">RED LINE QUEST</p>
+        <h1 class="mt-2 text-4xl font-black tracking-tight text-white sm:text-5xl">서울로그: 데이터 원정대 🛡️</h1>
+        <p class="mono mt-2 text-xs text-slate-300">QUEST: 연락처 수집 현황</p>
       </header>
 
-      <section class="mb-3 -mt-1 sm:mt-0">
-        <div class="flex flex-col items-center gap-3">
-          <div class="w-full max-w-[460px] sm:max-w-[560px]">
+      <section class="mb-6 grid grid-cols-12 gap-4">
+        <div class="dash-card dash-in col-span-12 p-5 sm:col-span-6 lg:col-span-4" style="animation-delay: 50ms">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <div class="mono text-[11px] font-bold uppercase tracking-widest text-slate-300">Quest Progress</div>
+              <div class="mt-1 text-base font-bold text-white">HP: 서울 전체</div>
+            </div>
+            <span class="status-badge inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-bold text-[#ff4d4d]">
+              <span class="h-1.5 w-1.5 rounded-full bg-[#ff4d4d] animate-pulse"></span>
+              LIVE
+            </span>
+          </div>
+          <div class="mt-4 flex items-center gap-3">
+            <div class="h-3 w-full overflow-hidden bg-black/30 border-2 border-black">
+              <div
+                id="overallBar"
+                class="h-full"
+                style="width: 0%; background: #ff4d4d;"
+                role="progressbar"
+                aria-label="서울 전체 수집률"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+              ></div>
+            </div>
+            <div id="overallPct" class="mono w-16 shrink-0 text-right text-lg font-black text-white">HP: —%</div>
+          </div>
+          <div class="mt-4 flex items-center justify-between gap-2 text-[11px] text-slate-400">
+            <span id="overallCount" class="mono font-bold text-slate-200">SCORE: —</span>
+            <span id="overallUpdated" class="mono">UPDATED: —</span>
+          </div>
+        </div>
+
+        <div class="dash-card dash-in col-span-12 p-5 sm:col-span-6 lg:col-span-4" style="animation-delay: 140ms">
+          <div class="mono text-[11px] font-bold uppercase tracking-widest text-slate-300">Total Score</div>
+          <div class="mt-1 text-base font-bold text-white">CONTACTS FOUND</div>
+          <div class="mt-4 flex items-end justify-between gap-3">
+            <div id="metricCovered" class="mono text-4xl font-black text-white">—</div>
+            <div class="mono text-sm font-semibold text-slate-400" id="metricTotal">/ —</div>
+          </div>
+          <div class="mt-2 text-[11px] text-slate-400">
+            <span class="mono" id="metricCoveredPct">—%</span> · <span class="mono" id="metricDistricts">—</span>
+          </div>
+        </div>
+
+        <div class="dash-card dash-in col-span-12 p-5 sm:col-span-12 lg:col-span-4" style="animation-delay: 230ms">
+          <div class="mono text-[11px] font-bold uppercase tracking-widest text-slate-300">Quest Log</div>
+          <div class="mt-1 text-base font-bold text-white">DISTRICT STATUS</div>
+          <div class="mt-4 grid grid-cols-3 gap-2">
+            <div class="rounded-2xl border border-white/10 bg-black/10 p-3">
+              <div class="mono text-[11px] font-bold text-slate-300">[STATUS: READY]</div>
+              <div id="metricReady" class="mono mt-2 text-2xl font-black text-white">—</div>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-black/10 p-3">
+              <div class="mono text-[11px] font-bold text-slate-300">[STATUS: NEED_DATA]</div>
+              <div id="metricNeed" class="mono mt-2 text-2xl font-black text-white">—</div>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-black/10 p-3">
+              <div class="mono text-[11px] font-bold text-slate-300">[STATUS: NULL]</div>
+              <div id="metricNull" class="mono mt-2 text-2xl font-black text-white">—</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-6">
+        <div class="dash-card dash-in mx-auto max-w-5xl p-5 sm:p-6" style="animation-delay: 310ms">
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <div class="mono text-[11px] font-bold uppercase tracking-widest text-slate-300">World Map</div>
+              <div class="mt-1 text-base font-bold text-white">SEOUL</div>
+            </div>
+            <div class="mono text-[11px] font-bold text-slate-300">HOVER / TAP</div>
+          </div>
+          <div class="mx-auto w-full max-w-[640px]">
             <svg
               id="seoulMap"
               viewBox="0 0 520 520"
@@ -99,6 +279,13 @@
               role="img"
               aria-label="서울 25개 자치구 수집률 지도"
             >
+              <defs>
+                <pattern id="fogDots" width="8" height="8" patternUnits="userSpaceOnUse">
+                  <rect width="8" height="8" fill="#6b7280"></rect>
+                  <rect x="0" y="0" width="2" height="2" fill="#9ca3af"></rect>
+                  <rect x="4" y="4" width="2" height="2" fill="#9ca3af"></rect>
+                </pattern>
+              </defs>
               <rect x="0" y="0" width="520" height="520" fill="transparent" />
               <g id="mapPaths"></g>
             </svg>
@@ -107,85 +294,56 @@
 
         <div
           id="mapTooltip"
-          class="pointer-events-none fixed z-[200] hidden max-w-[min(22rem,calc(100vw-1rem))] rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 shadow-xl"
+          class="pointer-events-none fixed z-[200] hidden max-w-[min(22rem,calc(100vw-1rem))] rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-xs text-slate-200 shadow-2xl backdrop-blur"
           role="tooltip"
           aria-hidden="true"
         ></div>
       </section>
 
-      <section class="mb-8">
-        <p class="text-center text-[11px] text-slate-500">
+      <section class="mb-8 dash-in" style="animation-delay: 360ms">
+        <p class="mono text-center text-[11px] text-slate-300">
           <span class="inline-flex items-center gap-1.5">
-            <span class="h-2.5 w-2.5 rounded-sm bg-[#F3F4F6] ring-1 ring-slate-200"></span>0%
+            <span class="h-2.5 w-2.5 rounded-sm bg-[#6b7280] ring-1 ring-black"></span>UNKNOWN
           </span>
-          <span class="mx-2 text-slate-300">|</span>
+          <span class="mx-2 text-slate-600">|</span>
           <span class="inline-flex items-center gap-1.5">
-            <span class="h-2.5 w-2.5 rounded-sm bg-[#FEE2E2] ring-1 ring-slate-200"></span>1~30%
+            <span class="h-2.5 w-2.5 rounded-sm bg-[#3b82f6] ring-1 ring-black"></span>1~30
           </span>
-          <span class="mx-2 text-slate-300">|</span>
+          <span class="mx-2 text-slate-600">|</span>
           <span class="inline-flex items-center gap-1.5">
-            <span class="h-2.5 w-2.5 rounded-sm bg-[#FCA5A5] ring-1 ring-slate-200"></span>31~70%
+            <span class="h-2.5 w-2.5 rounded-sm bg-[#facc15] ring-1 ring-black"></span>31~70
           </span>
-          <span class="mx-2 text-slate-300">|</span>
+          <span class="mx-2 text-slate-600">|</span>
           <span class="inline-flex items-center gap-1.5">
-            <span class="h-2.5 w-2.5 rounded-sm bg-[#EF4444] ring-1 ring-slate-200"></span>71~100%
+            <span class="h-2.5 w-2.5 rounded-sm bg-[#ff4d4d] ring-1 ring-black"></span>71~100
           </span>
         </p>
       </section>
 
-      <section class="mb-8">
-        <div class="mx-auto max-w-4xl">
-          <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-            <p class="text-sm font-semibold tracking-tight text-slate-900">서울 전체</p>
-            <div class="flex items-baseline gap-2 text-[11px] text-slate-500">
-              <span id="overallCount" class="font-semibold text-slate-700">—</span>
-              <span class="text-slate-300">·</span>
-              <span id="overallUpdated">—</span>
-            </div>
-          </div>
-
-          <div class="mt-2 flex items-center gap-3">
-            <div class="h-2 w-full overflow-hidden rounded-full bg-slate-200/60">
-              <div
-                id="overallBar"
-                class="h-full rounded-full bg-red-500"
-                style="width: 0%"
-                role="progressbar"
-                aria-label="서울 전체 수집률"
-                aria-valuemin="0"
-                aria-valuemax="100"
-                aria-valuenow="0"
-              ></div>
-            </div>
-            <div id="overallPct" class="w-12 shrink-0 text-right text-sm font-extrabold tabular-nums text-slate-900">
-              —%
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section class="mb-10">
         <div class="mb-2 flex items-baseline justify-between gap-3">
-          <h2 class="text-base font-bold tracking-tight text-slate-900">자치구별 수집률 (낮은 순)</h2>
+          <h2 class="text-base font-bold tracking-tight text-white">자치구별 수집률 (낮은 순)</h2>
           <a
             id="sheetLinkTop"
             href="#"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-xs font-semibold text-slate-600 underline decoration-slate-300 underline-offset-2 hover:text-slate-900"
+            class="text-xs font-semibold text-slate-300 underline decoration-slate-600 underline-offset-2 hover:text-white"
           >
             구글 시트 열기 →
           </a>
         </div>
 
-        <div class="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm ring-1 ring-slate-200/60">
-          <ul id="districtList" class="divide-y divide-slate-100"></ul>
-        </div>
+        <ul
+          id="districtList"
+          class="dash-in grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+          style="animation-delay: 460ms"
+        ></ul>
       </section>
 
       <div
         id="chipTooltip"
-        class="pointer-events-none fixed z-[210] hidden max-w-[min(22rem,calc(100vw-1rem))] rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 shadow-xl"
+        class="pointer-events-none fixed z-[210] hidden max-w-[min(24rem,calc(100vw-1rem))] rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-xs text-slate-200 shadow-2xl backdrop-blur"
         role="tooltip"
         aria-hidden="true"
       ></div>
@@ -394,10 +552,10 @@
 
         function rateToColor(pct) {
           const v = typeof pct === "number" ? pct : 0;
-          if (v <= 0) return "#E2E8F0";
-          if (v <= 30) return "#FEE2E2";
-          if (v <= 70) return "#FCA5A5";
-          return "#EF4444";
+          if (v <= 0) return "url(#fogDots)";
+          if (v <= 30) return "#3b82f6";
+          if (v <= 70) return "#facc15";
+          return "#ff4d4d";
         }
 
         function setOverallBar(pct) {
@@ -488,13 +646,16 @@
             const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
             p.setAttribute("d", path(f) || "");
             p.setAttribute("fill", rateToColor(st.pct));
-            p.setAttribute("stroke", "#CBD5E1");
-            p.setAttribute("stroke-width", "1");
+            p.setAttribute("stroke", "#000");
+            p.setAttribute("stroke-width", "3");
+            p.setAttribute("stroke-linejoin", "miter");
+            p.setAttribute("stroke-linecap", "square");
             p.setAttribute("vector-effect", "non-scaling-stroke");
             p.setAttribute("data-district", name);
             p.setAttribute("tabindex", "-1");
             p.style.cursor = "pointer";
             p.style.outline = "none";
+            if (st.pct >= 71) p.classList.add("is-hot");
             frag.appendChild(p);
           });
           g.appendChild(frag);
@@ -512,8 +673,8 @@
               tooltipShow(
                 e.clientX,
                 e.clientY,
-                `<div class="font-semibold text-slate-900">${escapeHtml(d)}</div>
-                 <div class="mt-0.5 text-slate-700">${st.total}중 ${st.done}명 확인 (${st.pct.toFixed(0)}%)</div>`
+                `<div class="font-semibold text-white">${escapeHtml(d)}</div>
+                 <div class="mt-0.5 text-slate-200">${st.total}중 ${st.done}명 확인 (${st.pct.toFixed(0)}%)</div>`
               );
             });
             el.addEventListener("pointerleave", () => {
@@ -538,8 +699,8 @@
               tooltipShow(
                 e.clientX,
                 e.clientY,
-                `<div class="font-semibold text-slate-900">${escapeHtml(d)}</div>
-                 <div class="mt-0.5 text-slate-700">${st.total}중 ${st.done}명 확인 (${st.pct.toFixed(0)}%)</div>`
+                `<div class="font-semibold text-white">${escapeHtml(d)}</div>
+                 <div class="mt-0.5 text-slate-200">${st.total}중 ${st.done}명 확인 (${st.pct.toFixed(0)}%)</div>`
               );
               setTimeout(() => {
                 if (!mapTouchRecentlyActive()) tooltipHide();
@@ -553,14 +714,31 @@
           if (!list) return;
           const rows = SEOUL_DISTRICTS.map((d) => statsByDistrict[d] || { district: d, total: 0, done: 0, pct: 0 });
           rows.sort((a, b) => (a.pct - b.pct) || a.district.localeCompare(b.district, "ko"));
+          function districtStatus(st) {
+            if (!st || !st.total) return "NULL";
+            if (!st.done) return "NULL";
+            if (st.pct >= 71) return "READY";
+            return "NEED_DATA";
+          }
+          function statusBadgeHtml(status) {
+            const base =
+              "mono inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ring-1";
+            if (status === "READY") {
+              return `<span class="${base} bg-emerald-400/10 text-emerald-200 ring-emerald-400/20">[STATUS: READY]</span>`;
+            }
+            if (status === "NEED_DATA") {
+              return `<span class="${base} bg-sky-400/10 text-sky-200 ring-sky-400/20">[STATUS: NEED_DATA]</span>`;
+            }
+            return `<span class="${base} bg-white/5 text-slate-200 ring-white/10">[STATUS: NULL]</span>`;
+          }
           function sectionHtml(title, items) {
             const chips = (items || [])
               .map((it) => {
                 const base =
                   "inline-flex items-center rounded-full px-2 py-1 text-[11px] leading-none ring-1 transition-colors";
                 const cls = it.collected
-                  ? "bg-red-50 text-red-700 ring-red-200 hover:bg-red-100"
-                  : "bg-slate-100 text-slate-500 ring-slate-200 hover:bg-slate-200/70";
+                  ? "bg-[#ff4d4d]/15 text-[#ffb3b3] ring-[#ff4d4d]/30 hover:bg-[#ff4d4d]/25"
+                  : "bg-white/5 text-slate-300 ring-white/10 hover:bg-white/10";
                 const tip = escapeHtml(it.tooltip || "");
                 return `<span class="${base} ${cls}" data-chip-tooltip="${escapeHtml(
                   JSON.stringify({ name: it.name, collected: it.collected, badges: it.badges })
@@ -568,8 +746,8 @@
               })
               .join("");
             return `<div class="mt-2">
-              <div class="text-[11px] font-semibold text-slate-600">${escapeHtml(title)}</div>
-              <div class="mt-1 flex flex-wrap gap-1.5">${chips || '<span class="text-[11px] text-slate-400">—</span>'}</div>
+              <div class="text-[11px] font-semibold text-slate-300">${escapeHtml(title)}</div>
+              <div class="mt-1 flex flex-wrap gap-1.5">${chips || '<span class="text-[11px] text-slate-500">—</span>'}</div>
             </div>`;
           }
 
@@ -577,24 +755,31 @@
             .map((r) => {
               const bar = Math.max(0, Math.min(100, r.pct));
               const c = rateToColor(r.pct);
+              const status = districtStatus(r);
               const bundles = candidatesByDistrictOffice[r.district] || {};
               const mayor = bundles["구청장"] || [];
               const city = bundles["시의원"] || [];
               const gu = bundles["구의원"] || [];
-              return `<li class="px-3 py-2">
+              return `<li class="dash-card dash-in rounded-3xl p-4 shadow-2xl shadow-black/20" style="animation-delay: 520ms">
                 <details class="group">
                   <summary class="flex cursor-pointer list-none items-center justify-between gap-3 py-1 marker:content-none">
                     <div class="min-w-0 flex-1">
                       <div class="flex items-baseline gap-2">
-                        <span class="truncate text-[13px] font-bold leading-tight text-slate-900">${escapeHtml(
+                        <span class="truncate text-[13px] font-bold leading-tight text-white">${escapeHtml(
                           r.district
                         )}</span>
-                        <span class="shrink-0 text-[10px] font-semibold leading-none tabular-nums text-slate-600">${r.pct.toFixed(
+                        ${statusBadgeHtml(status)}
+                        ${
+                          status === "NULL"
+                            ? '<span class="mono text-[10px] font-semibold text-slate-400 animate-pulse">Scanning...</span>'
+                            : ""
+                        }
+                        <span class="mono shrink-0 text-[10px] font-semibold leading-none text-slate-200">${r.pct.toFixed(
                           0
                         )}%</span>
-                        <span class="shrink-0 text-[10px] leading-none tabular-nums text-slate-400">(${r.done}/${r.total})</span>
+                        <span class="mono shrink-0 text-[10px] leading-none text-slate-400">(${r.done}/${r.total})</span>
                       </div>
-                      <div class="mt-1 h-1 w-full max-w-[420px] overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200/50">
+                      <div class="mt-2 h-1 w-full max-w-[420px] overflow-hidden rounded-full bg-white/10 ring-1 ring-white/10">
                         <div class="h-full rounded-full" style="width:${bar.toFixed(1)}%; background:${c};"></div>
                       </div>
                     </div>
@@ -632,10 +817,10 @@
           const el = document.getElementById("overallUpdated");
           if (!el) return;
           if (!updatedAt) {
-            el.textContent = "데이터 갱신일: —";
+            el.textContent = "—";
             return;
           }
-          el.textContent = "데이터 갱신일: " + updatedAt;
+          el.textContent = String(updatedAt);
         }
 
         async function main() {
@@ -703,10 +888,37 @@
           });
 
           const overallPct = totalAll ? (doneAll / totalAll) * 100 : 0;
-          document.getElementById("overallPct").textContent = overallPct.toFixed(0) + "%";
-          document.getElementById("overallCount").textContent =
-            "서울 전체: " + doneAll + " / " + totalAll + "명";
+          document.getElementById("overallPct").textContent = "HP: " + overallPct.toFixed(0) + "%";
+          document.getElementById("overallCount").textContent = "SCORE: " + doneAll + "/" + totalAll;
           setOverallBar(overallPct);
+
+          const metricCovered = document.getElementById("metricCovered");
+          const metricTotal = document.getElementById("metricTotal");
+          const metricCoveredPct = document.getElementById("metricCoveredPct");
+          const metricDistricts = document.getElementById("metricDistricts");
+          if (metricCovered) metricCovered.textContent = String(doneAll);
+          if (metricTotal) metricTotal.textContent = "/ " + String(totalAll);
+          if (metricCoveredPct) metricCoveredPct.textContent = "HP: " + overallPct.toFixed(0) + "%";
+          if (metricDistricts) metricDistricts.textContent = SEOUL_DISTRICTS.length + " districts";
+
+          let ready = 0;
+          let need = 0;
+          let nul = 0;
+          Object.values(statsByDistrict).forEach((st) => {
+            if (!st.total || !st.done) {
+              nul += 1;
+            } else if (st.pct >= 71) {
+              ready += 1;
+            } else {
+              need += 1;
+            }
+          });
+          const metricReady = document.getElementById("metricReady");
+          const metricNeed = document.getElementById("metricNeed");
+          const metricNull = document.getElementById("metricNull");
+          if (metricReady) metricReady.textContent = String(ready);
+          if (metricNeed) metricNeed.textContent = String(need);
+          if (metricNull) metricNull.textContent = String(nul);
 
           buildSeoulMap(topoJson, statsByDistrict);
           const candidatesByDistrictOffice = {};
@@ -781,16 +993,16 @@
               const cls = String(b.icon || "").trim();
               const label = String(b.label || "").trim();
               if (!cls) return "";
-              return `<span class="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-1 ring-1 ring-slate-200">
+              return `<span class="inline-flex items-center gap-1 rounded-md bg-white/5 px-2 py-1 ring-1 ring-white/10">
                 <i class="bi ${escapeHtml(cls)}" aria-hidden="true"></i>
-                <span class="text-[11px] text-slate-700">${escapeHtml(label)}</span>
+                <span class="text-[11px] text-slate-200">${escapeHtml(label)}</span>
               </span>`;
             })
             .join("");
           chipTooltipShow(
             e.clientX,
             e.clientY,
-            `<div class="font-semibold text-slate-900">${escapeHtml(payload.name)}</div>
+            `<div class="font-semibold text-white">${escapeHtml(payload.name)}</div>
              <div class="mt-1 flex flex-wrap gap-1.5">${
                icons || '<span class="text-[11px] text-slate-400">연락처 없음</span>'
              }</div>`
