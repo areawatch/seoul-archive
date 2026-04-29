@@ -59,7 +59,7 @@
         </p>
       </header>
 
-      <section class="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <section class="mb-6 grid grid-cols-1 gap-4 sm:mb-10 sm:grid-cols-2">
         <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm ring-1 ring-slate-200/60">
           <div class="flex items-center justify-between gap-3">
             <div class="min-w-0">
@@ -123,15 +123,15 @@
             </div>
           </div>
           <p class="mt-4 text-xs leading-relaxed text-slate-500">
-            지도는 각 자치구를 클릭/호버하면 진행 상황을 보여줍니다. (타일형 표현)
+            지도는 각 자치구 경계 위에 마우스를 올리면 진행 상황을 보여줍니다.
           </p>
         </div>
       </section>
 
-      <section class="mb-8">
+      <section class="mb-8 -mt-2 sm:mt-0">
         <div class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm ring-1 ring-slate-200/60">
           <div class="flex flex-col items-center gap-3">
-            <div class="w-full max-w-[520px]">
+            <div class="w-full max-w-[460px] sm:max-w-[560px]">
               <svg
                 id="seoulMap"
                 viewBox="0 0 520 520"
@@ -140,10 +140,10 @@
                 aria-label="서울 25개 자치구 수집률 지도"
               >
                 <rect x="0" y="0" width="520" height="520" fill="transparent" />
-                <g id="mapTiles"></g>
+                <g id="mapPaths"></g>
               </svg>
             </div>
-            <p class="text-xs text-slate-500">모바일에서도 한눈에 들어오도록, 정사각 타일 지도로 표시합니다.</p>
+            <p class="text-xs text-slate-500">실제 자치구 경계 지도로 표시합니다.</p>
           </div>
         </div>
 
@@ -177,6 +177,8 @@
       <div id="footer-plugin"></div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       (function () {
@@ -224,15 +226,7 @@
           "송파구",
           "강동구",
         ];
-
-        const TILE_LAYOUT = [
-          ["은평구", "서대문구", "종로구", "중구", "동대문구"],
-          ["강서구", "마포구", "용산구", "성동구", "중랑구"],
-          ["양천구", "영등포구", "동작구", "광진구", "강북구"],
-          ["구로구", "금천구", "관악구", "서초구", "도봉구"],
-          ["", "", "강남구", "송파구", "강동구"],
-          ["", "", "노원구", "성북구", ""],
-        ];
+        const SEOUL_MAP_TOPOJSON_URL = "../public/data/seoul_municipalities_topo_simple.json";
 
         function escapeHtml(str) {
           return String(str ?? "")
@@ -404,38 +398,46 @@
           tip.setAttribute("aria-hidden", "true");
         }
 
-        function buildTileMap(statsByDistrict) {
-          const g = document.getElementById("mapTiles");
-          if (!g) return;
-          const size = 86;
-          const gap = 10;
-          const radius = 14;
-          const x0 = 20;
-          const y0 = 20;
-          const tiles = [];
+        function buildSeoulMap(topoJson, statsByDistrict) {
+          const mapSvg = document.getElementById("seoulMap");
+          const g = document.getElementById("mapPaths");
+          if (!mapSvg || !g) return;
+          if (!window.d3 || !window.topojson) return;
 
-          TILE_LAYOUT.forEach((row, r) => {
-            row.forEach((name, c) => {
-              if (!name) return;
-              const x = x0 + c * (size + gap);
-              const y = y0 + r * (size + gap);
-              const stat = statsByDistrict[name] || { total: 0, done: 0, pct: 0 };
-              const fill = rateToColor(stat.pct);
-              tiles.push(
-                `<g data-district="${escapeHtml(name)}" class="cursor-pointer">
-                  <rect x="${x}" y="${y}" width="${size}" height="${size}" rx="${radius}" fill="${fill}" stroke="#E5E7EB" stroke-width="2"></rect>
-                  <text x="${x + size / 2}" y="${y + size / 2}" text-anchor="middle" dominant-baseline="middle"
-                        font-size="14" font-weight="700" fill="#111827">${escapeHtml(name.replace("구", ""))}</text>
-                </g>`
-              );
-            });
+          const width = 520;
+          const height = 520;
+
+          const objKey = topoJson && topoJson.objects ? Object.keys(topoJson.objects)[0] : "";
+          if (!objKey) throw new Error("TopoJSON objects not found");
+          const featureCollection = window.topojson.feature(topoJson, topoJson.objects[objKey]);
+          const features = (featureCollection && featureCollection.features) || [];
+
+          const projection = window.d3.geoMercator();
+          projection.fitSize([width, height], featureCollection);
+          const path = window.d3.geoPath(projection);
+
+          // Clear
+          g.innerHTML = "";
+
+          // Draw paths
+          const frag = document.createDocumentFragment();
+          features.forEach((f) => {
+            const name = f && f.properties ? String(f.properties.name || "").trim() : "";
+            const st = statsByDistrict[name] || { total: 0, done: 0, pct: 0 };
+            const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            p.setAttribute("d", path(f) || "");
+            p.setAttribute("fill", rateToColor(st.pct));
+            p.setAttribute("stroke", "#E5E7EB");
+            p.setAttribute("stroke-width", "2");
+            p.setAttribute("vector-effect", "non-scaling-stroke");
+            p.setAttribute("data-district", name);
+            p.style.cursor = "pointer";
+            frag.appendChild(p);
           });
+          g.appendChild(frag);
 
-          g.innerHTML = tiles.join("");
-
-          const map = document.getElementById("seoulMap");
-          if (!map) return;
-          map.querySelectorAll("[data-district]").forEach((el) => {
+          // Interactions
+          g.querySelectorAll("path[data-district]").forEach((el) => {
             el.addEventListener("mousemove", (e) => {
               const d = el.getAttribute("data-district") || "";
               const st = statsByDistrict[d] || { total: 0, done: 0, pct: 0 };
@@ -447,6 +449,7 @@
               );
             });
             el.addEventListener("mouseleave", tooltipHide);
+            el.addEventListener("focus", tooltipHide);
             el.addEventListener("touchstart", (e) => {
               const t = e.touches && e.touches[0] ? e.touches[0] : null;
               if (!t) return;
@@ -531,7 +534,12 @@
 
           const candidatesFetch = fetch("../public/data/candidates.json").then((r) => r.json());
           const sheetFetch = fetch(SHEET_CSV_URL, { cache: "no-store" }).then((r) => r.text());
-          const [candidatesPayload, sheetCsv] = await Promise.all([candidatesFetch, sheetFetch]);
+          const topoFetch = fetch(SEOUL_MAP_TOPOJSON_URL).then((r) => r.json());
+          const [candidatesPayload, sheetCsv, topoJson] = await Promise.all([
+            candidatesFetch,
+            sheetFetch,
+            topoFetch,
+          ]);
 
           const parsed = parseCandidatesPayload(candidatesPayload);
           setUpdatedLine(parsed.updatedAt);
@@ -580,7 +588,7 @@
             "서울 전체: " + doneAll + " / " + totalAll + "명";
           setDonut(overallPct);
 
-          buildTileMap(statsByDistrict);
+          buildSeoulMap(topoJson, statsByDistrict);
           renderDistrictList(statsByDistrict);
         }
 
