@@ -1174,6 +1174,23 @@
           .join("");
       }
 
+      function criminalHistoryTagsHtml(raw) {
+        const text = String(raw || "").trim();
+        if (!text) return '<span class="text-slate-400">-</span>';
+        const parts = text
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        if (!parts.length) return '<span class="text-slate-400">-</span>';
+        return parts
+          .map(function (item) {
+            return `<span class="inline-flex items-center rounded-full whitespace-nowrap bg-rose-50 px-2 py-0.5 text-[11px] font-semibold leading-none text-rose-700 ring-1 ring-rose-200">#${escapeHtml(
+              item
+            )}</span>`;
+          })
+          .join("");
+      }
+
       function renderVerifiedCandidates(filtered) {
         const listEl = document.getElementById("verifiedCandidatesList");
         const emptyEl = document.getElementById("verifiedCandidatesEmpty");
@@ -1287,9 +1304,11 @@
                     <td class="whitespace-nowrap px-3 py-3 text-xs font-semibold text-slate-700">${escapeHtml(
                       meta.grade || "미기재"
                     )}</td>
-                    <td class="max-w-[14rem] px-3 py-3 text-xs leading-relaxed text-slate-700 whitespace-pre-line">${escapeHtml(
-                      meta.criminalHistory || "-"
-                    )}</td>
+                    <td class="max-w-[14rem] px-3 py-3 text-xs leading-relaxed text-slate-700">
+                      <div class="flex flex-wrap gap-1">${criminalHistoryTagsHtml(
+                        meta.criminalHistory
+                      )}</div>
+                    </td>
                     <td class="max-w-[16rem] px-3 py-3 text-xs leading-relaxed text-slate-700 whitespace-pre-line">${escapeHtml(
                       meta.qaQuestionnaire || "-"
                     )}</td>
