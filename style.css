@@ -157,8 +157,8 @@ body {
     }
 }
 
-/* 후보 목록 / 브리핑 서브네비 (candidates/header.html) */
-.navbar-dark .site-nav-links .nav-link.active {
+/* 후보 목록 / RED LINE / 브리핑 서브네비 (candidates/header.html) — Bootstrap .navbar-nav .nav-link.active 와 동순위 이슈 대비 */
+.candidates-page-navbar.navbar-dark .navbar-nav.site-nav-links .nav-link.active {
     color: #fff !important;
     font-weight: 700;
     text-decoration: none !important;
