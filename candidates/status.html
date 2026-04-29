@@ -197,85 +197,87 @@
         <p class="mono mt-2 text-xs text-slate-300">QUEST: 연락처 수집 현황</p>
       </header>
 
-      <section class="mb-6 grid grid-cols-12 gap-4">
-        <div class="dash-card dash-in col-span-12 p-5 sm:col-span-6 lg:col-span-4" style="animation-delay: 50ms">
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <div class="mono text-[11px] font-bold uppercase tracking-widest text-slate-300">Quest Progress</div>
-              <div class="mt-1 text-base font-bold text-white">HP: 서울 전체</div>
+      <div class="flex flex-col gap-6">
+      <section class="order-2 mb-4 sm:order-1 sm:mb-6">
+        <div class="dash-card dash-in mx-auto max-w-5xl p-3 sm:p-4" style="animation-delay: 50ms">
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center justify-between gap-3 sm:justify-start">
+              <div>
+                <div class="mono text-[11px] font-bold uppercase tracking-widest text-slate-300">Quest Progress</div>
+                <div class="mt-1 text-sm font-bold text-white sm:text-base">HP / SCORE</div>
+              </div>
+              <span
+                class="status-badge inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-bold text-[#ff4d4d]"
+              >
+                <span class="h-1.5 w-1.5 rounded-full bg-[#ff4d4d] animate-pulse"></span>
+                LIVE
+              </span>
             </div>
-            <span class="status-badge inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-bold text-[#ff4d4d]">
-              <span class="h-1.5 w-1.5 rounded-full bg-[#ff4d4d] animate-pulse"></span>
-              LIVE
-            </span>
-          </div>
-          <div class="mt-4 flex items-center gap-3">
-            <div class="h-3 w-full overflow-hidden bg-black/30 border-2 border-black">
-              <div
-                id="overallBar"
-                class="h-full"
-                style="width: 0%; background: #ff4d4d;"
-                role="progressbar"
-                aria-label="서울 전체 수집률"
-                aria-valuemin="0"
-                aria-valuemax="100"
-                aria-valuenow="0"
-              ></div>
-            </div>
-            <div id="overallPct" class="mono w-16 shrink-0 text-right text-lg font-black text-white">HP: —%</div>
-          </div>
-          <div class="mt-4 flex items-center justify-between gap-2 text-[11px] text-slate-400">
-            <span id="overallCount" class="mono font-bold text-slate-200">SCORE: —</span>
-            <span id="overallUpdated" class="mono">UPDATED: —</span>
-          </div>
-        </div>
 
-        <div class="dash-card dash-in col-span-12 p-5 sm:col-span-6 lg:col-span-4" style="animation-delay: 140ms">
-          <div class="mono text-[11px] font-bold uppercase tracking-widest text-slate-300">Total Score</div>
-          <div class="mt-1 text-base font-bold text-white">CONTACTS FOUND</div>
-          <div class="mt-4 flex items-end justify-between gap-3">
-            <div id="metricCovered" class="mono text-4xl font-black text-white">—</div>
-            <div class="mono text-sm font-semibold text-slate-400" id="metricTotal">/ —</div>
+            <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-[11px] text-slate-300 sm:justify-end">
+              <span id="overallUpdated" class="mono">UPDATED: —</span>
+              <span class="mono text-slate-500">|</span>
+              <span id="metricDistricts" class="mono">—</span>
+            </div>
           </div>
-          <div class="mt-2 text-[11px] text-slate-400">
-            <span class="mono" id="metricCoveredPct">—%</span> · <span class="mono" id="metricDistricts">—</span>
-          </div>
-        </div>
 
-        <div class="dash-card dash-in col-span-12 p-5 sm:col-span-12 lg:col-span-4" style="animation-delay: 230ms">
-          <div class="mono text-[11px] font-bold uppercase tracking-widest text-slate-300">Quest Log</div>
-          <div class="mt-1 text-base font-bold text-white">DISTRICT STATUS</div>
-          <div class="mt-4 grid grid-cols-3 gap-2">
-            <div class="rounded-2xl border border-white/10 bg-black/10 p-3">
-              <div class="mono text-[11px] font-bold text-slate-300">[STATUS: READY]</div>
-              <div id="metricReady" class="mono mt-2 text-2xl font-black text-white">—</div>
+          <div class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-12 sm:items-center">
+            <div class="sm:col-span-8">
+              <div class="flex items-center gap-3">
+                <div class="h-3 w-full overflow-hidden border-2 border-black bg-black/30">
+                  <div
+                    id="overallBar"
+                    class="h-full"
+                    style="width: 0%; background: #ff4d4d;"
+                    role="progressbar"
+                    aria-label="서울 전체 수집률"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-valuenow="0"
+                  ></div>
+                </div>
+                <div id="overallPct" class="mono w-20 shrink-0 text-right text-lg font-black text-white">
+                  HP: —%
+                </div>
+              </div>
+              <div class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-300">
+                <span id="overallCount" class="mono font-bold text-slate-200">SCORE: —</span>
+                <span class="mono text-slate-500">|</span>
+                <span class="mono font-bold text-white">FOUND:</span>
+                <span id="metricCovered" class="mono font-black text-white">—</span>
+                <span id="metricTotal" class="mono text-slate-300">/ —</span>
+                <span class="mono text-slate-500">|</span>
+                <span id="metricCoveredPct" class="mono text-slate-300">HP: —%</span>
+              </div>
             </div>
-            <div class="rounded-2xl border border-white/10 bg-black/10 p-3">
-              <div class="mono text-[11px] font-bold text-slate-300">[STATUS: NEED_DATA]</div>
-              <div id="metricNeed" class="mono mt-2 text-2xl font-black text-white">—</div>
-            </div>
-            <div class="rounded-2xl border border-white/10 bg-black/10 p-3">
-              <div class="mono text-[11px] font-bold text-slate-300">[STATUS: NULL]</div>
-              <div id="metricNull" class="mono mt-2 text-2xl font-black text-white">—</div>
+
+            <div class="sm:col-span-4">
+              <div class="border-2 border-black bg-black/20 px-3 py-2">
+                <div class="mono text-[11px] font-bold text-slate-300">TIP</div>
+                <div class="mono mt-1 text-[11px] leading-relaxed text-slate-300">
+                  UNKNOWN = <span class="text-white">Fog</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="mb-6">
-        <div class="dash-card dash-in mx-auto max-w-5xl p-5 sm:p-6" style="animation-delay: 310ms">
-          <div class="mb-3 flex items-center justify-between gap-3">
+      <section class="order-1 mb-0 sm:order-2 sm:mb-0">
+        <div class="dash-card dash-in mx-auto max-w-5xl p-3 sm:p-4" style="animation-delay: 310ms">
+          <div class="mb-2 flex items-center justify-between gap-3">
             <div>
               <div class="mono text-[11px] font-bold uppercase tracking-widest text-slate-300">World Map</div>
               <div class="mt-1 text-base font-bold text-white">SEOUL</div>
             </div>
             <div class="mono text-[11px] font-bold text-slate-300">HOVER / TAP</div>
           </div>
-          <div class="mx-auto w-full max-w-[640px]">
+          <div class="mx-auto flex h-[360px] w-full max-w-[600px] items-center justify-center overflow-hidden sm:h-[420px]">
             <svg
               id="seoulMap"
               viewBox="0 0 520 520"
-              class="h-auto w-full select-none"
+              preserveAspectRatio="xMidYMid meet"
+              class="h-full w-auto max-w-full select-none"
               role="img"
               aria-label="서울 25개 자치구 수집률 지도"
             >
@@ -290,6 +292,25 @@
               <g id="mapPaths"></g>
             </svg>
           </div>
+          <div class="mt-2">
+            <p class="mono text-center text-[11px] text-slate-300">
+              <span class="inline-flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-sm bg-[#6b7280] ring-1 ring-black"></span>UNKNOWN
+              </span>
+              <span class="mx-2 text-slate-600">|</span>
+              <span class="inline-flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-sm bg-[#3b82f6] ring-1 ring-black"></span>1~30
+              </span>
+              <span class="mx-2 text-slate-600">|</span>
+              <span class="inline-flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-sm bg-[#facc15] ring-1 ring-black"></span>31~70
+              </span>
+              <span class="mx-2 text-slate-600">|</span>
+              <span class="inline-flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-sm bg-[#ff4d4d] ring-1 ring-black"></span>71~100
+              </span>
+            </p>
+          </div>
         </div>
 
         <div
@@ -299,26 +320,7 @@
           aria-hidden="true"
         ></div>
       </section>
-
-      <section class="mb-8 dash-in" style="animation-delay: 360ms">
-        <p class="mono text-center text-[11px] text-slate-300">
-          <span class="inline-flex items-center gap-1.5">
-            <span class="h-2.5 w-2.5 rounded-sm bg-[#6b7280] ring-1 ring-black"></span>UNKNOWN
-          </span>
-          <span class="mx-2 text-slate-600">|</span>
-          <span class="inline-flex items-center gap-1.5">
-            <span class="h-2.5 w-2.5 rounded-sm bg-[#3b82f6] ring-1 ring-black"></span>1~30
-          </span>
-          <span class="mx-2 text-slate-600">|</span>
-          <span class="inline-flex items-center gap-1.5">
-            <span class="h-2.5 w-2.5 rounded-sm bg-[#facc15] ring-1 ring-black"></span>31~70
-          </span>
-          <span class="mx-2 text-slate-600">|</span>
-          <span class="inline-flex items-center gap-1.5">
-            <span class="h-2.5 w-2.5 rounded-sm bg-[#ff4d4d] ring-1 ring-black"></span>71~100
-          </span>
-        </p>
-      </section>
+      </div>
 
       <section class="mb-10">
         <div class="mb-2 flex items-baseline justify-between gap-3">
