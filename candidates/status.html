@@ -47,6 +47,17 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     />
     <link rel="stylesheet" href="../style.css" />
+    <style>
+      /* 이 페이지도 RED 톤 selection */
+      ::selection {
+        background-color: rgba(239, 68, 68, 0.28);
+        color: #0f172a;
+      }
+      ::-moz-selection {
+        background-color: rgba(239, 68, 68, 0.28);
+        color: #0f172a;
+      }
+    </style>
   </head>
 
   <body class="min-h-screen bg-white text-slate-900 antialiased">
@@ -421,6 +432,9 @@
         }
 
         let lastMapTouchAt = 0;
+        function mapTouchRecentlyActive() {
+          return Date.now() - lastMapTouchAt < 3000;
+        }
 
         function chipTooltipHide() {
           const tip = document.getElementById("chipTooltip");
@@ -499,15 +513,23 @@
                 e.clientX,
                 e.clientY,
                 `<div class="font-semibold text-slate-900">${escapeHtml(d)}</div>
-                 <div class="mt-0.5 text-slate-700">${st.total}명 중 ${st.done}명 완료 (${st.pct.toFixed(0)}%)</div>`
+                 <div class="mt-0.5 text-slate-700">${st.total}중 ${st.done}명 확인 (${st.pct.toFixed(0)}%)</div>`
               );
             });
-            el.addEventListener("pointerleave", (e) => {
-              // 모바일 터치 직후 pointerleave가 따라오며 즉시 숨겨지는 현상 방지
-              if (Date.now() - lastMapTouchAt < 800) return;
+            el.addEventListener("pointerleave", () => {
+              // 모바일에서 손을 떼는 순간 pointerleave/focus가 섞여 들어오는 경우가 있어,
+              // 터치 직후에는 숨김을 막는다.
+              if (mapTouchRecentlyActive()) return;
               tooltipHide();
             });
-            el.addEventListener("focus", tooltipHide);
+            el.addEventListener("pointercancel", () => {
+              if (mapTouchRecentlyActive()) return;
+              tooltipHide();
+            });
+            el.addEventListener("focus", () => {
+              if (mapTouchRecentlyActive()) return;
+              tooltipHide();
+            });
             el.addEventListener("pointerdown", (e) => {
               if (!e || e.pointerType !== "touch") return;
               lastMapTouchAt = Date.now();
@@ -517,10 +539,10 @@
                 e.clientX,
                 e.clientY,
                 `<div class="font-semibold text-slate-900">${escapeHtml(d)}</div>
-                 <div class="mt-0.5 text-slate-700">${st.total}명 중 ${st.done}명 완료 (${st.pct.toFixed(0)}%)</div>`
+                 <div class="mt-0.5 text-slate-700">${st.total}중 ${st.done}명 확인 (${st.pct.toFixed(0)}%)</div>`
               );
               setTimeout(() => {
-                if (Date.now() - lastMapTouchAt >= 2400) tooltipHide();
+                if (!mapTouchRecentlyActive()) tooltipHide();
               }, 2500);
             });
           });
