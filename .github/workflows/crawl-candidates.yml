@@ -19,9 +19,6 @@ jobs:
   crawl:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    # Node 20 기반 액션 deprecation 경고 완화 (https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/)
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
