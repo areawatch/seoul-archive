@@ -395,6 +395,29 @@
                 opacity="0"
                 aria-hidden="true"
               />
+              <g id="ufoTip" opacity="0" aria-hidden="true">
+                <rect
+                  id="ufoTipBg"
+                  x="0"
+                  y="0"
+                  width="220"
+                  height="32"
+                  rx="0"
+                  ry="0"
+                  fill="rgba(2,6,23,0.78)"
+                  stroke="#000"
+                  stroke-width="3"
+                  shape-rendering="crispEdges"
+                />
+                <text
+                  id="ufoTipText"
+                  x="12"
+                  y="21"
+                  fill="#e2e8f0"
+                  font-size="12"
+                  font-family="Galmuri11, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
+                >응답하지 않는 후보를 스캔 중...</text>
+              </g>
             </svg>
           </div>
           <div class="mt-2">
@@ -767,6 +790,8 @@
           const mapSvg = document.getElementById("seoulMap");
           const g = document.getElementById("mapPaths");
           const ufo = document.getElementById("ufoSprite");
+          const ufoTip = document.getElementById("ufoTip");
+          const ufoTipText = document.getElementById("ufoTipText");
           if (!mapSvg || !g) return;
           if (!window.d3 || !window.topojson) return;
 
@@ -826,13 +851,33 @@
                 const cx = bb.x + bb.width / 2;
                 const cy = bb.y + bb.height / 2;
                 // float slightly above the district center
-                ufo.setAttribute("x", String(cx - w / 2));
-                ufo.setAttribute("y", String(cy - h / 2 - 24));
+                const ux = cx - w / 2;
+                const uy = cy - h / 2 - 24;
+                ufo.setAttribute("x", String(ux));
+                ufo.setAttribute("y", String(uy));
                 ufo.setAttribute("width", String(w));
                 ufo.setAttribute("height", String(h));
                 ufo.setAttribute("opacity", "1");
+
+                // Tip bubble near UFO (clamped to viewBox)
+                if (ufoTip) {
+                  const tipW = 240;
+                  const tipH = 32;
+                  const pad = 10;
+                  let tx = ux + w + 10;
+                  let ty = uy + 10;
+                  // if overflow right, flip to left
+                  if (tx + tipW + pad > 520) tx = ux - tipW - 10;
+                  // clamp
+                  tx = Math.max(pad, Math.min(520 - tipW - pad, tx));
+                  ty = Math.max(pad, Math.min(520 - tipH - pad, ty));
+                  ufoTip.setAttribute("transform", `translate(${tx} ${ty})`);
+                  ufoTip.setAttribute("opacity", "1");
+                  if (ufoTipText) ufoTipText.textContent = "응답하지 않는 후보를 스캔 중...";
+                }
               } else {
                 ufo.setAttribute("opacity", "0");
+                if (ufoTip) ufoTip.setAttribute("opacity", "0");
               }
             }
           }
@@ -1316,6 +1361,21 @@
           renderDistrictList(statsByDistrict, candidatesByDistrictOffice);
           initTipsLiveFeed(tipsCsv);
         }
+
+        // UFO tip "scanning..." dots animation (very subtle)
+        (function initUfoTipDots() {
+          const t = document.getElementById("ufoTipText");
+          if (!t) return;
+          const base = "응답하지 않는 후보를 스캔 중";
+          let i = 0;
+          const waves = ["▮▯▮▯", "▯▮▯▮", "▮▮▯▯", "▯▯▮▮"];
+          setInterval(() => {
+            const dots = ".".repeat(i % 4);
+            const wave = waves[i % waves.length];
+            t.textContent = base + dots + "  " + wave;
+            i += 1;
+          }, 700);
+        })();
 
         (async function () {
           await inject("header-plugin", "header.html");
