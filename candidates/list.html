@@ -177,6 +177,24 @@
           "Courier New", monospace;
         text-shadow: 1px 1px 0 #000;
       }
+
+      .pixel-nav-btn {
+        border: 2px solid #000;
+        background: rgba(16, 16, 35, 0.92);
+        color: rgba(226, 232, 240, 0.92);
+        font-weight: 900;
+        text-shadow: 1px 1px 0 #000 !important;
+        box-shadow: 0 4px 0 #000;
+        filter: drop-shadow(0 0 10px rgba(255, 77, 77, 0.18));
+      }
+      .pixel-nav-btn:hover {
+        background: rgba(16, 16, 35, 1);
+        color: #ffffff;
+      }
+      .pixel-nav-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #000;
+      }
     </style>
   </head>
   <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
@@ -205,15 +223,21 @@
           <div class="mt-4 flex w-full flex-wrap justify-center gap-2 sm:mt-5">
             <a
               href="index.html"
-              class="inline-flex items-center justify-center rounded-lg border-2 border-black bg-white/95 px-4 py-2 text-sm font-bold text-slate-800 shadow-[0_4px_0_#000] transition hover:bg-white"
+              class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition"
             >
-              빌런아카이브 →
+              😈 빌런아카이브 ←
+            </a>
+            <a
+              href="briefing.html"
+              class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition"
+            >
+              📋 브리핑 →
             </a>
             <a
               href="status.html"
-              class="inline-flex items-center justify-center rounded-lg border-2 border-black bg-white/95 px-4 py-2 text-sm font-bold text-slate-800 shadow-[0_4px_0_#000] transition hover:bg-white"
+              class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition"
             >
-              데이터 원정대 →
+              🛰️ 데이터 원정대 →
             </a>
           </div>
 
