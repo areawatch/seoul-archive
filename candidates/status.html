@@ -716,6 +716,14 @@
           if (!list) return;
           const rows = SEOUL_DISTRICTS.map((d) => statsByDistrict[d] || { district: d, total: 0, done: 0, pct: 0 });
           rows.sort((a, b) => (a.pct - b.pct) || a.district.localeCompare(b.district, "ko"));
+          function cardBgForPct(pct) {
+            const p = Math.max(0, Math.min(100, typeof pct === "number" ? pct : 0)) / 100;
+            // 같은 톤에서 채도/밝기만 변화. 0%는 거의 검은색에 가깝게.
+            const hue = 240; // blue-ish
+            const sat = Math.round(14 + p * 34); // 14% ~ 48%
+            const light = Math.round(7 + p * 16); // 7% ~ 23%
+            return `hsl(${hue} ${sat}% ${light}%)`;
+          }
           function districtStatus(st) {
             if (!st || !st.total) return "NULL";
             if (!st.done) return "NULL";
@@ -762,7 +770,8 @@
               const mayor = bundles["구청장"] || [];
               const city = bundles["시의원"] || [];
               const gu = bundles["구의원"] || [];
-              return `<li class="dash-card dash-in rounded-3xl p-4 shadow-2xl shadow-black/20" style="animation-delay: 520ms">
+              const cardBg = cardBgForPct(r.pct);
+              return `<li class="dash-card dash-in rounded-3xl p-4 shadow-2xl shadow-black/20" style="animation-delay: 520ms; background: ${cardBg};">
                 <details class="group">
                   <summary class="flex cursor-pointer list-none items-center justify-between gap-3 py-1 marker:content-none">
                     <div class="min-w-0 flex-1">
