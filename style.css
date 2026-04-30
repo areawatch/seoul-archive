@@ -185,6 +185,54 @@ body {
     }
 }
 
+/*
+ * 메인 랜딩(header-landing.html): Tailwind CDN의 .collapse 유틸과 Bootstrap collapse 충돌 방지
+ * (데스크톱 메뉴 미표시/모바일 토글 즉시 닫힘 현상 방지)
+ */
+.landing-page-navbar .navbar-collapse.collapse {
+    visibility: visible !important;
+}
+.landing-page-navbar {
+    position: relative;
+    z-index: 50;
+}
+@media (max-width: 991.98px) {
+    .landing-page-navbar .navbar-collapse.collapse:not(.show):not(.collapsing) {
+        display: none !important;
+    }
+    .landing-page-navbar .navbar-collapse.collapsing {
+        height: auto !important;
+    }
+    .landing-page-navbar .navbar-collapse.collapse.show {
+        display: block !important;
+        width: 100%;
+    }
+    .landing-page-navbar .navbar-nav.site-nav-links {
+        width: 100%;
+        margin-left: 0 !important; /* ms-auto 무력화 */
+        margin-right: 0 !important;
+        align-items: flex-start !important;
+    }
+    .landing-page-navbar .navbar-nav.site-nav-links .nav-link {
+        width: 100%;
+        color: rgba(255, 255, 255, 0.92) !important;
+    }
+    #siteNavbarLanding {
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        margin-top: 0.5rem;
+        padding-top: 0.35rem;
+    }
+}
+@media (min-width: 992px) {
+    .landing-page-navbar.navbar-expand-lg .navbar-collapse.collapse {
+        display: flex !important;
+        flex-basis: auto !important;
+        flex-grow: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+}
+
 .site-nav-links .nav-link {
     font-size: 0.8125rem;
     padding-top: 0.35rem !important;
