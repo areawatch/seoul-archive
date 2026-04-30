@@ -724,14 +724,14 @@
           }
           function statusBadgeHtml(status) {
             const base =
-              "mono inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ring-1";
+              "mono inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-bold ring-1";
             if (status === "READY") {
-              return `<span class="${base} bg-emerald-400/10 text-emerald-200 ring-emerald-400/20">[STATUS: READY]</span>`;
+              return `<span class="${base} bg-emerald-400/10 text-emerald-200 ring-emerald-400/20">READY</span>`;
             }
             if (status === "NEED_DATA") {
-              return `<span class="${base} bg-sky-400/10 text-sky-200 ring-sky-400/20">[STATUS: NEED_DATA]</span>`;
+              return `<span class="${base} bg-sky-400/10 text-sky-200 ring-sky-400/20">NEED_DATA</span>`;
             }
-            return `<span class="${base} bg-white/5 text-slate-200 ring-white/10">[STATUS: NULL]</span>`;
+            return `<span class="${base} bg-white/5 text-slate-200 ring-white/10">NULL</span>`;
           }
           function sectionHtml(title, items) {
             const chips = (items || [])
@@ -974,16 +974,17 @@
           }
         });
 
-        // 모바일·DevTools 에뮬에서도 스크롤 시 지도 툴팁이 fixed로 남지 않도록 다중 감지
-        function hideMapTooltipOnScroll() {
+        // 모바일·DevTools 에뮬에서도 스크롤 시 툴팁이 fixed로 남지 않도록 다중 감지
+        function hideTooltipsOnScroll() {
           tooltipHide();
+          chipTooltipHide();
         }
         const scrollHideTargets = [window, document, document.documentElement, document.body].filter(Boolean);
         scrollHideTargets.forEach((target) => {
-          target.addEventListener("scroll", hideMapTooltipOnScroll, { passive: true, capture: true });
+          target.addEventListener("scroll", hideTooltipsOnScroll, { passive: true, capture: true });
         });
         if (window.visualViewport) {
-          window.visualViewport.addEventListener("scroll", hideMapTooltipOnScroll);
+          window.visualViewport.addEventListener("scroll", hideTooltipsOnScroll);
         }
         // scroll 이벤트가 누락되는 환경 대비: 지도 블록이 뷰포트에서 움직이면(스크롤·줌·주소창) 툴팁 제거
         (function setupMapSectionIntersectionHide() {
@@ -1011,21 +1012,20 @@
           io.observe(mapSection);
         })();
 
-        document.getElementById("districtList").addEventListener("pointermove", function (e) {
-          const t = e.target;
-          const el = t && t.closest ? t.closest("[data-chip-tooltip]") : null;
-          if (!el) {
-            chipTooltipHide();
-            return;
-          }
+        const districtListEl = document.getElementById("districtList");
+        let lastChipEl = null;
+
+        function chipPayloadFromEl(el) {
+          if (!el) return null;
           let payload = null;
           try {
             payload = JSON.parse(el.getAttribute("data-chip-tooltip") || "null");
           } catch {}
-          if (!payload || !payload.name) {
-            chipTooltipHide();
-            return;
-          }
+          if (!payload || !payload.name) return null;
+          return payload;
+        }
+
+        function chipTooltipHtml(payload) {
           const badges = Array.isArray(payload.badges) ? payload.badges : [];
           const icons = badges
             .map((b) => {
@@ -1038,16 +1038,79 @@
               </span>`;
             })
             .join("");
-          chipTooltipShow(
-            e.clientX,
-            e.clientY,
-            `<div class="font-semibold text-white">${escapeHtml(payload.name)}</div>
+          return `<div class="font-semibold text-white">${escapeHtml(payload.name)}</div>
              <div class="mt-1 flex flex-wrap gap-1.5">${
                icons || '<span class="text-[11px] text-slate-400">연락처 없음</span>'
-             }</div>`
+             }</div>`;
+        }
+
+        function showChipTooltipAt(el, x, y) {
+          const payload = chipPayloadFromEl(el);
+          if (!payload) return;
+          chipTooltipShow(x, y, chipTooltipHtml(payload));
+        }
+
+        if (districtListEl) {
+          // Desktop: hover (mouse) keeps existing behavior
+          districtListEl.addEventListener("pointermove", function (e) {
+            if (e && e.pointerType && e.pointerType !== "mouse") return;
+            const t = e.target;
+            const el = t && t.closest ? t.closest("[data-chip-tooltip]") : null;
+            if (!el) {
+              chipTooltipHide();
+              lastChipEl = null;
+              return;
+            }
+            lastChipEl = el;
+            showChipTooltipAt(el, e.clientX, e.clientY);
+          });
+          districtListEl.addEventListener("mouseleave", function () {
+            chipTooltipHide();
+            lastChipEl = null;
+          });
+
+          // Mobile: tap (touch/pen) should reliably show tooltip
+          districtListEl.addEventListener(
+            "pointerdown",
+            function (e) {
+              if (!e || (e.pointerType !== "touch" && e.pointerType !== "pen")) return;
+              const t = e.target;
+              const el = t && t.closest ? t.closest("[data-chip-tooltip]") : null;
+              if (!el) {
+                chipTooltipHide();
+                lastChipEl = null;
+                return;
+              }
+              const tip = document.getElementById("chipTooltip");
+              const isVisible = tip && !tip.classList.contains("hidden");
+              if (isVisible && lastChipEl === el) {
+                chipTooltipHide();
+                lastChipEl = null;
+                return;
+              }
+              lastChipEl = el;
+              const rect = el.getBoundingClientRect();
+              const x = typeof e.clientX === "number" && e.clientX ? e.clientX : rect.left + rect.width / 2;
+              const y = typeof e.clientY === "number" && e.clientY ? e.clientY : rect.top + rect.height / 2;
+              showChipTooltipAt(el, x, y);
+            },
+            { passive: true }
           );
-        });
-        document.getElementById("districtList").addEventListener("mouseleave", chipTooltipHide);
+        }
+
+        // 칩 바깥을 탭하면 칩 툴팁 닫기
+        document.addEventListener(
+          "pointerdown",
+          function (e) {
+            const t = e.target;
+            const el = t && t.closest ? t.closest("[data-chip-tooltip]") : null;
+            if (!el) {
+              chipTooltipHide();
+              lastChipEl = null;
+            }
+          },
+          { passive: true, capture: true }
+        );
       })();
     </script>
   </body>
