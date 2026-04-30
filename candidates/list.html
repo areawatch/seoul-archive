@@ -13,7 +13,7 @@
       gtag("js", new Date());
       gtag("config", "G-HXSD5K4LM6");
     </script>
-    <title>우리동네빌런찾기 · RED LINE 심층 검증 후보</title>
+    <title>서울시 구청장·구의원·시의원 예비후보 — 직무·구·정당·이름 필터</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -64,31 +64,21 @@
 
     <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
       <header class="mb-10 flex flex-col items-center gap-4 text-center">
-        <div class="flex w-full shrink-0 flex-wrap justify-center gap-2">
+        <div class="flex w-full shrink-0 justify-center">
           <a
-            href="list.html"
-            class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+            href="index.html"
+            class="inline-flex items-center justify-center rounded-full bg-red-600 px-5 py-2.5 text-sm font-bold text-white shadow-md ring-1 ring-red-700/30 transition hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
           >
-            ← 전체 예비후보 명부
-          </a>
-          <a
-            href="status.html"
-            class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
-          >
-            연락처 수집 현황 →
+            😈 우리동네빌런찾기
           </a>
         </div>
         <div>
           <p class="text-sm font-medium uppercase tracking-wider text-slate-500">
             Seoul Archive
           </p>
-          <p class="mt-1 text-xs font-semibold uppercase tracking-wider text-rose-500">Red Line</p>
-          <h1 class="mt-0.5 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-            RED LINE 심층 검증 후보
+          <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            구청장·구의원·시의원 후보자 목록
           </h1>
-          <p class="mt-2 text-sm text-slate-500">
-            구글 시트에 등재된 후보만 표시됩니다. 아래 필터·검색이 실시간 반영됩니다.
-          </p>
           <p
             id="dataUpdatedLine"
             class="mt-2 hidden text-sm text-slate-500"
@@ -150,6 +140,27 @@
               필터 초기화
             </button>
           </div>
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-0.5">
+            <label
+              for="incumbentOnlyFilter"
+              class="inline-flex max-w-full cursor-pointer select-none items-start gap-2 text-sm text-slate-700"
+            >
+              <input
+                type="checkbox"
+                id="incumbentOnlyFilter"
+                class="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-sky-600 focus:ring-2 focus:ring-sky-200"
+              />
+              <span class="leading-snug">
+                <span class="font-semibold text-slate-800">현직만</span>
+                <span class="mt-0.5 block text-xs font-normal text-slate-600">
+                  위에서 고른 직무(또는 전체)에 해당하면서, <strong class="font-medium text-slate-700">재산 공개 명부에 이름·자치구가 일치해 등재된 후보</strong>만 표시합니다. 여기서 말하는 현직은
+                  <strong class="font-medium text-slate-800">구정감시서울네트워크</strong>가 재산 내역을 조사한
+                  <strong class="font-medium text-slate-800">현직 구청장·구의원</strong>을 의미하며, 해당 명부에 맞는 인원은
+                  <strong class="font-medium text-slate-800">공개된 재산 내역</strong>을 눌러 확인할 수 있습니다.
+                </span>
+              </span>
+            </label>
+          </div>
         </div>
         <div class="flex w-full flex-col gap-1.5 lg:col-span-3">
           <label for="district" class="text-sm font-semibold text-slate-700"
@@ -198,67 +209,218 @@
       </div>
 
       <div
+        id="candidatesStatsPanel"
+        class="mb-8 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm"
+        role="region"
+        aria-label="필터 결과 요약 통계"
+      ></div>
+
+      <div
         id="errorBox"
         class="mb-6 hidden rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
         role="alert"
       ></div>
 
-      <section class="mb-8" aria-labelledby="verifiedCandidatesTitle">
+      <section aria-labelledby="allCandidatesTitle">
         <div class="mb-3 flex items-end justify-between gap-3">
-          <div>
-            <h2 id="verifiedCandidatesTitle" class="text-lg font-bold tracking-tight text-slate-800">
-              검증 후보 목록
-            </h2>
-            <p class="mt-1 text-xs text-slate-500">표 상단 필터로 구·정당·이름을 좁힐 수 있습니다.</p>
-          </div>
-          <div class="flex shrink-0 items-center gap-2">
-            <a
-              id="runCandidatesCrawlerBtn"
-              href="https://github.com/areawatch/seoul-archive/actions/workflows/crawl-candidates.yml"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
-              title="선관위 예비후보 수집 수동 실행"
-            >
-              선관위 크롤
-            </a>
-            <a
-              id="runNewsCrawlerBtn"
-              href="https://github.com/areawatch/seoul-archive/actions/workflows/crawl-redline-news.yml"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
-              title="RED LINE 뉴스 제목 수집 수동 실행"
-            >
-              뉴스기사 수집
-            </a>
-            <p id="verifiedCountLabel" class="text-sm font-medium text-slate-500">0명</p>
-          </div>
+          <h2 id="allCandidatesTitle" class="text-xl font-bold tracking-tight text-slate-900">
+            전체 예비후보자 명부
+          </h2>
         </div>
-        <div
-          id="verifiedCandidatesEmpty"
-          class="hidden rounded-xl border border-dashed border-slate-300 bg-white px-4 py-5 text-sm text-slate-500"
-        >
-          현재 필터 조건과 일치하는 심층 검증 후보가 없습니다.
-        </div>
-        <div id="verifiedCandidatesList" class="w-full"></div>
+      <div
+        class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-200/60"
+      >
+        <table class="min-w-[1120px] w-full border-collapse text-left text-sm text-slate-800">
+          <thead>
+            <tr class="border-b border-slate-200 bg-slate-50/95">
+              <th
+                scope="col"
+                class="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-sky-600"
+              >
+                <button
+                  type="button"
+                  id="sortNameBtn"
+                  data-sort-scope="main"
+                  data-sort-key="name"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
+                >
+                  이름
+                  <span
+                    id="sortNameIcon"
+                    data-sort-scope="main"
+                    data-sort-icon-for="name"
+                    class="inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                    >↑</span
+                  >
+                </button>
+              </th>
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                정당
+              </th>
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                <button
+                  type="button"
+                  id="sortOfficeBtn"
+                  data-sort-scope="main"
+                  data-sort-key="office"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
+                >
+                  종류
+                  <span
+                    data-sort-icon-for="office"
+                    data-sort-scope="main"
+                    class="invisible inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                  ></span>
+                </button>
+              </th>
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                <button
+                  type="button"
+                  id="sortConstituencyBtn"
+                  data-sort-scope="main"
+                  data-sort-key="constituency"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
+                >
+                  선거구
+                  <span
+                    data-sort-icon-for="constituency"
+                    data-sort-scope="main"
+                    class="invisible inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                  ></span>
+                </button>
+              </th>
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                <button
+                  type="button"
+                  id="sortAgeBtn"
+                  data-sort-scope="main"
+                  data-sort-key="age"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
+                >
+                  나이
+                  <span
+                    id="sortAgeIcon"
+                    data-sort-scope="main"
+                    data-sort-icon-for="age"
+                    class="invisible inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                  ></span>
+                </button>
+              </th>
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                성별
+              </th>
+              <th scope="col" class="min-w-[5rem] px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                직업
+              </th>
+              <th scope="col" class="min-w-[8rem] max-w-[14rem] px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                학력
+              </th>
+              <th scope="col" class="min-w-[4rem] px-3 py-3 text-xs font-semibold tracking-wide text-sky-600">
+                <button
+                  type="button"
+                  id="sortCriminalBtn"
+                  data-sort-scope="main"
+                  data-sort-key="criminal"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-sky-600 hover:bg-sky-50 hover:text-sky-800"
+                >
+                  전과
+                  <span
+                    id="sortCriminalIcon"
+                    data-sort-scope="main"
+                    data-sort-icon-for="criminal"
+                    class="invisible inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                  ></span>
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="cardList" class="divide-y divide-slate-100"></tbody>
+        </table>
+        <div id="candidatesLoadMoreWrap" class="border-t border-slate-100"></div>
+      </div>
       </section>
-
-      <div id="cardList" class="hidden" aria-hidden="true"></div>
-      <div id="candidatesLoadMoreWrap" class="hidden" aria-hidden="true"></div>
     </div>
 
     <div id="footer-plugin"></div>
 
     <div
-      id="verifiedFloatingTooltip"
-      class="pointer-events-none fixed z-[140] hidden max-w-[min(20rem,calc(100vw-1rem))] rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs leading-relaxed text-slate-700 shadow-xl"
-      role="tooltip"
+      id="detailModal"
+      class="fixed inset-0 z-[100] hidden items-center justify-center p-4 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="detailModalTitle"
+    >
+      <div
+        class="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px]"
+        data-modal-backdrop
+        aria-hidden="true"
+      ></div>
+      <div
+        class="relative flex max-h-[min(90vh,720px)] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200"
+      >
+        <div
+          class="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-3"
+        >
+          <h2
+            id="detailModalTitle"
+            class="truncate text-lg font-bold text-slate-900"
+          ></h2>
+          <button
+            type="button"
+            class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+            data-modal-close
+            aria-label="닫기"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div
+          id="detailModalBody"
+          class="min-h-0 flex-1 overflow-y-auto px-4 py-4 text-sm"
+        ></div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="archiveWealthModal"
+      tabindex="-1"
+      aria-labelledby="archiveWealthModalLabel"
       aria-hidden="true"
-    ></div>
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="archiveWealthModalLabel">재산 상세</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="닫기"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-4" style="height: 250px">
+              <canvas id="archiveWealthChart"></canvas>
+            </div>
+            <div class="text-muted small mb-2">단위: 천원 (채무/부채는 총계에서 감산)</div>
+            <div id="archiveWealthContent"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
     <script>
       (function () {
         async function inject(id, url) {
@@ -327,6 +489,10 @@
         })();
       })();
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../config.js"></script>
+    <script src="../archive-wealth-modal.js"></script>
+
     <script>
       /* 선관위 예비후보 명부「구시군」선택 순서와 동일 */
       const SEOUL_DISTRICTS = [
@@ -358,197 +524,6 @@
       ];
 
       const NEC_ELECTION_ID = "0020260603";
-      const VERIFIED_SHEET_CSV_URL =
-        "https://docs.google.com/spreadsheets/d/1HZOgA2XGNQe9RTyZsDDZdqfgdHIrUIfGqBKRs62cugA/gviz/tq?tqx=out:csv";
-
-      function normalizeLooseText(value) {
-        return String(value || "")
-          .trim()
-          .replace(/\s+/g, "")
-          .replace(/[()（）]/g, "")
-          .toLowerCase();
-      }
-
-      function normalizeDistrictName(value) {
-        return String(value || "")
-          .trim()
-          .replace(/\s+/g, "")
-          .replace(/서울특별시|서울시|서울/g, "")
-          .replace(/자치구/g, "구");
-      }
-
-      function parseCsvText(csvText) {
-        const text = String(csvText || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-        const rows = [];
-        let row = [];
-        let cell = "";
-        let inQuotes = false;
-        for (let i = 0; i < text.length; i++) {
-          const ch = text[i];
-          if (ch === '"') {
-            if (inQuotes && text[i + 1] === '"') {
-              cell += '"';
-              i++;
-            } else {
-              inQuotes = !inQuotes;
-            }
-          } else if (ch === "," && !inQuotes) {
-            row.push(cell);
-            cell = "";
-          } else if (ch === "\n" && !inQuotes) {
-            row.push(cell);
-            rows.push(row);
-            row = [];
-            cell = "";
-          } else {
-            cell += ch;
-          }
-        }
-        if (cell.length || row.length) {
-          row.push(cell);
-          rows.push(row);
-        }
-        const meaningfulRows = rows.filter((cells) => cells.some((c) => String(c || "").trim() !== ""));
-        if (!meaningfulRows.length) return [];
-        const headers = meaningfulRows[0].map((h) => String(h || "").trim());
-        if (!headers.length) return [];
-        return meaningfulRows.slice(1).map((cells) => {
-          const obj = {};
-          headers.forEach((header, idx) => {
-            obj[header] = String(cells[idx] || "").trim();
-          });
-          return obj;
-        });
-      }
-
-      function findSheetColumn(row, candidates) {
-        const keys = Object.keys(row || {});
-        for (const c of candidates) {
-          const exact = keys.find((k) => k === c);
-          if (exact) return exact;
-        }
-        for (const c of candidates) {
-          const contains = keys.find((k) => k.includes(c));
-          if (contains) return contains;
-        }
-        return "";
-      }
-
-      function findSheetColumnsByContains(row, token) {
-        return Object.keys(row || {}).filter((key) => key.includes(token));
-      }
-
-      function parseSheetNewsLinks(raw) {
-        const text = String(raw || "").trim();
-        if (!text) return [];
-        return text
-          .split(/\n|,|;/g)
-          .map((item) => item.trim())
-          .filter(Boolean)
-          .map((item) => {
-            const m = item.match(/https?:\/\/\S+/);
-            return m ? m[0] : "";
-          })
-          .filter(Boolean);
-      }
-
-      function guessArticleTitleFromUrl(link) {
-        const raw = String(link || "").trim();
-        if (!raw) return "기사 보기";
-        try {
-          const u = new URL(raw);
-          const seg = decodeURIComponent((u.pathname || "").split("/").filter(Boolean).pop() || "");
-          const cleaned = seg
-            .replace(/\.[a-z0-9]+$/i, "")
-            .replace(/[-_]+/g, " ")
-            .replace(/\s+/g, " ")
-            .trim();
-          if (cleaned) return cleaned;
-          return u.hostname.replace(/^www\./, "");
-        } catch {
-          return "기사 보기";
-        }
-      }
-
-      let redlineNewsTitleByUrl = {};
-
-      function getNewsTooltipTitle(link) {
-        const key = String(link || "").trim();
-        const cached = redlineNewsTitleByUrl[key];
-        if (cached) return cached;
-        return guessArticleTitleFromUrl(link);
-      }
-
-      function normalizeVerifiedRow(row) {
-        if (!row || typeof row !== "object") return null;
-        const nameCol = findSheetColumn(row, ["이름", "성명"]);
-        const districtCol = findSheetColumn(row, ["지역구", "자치구", "구"]);
-        if (!nameCol || !districtCol) return null;
-        const name = String(row[nameCol] || "").trim();
-        const district = String(row[districtCol] || "").trim();
-        if (!name || !district) return null;
-        const gradeCol = findSheetColumn(row, ["검증등급", "등급"]);
-        const commentCol = findSheetColumn(row, ["구서넷 코멘트", "코멘트", "comment"]);
-        const crimeCol = findSheetColumn(row, ["범죄이력", "범죄", "전과"]);
-        const newsCol = findSheetColumn(row, ["뉴스링크", "뉴스 링크", "뉴스"]);
-        const imageCol = findSheetColumn(row, ["이미지 주소", "사진 주소", "이미지", "photo"]);
-        const insurrectionCols = findSheetColumnsByContains(row, "내란");
-        const corruptionCols = findSheetColumnsByContains(row, "부패");
-        const democracyCols = findSheetColumnsByContains(row, "민주");
-        const newsCols = findSheetColumnsByContains(row, "뉴스링크");
-        const questionnaireCols = findSheetColumnsByContains(row, "질의서");
-        const insurrectionText = insurrectionCols
-          .map((col) => String(row[col] || "").trim())
-          .filter(Boolean)
-          .join("\n");
-        const corruptionText = corruptionCols
-          .map((col) => String(row[col] || "").trim())
-          .filter(Boolean)
-          .join("\n");
-        const democracyText = democracyCols
-          .map((col) => String(row[col] || "").trim())
-          .filter(Boolean)
-          .join("\n");
-        const newsRaw = newsCols.length
-          ? newsCols.map((col) => String(row[col] || "").trim()).filter(Boolean).join("\n")
-          : String(row[newsCol] || "");
-        const questionnaireText = questionnaireCols
-          .map((col) => String(row[col] || "").trim())
-          .filter(Boolean)
-          .join("\n");
-        return {
-          name,
-          district,
-          grade: String(row[gradeCol] || "").trim(),
-          comment: String(row[commentCol] || "").trim(),
-          criminalHistory: String(row[crimeCol] || "").trim(),
-          newsLinks: parseSheetNewsLinks(newsRaw),
-          imageUrl: String(row[imageCol] || "").trim(),
-          qaInsurrection: insurrectionText,
-          qaCorruption: corruptionText,
-          qaDemocracy: democracyText,
-          qaQuestionnaire: questionnaireText,
-        };
-      }
-
-      function buildVerifiedRowIndex(rows) {
-        const map = new Map();
-        (rows || []).forEach((row) => {
-          const normalized = normalizeVerifiedRow(row);
-          if (!normalized) return;
-          const key = normalizeLooseText(normalized.name) + "|" + normalizeDistrictName(normalized.district);
-          if (!map.has(key)) map.set(key, normalized);
-        });
-        return map;
-      }
-
-      function verificationBorderClass(grade) {
-        const g = String(grade || "").trim().toUpperCase();
-        if (g.includes("위험")) return "border-red-500 ring-red-100";
-        if (g.includes("주의")) return "border-amber-500 ring-amber-100";
-        if (g.includes("PASS")) return "border-emerald-500 ring-emerald-100";
-        return "border-slate-200 ring-slate-100";
-      }
 
       function criminalShowsRecord(criminal) {
         const t = String(criminal ?? "").trim();
@@ -822,8 +797,6 @@
       let lastFilteredCandidates = [];
       let mainSortKey = "name";
       let mainSortAsc = true;
-      let verifiedSortKey = "name";
-      let verifiedSortAsc = true;
       var LIST_PAGE_SIZE = 20;
       var visibleRowCount = LIST_PAGE_SIZE;
       let wealthPositionByKey = {};
@@ -882,7 +855,7 @@
       }
 
       function wealthDetailLinkCaption(label) {
-        return String(label || "").trim() + "(재산내역 보기)";
+        return "재산내역";
       }
 
       const WEALTH_CHIP_ICON_SM = `<svg class="h-2.5 w-2.5 shrink-0 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>`;
@@ -896,7 +869,7 @@
         const title =
           "재산 공개 명부에 등재된 인원입니다. 클릭하면 재산 상세를 봅니다.";
         const cap = escapeHtml(wealthDetailLinkCaption(label));
-        return `<button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="ml-1.5 inline-flex max-w-full items-center gap-0.5 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold leading-none tracking-tight text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800 focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-400" title="${escapeHtml(title)}"><span class="truncate">${cap}</span>${WEALTH_CHIP_ICON_SM}</button>`;
+        return `<button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="inline-flex max-w-full items-center gap-0.5 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold leading-none tracking-tight text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800 focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-400" title="${escapeHtml(title)}"><span class="truncate">${cap}</span>${WEALTH_CHIP_ICON_SM}</button>`;
       }
 
       function wealthModalSnippet(c) {
@@ -1146,7 +1119,6 @@
       }
 
       let allCandidates = [];
-      let verifiedCandidates = [];
 
       function fillDistrictSelect() {
         const sel = document.getElementById("district");
@@ -1180,198 +1152,7 @@
       }
 
       function mergedCandidatePhoto(c) {
-        if (c && c.verifiedMeta && c.verifiedMeta.imageUrl) return c.verifiedMeta.imageUrl;
-        return c.photo || "";
-      }
-
-      function makeQaAccordionHtml(meta) {
-        const items = [
-          { key: "내란", value: meta.qaInsurrection },
-          { key: "부패", value: meta.qaCorruption },
-          { key: "민주", value: meta.qaDemocracy },
-        ].filter((it) => it.value);
-        if (!items.length) {
-          return '<p class="text-xs text-slate-500">등록된 내란/부패/민주 질의 응답이 없습니다.</p>';
-        }
-        return items
-          .map((item) => {
-            return `<section class="rounded-lg border border-slate-200 bg-slate-50/70">
-              <h4 class="px-3 py-2 text-sm font-semibold text-slate-800">${escapeHtml(
-                item.key
-              )} 관련 질의 응답</h4>
-              <div class="border-t border-slate-200 px-3 py-2 text-xs leading-relaxed text-slate-700 whitespace-pre-line">${escapeHtml(
-                item.value
-              )}</div>
-            </section>`;
-          })
-          .join("");
-      }
-
-      function criminalHistoryTagsHtml(raw) {
-        const text = String(raw || "").trim();
-        if (!text) return '<span class="text-slate-400">-</span>';
-        const parts = text
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean);
-        if (!parts.length) return '<span class="text-slate-400">-</span>';
-        return parts
-          .map(function (item) {
-            return `<span class="inline-flex items-center rounded-full whitespace-nowrap bg-rose-50 px-2 py-0.5 text-[11px] font-semibold leading-none text-rose-700 ring-1 ring-rose-200">#${escapeHtml(
-              item
-            )}</span>`;
-          })
-          .join("");
-      }
-
-      function renderVerifiedCandidates(filtered) {
-        const listEl = document.getElementById("verifiedCandidatesList");
-        const emptyEl = document.getElementById("verifiedCandidatesEmpty");
-        const countEl = document.getElementById("verifiedCountLabel");
-        if (!listEl || !emptyEl || !countEl) return;
-        const filteredVerified = filtered.filter((c) => !!c.verifiedMeta);
-        countEl.textContent = `${filteredVerified.length}명`;
-        if (!filteredVerified.length) {
-          listEl.innerHTML = "";
-          emptyEl.classList.remove("hidden");
-          return;
-        }
-        emptyEl.classList.add("hidden");
-        const sortedVerified = sortCandidatesByKey(
-          filteredVerified,
-          verifiedSortKey,
-          verifiedSortAsc
-        );
-        listEl.innerHTML = `<div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-200/60">
-          <table class="min-w-[1080px] w-full border-collapse text-left text-sm text-slate-800">
-            <thead>
-              <tr class="border-b border-slate-200 bg-slate-50/95">
-                <th class="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-rose-600">
-                  <button type="button" data-sort-scope="verified" data-sort-key="name" class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-800">
-                    후보
-                    <span data-sort-scope="verified" data-sort-icon-for="name" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
-                  </button>
-                </th>
-                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">정당</th>
-                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">
-                  <button type="button" data-sort-scope="verified" data-sort-key="office" class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-800">
-                    종류
-                    <span data-sort-scope="verified" data-sort-icon-for="office" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
-                  </button>
-                </th>
-                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">
-                  <button type="button" data-sort-scope="verified" data-sort-key="constituency" class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-800">
-                    선거구
-                    <span data-sort-scope="verified" data-sort-icon-for="constituency" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
-                  </button>
-                </th>
-                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">검증등급</th>
-                <th class="px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">범죄이력</th>
-                <th class="min-w-[14rem] px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">질의서</th>
-                <th class="min-w-[20rem] px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">내란/부패/민주</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${sortedVerified
-                .map((c, idx) => {
-                  const meta = c.verifiedMeta;
-                  const party = c.party || "정당 미상";
-                  const news1 = meta.newsLinks && meta.newsLinks[0] ? meta.newsLinks[0] : "";
-                  const news2 = meta.newsLinks && meta.newsLinks[1] ? meta.newsLinks[1] : "";
-                  const news1Title = getNewsTooltipTitle(news1);
-                  const news2Title = getNewsTooltipTitle(news2);
-                  return `<tr class="align-top ${verificationBorderClass(meta.grade)} border-l-4">
-                    <td class="py-3 pl-4 pr-2">
-                      <div class="flex gap-2.5">
-                        <img src="${escapeAttr(mergedCandidatePhoto(c) || DEFAULT_AVATAR)}" alt="" class="h-10 w-10 shrink-0 rounded-full object-cover object-top ring-1 ring-slate-200" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
-                        <div class="min-w-0">
-                          <p class="font-bold text-slate-900">${escapeHtml(primaryName(c.name))}</p>
-                          <div class="mt-1 flex items-center gap-0.5">
-                            ${
-                              meta.comment
-                                ? `<button type="button" class="inline-flex items-center justify-center rounded p-px text-rose-600 transition-colors hover:bg-rose-50 hover:text-rose-800" aria-label="코멘트 보기" data-v-tooltip-trigger data-v-tooltip-text="${escapeAttr(
-                                    meta.comment
-                                  )}">
-                                <i data-lucide="message-square" class="h-3 w-3" aria-hidden="true"></i>
-                              </button>`
-                                : ""
-                            }
-                            ${
-                              news1
-                                ? `<a href="${escapeAttr(
-                                    news1
-                                  )}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded p-px text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800" aria-label="뉴스1 보기" data-v-news-trigger data-v-tooltip-text="${escapeAttr(
-                                    news1Title
-                                  )}" data-v-tooltip-url="${escapeAttr(news1)}">
-                                  <i data-lucide="newspaper" class="h-3 w-3" aria-hidden="true"></i>
-                                </a>`
-                                : ""
-                            }
-                            ${
-                              news2
-                                ? `<a href="${escapeAttr(
-                                    news2
-                                  )}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded p-px text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800" aria-label="뉴스2 보기" data-v-news-trigger data-v-tooltip-text="${escapeAttr(
-                                    news2Title
-                                  )}" data-v-tooltip-url="${escapeAttr(news2)}">
-                                  <i data-lucide="newspaper" class="h-3 w-3" aria-hidden="true"></i>
-                                </a>`
-                                : ""
-                            }
-                            ${!meta.comment && !news1 && !news2 ? '<span class="text-[11px] text-slate-400">—</span>' : ""}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-3">
-                      <span class="inline-flex rounded px-1.5 py-[3px] text-[10px] font-bold leading-none ${partyTheme(
-                        party
-                      ).badgeSolid}">${escapeHtml(party)}</span>
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-3 text-xs font-medium text-slate-700">${escapeHtml(
-                      candidateOffice(c)
-                    )}</td>
-                    <td class="whitespace-nowrap px-3 py-3 text-xs text-slate-600">${escapeHtml(
-                      c.constituency || "—"
-                    )}</td>
-                    <td class="whitespace-nowrap px-3 py-3 text-xs font-semibold text-slate-700">${escapeHtml(
-                      meta.grade || "미기재"
-                    )}</td>
-                    <td class="max-w-[14rem] px-3 py-3 text-xs leading-relaxed text-slate-700">
-                      <div class="flex flex-wrap gap-1">${criminalHistoryTagsHtml(
-                        meta.criminalHistory
-                      )}</div>
-                    </td>
-                    <td class="max-w-[16rem] px-3 py-3 text-xs leading-relaxed text-slate-700 whitespace-pre-line">${escapeHtml(
-                      meta.qaQuestionnaire || "-"
-                    )}</td>
-                    <td class="px-3 py-3">
-                      <div class="space-y-1.5">${makeQaAccordionHtml(meta)}</div>
-                    </td>
-                  </tr>`;
-                })
-                .join("")}
-            </tbody>
-          </table>
-        </div>`;
-        if (typeof lucide !== "undefined" && lucide.createIcons) {
-          lucide.createIcons({
-            attrs: { "stroke-width": 1.5 },
-          });
-        }
-        ["name", "office", "constituency"].forEach(function (key) {
-          listEl
-            .querySelectorAll('[data-sort-scope="verified"][data-sort-icon-for="' + key + '"]')
-            .forEach(function (el) {
-              if (verifiedSortKey === key) {
-                el.textContent = verifiedSortAsc ? "↑" : "↓";
-                el.classList.remove("invisible");
-              } else {
-                el.textContent = "";
-                el.classList.add("invisible");
-              }
-            });
-        });
+        return (c && c.photo) || "";
       }
 
       function sortCandidatesByKey(candidates, sortKey, sortAsc) {
@@ -1426,7 +1207,9 @@
         const office = getOfficeFilterValue();
         const incumbentOnly = getIncumbentOnlyChecked();
         const q = normalizeSearch(document.getElementById("nameQuery").value);
+        const list = document.getElementById("cardList");
         const countLabel = document.getElementById("countLabel");
+        const loadMoreWrap = document.getElementById("candidatesLoadMoreWrap");
 
         const filtered = allCandidates.filter((c) => {
           if (district && c.district !== district) return false;
@@ -1437,12 +1220,92 @@
         });
 
         const usingFilter = Boolean(district || party || q || office || incumbentOnly);
-        const verifiedCount = filtered.filter((c) => !!c.verifiedMeta).length;
         countLabel.textContent = usingFilter
-          ? `심층검증 ${verifiedCount}명 (필터 후보 ${filtered.length}명 / 전체 ${allCandidates.length}명)`
-          : `심층검증 ${verifiedCount}명 (전체 후보 ${filtered.length}명)`;
+          ? `표시 ${filtered.length}명 / 전체 ${allCandidates.length}명`
+          : `전체 ${filtered.length}명`;
 
-        renderVerifiedCandidates(filtered);
+        updateCandidatesStatsPanel(filtered);
+
+        ["name", "age", "criminal", "office", "constituency"].forEach(function (key) {
+          document
+            .querySelectorAll('[data-sort-scope="main"][data-sort-icon-for="' + key + '"]')
+            .forEach(function (el) {
+              if (mainSortKey === key) {
+                el.textContent = mainSortAsc ? "↑" : "↓";
+                el.classList.remove("invisible");
+              } else {
+                el.textContent = "";
+                el.classList.add("invisible");
+              }
+            });
+        });
+
+        const sorted = sortCandidatesByKey(filtered, mainSortKey, mainSortAsc);
+        lastFilteredCandidates = sorted;
+
+        const slice = sorted.slice(0, visibleRowCount);
+        const remaining = sorted.length - slice.length;
+        if (loadMoreWrap) {
+          loadMoreWrap.innerHTML =
+            remaining > 0
+              ? `<div class="flex justify-center bg-slate-50/90 px-4 py-4">
+  <button type="button" id="candidatesLoadMore" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-sm ring-1 ring-slate-200/80 transition hover:bg-slate-50">
+    더보기 <span class="font-normal text-slate-500">(${remaining}명 더)</span>
+  </button>
+</div>`
+              : "";
+        }
+
+        const extIcon = `<svg class="h-3 w-3 shrink-0 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>`;
+
+        list.innerHTML = slice
+          .map(function (c, i) {
+            const t = partyTheme(c.party);
+            const pname = primaryName(c.name);
+            const photo = mergedCandidatePhoto(c)
+              ? escapeHtml(mergedCandidatePhoto(c))
+              : "";
+            const jobShort = elide(c.job, 26) || "—";
+            const eduCell = escapeHtml(educationFirstLine(c.education));
+            const crimCell = escapeHtml(criminalTableCell(c));
+            const necHref = c.huboId
+              ? escapeHtml(necPreHuboDetailUrl(c.huboId))
+              : "";
+            const necLink = necHref
+              ? `<a href="${necHref}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-md p-0.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800" title="선관위 후보 상세 보기" aria-label="선관위 후보 상세 보기">${extIcon}</a>`
+              : `<span class="inline-flex cursor-not-allowed items-center rounded-md p-0.5 text-slate-300" title="후보 식별자 없음" aria-label="후보 식별자 없음">${extIcon}</span>`;
+            const wealthByName = wealthInlineByNameHtml(c);
+            return `<tr data-row-detail="${i}" class="cursor-pointer border-b border-slate-100 transition hover:bg-slate-50/80">
+              <td class="py-3 pl-4 pr-2 align-top">
+                <div class="flex gap-3">
+                  <div class="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200/90">
+                    <img src="${photo || DEFAULT_AVATAR}" alt="" width="40" height="40" class="h-full w-full object-cover object-top" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
+                  </div>
+                  <div class="min-w-0">
+                    <p class="flex flex-wrap items-center gap-x-1 gap-y-1 font-bold leading-tight text-slate-900">
+                      <span>${escapeHtml(pname)}</span>${necLink}
+                    </p>
+                    ${wealthByName ? `<div class="mt-1">${wealthByName}</div>` : ""}
+                  </div>
+                </div>
+              </td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle">
+                <span class="inline-flex whitespace-nowrap items-center rounded px-1.5 py-[3px] text-[10px] font-bold leading-none ${t.badgeSolid}">${escapeHtml(c.party || "정당 미상")}</span>
+              </td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs font-medium text-slate-700">${escapeHtml(
+                candidateOffice(c)
+              )}</td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs text-slate-600">${escapeHtml(
+                c.constituency || "—"
+              )}</td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(ageSummary(c.age))}</td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(c.gender || "—")}</td>
+              <td class="max-w-[8rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(jobShort)}</td>
+              <td class="max-w-[14rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">${eduCell}</td>
+              <td class="max-w-[6rem] px-3 py-3 align-middle text-xs text-slate-600">${crimCell}</td>
+            </tr>`;
+          })
+          .join("");
       }
 
       function showError(msg) {
@@ -1453,126 +1316,25 @@
 
       fillDistrictSelect();
 
-      var verifiedTooltipEl = document.getElementById("verifiedFloatingTooltip");
-      var verifiedTooltipTriggerEl = null;
-
-      function closeVerifiedTooltips() {
-        if (!verifiedTooltipEl) return;
-        verifiedTooltipEl.classList.add("hidden");
-        verifiedTooltipEl.classList.add("pointer-events-none");
-        verifiedTooltipEl.classList.remove("pointer-events-auto");
-        verifiedTooltipEl.innerHTML = "";
-        verifiedTooltipEl.setAttribute("aria-hidden", "true");
-        verifiedTooltipTriggerEl = null;
-      }
-
-      function placeVerifiedTooltip(triggerEl) {
-        if (!verifiedTooltipEl || !triggerEl) return;
-        var rect = triggerEl.getBoundingClientRect();
-        var gap = 10;
-        var ttRect = verifiedTooltipEl.getBoundingClientRect();
-        var vw = window.innerWidth;
-        var vh = window.innerHeight;
-        var left = rect.left + rect.width / 2 - ttRect.width / 2;
-        left = Math.max(8, Math.min(left, vw - ttRect.width - 8));
-        var top = rect.bottom + gap;
-        if (top + ttRect.height > vh - 8) {
-          top = Math.max(8, rect.top - ttRect.height - gap);
-        }
-        verifiedTooltipEl.style.left = Math.round(left) + "px";
-        verifiedTooltipEl.style.top = Math.round(top) + "px";
-      }
-
-      function openVerifiedTooltip(triggerEl) {
-        if (!verifiedTooltipEl || !triggerEl) return;
-        var text = String(triggerEl.getAttribute("data-v-tooltip-text") || "").trim();
-        if (!text) return;
-        var link = String(triggerEl.getAttribute("data-v-tooltip-url") || "").trim();
-        if (link) {
-          verifiedTooltipEl.innerHTML =
-            '<a href="' +
-            escapeAttr(link) +
-            '" target="_blank" rel="noopener noreferrer" class="block text-xs leading-relaxed text-slate-700 hover:text-slate-900 underline decoration-slate-300 underline-offset-2">' +
-            escapeHtml(text) +
-            "</a>";
-        } else {
-          verifiedTooltipEl.textContent = text;
-        }
-        verifiedTooltipEl.classList.remove("hidden");
-        verifiedTooltipEl.setAttribute("aria-hidden", "false");
-        placeVerifiedTooltip(triggerEl);
-        var isMobile = window.matchMedia("(max-width: 767px)").matches;
-        verifiedTooltipEl.classList.toggle("pointer-events-auto", isMobile && !!link);
-        verifiedTooltipEl.classList.toggle("pointer-events-none", !(isMobile && !!link));
-        verifiedTooltipTriggerEl = triggerEl;
-      }
-
-      var verifiedListEl = document.getElementById("verifiedCandidatesList");
-      if (verifiedListEl) {
-        verifiedListEl.addEventListener("mouseover", function (e) {
-          var trigger = e.target.closest("[data-v-news-trigger], [data-v-tooltip-trigger]");
-          if (!trigger) return;
-          if (window.matchMedia("(max-width: 767px)").matches) return;
-          openVerifiedTooltip(trigger);
-        });
-
-        verifiedListEl.addEventListener("mouseout", function (e) {
-          if (window.matchMedia("(max-width: 767px)").matches) return;
-          var toEl = e.relatedTarget;
-          if (
-            toEl &&
-            (toEl.closest &&
-              (toEl.closest("[data-v-news-trigger], [data-v-tooltip-trigger]") ||
-                toEl.closest("#verifiedFloatingTooltip")))
-          ) {
-            return;
-          }
-          closeVerifiedTooltips();
-        });
-
-        verifiedListEl.addEventListener("click", function (e) {
-          var trigger = e.target.closest("[data-v-news-trigger], [data-v-tooltip-trigger]");
-          if (!trigger) return;
-          var isMobile = window.matchMedia("(max-width: 767px)").matches;
-          if (!isMobile) return;
-          e.preventDefault();
-          if (verifiedTooltipTriggerEl === trigger && !verifiedTooltipEl.classList.contains("hidden")) {
-            closeVerifiedTooltips();
-          } else {
-            openVerifiedTooltip(trigger);
-          }
-        });
-      }
-
-      document.addEventListener("click", function (e) {
-        var inVerified = e.target.closest("#verifiedCandidatesList");
-        if (!inVerified) {
-          closeVerifiedTooltips();
-          return;
-        }
-        if (
-          e.target.closest(
-            "[data-v-news-trigger], [data-v-tooltip-trigger], #verifiedFloatingTooltip"
-          )
-        ) {
-          return;
-        }
-        closeVerifiedTooltips();
-      });
-
-      window.addEventListener("resize", function () {
-        if (verifiedTooltipTriggerEl && !verifiedTooltipEl.classList.contains("hidden")) {
-          placeVerifiedTooltip(verifiedTooltipTriggerEl);
+      document.getElementById("cardList").addEventListener("click", function (e) {
+        var t = e.target;
+        var el = t.nodeType === 3 ? t.parentElement : t;
+        if (el && el.closest && el.closest("a[href]")) return;
+        if (el && el.closest && el.closest("[data-open-archive-wealth]")) return;
+        var row = el && el.closest ? el.closest("tr[data-row-detail]") : null;
+        if (!row) return;
+        const i = parseInt(row.getAttribute("data-row-detail"), 10);
+        if (!Number.isNaN(i) && lastFilteredCandidates[i]) {
+          openCandidateModal(lastFilteredCandidates[i]);
         }
       });
-      window.addEventListener("scroll", function () {
-        if (verifiedTooltipTriggerEl && !verifiedTooltipEl.classList.contains("hidden")) {
-          placeVerifiedTooltip(verifiedTooltipTriggerEl);
-        }
+
+      document.querySelectorAll("[data-modal-close], [data-modal-backdrop]").forEach(function (el) {
+        el.addEventListener("click", closeCandidateModal);
       });
 
       document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") closeVerifiedTooltips();
+        if (e.key === "Escape") closeCandidateModal();
       });
 
       document.getElementById("officeFilterSeg").addEventListener("click", function (e) {
@@ -1594,6 +1356,14 @@
         render(true);
       });
 
+      var incumbentOnlyEl = document.getElementById("incumbentOnlyFilter");
+      if (incumbentOnlyEl) {
+        incumbentOnlyEl.addEventListener("change", function () {
+          fillPartySelect();
+          render(true);
+        });
+      }
+
       function resetFilters() {
         document.getElementById("district").value = "";
         document.getElementById("nameQuery").value = "";
@@ -1602,8 +1372,6 @@
         if (inc) inc.checked = false;
         mainSortKey = "name";
         mainSortAsc = true;
-        verifiedSortKey = "name";
-        verifiedSortAsc = true;
         fillPartySelect();
         document.getElementById("party").value = "";
         render(true);
@@ -1613,19 +1381,17 @@
         resetFilters();
       });
 
+      document.getElementById("candidatesLoadMoreWrap").addEventListener("click", function (e) {
+        var btn = e.target && e.target.closest && e.target.closest("#candidatesLoadMore");
+        if (!btn) return;
+        visibleRowCount += LIST_PAGE_SIZE;
+        render(false);
+      });
       function setSort(scope, key) {
-        if (scope === "verified") {
-          if (verifiedSortKey === key) verifiedSortAsc = !verifiedSortAsc;
-          else {
-            verifiedSortKey = key;
-            verifiedSortAsc = true;
-          }
-        } else {
-          if (mainSortKey === key) mainSortAsc = !mainSortAsc;
-          else {
-            mainSortKey = key;
-            mainSortAsc = true;
-          }
+        if (mainSortKey === key) mainSortAsc = !mainSortAsc;
+        else {
+          mainSortKey = key;
+          mainSortAsc = true;
         }
         render(true);
       }
@@ -1635,6 +1401,7 @@
         var key = String(btn.getAttribute("data-sort-key") || "").trim();
         var scope = String(btn.getAttribute("data-sort-scope") || "main").trim();
         if (!key) return;
+        if (scope !== "main") return;
         setSort(scope, key);
       });
 
@@ -1645,51 +1412,14 @@
         if (!r.ok) throw new Error(`candidates.json HTTP ${r.status}`);
         return r.json();
       });
-      const verifiedSheetFetch = fetch(VERIFIED_SHEET_CSV_URL).then((r) => {
-        if (!r.ok) throw new Error(`google sheet CSV HTTP ${r.status}`);
-        return r.text();
-      });
-      const redlineNewsCacheFetch = fetch("../public/data/redline-news-cache.json")
-        .then((r) => (r.ok ? r.json() : null))
-        .catch(() => null);
-
-      Promise.all([candidatesFetch, verifiedSheetFetch, wealthFetch, redlineNewsCacheFetch])
+      Promise.all([candidatesFetch, wealthFetch])
         .then((results) => {
           const candidatesPayload = results[0];
-          const verifiedCsvText = results[1];
-          const wealthData = results[2];
-          const newsCacheData = results[3];
+          const wealthData = results[1];
           buildWealthIndex(wealthData);
-          if (newsCacheData && typeof newsCacheData === "object") {
-            const map = {};
-            Object.entries(newsCacheData).forEach(function (entry) {
-              const key = String(entry[0] || "").trim();
-              const meta = entry[1];
-              if (!key) return;
-              if (meta && typeof meta === "object") {
-                map[key] = String(meta.title || "").trim();
-              } else {
-                map[key] = String(meta || "").trim();
-              }
-            });
-            redlineNewsTitleByUrl = map;
-          } else {
-            redlineNewsTitleByUrl = {};
-          }
 
           const parsed = parseCandidatesPayload(candidatesPayload);
-          const verifiedRows = parseCsvText(verifiedCsvText);
-          const verifiedIndex = buildVerifiedRowIndex(verifiedRows);
-
-          allCandidates = parsed.list.map((candidate) => {
-            const key =
-              normalizeLooseText(primaryName(candidate.name)) +
-              "|" +
-              normalizeDistrictName(candidate.district);
-            const matched = verifiedIndex.get(key) || null;
-            return matched ? { ...candidate, verifiedMeta: matched } : { ...candidate };
-          });
-          verifiedCandidates = allCandidates.filter((candidate) => !!candidate.verifiedMeta);
+          allCandidates = parsed.list;
 
           document.getElementById("errorBox").classList.add("hidden");
           setDataUpdatedLine(parsed.updatedAt);
@@ -1698,12 +1428,10 @@
         })
         .catch((e) => {
           showError(
-                "데이터를 불러오지 못했습니다. 로컬 서버로 열었는지 확인하세요. (예: 프로젝트 루트에서 npx serve . 후 /candidates/index.html) — " +
+                "데이터를 불러오지 못했습니다. 로컬 서버로 열었는지 확인하세요. (예: 프로젝트 루트에서 npx serve . 후 /candidates/list.html) — " +
               (e && e.message ? e.message : String(e))
           );
           document.getElementById("countLabel").textContent = "0명";
-          var vCount = document.getElementById("verifiedCountLabel");
-          if (vCount) vCount.textContent = "0명";
         });
     </script>
   </body>

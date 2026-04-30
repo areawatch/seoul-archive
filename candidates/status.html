@@ -931,19 +931,26 @@
             expeditionLink.classList.remove("active");
             expeditionLink.removeAttribute("aria-current");
           }
-          var page = "list";
-          if (base === "briefing") page = "briefing";
-          else if (base === "redline") page = "redline";
+          var page = "redline";
+          if (base === "list") page = "list";
+          else if (base === "briefing") page = "briefing";
           else if (base === "status") page = "expedition";
+          else if (base === "index" || base === "redline" || base === "candidates" || base === "") page = "redline";
           if (page === "briefing") {
             briefLink.classList.add("active");
             briefLink.setAttribute("aria-current", "page");
-          } else if (page === "redline" && redlineLink) {
-            redlineLink.classList.add("active");
-            redlineLink.setAttribute("aria-current", "page");
+          } else if (page === "list") {
+            listLink.classList.add("active");
+            listLink.setAttribute("aria-current", "page");
           } else if (page === "expedition" && expeditionLink) {
             expeditionLink.classList.add("active");
             expeditionLink.setAttribute("aria-current", "page");
+          } else if (page === "redline" && redlineLink) {
+            redlineLink.classList.add("active");
+            redlineLink.setAttribute("aria-current", "page");
+          } else if (redlineLink) {
+            redlineLink.classList.add("active");
+            redlineLink.setAttribute("aria-current", "page");
           } else {
             listLink.classList.add("active");
             listLink.setAttribute("aria-current", "page");

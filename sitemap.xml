@@ -36,9 +36,14 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://seoularchive.net/candidates/redline.html</loc>
+    <loc>https://seoularchive.net/candidates/list.html</loc>
     <changefreq>daily</changefreq>
-    <priority>0.82</priority>
+    <priority>0.84</priority>
+  </url>
+  <url>
+    <loc>https://seoularchive.net/candidates/redline.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
   </url>
   <url>
     <loc>https://seoularchive.net/candidates/status.html</loc>

@@ -32,6 +32,29 @@ body {
     display: block;
 }
 
+/* 푸터의 "서울아카이브" 브랜드 텍스트(헤더 타이틀과 동일 톤) */
+.site-footer-brand {
+    font-family: 'Paperozi', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.04em;
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+.site-footer-brand:hover,
+.site-footer-brand:focus-visible {
+    color: #ffffff !important;
+    text-decoration: underline !important;
+    text-underline-offset: 3px;
+}
+.site-footer:not(.site-footer--dark) .site-footer-brand {
+    /* 라이트 푸터에서는 기존 톤을 유지 */
+    color: #111827 !important;
+}
+.site-footer:not(.site-footer--dark) .site-footer-brand:hover,
+.site-footer:not(.site-footer--dark) .site-footer-brand:focus-visible {
+    color: #0b1220 !important;
+}
+
 /* 검은(다크) 푸터: 흰 로고만 표시 */
 .site-footer .site-footer-logo--on-dark {
     display: none !important;
