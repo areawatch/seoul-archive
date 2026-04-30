@@ -1269,9 +1269,11 @@
             const dist = it.dist || "지역 미상";
             const whoSeed = (it.who || it.sub || "") + "|" + dist + "|" + name;
             const whoName = funNickname(whoSeed);
-            const msg = `방금 전 ${escapeHtml(whoName)}님이 ${escapeHtml(dist)} ${escapeHtml(
+            const whoHtml = `<span class="font-black text-[#ff4d4d]">${escapeHtml(whoName)}</span>`;
+            const candHtml = `<span class="font-black text-[#facc15]">${escapeHtml(dist)} ${escapeHtml(
               name
-            )} 후보님의 정보를 제보해주셨어요!`;
+            )} 후보</span>`;
+            const msg = `방금 전 ${whoHtml}님이 ${candHtml}의 정보를 제보해주셨어요!`;
             const hasPhoto = isProbablyHttpUrl(it.photo);
             const thumb = hasPhoto
               ? `<div class="tips-thumb-wrap"><img src="${escapeHtml(
