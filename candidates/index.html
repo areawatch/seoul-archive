@@ -67,14 +67,56 @@
         color: #0f172a;
       }
 
+      /* Mesh dot background (VILLAIN ARCHIVE theme) */
+      body {
+        background-color: #1a1a2e;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 18px 18px;
+      }
+      body,
+      p,
+      span,
+      a,
+      button,
+      h1,
+      h2,
+      h3,
+      h4 {
+        text-shadow: 1px 1px 0 #000;
+      }
+
+      /* index 페이지 전용: 푸터 다크 톤으로 정렬 (status와 동일) */
+      #footer-plugin .site-footer {
+        background: transparent !important;
+        border-top: 2px solid rgba(0, 0, 0, 0.7) !important;
+        box-shadow: 0 -4px 0 #000;
+      }
+      #footer-plugin .site-footer .text-muted,
+      #footer-plugin .site-footer,
+      #footer-plugin .site-footer p,
+      #footer-plugin .site-footer span {
+        color: rgba(226, 232, 240, 0.78) !important;
+      }
+      #footer-plugin .site-footer a {
+        color: rgba(226, 232, 240, 0.88) !important;
+      }
+      #footer-plugin .site-footer a:hover {
+        color: #fff !important;
+        text-decoration: underline !important;
+      }
+      #footer-plugin .site-footer .text-secondary {
+        color: rgba(148, 163, 184, 0.7) !important;
+      }
+
       /* 헤더 아래: 레트로 슬라이드 배너 */
       .villain-slide {
         position: relative;
         overflow: hidden;
-        background: radial-gradient(980px 260px at 50% 0%, rgba(255, 77, 77, 0.22), transparent 60%),
-          radial-gradient(760px 220px at 15% 15%, rgba(34, 211, 238, 0.18), transparent 58%),
-          radial-gradient(740px 240px at 85% 30%, rgba(250, 204, 21, 0.16), transparent 60%),
-          linear-gradient(180deg, #0b1020 0%, #090a14 100%);
+        background: radial-gradient(980px 260px at 50% 0%, rgba(255, 77, 77, 0.26), transparent 62%),
+          radial-gradient(740px 260px at 10% 20%, rgba(217, 70, 239, 0.18), transparent 60%),
+          radial-gradient(760px 240px at 90% 28%, rgba(34, 211, 238, 0.18), transparent 60%),
+          radial-gradient(880px 320px at 50% 115%, rgba(250, 204, 21, 0.10), transparent 55%),
+          linear-gradient(180deg, #0b0f2a 0%, #07081a 100%);
         border: 4px solid #000;
         border-radius: 0;
         box-shadow: 0 6px 0 #000, 0 18px 30px rgba(0, 0, 0, 0.25);
@@ -216,7 +258,7 @@
       }
     </style>
   </head>
-  <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+  <body class="min-h-screen bg-[#1a1a2e] text-slate-100 antialiased">
     <div id="header-plugin"></div>
 
     <header class="mb-10 text-center">
@@ -277,14 +319,15 @@
     <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
 
       <div
-        class="mb-8 grid grid-cols-1 gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-12 lg:items-end"
+        id="vaFilters"
+        class="dash-card mb-8 grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-12 lg:items-end"
       >
         <div class="flex flex-col gap-2 lg:col-span-12">
-          <span class="text-sm font-semibold text-slate-700" id="officeFilterLegend">직무</span>
+          <span class="text-sm font-black text-slate-100" id="officeFilterLegend">직무</span>
           <div class="flex flex-wrap items-center gap-2 sm:gap-3">
             <div
               id="officeFilterSeg"
-              class="inline-flex max-w-full min-w-0 flex-nowrap justify-start overflow-x-auto rounded-lg border border-slate-200 sm:max-w-2xl [&>button]:flex-none"
+              class="inline-flex max-w-full min-w-0 flex-nowrap justify-start overflow-x-auto rounded-lg border-2 border-black bg-black/20 sm:max-w-2xl [&>button]:flex-none"
               role="group"
               aria-labelledby="officeFilterLegend"
             >
@@ -292,7 +335,7 @@
                 type="button"
                 data-office-filter=""
                 aria-pressed="true"
-                class="office-filter-seg border-r border-slate-200 px-2.5 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-slate-700 text-white hover:bg-slate-700 sm:px-3"
+                class="office-filter-seg border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90 sm:px-3"
               >
                 전체
               </button>
@@ -300,7 +343,7 @@
                 type="button"
                 data-office-filter="구청장"
                 aria-pressed="false"
-                class="office-filter-seg border-r border-slate-200 px-2.5 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3"
+                class="office-filter-seg border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-black/20 text-slate-100 hover:bg-white/10 sm:px-3"
               >
                 구청장
               </button>
@@ -308,7 +351,7 @@
                 type="button"
                 data-office-filter="구의원"
                 aria-pressed="false"
-                class="office-filter-seg border-r border-slate-200 px-2.5 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3"
+                class="office-filter-seg border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-black/20 text-slate-100 hover:bg-white/10 sm:px-3"
               >
                 구의원
               </button>
@@ -316,7 +359,7 @@
                 type="button"
                 data-office-filter="시의원"
                 aria-pressed="false"
-                class="office-filter-seg border-r border-slate-200 px-2.5 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3"
+                class="office-filter-seg border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-black/20 text-slate-100 hover:bg-white/10 sm:px-3"
               >
                 시의원
               </button>
@@ -324,40 +367,40 @@
             <button
               type="button"
               id="filterResetBtn"
-              class="shrink-0 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+              class="pixel-nav-btn shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-xs transition"
             >
               필터 초기화
             </button>
           </div>
         </div>
         <div class="flex w-full flex-col gap-1.5 lg:col-span-3">
-          <label for="district" class="text-sm font-semibold text-slate-700"
-            >구 선택 <span class="font-normal text-slate-500">(25개구)</span></label
+          <label for="district" class="text-sm font-black text-slate-100"
+            >구 선택 <span class="font-normal text-slate-300">(25개구)</span></label
           >
           <select
             id="district"
-            class="w-full cursor-pointer appearance-none rounded-lg border border-slate-200 bg-slate-50 bg-[length:14px_14px] bg-[position:right_0.65rem_center] bg-no-repeat px-3 py-2 pr-9 text-xs font-medium text-slate-900 shadow-inner outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-200"
+            class="w-full cursor-pointer appearance-none rounded-lg border-2 border-black bg-black/20 bg-[length:14px_14px] bg-[position:right_0.65rem_center] bg-no-repeat px-3 py-2 pr-9 text-xs font-black text-slate-100 shadow-inner outline-none transition focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
             style="
-              background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;);
+              background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;);
             "
           >
             <option value="">전체</option>
           </select>
         </div>
         <div class="flex w-full flex-col gap-1.5 lg:col-span-3">
-          <label for="party" class="text-sm font-semibold text-slate-700">정당</label>
+          <label for="party" class="text-sm font-black text-slate-100">정당</label>
           <select
             id="party"
-            class="w-full cursor-pointer appearance-none rounded-lg border border-slate-200 bg-slate-50 bg-[length:14px_14px] bg-[position:right_0.65rem_center] bg-no-repeat px-3 py-2 pr-9 text-xs font-medium text-slate-900 shadow-inner outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-200"
+            class="w-full cursor-pointer appearance-none rounded-lg border-2 border-black bg-black/20 bg-[length:14px_14px] bg-[position:right_0.65rem_center] bg-no-repeat px-3 py-2 pr-9 text-xs font-black text-slate-100 shadow-inner outline-none transition focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
             style="
-              background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;);
+              background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;);
             "
           >
             <option value="">전체</option>
           </select>
         </div>
         <div class="flex w-full flex-col gap-1.5 sm:col-span-2 lg:col-span-4">
-          <label for="nameQuery" class="text-sm font-semibold text-slate-700"
+          <label for="nameQuery" class="text-sm font-black text-slate-100"
             >이름 검색</label
           >
           <input
@@ -365,12 +408,12 @@
             type="search"
             placeholder="이름 또는 한자 일부 입력"
             autocomplete="off"
-            class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 shadow-inner outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-200"
+            class="w-full rounded-lg border-2 border-black bg-black/20 px-3 py-2 text-xs text-slate-100 shadow-inner outline-none transition placeholder:text-slate-400 focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
           />
         </div>
         <p
           id="countLabel"
-          class="flex items-end justify-center text-xs text-slate-500 lg:col-span-2 lg:justify-end lg:pb-2"
+          class="flex items-end justify-center text-xs text-slate-300 lg:col-span-2 lg:justify-end lg:pb-2"
         >
           불러오는 중…
         </p>
@@ -378,17 +421,17 @@
 
       <div
         id="errorBox"
-        class="mb-6 hidden rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+        class="mb-6 hidden border-2 border-black bg-amber-400/10 px-4 py-3 text-sm text-amber-200"
         role="alert"
       ></div>
 
       <section class="mb-8" aria-labelledby="verifiedCandidatesTitle">
         <div class="mb-3 flex items-end justify-between gap-3">
           <div>
-            <h2 id="verifiedCandidatesTitle" class="text-lg font-bold tracking-tight text-slate-800">
+            <h2 id="verifiedCandidatesTitle" class="text-lg font-black tracking-tight text-white">
               검증 후보 목록
             </h2>
-            <p class="mt-1 text-xs text-slate-500">표 상단 필터로 구·정당·이름을 좁힐 수 있습니다.</p>
+            <p class="mt-1 text-xs text-slate-300">표 상단 필터로 구·정당·이름을 좁힐 수 있습니다.</p>
           </div>
           <div class="flex shrink-0 items-center gap-2">
             <a
@@ -396,7 +439,7 @@
               href="https://github.com/areawatch/seoul-archive/actions/workflows/crawl-candidates.yml"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+              class="pixel-nav-btn inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition"
               title="선관위 예비후보 수집 수동 실행"
             >
               선관위 크롤
@@ -406,17 +449,17 @@
               href="https://github.com/areawatch/seoul-archive/actions/workflows/crawl-redline-news.yml"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+              class="pixel-nav-btn inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition"
               title="뉴스 제목 수집 수동 실행"
             >
               뉴스기사 수집
             </a>
-            <p id="verifiedCountLabel" class="text-sm font-medium text-slate-500">0명</p>
+            <p id="verifiedCountLabel" class="text-sm font-black text-slate-200">0명</p>
           </div>
         </div>
         <div
           id="verifiedCandidatesEmpty"
-          class="hidden rounded-xl border border-dashed border-slate-300 bg-white px-4 py-5 text-sm text-slate-500"
+          class="hidden border-2 border-dashed border-white/20 bg-black/20 px-4 py-5 text-sm text-slate-300"
         >
           현재 필터 조건과 일치하는 심층 검증 후보가 없습니다.
         </div>
@@ -431,7 +474,7 @@
 
     <div
       id="verifiedFloatingTooltip"
-      class="pointer-events-none fixed z-[140] hidden max-w-[min(20rem,calc(100vw-1rem))] rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs leading-relaxed text-slate-700 shadow-xl"
+      class="pointer-events-none fixed z-[140] hidden max-w-[min(20rem,calc(100vw-1rem))] rounded-lg border-2 border-black bg-slate-950/70 px-3 py-2 text-xs leading-relaxed text-slate-200 shadow-xl backdrop-blur"
       role="tooltip"
       aria-hidden="true"
     ></div>
@@ -503,6 +546,7 @@
           await inject("header-plugin", "header.html");
           highlightCandidatesSubnav();
           await inject("footer-plugin", "footer.html");
+          document.querySelector("#footer-plugin .site-footer")?.classList.add("site-footer--dark");
         })();
       })();
     </script>
@@ -1263,9 +1307,9 @@
         var root = document.getElementById("officeFilterSeg");
         if (!root) return;
         var onCls =
-          "office-filter-seg flex-none border-r border-slate-200 px-2.5 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-slate-700 text-white hover:bg-slate-700 sm:px-3";
+          "office-filter-seg flex-none border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90 sm:px-3";
         var offCls =
-          "office-filter-seg flex-none border-r border-slate-200 px-2.5 py-2 text-center text-xs font-semibold transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3";
+          "office-filter-seg flex-none border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-black/20 text-slate-100 hover:bg-white/10 sm:px-3";
         root.querySelectorAll("button[data-office-filter]").forEach(function (b) {
           var v = String(b.getAttribute("data-office-filter") || "");
           var on = v === value;
@@ -1421,36 +1465,36 @@
           verifiedSortKey,
           verifiedSortAsc
         );
-        listEl.innerHTML = `<div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-200/60">
-          <table class="min-w-[1080px] w-full border-collapse text-left text-sm text-slate-800">
+        listEl.innerHTML = `<div class="overflow-x-auto border-2 border-black bg-black/20 shadow-[0_6px_0_#000]">
+          <table class="min-w-[1080px] w-full border-collapse text-left text-sm text-slate-100">
             <thead>
-              <tr class="border-b border-slate-200 bg-slate-50/95">
+              <tr class="border-b border-white/10 bg-black/30">
                 <th class="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-rose-600">
-                  <button type="button" data-sort-scope="verified" data-sort-key="name" class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-800">
+                  <button type="button" data-sort-scope="verified" data-sort-key="name" class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-300 hover:bg-white/5 hover:text-rose-200">
                     후보
                     <span data-sort-scope="verified" data-sort-icon-for="name" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
                   </button>
                 </th>
-                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">정당</th>
+                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-300">정당</th>
                 <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">
-                  <button type="button" data-sort-scope="verified" data-sort-key="office" class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-800">
+                  <button type="button" data-sort-scope="verified" data-sort-key="office" class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-300 hover:bg-white/5 hover:text-rose-200">
                     종류
                     <span data-sort-scope="verified" data-sort-icon-for="office" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
                   </button>
                 </th>
                 <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">
-                  <button type="button" data-sort-scope="verified" data-sort-key="constituency" class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-800">
+                  <button type="button" data-sort-scope="verified" data-sort-key="constituency" class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-300 hover:bg-white/5 hover:text-rose-200">
                     선거구
                     <span data-sort-scope="verified" data-sort-icon-for="constituency" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
                   </button>
                 </th>
-                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">검증등급</th>
-                <th class="px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">범죄이력</th>
-                <th class="min-w-[14rem] px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">질의서</th>
-                <th class="min-w-[20rem] px-3 py-3 text-xs font-semibold tracking-wide text-rose-600">내란/부패/민주</th>
+                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-300">검증등급</th>
+                <th class="px-3 py-3 text-xs font-semibold tracking-wide text-rose-300">범죄이력</th>
+                <th class="min-w-[14rem] px-3 py-3 text-xs font-semibold tracking-wide text-rose-300">질의서</th>
+                <th class="min-w-[20rem] px-3 py-3 text-xs font-semibold tracking-wide text-rose-300">내란/부패/민주</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody class="divide-y divide-white/10">
               ${sortedVerified
                 .map((c, idx) => {
                   const meta = c.verifiedMeta;
@@ -1462,13 +1506,13 @@
                   return `<tr class="align-top ${verificationBorderClass(meta.grade)} border-l-4">
                     <td class="py-3 pl-4 pr-2">
                       <div class="flex gap-2.5">
-                        <img src="${escapeAttr(mergedCandidatePhoto(c) || DEFAULT_AVATAR)}" alt="" class="h-10 w-10 shrink-0 rounded-full object-cover object-top ring-1 ring-slate-200" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
+                        <img src="${escapeAttr(mergedCandidatePhoto(c) || DEFAULT_AVATAR)}" alt="" class="h-10 w-10 shrink-0 rounded-full object-cover object-top ring-1 ring-white/10" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
                         <div class="min-w-0">
-                          <p class="font-bold text-slate-900">${escapeHtml(primaryName(c.name))}</p>
+                          <p class="font-black text-slate-100">${escapeHtml(primaryName(c.name))}</p>
                           <div class="mt-1 flex items-center gap-0.5">
                             ${
                               meta.comment
-                                ? `<button type="button" class="inline-flex items-center justify-center rounded p-px text-rose-600 transition-colors hover:bg-rose-50 hover:text-rose-800" aria-label="코멘트 보기" data-v-tooltip-trigger data-v-tooltip-text="${escapeAttr(
+                                ? `<button type="button" class="inline-flex items-center justify-center rounded p-px text-rose-300 transition-colors hover:bg-white/5 hover:text-rose-200" aria-label="코멘트 보기" data-v-tooltip-trigger data-v-tooltip-text="${escapeAttr(
                                     meta.comment
                                   )}">
                                 <i data-lucide="message-square" class="h-3 w-3" aria-hidden="true"></i>
@@ -1479,7 +1523,7 @@
                               news1
                                 ? `<a href="${escapeAttr(
                                     news1
-                                  )}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded p-px text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800" aria-label="뉴스1 보기" data-v-news-trigger data-v-tooltip-text="${escapeAttr(
+                                  )}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded p-px text-slate-300 transition-colors hover:bg-white/5 hover:text-white" aria-label="뉴스1 보기" data-v-news-trigger data-v-tooltip-text="${escapeAttr(
                                     news1Title
                                   )}" data-v-tooltip-url="${escapeAttr(news1)}">
                                   <i data-lucide="newspaper" class="h-3 w-3" aria-hidden="true"></i>
@@ -1490,14 +1534,14 @@
                               news2
                                 ? `<a href="${escapeAttr(
                                     news2
-                                  )}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded p-px text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800" aria-label="뉴스2 보기" data-v-news-trigger data-v-tooltip-text="${escapeAttr(
+                                  )}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded p-px text-slate-300 transition-colors hover:bg-white/5 hover:text-white" aria-label="뉴스2 보기" data-v-news-trigger data-v-tooltip-text="${escapeAttr(
                                     news2Title
                                   )}" data-v-tooltip-url="${escapeAttr(news2)}">
                                   <i data-lucide="newspaper" class="h-3 w-3" aria-hidden="true"></i>
                                 </a>`
                                 : ""
                             }
-                            ${!meta.comment && !news1 && !news2 ? '<span class="text-[11px] text-slate-400">—</span>' : ""}
+                            ${!meta.comment && !news1 && !news2 ? '<span class="text-[11px] text-slate-500">—</span>' : ""}
                           </div>
                         </div>
                       </div>
@@ -1507,21 +1551,21 @@
                         party
                       ).badgeSolid}">${escapeHtml(party)}</span>
                     </td>
-                    <td class="whitespace-nowrap px-3 py-3 text-xs font-medium text-slate-700">${escapeHtml(
+                    <td class="whitespace-nowrap px-3 py-3 text-xs font-black text-slate-100">${escapeHtml(
                       candidateOffice(c)
                     )}</td>
-                    <td class="whitespace-nowrap px-3 py-3 text-xs text-slate-600">${escapeHtml(
+                    <td class="whitespace-nowrap px-3 py-3 text-xs text-slate-300">${escapeHtml(
                       c.constituency || "—"
                     )}</td>
-                    <td class="whitespace-nowrap px-3 py-3 text-xs font-semibold text-slate-700">${escapeHtml(
+                    <td class="whitespace-nowrap px-3 py-3 text-xs font-black text-slate-100">${escapeHtml(
                       meta.grade || "미기재"
                     )}</td>
-                    <td class="max-w-[14rem] px-3 py-3 text-xs leading-relaxed text-slate-700">
+                    <td class="max-w-[14rem] px-3 py-3 text-xs leading-relaxed text-slate-200">
                       <div class="flex flex-wrap gap-1">${criminalHistoryTagsHtml(
                         meta.criminalHistory
                       )}</div>
                     </td>
-                    <td class="max-w-[16rem] px-3 py-3 text-xs leading-relaxed text-slate-700 whitespace-pre-line">${escapeHtml(
+                    <td class="max-w-[16rem] px-3 py-3 text-xs leading-relaxed text-slate-200 whitespace-pre-line">${escapeHtml(
                       meta.qaQuestionnaire || "-"
                     )}</td>
                     <td class="px-3 py-3">

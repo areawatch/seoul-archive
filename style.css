@@ -99,6 +99,17 @@ body {
     color: #ffffff !important;
 }
 
+/* candidates 전용: 더 진한 남색 헤더 */
+.candidates-page-navbar.bg-dark {
+    background-color: #060b1f !important;
+}
+.candidates-page-navbar.bg-dark .nav-link {
+    color: rgba(226, 232, 240, 0.88) !important;
+}
+.candidates-page-navbar.bg-dark .nav-link:hover {
+    color: #ffffff !important;
+}
+
 /* 햄버거: 테두리 없음, 선 굵고 순백 */
 .navbar .navbar-toggler {
     border: none !important;
