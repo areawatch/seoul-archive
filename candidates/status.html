@@ -48,11 +48,26 @@
     />
     <link rel="stylesheet" href="../style.css" />
     <style>
+      @import url("https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css");
+
       @font-face {
-        font-family: "DungGeunMo";
-        src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/DungGeunMo.woff")
-          format("woff");
-        font-weight: normal;
+        font-family: "PFStardust30";
+        src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/PFStardustBold.woff2") format("woff2");
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "PFStardust30";
+        src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/PFStardustExtraBold.woff2") format("woff2");
+        font-weight: 800;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "PFStardust30";
+        src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/PFStardustExtraBold.woff2") format("woff2");
+        font-weight: 900;
         font-style: normal;
         font-display: swap;
       }
@@ -76,7 +91,7 @@
       <style>
         /* Mesh Gradient background */
         body {
-          font-family: "DungGeunMo", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          font-family: "Galmuri11", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
             "Courier New", monospace;
           background-color: #1a1a2e;
           background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
@@ -93,6 +108,14 @@
         h3,
         h4 {
           text-shadow: 1px 1px 0 #000;
+        }
+
+        /* 전역 style.css 에서 h1에 Paperozi !important가 걸려있어 더 강하게 덮어씀 */
+        h1.dash-title {
+          font-family: "PFStardust30", "Galmuri11", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+            "Liberation Mono", "Courier New", monospace !important;
+          letter-spacing: -0.02em;
+          font-weight: 800 !important;
         }
 
         /* SVG 클릭 시 브라우저 기본 focus outline 제거 */
@@ -143,7 +166,7 @@
           }
         }
         .mono {
-          font-family: "DungGeunMo", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          font-family: "Galmuri11", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
             "Courier New", monospace;
           font-variant-numeric: tabular-nums;
         }
@@ -244,7 +267,7 @@
 
       <header class="mb-8 text-center">
         <p class="mono text-xs font-bold uppercase tracking-[0.25em] text-slate-300">RED LINE QUEST</p>
-        <h1 class="mt-2 text-4xl font-black tracking-tight text-white sm:text-5xl">서울로그: 데이터 원정대 🛡️</h1>
+        <h1 class="dash-title mt-2 text-4xl font-black tracking-tight text-white sm:text-5xl">데이터 원정대 🛡️</h1>
         <p class="mono mt-2 text-xs text-slate-300">QUEST: 연락처 수집 현황</p>
       </header>
 
