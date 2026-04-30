@@ -1181,6 +1181,62 @@
           const distKey = findSheetColumn(sample, ["지역", "지역구", "자치구"]);
           const photoKey = findSheetColumn(sample, ["명함 등 연락처가 나온 사진", "사진"]);
           const timeKey = findSheetColumn(sample, ["Submitted at", "제출일시", "제출 시각"]);
+          const respondentKey = findSheetColumn(sample, ["Respondent ID", "응답자", "제보자"]);
+          const submissionKey = findSheetColumn(sample, ["Submission ID", "제출 ID", "제보 ID"]);
+
+          function hashToInt(str) {
+            const s = String(str ?? "");
+            // FNV-1a (32-bit)
+            let h = 2166136261;
+            for (let i = 0; i < s.length; i += 1) {
+              h ^= s.charCodeAt(i);
+              h = Math.imul(h, 16777619);
+            }
+            return h >>> 0;
+          }
+
+          function funNickname(seed) {
+            const h = hashToInt(seed || Math.random().toString(36));
+            const adj = [
+              "도트",
+              "픽셀",
+              "네온",
+              "레드라인",
+              "야간",
+              "번쩍",
+              "은밀",
+              "광속",
+              "조용",
+              "성실",
+              "용감",
+              "수상한",
+              "따뜻한",
+              "쫄보",
+              "열정",
+              "미스터리",
+            ];
+            const noun = [
+              "탐정",
+              "정찰병",
+              "스캐너",
+              "요원",
+              "대원",
+              "관찰자",
+              "기록가",
+              "제보왕",
+              "지도사",
+              "신호수",
+              "데이터마법사",
+              "구청러",
+              "시민용사",
+              "행정닌자",
+              "동네히어로",
+              "리포터",
+            ];
+            const a = adj[h % adj.length];
+            const b = noun[(Math.floor(h / 97) >>> 0) % noun.length];
+            return a + b;
+          }
 
           const validRows = rows.filter((row) => {
             const name = nameKey ? String(row[nameKey] || "").trim() : "";
@@ -1196,6 +1252,8 @@
               dist: distKey ? String(row[distKey] || "").trim() : "",
               photo: photoKey ? String(row[photoKey] || "").trim() : "",
               ms: parseTipsSubmittedAtMs(timeKey ? row[timeKey] : ""),
+              who: respondentKey ? String(row[respondentKey] || "").trim() : "",
+              sub: submissionKey ? String(row[submissionKey] || "").trim() : "",
             }))
             .sort((a, b) => (b.ms || 0) - (a.ms || 0) || String(b.name).localeCompare(String(a.name), "ko"));
 
@@ -1209,7 +1267,11 @@
           function renderOne(it) {
             const name = it.name || "이름 미상";
             const dist = it.dist || "지역 미상";
-            const msg = `방금 전 ${escapeHtml(dist)} ${escapeHtml(name)} 후보님의 정보가 업데이트되었습니다!`;
+            const whoSeed = (it.who || it.sub || "") + "|" + dist + "|" + name;
+            const whoName = funNickname(whoSeed);
+            const msg = `방금 전 ${escapeHtml(whoName)}님이 ${escapeHtml(dist)} ${escapeHtml(
+              name
+            )} 후보님의 정보를 제보해주셨어요!`;
             const hasPhoto = isProbablyHttpUrl(it.photo);
             const thumb = hasPhoto
               ? `<div class="tips-thumb-wrap"><img src="${escapeHtml(
