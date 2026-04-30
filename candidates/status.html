@@ -107,7 +107,7 @@
         h2,
         h3,
         h4 {
-          text-shadow: 1px 1px 0 #000;
+          text-shadow: none;
         }
 
         /* 전역 style.css 에서 h1에 Paperozi !important가 걸려있어 더 강하게 덮어씀 */
@@ -133,7 +133,7 @@
           pointer-events: none;
           image-rendering: pixelated;
           image-rendering: crisp-edges;
-          filter: drop-shadow(0 10px 0 rgba(0, 0, 0, 0.55)) drop-shadow(0 18px 24px rgba(0, 0, 0, 0.35));
+          filter: none;
           transform-box: fill-box;
           transform-origin: center;
           animation: ufoBob 3.6s ease-in-out infinite;
@@ -156,19 +156,17 @@
         #mapPaths path:hover {
           transform: translateY(-2px);
           opacity: 1;
-          filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0))
-            drop-shadow(0 0 14px rgba(255, 77, 77, 0.75))
-            drop-shadow(0 0 28px rgba(255, 77, 77, 0.30));
+          filter: none;
         }
         #mapPaths path.is-hot {
-          filter: drop-shadow(0 0 18px rgba(255, 77, 77, 0.65)) drop-shadow(0 0 32px rgba(255, 77, 77, 0.25));
+          filter: none;
         }
 
         .dash-card {
           background: #23234a;
           border: 4px solid #000;
           border-radius: 0;
-          box-shadow: 0 6px 0 #000, 0 18px 30px rgba(0, 0, 0, 0.35);
+          box-shadow: none;
         }
         .dash-in {
           opacity: 0;
@@ -193,14 +191,14 @@
         .status-badge {
           border: 2px solid #000;
           background: #101023;
-          box-shadow: 0 2px 0 #000;
+          box-shadow: none;
         }
 
         .pixel-btn:active {
           transform: translateY(2px);
         }
         .pixel-btn {
-          box-shadow: 0 4px 0 #000;
+          box-shadow: none;
           border: 2px solid #000;
           background: #101023;
         }
@@ -209,7 +207,7 @@
         #footer-plugin .site-footer {
           background: transparent !important;
           border-top: 2px solid rgba(0, 0, 0, 0.7) !important;
-          box-shadow: 0 -4px 0 #000;
+          box-shadow: none;
         }
         #footer-plugin .site-footer .text-muted,
         #footer-plugin .site-footer,
@@ -264,9 +262,7 @@
           width: 40px;
           height: 40px;
           border: 2px solid #000;
-          box-shadow:
-            inset 0 0 0 2px rgba(255, 255, 255, 0.06),
-            2px 2px 0 #000;
+          box-shadow: none;
           background: #0a0a12;
           overflow: hidden;
         }
@@ -480,7 +476,7 @@
 
         <div
           id="mapTooltip"
-          class="pointer-events-none fixed z-[200] hidden max-w-[min(22rem,calc(100vw-1rem))] rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-xs text-slate-200 shadow-2xl backdrop-blur"
+          class="pointer-events-none fixed z-[200] hidden max-w-[min(22rem,calc(100vw-1rem))] rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-xs text-slate-200 backdrop-blur"
           role="tooltip"
           aria-hidden="true"
         ></div>
@@ -510,7 +506,7 @@
 
       <div
         id="chipTooltip"
-        class="pointer-events-none fixed z-[210] hidden max-w-[min(24rem,calc(100vw-1rem))] rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-xs text-slate-200 shadow-2xl backdrop-blur"
+        class="pointer-events-none fixed z-[210] hidden max-w-[min(24rem,calc(100vw-1rem))] rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-xs text-slate-200 backdrop-blur"
         role="tooltip"
         aria-hidden="true"
       ></div>
@@ -991,7 +987,7 @@
               const city = bundles["시의원"] || [];
               const gu = bundles["구의원"] || [];
               const cardBg = cardBgForPct(r.pct);
-              return `<li class="dash-card dash-in rounded-3xl p-4 shadow-2xl shadow-black/20" style="animation-delay: 520ms; background: ${cardBg};">
+              return `<li class="dash-card dash-in rounded-3xl p-4" style="animation-delay: 520ms; background: ${cardBg};">
                 <details class="group">
                   <summary class="flex cursor-pointer list-none items-center justify-between gap-3 py-1 marker:content-none">
                     <div class="min-w-0 flex-1">
