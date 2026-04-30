@@ -127,6 +127,26 @@
         #seoulMap {
           shape-rendering: crispEdges;
         }
+
+        /* UFO (map overlay) */
+        #ufoSprite {
+          pointer-events: none;
+          image-rendering: pixelated;
+          image-rendering: crisp-edges;
+          filter: drop-shadow(0 10px 0 rgba(0, 0, 0, 0.55)) drop-shadow(0 18px 24px rgba(0, 0, 0, 0.35));
+          transform-box: fill-box;
+          transform-origin: center;
+          animation: ufoBob 3.6s ease-in-out infinite;
+        }
+        @keyframes ufoBob {
+          0%,
+          100% {
+            transform: translate3d(0, 0, 0) rotate(-1.2deg);
+          }
+          50% {
+            transform: translate3d(6px, -10px, 0) rotate(1.2deg);
+          }
+        }
         #mapPaths path {
           transition: transform 180ms ease, filter 180ms ease, opacity 180ms ease;
           transform-origin: center;
@@ -346,7 +366,7 @@
             </div>
             <div class="mono text-[11px] font-bold text-slate-300">HOVER / TAP</div>
           </div>
-          <div class="mx-auto flex h-[360px] w-full max-w-[600px] items-center justify-center overflow-hidden sm:h-[420px]">
+          <div class="relative mx-auto flex h-[360px] w-full max-w-[600px] items-center justify-center overflow-hidden sm:h-[420px]">
             <svg
               id="seoulMap"
               viewBox="0 0 520 520"
@@ -364,6 +384,17 @@
               </defs>
               <rect x="0" y="0" width="520" height="520" fill="transparent" />
               <g id="mapPaths"></g>
+              <image
+                id="ufoSprite"
+                href="../ufo.svg"
+                x="0"
+                y="0"
+                width="65"
+                height="65"
+                preserveAspectRatio="xMidYMid meet"
+                opacity="0"
+                aria-hidden="true"
+              />
             </svg>
           </div>
           <div class="mt-2">
@@ -383,6 +414,9 @@
               <span class="inline-flex items-center gap-1.5">
                 <span class="h-2.5 w-2.5 rounded-sm bg-[#ff4d4d] ring-1 ring-black"></span>71~100
               </span>
+            </p>
+            <p class="mono mt-1 text-center text-[10px] leading-snug text-slate-400">
+              UFO는 가장 진행률이 낮은 구 위를 배회합니다. 동일한 구가 여러 개일 경우 랜덤으로 위치를 옮깁니다
             </p>
           </div>
         </div>
@@ -732,6 +766,7 @@
         function buildSeoulMap(topoJson, statsByDistrict) {
           const mapSvg = document.getElementById("seoulMap");
           const g = document.getElementById("mapPaths");
+          const ufo = document.getElementById("ufoSprite");
           if (!mapSvg || !g) return;
           if (!window.d3 || !window.topojson) return;
 
@@ -771,6 +806,36 @@
             frag.appendChild(p);
           });
           g.appendChild(frag);
+
+          // UFO: lowest completion district (random among ties)
+          if (ufo && statsByDistrict) {
+            const vals = Object.values(statsByDistrict || {}).filter((st) => st && typeof st.pct === "number");
+            if (vals.length) {
+              let minPct = Infinity;
+              vals.forEach((st) => {
+                if (st.pct < minPct) minPct = st.pct;
+              });
+              const lowest = vals.filter((st) => st.pct === minPct);
+              const pick = lowest.length ? lowest[Math.floor(Math.random() * lowest.length)] : null;
+              const districtName = pick ? String(pick.district || "").trim() : "";
+              const target = districtName ? g.querySelector(`path[data-district="${CSS.escape(districtName)}"]`) : null;
+              if (target && typeof target.getBBox === "function") {
+                const bb = target.getBBox();
+                const w = 65; // 120% size
+                const h = 65;
+                const cx = bb.x + bb.width / 2;
+                const cy = bb.y + bb.height / 2;
+                // float slightly above the district center
+                ufo.setAttribute("x", String(cx - w / 2));
+                ufo.setAttribute("y", String(cy - h / 2 - 24));
+                ufo.setAttribute("width", String(w));
+                ufo.setAttribute("height", String(h));
+                ufo.setAttribute("opacity", "1");
+              } else {
+                ufo.setAttribute("opacity", "0");
+              }
+            }
+          }
 
           // Interactions
           g.querySelectorAll("path[data-district]").forEach((el) => {
