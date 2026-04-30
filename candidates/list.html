@@ -572,7 +572,7 @@
         aria-hidden="true"
       ></div>
       <div
-        class="dash-card relative flex max-h-[min(90vh,720px)] w-full max-w-lg flex-col overflow-hidden bg-[#23234a] p-0"
+        class="dash-card relative flex max-h-[min(90vh,720px)] w-full max-w-lg flex-col overflow-hidden bg-[#0b1024] p-0"
       >
         <div
           class="flex shrink-0 items-center justify-between gap-3 border-b-2 border-black px-4 py-3"
@@ -607,7 +607,7 @@
       aria-hidden="true"
     >
       <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content bg-[#23234a] text-slate-100 border-2 border-black">
+        <div class="modal-content bg-[#0b1024] text-slate-100 border-2 border-black">
           <div class="modal-header border-bottom border-black">
             <h5 class="modal-title font-black" id="archiveWealthModalLabel">재산 상세</h5>
             <button
@@ -1457,12 +1457,13 @@
 
         const slice = sorted.slice(0, visibleRowCount);
         const remaining = sorted.length - slice.length;
+        const nextCount = Math.min(LIST_PAGE_SIZE, Math.max(0, remaining));
         if (loadMoreWrap) {
           loadMoreWrap.innerHTML =
             remaining > 0
               ? `<div class="flex justify-center bg-black/10 px-4 py-4">
   <button type="button" id="candidatesLoadMore" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">
-    더보기 <span class="font-normal text-slate-200">(${remaining}명 더)</span>
+    <span class="font-black text-slate-100">${nextCount}명 더보기</span> <span class="font-normal text-slate-200">(${slice.length}/${sorted.length})</span>
   </button>
 </div>`
               : "";
