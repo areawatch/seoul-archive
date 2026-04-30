@@ -908,7 +908,46 @@
         }
 
         function highlightCandidatesSubnav() {
-          // 기존 서브네비 하이라이트 로직과 충돌 방지: status는 별도 페이지라 active 변경 안 함
+          var path = (location.pathname || "").replace(/\/+$/, "");
+          var parts = path.split("/").filter(function (s) {
+            return s.length > 0;
+          });
+          var seg = (parts[parts.length - 1] || "").split("?")[0].toLowerCase();
+          var base = seg.replace(/\.(html|htm)$/i, "");
+          var listLink = document.querySelector("a[data-candidates-subnav='list']");
+          var briefLink = document.querySelector("a[data-candidates-subnav='briefing']");
+          var redlineLink = document.querySelector("a[data-candidates-subnav='redline']");
+          var expeditionLink = document.querySelector("a[data-candidates-subnav='expedition']");
+          if (!listLink || !briefLink) return;
+          listLink.classList.remove("active");
+          briefLink.classList.remove("active");
+          listLink.removeAttribute("aria-current");
+          briefLink.removeAttribute("aria-current");
+          if (redlineLink) {
+            redlineLink.classList.remove("active");
+            redlineLink.removeAttribute("aria-current");
+          }
+          if (expeditionLink) {
+            expeditionLink.classList.remove("active");
+            expeditionLink.removeAttribute("aria-current");
+          }
+          var page = "list";
+          if (base === "briefing") page = "briefing";
+          else if (base === "redline") page = "redline";
+          else if (base === "status") page = "expedition";
+          if (page === "briefing") {
+            briefLink.classList.add("active");
+            briefLink.setAttribute("aria-current", "page");
+          } else if (page === "redline" && redlineLink) {
+            redlineLink.classList.add("active");
+            redlineLink.setAttribute("aria-current", "page");
+          } else if (page === "expedition" && expeditionLink) {
+            expeditionLink.classList.add("active");
+            expeditionLink.setAttribute("aria-current", "page");
+          } else {
+            listLink.classList.add("active");
+            listLink.setAttribute("aria-current", "page");
+          }
         }
 
         function setUpdatedLine(updatedAt) {
@@ -1187,6 +1226,7 @@
           await inject("header-plugin", "header.html");
           highlightCandidatesSubnav();
           await inject("footer-plugin", "footer.html");
+          document.querySelector("#footer-plugin .site-footer")?.classList.add("site-footer--dark");
           try {
             await main();
           } catch (e) {

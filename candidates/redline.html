@@ -281,6 +281,7 @@
           var listLink = document.querySelector("a[data-candidates-subnav='list']");
           var briefLink = document.querySelector("a[data-candidates-subnav='briefing']");
           var redlineLink = document.querySelector("a[data-candidates-subnav='redline']");
+          var expeditionLink = document.querySelector("a[data-candidates-subnav='expedition']");
           if (!listLink || !briefLink) return;
           listLink.classList.remove("active");
           briefLink.classList.remove("active");
@@ -290,15 +291,23 @@
             redlineLink.classList.remove("active");
             redlineLink.removeAttribute("aria-current");
           }
+          if (expeditionLink) {
+            expeditionLink.classList.remove("active");
+            expeditionLink.removeAttribute("aria-current");
+          }
           var page = "list";
           if (base === "briefing") page = "briefing";
           else if (base === "redline") page = "redline";
+          else if (base === "status") page = "expedition";
           if (page === "briefing") {
             briefLink.classList.add("active");
             briefLink.setAttribute("aria-current", "page");
           } else if (page === "redline" && redlineLink) {
             redlineLink.classList.add("active");
             redlineLink.setAttribute("aria-current", "page");
+          } else if (page === "expedition" && expeditionLink) {
+            expeditionLink.classList.add("active");
+            expeditionLink.setAttribute("aria-current", "page");
           } else {
             listLink.classList.add("active");
             listLink.setAttribute("aria-current", "page");

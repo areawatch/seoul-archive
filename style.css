@@ -32,6 +32,17 @@ body {
     display: block;
 }
 
+/* 검은(다크) 푸터: 흰 로고만 표시 */
+.site-footer .site-footer-logo--on-dark {
+    display: none !important;
+}
+.site-footer.site-footer--dark .site-footer-logo--on-light {
+    display: none !important;
+}
+.site-footer.site-footer--dark .site-footer-logo--on-dark {
+    display: block !important;
+}
+
 /* 텍스트 드래그(선택) 강조 — 모든 페이지 공통 */
 ::selection {
     background-color: #aac465;
@@ -81,6 +92,15 @@ body {
     width: 1.65rem;
     height: 1.65rem;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-miterlimit='10' stroke-width='3.25' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.candidates-page-navbar .candidates-navbar-logo {
+    height: 34px;
+    width: auto;
+    max-width: min(140px, 42vw);
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
 }
 
 /*
