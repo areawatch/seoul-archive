@@ -263,7 +263,7 @@
         </div>
       </section>
 
-      <section class="order-1 mb-0 sm:order-2 sm:mb-0">
+      <section id="seoulMapSection" class="order-1 mb-0 sm:order-2 sm:mb-0">
         <div class="dash-card dash-in mx-auto max-w-5xl p-3 sm:p-4" style="animation-delay: 310ms">
           <div class="mb-2 flex items-center justify-between gap-3">
             <div>
@@ -973,6 +973,43 @@
             chipTooltipHide();
           }
         });
+
+        // 모바일·DevTools 에뮬에서도 스크롤 시 지도 툴팁이 fixed로 남지 않도록 다중 감지
+        function hideMapTooltipOnScroll() {
+          tooltipHide();
+        }
+        const scrollHideTargets = [window, document, document.documentElement, document.body].filter(Boolean);
+        scrollHideTargets.forEach((target) => {
+          target.addEventListener("scroll", hideMapTooltipOnScroll, { passive: true, capture: true });
+        });
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener("scroll", hideMapTooltipOnScroll);
+        }
+        // scroll 이벤트가 누락되는 환경 대비: 지도 블록이 뷰포트에서 움직이면(스크롤·줌·주소창) 툴팁 제거
+        (function setupMapSectionIntersectionHide() {
+          const mapSection = document.getElementById("seoulMapSection");
+          if (!mapSection || typeof IntersectionObserver === "undefined") return;
+          let lastRatio = null;
+          const thresholds = [];
+          for (let t = 0; t <= 40; t += 1) thresholds.push(t / 40);
+          const io = new IntersectionObserver(
+            (entries) => {
+              const entry = entries[0];
+              if (!entry) return;
+              const r = entry.intersectionRatio;
+              if (lastRatio === null) {
+                lastRatio = r;
+                return;
+              }
+              if (Math.abs(r - lastRatio) > 1e-4) {
+                lastRatio = r;
+                tooltipHide();
+              }
+            },
+            { root: null, threshold: thresholds }
+          );
+          io.observe(mapSection);
+        })();
 
         document.getElementById("districtList").addEventListener("pointermove", function (e) {
           const t = e.target;
