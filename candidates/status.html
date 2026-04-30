@@ -189,6 +189,57 @@
           font-size: 14px;
           line-height: 1;
         }
+
+        /* 제보 라이브 피드 */
+        @keyframes tips-rec-blink {
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.35;
+          }
+        }
+        @keyframes tips-slide-up {
+          from {
+            transform: translateY(110%);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        .tips-rec-dot {
+          animation: tips-rec-blink 1.1s steps(2, end) infinite;
+        }
+        .tips-feed-slide-anim {
+          animation: tips-slide-up 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .tips-thumb-wrap {
+          flex-shrink: 0;
+          width: 40px;
+          height: 40px;
+          border: 2px solid #000;
+          box-shadow:
+            inset 0 0 0 2px rgba(255, 255, 255, 0.06),
+            2px 2px 0 #000;
+          background: #0a0a12;
+          overflow: hidden;
+        }
+        @media (min-width: 640px) {
+          .tips-thumb-wrap {
+            width: 48px;
+            height: 48px;
+          }
+        }
+        .tips-thumb-wrap img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          image-rendering: pixelated;
+          image-rendering: crisp-edges;
+        }
       </style>
 
       <header class="mb-8 text-center">
@@ -314,6 +365,40 @@
         </div>
 
         <div
+          id="tipsLiveCard"
+          class="dash-card dash-in relative mx-auto mt-4 max-w-5xl p-3 sm:mt-6 sm:p-4"
+          style="animation-delay: 380ms"
+          aria-live="polite"
+        >
+          <div
+            class="mono pointer-events-none absolute right-2 top-2 z-10 flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-[#ff4d4d] sm:right-3 sm:top-3 sm:text-[10px]"
+            aria-hidden="true"
+          >
+            <span class="tips-rec-dot inline-block h-2 w-2 rounded-full bg-[#ff4d4d] ring-1 ring-black"></span>
+            REC
+          </div>
+          <div class="pr-16 sm:pr-20">
+            <div class="mono text-[10px] font-bold uppercase tracking-widest text-slate-400">Live Tip Feed</div>
+          </div>
+          <div class="mt-3 flex flex-col gap-4 sm:mt-4 sm:flex-row sm:items-stretch sm:gap-6">
+            <div class="shrink-0 sm:flex sm:max-w-[min(100%,14rem)] sm:flex-col sm:justify-center">
+              <p class="text-[11px] leading-snug text-slate-200 sm:text-xs">
+                현재까지 총 <span id="tipsTotalCount" class="font-black text-white">0</span>건의 제보 도착!
+              </p>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div
+                class="relative h-[4.25rem] overflow-hidden border-2 border-black bg-black/30 sm:h-[3.5rem]"
+                id="tipsFeedViewport"
+              >
+                <div id="tipsFeedSlide" class="absolute inset-x-0 bottom-0 top-0 flex items-center px-1 sm:px-2"></div>
+              </div>
+            </div>
+          </div>
+          <p id="tipsLiveError" class="mono mt-2 hidden text-[10px] leading-relaxed text-red-300"></p>
+        </div>
+
+        <div
           id="mapTooltip"
           class="pointer-events-none fixed z-[200] hidden max-w-[min(22rem,calc(100vw-1rem))] rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-xs text-slate-200 shadow-2xl backdrop-blur"
           role="tooltip"
@@ -362,6 +447,8 @@
           "https://docs.google.com/spreadsheets/d/1vWnrVF0wdJyhL6OnEZh3LpXNQnc3owKYovrd5jo6jfY/gviz/tq?tqx=out:csv";
         const SHEET_VIEW_URL =
           "https://docs.google.com/spreadsheets/d/1vWnrVF0wdJyhL6OnEZh3LpXNQnc3owKYovrd5jo6jfY/edit";
+        const TIPS_SHEET_CSV_URL =
+          "https://docs.google.com/spreadsheets/d/1zmjXBcr-5HnjkgxxChJa_U7IRdDeyND1IQ0wvrWReRk/gviz/tq?tqx=out:csv";
 
         const CONTACT_DEFS = [
           { key: "phone", labels: ["전화번호"], icon: "bi-telephone" },
@@ -834,16 +921,151 @@
           el.textContent = String(updatedAt);
         }
 
+        let tipsFeedTimerId = null;
+
+        function parseTipsSubmittedAtMs(raw) {
+          const s = String(raw ?? "").trim();
+          if (!s) return 0;
+          const withT = s.includes("T") ? s : s.replace(/\s+/, "T");
+          let ms = Date.parse(withT);
+          if (!Number.isNaN(ms)) return ms;
+          ms = Date.parse(s);
+          return Number.isNaN(ms) ? 0 : ms;
+        }
+
+        function isProbablyHttpUrl(s) {
+          return /^https?:\/\//i.test(String(s ?? "").trim());
+        }
+
+        function tipsFeedEmptyHtml() {
+          return `<p class="mono w-full px-2 text-center text-[10px] text-slate-500 sm:text-[11px]">아직 표시할 제보가 없습니다.</p>`;
+        }
+
+        function animateTipsCountUp(el, target, duration) {
+          if (!el) return;
+          const n = Math.max(0, Math.floor(Number(target) || 0));
+          if (n === 0) {
+            el.textContent = "0";
+            return;
+          }
+          el.textContent = "0";
+          const start = performance.now();
+          function tick(now) {
+            const t = Math.min(1, (now - start) / duration);
+            const eased = 1 - Math.pow(1 - t, 3);
+            el.textContent = String(Math.round(eased * n));
+            if (t < 1) requestAnimationFrame(tick);
+            else el.textContent = String(n);
+          }
+          requestAnimationFrame(tick);
+        }
+
+        function initTipsLiveFeed(csvText) {
+          const errEl = document.getElementById("tipsLiveError");
+          const countEl = document.getElementById("tipsTotalCount");
+          const slideEl = document.getElementById("tipsFeedSlide");
+          if (tipsFeedTimerId) {
+            clearTimeout(tipsFeedTimerId);
+            tipsFeedTimerId = null;
+          }
+          if (errEl) {
+            errEl.classList.add("hidden");
+            errEl.textContent = "";
+          }
+          if (!csvText) {
+            if (errEl) {
+              errEl.textContent = "제보 피드를 불러오지 못했습니다.";
+              errEl.classList.remove("hidden");
+            }
+            animateTipsCountUp(countEl, 0, 400);
+            if (slideEl) slideEl.innerHTML = tipsFeedEmptyHtml();
+            return;
+          }
+          let rows;
+          try {
+            rows = csvToObjects(csvText);
+          } catch (e) {
+            console.warn("[tips feed] parse", e);
+            if (errEl) {
+              errEl.textContent = "제보 데이터 형식을 읽지 못했습니다.";
+              errEl.classList.remove("hidden");
+            }
+            return;
+          }
+          if (!rows.length) {
+            animateTipsCountUp(countEl, 0, 400);
+            if (slideEl) slideEl.innerHTML = tipsFeedEmptyHtml();
+            return;
+          }
+          const sample = rows[0];
+          const nameKey = findSheetColumn(sample, ["후보자 이름", "이름", "성명"]);
+          const distKey = findSheetColumn(sample, ["지역", "지역구", "자치구"]);
+          const photoKey = findSheetColumn(sample, ["명함 등 연락처가 나온 사진", "사진"]);
+          const timeKey = findSheetColumn(sample, ["Submitted at", "제출일시", "제출 시각"]);
+
+          const validRows = rows.filter((row) => {
+            const name = nameKey ? String(row[nameKey] || "").trim() : "";
+            const dist = distKey ? String(row[distKey] || "").trim() : "";
+            const t = timeKey ? String(row[timeKey] || "").trim() : "";
+            return !!t && (!!name || !!dist);
+          });
+          animateTipsCountUp(countEl, validRows.length, 900);
+
+          const sorted = validRows
+            .map((row) => ({
+              name: nameKey ? String(row[nameKey] || "").trim() : "",
+              dist: distKey ? String(row[distKey] || "").trim() : "",
+              photo: photoKey ? String(row[photoKey] || "").trim() : "",
+              ms: parseTipsSubmittedAtMs(timeKey ? row[timeKey] : ""),
+            }))
+            .sort((a, b) => (b.ms || 0) - (a.ms || 0) || String(b.name).localeCompare(String(a.name), "ko"));
+
+          const top5 = sorted.slice(0, 5);
+          if (!top5.length) {
+            if (slideEl) slideEl.innerHTML = tipsFeedEmptyHtml();
+            return;
+          }
+
+          let feedIndex = 0;
+          function renderOne(it) {
+            const name = it.name || "이름 미상";
+            const dist = it.dist || "지역 미상";
+            const msg = `방금 전 ${escapeHtml(dist)} ${escapeHtml(name)} 후보님의 정보가 업데이트되었습니다!`;
+            const hasPhoto = isProbablyHttpUrl(it.photo);
+            const thumb = hasPhoto
+              ? `<div class="tips-thumb-wrap"><img src="${escapeHtml(
+                  it.photo
+                )}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></div>`
+              : `<div class="tips-thumb-wrap flex items-center justify-center text-slate-500" aria-hidden="true"><i class="bi bi-image text-lg"></i></div>`;
+            return `<div class="flex w-full items-center gap-2 sm:gap-3">${thumb}<p class="mono min-w-0 flex-1 text-[10px] leading-tight text-slate-100 sm:text-[11px]">${msg}</p></div>`;
+          }
+          function showNext() {
+            const it = top5[feedIndex % top5.length];
+            feedIndex += 1;
+            if (!slideEl) return;
+            slideEl.classList.remove("tips-feed-slide-anim");
+            slideEl.offsetWidth;
+            slideEl.innerHTML = renderOne(it);
+            slideEl.classList.add("tips-feed-slide-anim");
+            tipsFeedTimerId = setTimeout(showNext, 3000 + Math.floor(Math.random() * 2001));
+          }
+          showNext();
+        }
+
         async function main() {
           document.getElementById("sheetLinkTop").href = SHEET_VIEW_URL;
 
           const candidatesFetch = fetch("../public/data/candidates.json").then((r) => r.json());
           const sheetFetch = fetch(SHEET_CSV_URL, { cache: "no-store" }).then((r) => r.text());
           const topoFetch = fetch(SEOUL_MAP_TOPOJSON_URL).then((r) => r.json());
-          const [candidatesPayload, sheetCsv, topoJson] = await Promise.all([
+          const tipsFetch = fetch(TIPS_SHEET_CSV_URL, { cache: "no-store" }).then((r) =>
+            r.ok ? r.text() : Promise.reject(new Error("tips " + r.status))
+          ).catch(() => null);
+          const [candidatesPayload, sheetCsv, topoJson, tipsCsv] = await Promise.all([
             candidatesFetch,
             sheetFetch,
             topoFetch,
+            tipsFetch,
           ]);
 
           const parsed = parseCandidatesPayload(candidatesPayload);
@@ -958,6 +1180,7 @@
             });
           });
           renderDistrictList(statsByDistrict, candidatesByDistrictOffice);
+          initTipsLiveFeed(tipsCsv);
         }
 
         (async function () {
