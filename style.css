@@ -24,6 +24,28 @@ body {
     border-top-color: rgba(0, 0, 0, 0.08) !important;
 }
 
+/* 다크 푸터 (candidates 등 다크 테마에서 사용) */
+.site-footer.site-footer--dark {
+    background-color: #0b1220 !important;
+    border-top-color: rgba(0, 0, 0, 0.7) !important;
+    color: rgba(226, 232, 240, 0.88) !important;
+}
+.site-footer.site-footer--dark .text-muted,
+.site-footer.site-footer--dark .text-secondary,
+.site-footer.site-footer--dark p,
+.site-footer.site-footer--dark span {
+    color: rgba(226, 232, 240, 0.78) !important;
+}
+.site-footer.site-footer--dark a {
+    color: rgba(226, 232, 240, 0.9) !important;
+}
+.site-footer.site-footer--dark a:hover,
+.site-footer.site-footer--dark a:focus-visible {
+    color: #fff !important;
+    text-decoration: underline !important;
+    text-underline-offset: 3px;
+}
+
 .site-footer-partner-logo {
     width: 80px;
     max-width: min(80px, 28vw);

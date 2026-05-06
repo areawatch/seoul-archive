@@ -398,26 +398,27 @@
           var base = seg.replace(/\.(html|htm)$/i, "");
           var listLink = document.querySelector("a[data-candidates-subnav='list']");
           var briefLink = document.querySelector("a[data-candidates-subnav='briefing']");
-          var redlineLink = document.querySelector("a[data-candidates-subnav='redline']");
+          var villainLink = document.querySelector("a[data-candidates-subnav='villain']");
           var expeditionLink = document.querySelector("a[data-candidates-subnav='expedition']");
           if (!listLink || !briefLink) return;
           listLink.classList.remove("active");
           briefLink.classList.remove("active");
           listLink.removeAttribute("aria-current");
           briefLink.removeAttribute("aria-current");
-          if (redlineLink) {
-            redlineLink.classList.remove("active");
-            redlineLink.removeAttribute("aria-current");
+          if (villainLink) {
+            villainLink.classList.remove("active");
+            villainLink.removeAttribute("aria-current");
           }
           if (expeditionLink) {
             expeditionLink.classList.remove("active");
             expeditionLink.removeAttribute("aria-current");
           }
-          var page = "redline";
+          var page = "landing";
           if (base === "list") page = "list";
           else if (base === "briefing") page = "briefing";
           else if (base === "status") page = "expedition";
-          else if (base === "index" || base === "redline" || base === "candidates" || base === "") page = "redline";
+          else if (base === "villain" || base === "redline") page = "villain";
+          else if (base === "index" || base === "candidates" || base === "") page = "landing";
           if (page === "briefing") {
             briefLink.classList.add("active");
             briefLink.setAttribute("aria-current", "page");
@@ -427,12 +428,11 @@
           } else if (page === "expedition" && expeditionLink) {
             expeditionLink.classList.add("active");
             expeditionLink.setAttribute("aria-current", "page");
-          } else if (page === "redline" && redlineLink) {
-            redlineLink.classList.add("active");
-            redlineLink.setAttribute("aria-current", "page");
-          } else if (redlineLink) {
-            redlineLink.classList.add("active");
-            redlineLink.setAttribute("aria-current", "page");
+          } else if (page === "villain" && villainLink) {
+            villainLink.classList.add("active");
+            villainLink.setAttribute("aria-current", "page");
+          } else if (page === "landing") {
+            // landing: no subnav active (brand points here)
           } else {
             listLink.classList.add("active");
             listLink.setAttribute("aria-current", "page");
