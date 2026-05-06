@@ -41,6 +41,11 @@
     <priority>0.84</priority>
   </url>
   <url>
+    <loc>https://seoularchive.net/candidates/villain/</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
     <loc>https://seoularchive.net/candidates/list.html</loc>
     <changefreq>daily</changefreq>
     <priority>0.84</priority>
