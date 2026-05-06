@@ -217,6 +217,68 @@
           background: #101023;
         }
 
+        /* 제보 CTA: 네온 + 픽셀 섀도우 + 모션 */
+        .tip-cta {
+          position: relative;
+          overflow: hidden;
+          border: 3px solid #000 !important;
+          background: #ff4d4d !important;
+          color: #0b0b14 !important;
+          box-shadow: 0 6px 0 #000;
+          transform: translateY(0);
+          will-change: transform;
+        }
+        .tip-cta:hover {
+          background: #ff6262 !important;
+        }
+        .tip-cta:active {
+          transform: translateY(3px);
+          box-shadow: 0 3px 0 #000;
+        }
+        .tip-cta::after {
+          content: "";
+          position: absolute;
+          inset: -60% -40%;
+          background: linear-gradient(
+            120deg,
+            transparent 35%,
+            rgba(255, 255, 255, 0.52) 45%,
+            rgba(255, 255, 255, 0.08) 55%,
+            transparent 65%
+          );
+          transform: translateX(-120%) rotate(0deg);
+          opacity: 0.9;
+          animation: tipShine 2.9s ease-in-out infinite;
+          pointer-events: none;
+        }
+        @keyframes tipShine {
+          0%,
+          66% {
+            transform: translateX(-120%) rotate(0deg);
+          }
+          100% {
+            transform: translateX(120%) rotate(0deg);
+          }
+        }
+        .tip-cta {
+          animation: tipPulse 2.6s ease-in-out infinite;
+        }
+        @keyframes tipPulse {
+          0%,
+          100% {
+            transform: translateY(0) scale(1);
+          }
+          50% {
+            transform: translateY(-1px) scale(1.03);
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .tip-cta,
+          .tip-cta::after {
+            animation: none !important;
+          }
+        }
+
         /* status 페이지 전용: 푸터 다크 톤으로 정렬 */
         #footer-plugin .site-footer {
           background: transparent !important;
@@ -455,14 +517,16 @@
         </div>
 
         <div class="mt-4 flex flex-col justify-center gap-2 sm:mt-6 sm:flex-row">
+          <p class="mono -mb-1 text-center text-[10px] font-bold tracking-wide text-slate-200/90 sm:mb-0 sm:mr-3 sm:self-center sm:text-left">
+            누락된 후보가 있다면 알려주세요!
+          </p>
           <a
             href="https://tally.so/r/EkB4Rq"
             target="_blank"
             rel="noopener noreferrer"
-            class="pixel-btn inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-black text-black transition hover:bg-[#ff4d4d]/90"
-            style="border: 2px solid #ff4d4d; background:#ff4d4d;"
+            class="pixel-btn tip-cta inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-black transition"
           >
-            💬 내가 찾은 후보 제보하기 →
+            📸 명함 찍어서 퀘스트 완료하기! →
           </a>
           <a
             href="https://forms.gle/XWRBm2Y5fd2dt5aQ6"
