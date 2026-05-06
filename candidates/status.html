@@ -1764,27 +1764,33 @@
         }
 
         if (districtListEl) {
-          // Desktop: hover (mouse) keeps existing behavior
-          districtListEl.addEventListener("pointermove", function (e) {
-            if (e && e.pointerType && e.pointerType !== "mouse") return;
-            const t = e.target;
-            const el = t && t.closest ? t.closest("[data-chip-tooltip]") : null;
-            if (!el) {
-              chipTooltipHide();
-              lastChipEl = null;
-              return;
-            }
-            lastChipEl = el;
-            showChipTooltipAt(el, e.clientX, e.clientY);
-          });
-          districtListEl.addEventListener("mouseleave", function (e) {
-            // 툴팁 영역으로 커서가 이동할 때는 닫지 않음(클릭 가능)
-            const rt = e && e.relatedTarget ? e.relatedTarget : null;
-            const tip = document.getElementById("chipTooltip");
-            if (tip && rt && tip.contains(rt)) return;
-            chipTooltipHide();
-            lastChipEl = null;
-          });
+          // Desktop: click to pin tooltip (so icons are clickable)
+          districtListEl.addEventListener(
+            "pointerdown",
+            function (e) {
+              if (!e || (e.pointerType && e.pointerType !== "mouse")) return;
+              const t = e.target;
+              const tip = document.getElementById("chipTooltip");
+              // clicking inside tooltip should not toggle/close
+              if (tip && t && tip.contains(t)) return;
+              const el = t && t.closest ? t.closest("[data-chip-tooltip]") : null;
+              if (!el) return;
+              e.preventDefault();
+
+              const isVisible = tip && !tip.classList.contains("hidden");
+              if (isVisible && lastChipEl === el) {
+                chipTooltipHide();
+                lastChipEl = null;
+                return;
+              }
+              lastChipEl = el;
+              const rect = el.getBoundingClientRect();
+              const x = rect.left + rect.width / 2;
+              const y = rect.top + rect.height / 2;
+              showChipTooltipAt(el, x, y);
+            },
+            { passive: false }
+          );
 
           // Mobile: tap (touch/pen) should reliably show tooltip
           districtListEl.addEventListener(
