@@ -306,6 +306,35 @@
           font-size: 14px;
           line-height: 1;
         }
+        #chipTooltip a,
+        #chipTooltip button,
+        #chipTooltip [role="button"] {
+          pointer-events: auto;
+        }
+        .chip-contact-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 10px;
+          border-radius: 10px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: rgba(226, 232, 240, 0.92);
+          text-decoration: none;
+          transition: border-color 140ms ease, background-color 140ms ease, transform 140ms ease, opacity 140ms ease;
+          user-select: none;
+        }
+        .chip-contact-btn--active:hover {
+          border-color: rgba(255, 77, 77, 0.8);
+          background: rgba(255, 77, 77, 0.08);
+        }
+        .chip-contact-btn--active:active {
+          transform: translateY(1px);
+        }
+        .chip-contact-btn--disabled {
+          opacity: 0.3;
+          pointer-events: none;
+        }
 
         /* 제보 라이브 피드 */
         @keyframes tips-rec-blink {
@@ -357,13 +386,13 @@
         }
       </style>
 
-      <header class="mb-8 text-center">
+      <header class="mb-6 text-center sm:mb-8">
         <p class="mono text-xs font-bold uppercase tracking-[0.25em] text-slate-300">VILLAIN ARCHIVE QUEST</p>
         <h1 class="dash-title mt-2 text-4xl font-black tracking-tight text-white sm:text-5xl">데이터 원정대 🛰️</h1>
         <p class="mono mt-2 text-xs text-slate-300">❗QUEST: 길거리에서 받은 후보 명함을 올려주세요!</p>
       </header>
 
-      <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-4 sm:gap-6">
       <section class="order-2 mb-4 sm:order-1 sm:mb-6">
         <div class="dash-card dash-in mx-auto max-w-5xl p-3 sm:p-4" style="animation-delay: 50ms">
           <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -429,8 +458,28 @@
         </div>
       </section>
 
+      <section class="order-1 mb-3 sm:order-2 sm:mb-4" aria-label="퀘스트 설명">
+        <details class="dash-card dash-in mx-auto max-w-5xl border-2 border-black bg-black/20 p-3 sm:p-4" style="animation-delay: 220ms" open>
+          <summary class="mono cursor-pointer select-none text-[11px] font-black tracking-wide text-[#ff4d4d]">
+            ❗QUEST: 길거리에서 받은 후보 명함을 올려주세요!
+            <span class="ml-1 text-slate-400">(눌러 접기/펼치기)</span>
+          </summary>
+          <div class="mt-3 space-y-2">
+            <p class="mono text-[11px] leading-relaxed text-slate-200">
+              (칙, 치직) 🤙'후보님? 이번 내란에 대해 어떻게 생각ㅎ...' (뚝-)
+            </p>
+            <p class="mono text-[11px] leading-relaxed text-slate-200">
+              서울 25개구 후보들에게 내란, 부패, 민주주의에 대한 입장 궁금하지 않으세요?
+            </p>
+            <p class="mono text-[11px] leading-relaxed text-slate-200">
+              아직 선관위에도 없는 후보자 연락처, 동네 주민들의 도움이 필요합니다! 제보해주시면 저희가 속시원하게 물어보겠습니다! (함께 분석할 팀원도 모집해요)
+            </p>
+          </div>
+        </details>
+      </section>
+
       <section id="seoulMapSection" class="order-1 mb-0 sm:order-2 sm:mb-0">
-        <div class="dash-card dash-in mx-auto max-w-5xl p-3 sm:p-4" style="animation-delay: 310ms">
+        <div class="dash-card dash-in mx-auto max-w-5xl p-2.5 sm:p-4" style="animation-delay: 310ms">
           <div class="mb-2 flex items-center justify-between gap-3">
             <div>
               <div class="mono text-[11px] font-bold uppercase tracking-widest text-slate-300">World Map</div>
@@ -438,7 +487,7 @@
             </div>
             <div class="mono text-[11px] font-bold text-slate-300">HOVER / TAP</div>
           </div>
-          <div class="relative mx-auto flex h-[360px] w-full max-w-[600px] items-center justify-center overflow-hidden sm:h-[420px]">
+          <div class="relative mx-auto flex h-[320px] w-full max-w-[600px] items-center justify-center overflow-hidden sm:h-[400px]">
             <svg
               id="seoulMap"
               viewBox="0 0 520 520"
@@ -605,7 +654,7 @@
 
       <div
         id="chipTooltip"
-        class="pointer-events-none fixed z-[210] hidden max-w-[min(24rem,calc(100vw-1rem))] rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-xs text-slate-200 backdrop-blur"
+        class="pointer-events-auto fixed z-[210] hidden max-w-[min(24rem,calc(100vw-1rem))] rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-xs text-slate-200 backdrop-blur"
         role="tooltip"
         aria-hidden="true"
       ></div>
@@ -797,21 +846,76 @@
           });
         }
 
-        function extractContactBadges(row) {
-          if (!row || typeof row !== "object") return [];
-          const out = [];
+        function normalizeContactUrl(key, raw) {
+          const v = String(raw || "").trim();
+          if (!v) return "";
+          const lower = v.toLowerCase();
+
+          function ensureHttp(u) {
+            const t = String(u || "").trim();
+            if (!t) return "";
+            if (/^https?:\/\//i.test(t)) return t;
+            if (t.startsWith("//")) return "https:" + t;
+            // 'www.example.com', 'example.com/path' 등
+            return "https://" + t.replace(/^\/+/, "");
+          }
+
+          if (key === "phone") {
+            const cleaned = v.replace(/[^\d+]/g, "");
+            const digits = cleaned.startsWith("+") ? "+" + cleaned.slice(1).replace(/[^\d]/g, "") : cleaned.replace(/[^\d]/g, "");
+            return digits ? "tel:" + digits : "";
+          }
+          if (key === "email") {
+            return v.includes("@") ? "mailto:" + v : "";
+          }
+          if (key === "instagram") {
+            if (/^https?:\/\//i.test(v) || v.includes("instagram.com")) return ensureHttp(v);
+            const handle = v.replace(/^@/, "").replace(/\s+/g, "");
+            return handle ? "https://www.instagram.com/" + handle : "";
+          }
+          if (key === "facebook") {
+            if (/^https?:\/\//i.test(v) || v.includes("facebook.com")) return ensureHttp(v);
+            const handle = v.replace(/^@/, "").replace(/\s+/g, "");
+            return handle ? "https://www.facebook.com/" + handle : "";
+          }
+          if (key === "twitter") {
+            if (/^https?:\/\//i.test(v) || v.includes("twitter.com") || v.includes("x.com")) return ensureHttp(v);
+            const handle = v.replace(/^@/, "").replace(/\s+/g, "");
+            return handle ? "https://x.com/" + handle : "";
+          }
+          if (key === "youtube") {
+            if (/^https?:\/\//i.test(v) || v.includes("youtube.com") || v.includes("youtu.be")) return ensureHttp(v);
+            // 채널 핸들/ID면 그냥 youtube.com 로 묶는다
+            const handle = v.replace(/^@/, "").replace(/\s+/g, "");
+            return handle ? "https://www.youtube.com/@" + handle : "";
+          }
+          if (key === "homepage" || key === "blog") {
+            return ensureHttp(v);
+          }
+
+          // fallback: URL로 보이는 것만
+          if (lower.startsWith("http") || lower.startsWith("www.") || lower.includes(".") || lower.startsWith("//")) {
+            return ensureHttp(v);
+          }
+          return "";
+        }
+
+        function extractContactMeta(row) {
+          if (!row || typeof row !== "object") return { contacts: {}, badges: [] };
+          const contacts = {};
+          const badges = [];
           CONTACT_DEFS.forEach((def) => {
             const col = findSheetColumn(row, def.labels);
             if (!col) return;
-            const v = String(row[col] || "").trim();
-            if (!v) return;
-            out.push({
-              key: def.key,
-              icon: def.icon,
-              label: def.labels[0],
-            });
+            const raw = String(row[col] || "").trim();
+            if (!raw) return;
+            const href = normalizeContactUrl(def.key, raw);
+            if (!href) return;
+            const entry = { key: def.key, icon: def.icon, label: def.labels[0], raw, href };
+            contacts[def.key] = entry;
+            badges.push({ key: def.key, icon: def.icon, label: def.labels[0] });
           });
-          return out;
+          return { contacts, badges };
         }
 
         function rateToColor(pct) {
@@ -1066,7 +1170,12 @@
                   : "bg-white/5 text-slate-300 ring-white/10 hover:bg-white/10";
                 const tip = escapeHtml(it.tooltip || "");
                 return `<span class="${base} ${cls}" data-chip-tooltip="${escapeHtml(
-                  JSON.stringify({ name: it.name, collected: it.collected, badges: it.badges })
+                  JSON.stringify({
+                    name: it.name,
+                    collected: it.collected,
+                    badges: it.badges,
+                    contacts: it.contacts || {},
+                  })
                 )}">${escapeHtml(it.name)}</span>`;
               })
               .join("");
@@ -1419,7 +1528,9 @@
             const dist = distCol ? String(row[distCol] || "").trim() : "";
             if (!name || !dist) return;
             const key = normalizeLooseText(primaryName(name)) + "|" + normalizeDistrictName(dist);
-            const badges = extractContactBadges(row);
+            const meta = extractContactMeta(row);
+            const badges = meta.badges;
+            const contacts = meta.contacts;
             // sheet에 같은 키가 여러 줄 있으면 합집합
             const prev = contactByKey.get(key);
             if (prev) {
@@ -1427,9 +1538,13 @@
               prev.badges.forEach((b) => (merged[b.key] = b));
               badges.forEach((b) => (merged[b.key] = b));
               const mergedArr = Object.values(merged);
-              contactByKey.set(key, { badges: mergedArr, collected: mergedArr.length > 0 });
+              const mergedContacts = Object.assign({}, prev.contacts || {});
+              Object.keys(contacts || {}).forEach((k) => {
+                if (!mergedContacts[k]) mergedContacts[k] = contacts[k];
+              });
+              contactByKey.set(key, { badges: mergedArr, contacts: mergedContacts, collected: mergedArr.length > 0 });
             } else {
-              contactByKey.set(key, { badges, collected: badges.length > 0 });
+              contactByKey.set(key, { badges, contacts, collected: badges.length > 0 });
             }
           });
 
@@ -1506,10 +1621,12 @@
             const meta = contactByKey.get(key);
             const collected = meta ? !!meta.collected : false;
             const badges = meta ? meta.badges : [];
+            const contacts = meta ? meta.contacts : {};
             candidatesByDistrictOffice[dist][office].push({
               name,
               collected,
               badges,
+              contacts,
             });
           });
           Object.values(candidatesByDistrictOffice).forEach((bundle) => {
@@ -1612,22 +1729,32 @@
         }
 
         function chipTooltipHtml(payload) {
-          const badges = Array.isArray(payload.badges) ? payload.badges : [];
-          const icons = badges
-            .map((b) => {
-              const cls = String(b.icon || "").trim();
-              const label = String(b.label || "").trim();
-              if (!cls) return "";
-              return `<span class="inline-flex items-center gap-1 rounded-md bg-white/5 px-2 py-1 ring-1 ring-white/10">
-                <i class="bi ${escapeHtml(cls)}" aria-hidden="true"></i>
-                <span class="text-[11px] text-slate-200">${escapeHtml(label)}</span>
+          const contacts = payload && payload.contacts && typeof payload.contacts === "object" ? payload.contacts : {};
+          const buttons = CONTACT_DEFS.map((def) => {
+            const info = contacts[def.key];
+            const iconCls = String(def.icon || "").trim();
+            const label = String(def.labels && def.labels[0] ? def.labels[0] : def.key);
+            if (!info || !info.href) {
+              return `<span class="chip-contact-btn chip-contact-btn--disabled" role="button" aria-disabled="true" title="정보 없음">
+                <i class="bi ${escapeHtml(iconCls)}" aria-hidden="true"></i>
+                <span class="text-[11px] font-semibold text-slate-200">${escapeHtml(label)}</span>
               </span>`;
-            })
-            .join("");
+            }
+            const href = String(info.href || "").trim();
+            const isTel = href.startsWith("tel:");
+            const isMail = href.startsWith("mailto:");
+            const isExternal = !isTel && !isMail;
+            const extra = isExternal ? ' target="_blank" rel="noopener noreferrer"' : "";
+            return `<a class="chip-contact-btn chip-contact-btn--active" href="${escapeHtml(href)}"${extra} title="${escapeHtml(label)}">
+              <i class="bi ${escapeHtml(iconCls)}" aria-hidden="true"></i>
+              <span class="text-[11px] font-semibold text-slate-200">${escapeHtml(label)}</span>
+            </a>`;
+          }).join("");
+
+          const any = Object.keys(contacts || {}).length > 0;
           return `<div class="font-semibold text-white">${escapeHtml(payload.name)}</div>
-             <div class="mt-1 flex flex-wrap gap-1.5">${
-               icons || '<span class="text-[11px] text-slate-400">연락처 없음</span>'
-             }</div>`;
+            <div class="mt-2 flex flex-wrap gap-1.5">${buttons}</div>
+            <div class="mt-2 text-[10px] text-slate-400">${any ? "아이콘을 눌러 바로 연결합니다." : "연락처 정보가 아직 없습니다."}</div>`;
         }
 
         function showChipTooltipAt(el, x, y) {
@@ -1650,7 +1777,11 @@
             lastChipEl = el;
             showChipTooltipAt(el, e.clientX, e.clientY);
           });
-          districtListEl.addEventListener("mouseleave", function () {
+          districtListEl.addEventListener("mouseleave", function (e) {
+            // 툴팁 영역으로 커서가 이동할 때는 닫지 않음(클릭 가능)
+            const rt = e && e.relatedTarget ? e.relatedTarget : null;
+            const tip = document.getElementById("chipTooltip");
+            if (tip && rt && tip.contains(rt)) return;
             chipTooltipHide();
             lastChipEl = null;
           });
@@ -1689,6 +1820,8 @@
           "pointerdown",
           function (e) {
             const t = e.target;
+            const tip = document.getElementById("chipTooltip");
+            if (tip && t && tip.contains(t)) return;
             const el = t && t.closest ? t.closest("[data-chip-tooltip]") : null;
             if (!el) {
               chipTooltipHide();
