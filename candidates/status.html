@@ -690,7 +690,7 @@
         const SHEET_VIEW_URL =
           "https://docs.google.com/spreadsheets/d/1vWnrVF0wdJyhL6OnEZh3LpXNQnc3owKYovrd5jo6jfY/edit";
         const TIPS_SHEET_CSV_URL =
-          "https://docs.google.com/spreadsheets/d/1zmjXBcr-5HnjkgxxChJa_U7IRdDeyND1IQ0wvrWReRk/gviz/tq?tqx=out:csv";
+          "https://docs.google.com/spreadsheets/d/1zmjXBcr-5HnjkgxxChJa_U7IRdDeyND1IQ0wvrWReRk/export?format=csv&gid=0";
 
         const CONTACT_DEFS = [
           { key: "phone", labels: ["전화번호"], icon: "bi-telephone" },
@@ -1542,12 +1542,28 @@
         async function main() {
           document.getElementById("sheetLinkTop").href = SHEET_VIEW_URL;
 
+          async function fetchFirstOkText(urls) {
+            for (const url of urls) {
+              try {
+                const r = await fetch(url, { cache: "no-store" });
+                if (!r.ok) continue;
+                const t = await r.text();
+                if (String(t || "").trim()) return t;
+              } catch (e) {
+                // try next
+              }
+            }
+            return null;
+          }
+
           const candidatesFetch = fetch("../public/data/candidates.json").then((r) => r.json());
           const sheetFetch = fetch(SHEET_CSV_URL, { cache: "no-store" }).then((r) => r.text());
           const topoFetch = fetch(SEOUL_MAP_TOPOJSON_URL).then((r) => r.json());
-          const tipsFetch = fetch(TIPS_SHEET_CSV_URL, { cache: "no-store" }).then((r) =>
-            r.ok ? r.text() : Promise.reject(new Error("tips " + r.status))
-          ).catch(() => null);
+          const tipsFetch = fetchFirstOkText([
+            TIPS_SHEET_CSV_URL,
+            // fallback (간헐적으로 500을 뿜는 경우가 있어 예비 URL 유지)
+            "https://docs.google.com/spreadsheets/d/1zmjXBcr-5HnjkgxxChJa_U7IRdDeyND1IQ0wvrWReRk/gviz/tq?tqx=out:csv",
+          ]);
           const [candidatesPayload, sheetCsv, topoJson, tipsCsv] = await Promise.all([
             candidatesFetch,
             sheetFetch,
