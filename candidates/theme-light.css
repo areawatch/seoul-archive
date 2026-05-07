@@ -1,0 +1,379 @@
+/* candidates theme: retro-light (white base, pixel-ish accents)
+   Loaded AFTER per-page <style> to override legacy dark styles. */
+
+:root {
+  --ra-bg: #ffffff;
+  --ra-ink: #0f172a;
+  --ra-muted: rgba(15, 23, 42, 0.68);
+  --ra-card: rgba(255, 255, 255, 0.92);
+  --ra-card-2: rgba(248, 250, 252, 0.92);
+  --ra-border: rgba(2, 6, 23, 0.92);
+  --ra-shadow: rgba(2, 6, 23, 0.22);
+  --ra-accent: #ff4d4d;
+  --ra-accent-2: #facc15;
+  --ra-link: #0f172a;
+  --ra-link-hover: #000000;
+}
+
+html,
+body {
+  background: var(--ra-bg) !important;
+  color: var(--ra-ink) !important;
+}
+
+/* subtle retro dots on white */
+body {
+  background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px) !important;
+  background-size: 18px 18px !important;
+}
+
+/* typography defaults across pages */
+body,
+p,
+span,
+a,
+button,
+h1,
+h2,
+h3,
+h4 {
+  text-shadow: none !important;
+}
+
+/* Tailwind utility overrides used in candidates pages */
+.text-slate-100,
+.text-slate-200,
+.text-slate-300,
+.text-slate-400,
+.text-slate-500 {
+  color: var(--ra-muted) !important;
+}
+.text-white {
+  color: var(--ra-ink) !important;
+}
+/* keep true white text on colored chips/badges */
+span[class*="bg-[#"][class*="text-white"],
+a[class*="bg-[#"][class*="text-white"],
+button[class*="bg-[#"][class*="text-white"] {
+  color: #ffffff !important;
+}
+.bg-[#1a1a2e] {
+  background: transparent !important;
+}
+
+/* hero */
+.villain-slide {
+  background: linear-gradient(180deg, #0b1220 0%, #0a1030 55%, #0b1220 100%) !important;
+  border-bottom: 2px solid rgba(2, 6, 23, 0.7);
+}
+.villain-slide::before,
+.villain-slide::after {
+  opacity: 0.22 !important;
+  filter: none !important;
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+/* banner text colors should stay readable on dark */
+.villain-slide .text-white {
+  color: #ffffff !important;
+}
+.villain-slide .text-slate-200,
+.villain-slide .text-slate-300,
+.villain-slide .text-slate-400,
+.villain-slide .text-slate-500 {
+  color: rgba(226, 232, 240, 0.86) !important;
+}
+
+/* cards */
+.dash-card {
+  background: var(--ra-card) !important;
+  border: 3px solid var(--ra-border) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 0 var(--ra-shadow) !important;
+}
+
+/* filter card interior: always white */
+#vaFilters select,
+#vaFilters input[type="search"],
+#vaFilters input[type="text"] {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #0f172a !important;
+}
+#vaFilters label,
+#vaFilters span[id="officeFilterLegend"] {
+  color: #0f172a !important;
+}
+#vaFilters #officeFilterSeg {
+  background: #ffffff !important;
+  border-color: #0f172a !important;
+}
+#vaFilters #officeFilterSeg button:not([style*="background"]):not(.bg-\[#ff4d4d\]) {
+  background: #ffffff !important;
+  color: #334155 !important;
+}
+#vaFilters #countLabel {
+  color: #64748b !important;
+}
+
+/* menu cards (candidates landing) */
+.menu-card {
+  background: var(--ra-card-2) !important;
+  border-color: var(--ra-border) !important;
+  box-shadow: 0 10px 0 var(--ra-shadow) !important;
+}
+.menu-card:hover {
+  box-shadow: 0 14px 0 var(--ra-shadow) !important;
+}
+.menu-icon {
+  border-color: var(--ra-border) !important;
+  background: rgba(2, 6, 23, 0.04) !important;
+}
+
+/* pixel nav buttons */
+.pixel-nav-btn,
+.pixel-btn {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: var(--ra-ink) !important;
+  border: 2px solid var(--ra-border) !important;
+  box-shadow: 0 6px 0 var(--ra-shadow) !important;
+}
+.pixel-nav-btn:hover,
+.pixel-btn:hover {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+.pixel-nav-btn:active,
+.pixel-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 var(--ra-shadow) !important;
+}
+
+/* CTA button (status) */
+.tip-cta {
+  background: var(--ra-accent) !important;
+  color: #0b0b14 !important;
+  border-color: var(--ra-border) !important;
+}
+
+/* links */
+a {
+  color: var(--ra-link) !important;
+}
+a:hover,
+a:focus-visible {
+  color: var(--ra-link-hover) !important;
+}
+
+/* tooltips */
+#mapTooltip,
+#chipTooltip {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: var(--ra-ink) !important;
+  border-color: rgba(2, 6, 23, 0.18) !important;
+}
+
+/* footer: 아래 dark 규칙으로 통합 처리 (중복 제거) */
+
+/* header: deep navy (logo pops) */
+.candidates-page-navbar,
+.candidates-page-navbar.bg-dark {
+  background-color: #0b1220 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.candidates-page-navbar .nav-link {
+  color: rgba(226, 232, 240, 0.9) !important;
+}
+.candidates-page-navbar .nav-link:hover,
+.candidates-page-navbar .nav-link:focus-visible {
+  color: #ffffff !important;
+}
+
+/* tables/lists: clean white surface */
+table,
+.table,
+.table-responsive {
+  color: var(--ra-ink) !important;
+}
+.table {
+  background: #ffffff !important;
+}
+.overflow-x-auto {
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  border: 3px solid var(--ra-border) !important;
+  box-shadow: 0 10px 0 var(--ra-shadow) !important;
+}
+.bg-black\\/20,
+.bg-black\\/30,
+.bg-slate-950\\/70 {
+  background: #ffffff !important;
+}
+.divide-white\\/10 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(2, 6, 23, 0.08) !important;
+}
+.border-white\\/10 {
+  border-color: rgba(2, 6, 23, 0.12) !important;
+}
+.table > :not(caption) > * > * {
+  background-color: #ffffff !important;
+  color: var(--ra-ink) !important;
+  border-color: rgba(2, 6, 23, 0.12) !important;
+}
+.table thead th {
+  background: #f8fafc !important;
+  color: rgba(15, 23, 42, 0.9) !important;
+}
+
+/* list.html uses raw table tags + tailwind classes */
+table[class*="text-slate-100"] {
+  color: var(--ra-ink) !important;
+}
+table thead tr.bg-black\\/30 {
+  background: #f8fafc !important;
+}
+table thead th.text-rose-300,
+table thead button.text-rose-300 {
+  color: rgba(15, 23, 42, 0.86) !important;
+}
+table tbody#cardList {
+  background: #ffffff !important;
+}
+
+/* villain.html: crime tags + villain badge visibility on light */
+#verifiedCandidatesList .text-slate-400 {
+  /* plain '-' should be visible but unframed */
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+/* crime tags: now use light-safe classes directly in villain.html */
+#verifiedCandidatesList tr td p span[style*="border:1px solid #ff0049"] {
+  background: #0b1220 !important;
+  border-color: #0b1220 !important;
+  color: #ffffff !important;
+}
+#verifiedCandidatesList tr td p span[style*="border:1px solid #ff0049"] span {
+  color: #ffffff !important;
+}
+
+/* verified table header: cleaner */
+#verifiedCandidatesList thead tr {
+  background: #0b1220 !important;
+}
+#verifiedCandidatesList thead {
+  background: #0b1220 !important;
+}
+#verifiedCandidatesList thead th,
+#verifiedCandidatesList thead th .text-white,
+#verifiedCandidatesList thead th button {
+  color: #ffffff !important;
+}
+#verifiedCandidatesList thead th {
+  background: #0b1220 !important; /* remove 'gap' at rounded edges */
+}
+#verifiedCandidatesList thead th:first-child,
+#verifiedCandidatesList thead th:last-child {
+  border-radius: 0 !important; /* wrapper radius + overflow handles corners */
+}
+#verifiedCandidatesList thead th button:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* row separators (subtle) + rounded table feel */
+table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+table tbody tr {
+  background: #ffffff !important;
+}
+table tbody tr > * {
+  border-bottom: 1px solid rgba(2, 6, 23, 0.14) !important;
+}
+table tbody tr:last-child > * {
+  border-bottom: 0 !important;
+}
+
+/* villain.html: ensure crime tag row is always visible */
+#verifiedCandidatesList td .mt-1.flex.flex-wrap.gap-1 {
+  min-height: 16px;
+}
+/* keep '-' plain (no border capsule) */
+
+/* villain.html / list.html: remove header corner 'sliver' by painting wrapper top band navy */
+#verifiedCandidatesList .overflow-x-auto,
+#candidatesTableWrap {
+  position: relative;
+  background: #ffffff !important;
+}
+#verifiedCandidatesList .overflow-x-auto::before,
+#candidatesTableWrap::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 72px; /* covers thead height + corner radius */
+  background: #0b1220;
+  border-radius: inherit;
+  z-index: 0;
+}
+#verifiedCandidatesList .overflow-x-auto > table,
+#candidatesTableWrap > table {
+  position: relative;
+  z-index: 1;
+}
+
+/* list.html: thead */
+#candidatesTableWrap thead tr {
+  background: #0b1220 !important;
+}
+#candidatesTableWrap thead th {
+  background: #0b1220 !important;
+  color: #ffffff !important;
+  border-radius: 0 !important;
+}
+#candidatesTableWrap thead th button {
+  color: #ffffff !important;
+}
+#candidatesTableWrap thead th button:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* footer: dark navy — all candidates pages */
+#footer-plugin .site-footer,
+.site-footer {
+  background: #0b1220 !important;
+  border-top: 2px solid rgba(255, 255, 255, 0.10) !important;
+  color: #ffffff !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+/* 모든 텍스트 노드 흰색 */
+#footer-plugin .site-footer *,
+#footer-plugin .site-footer .text-muted,
+#footer-plugin .site-footer .text-secondary,
+#footer-plugin .site-footer p,
+#footer-plugin .site-footer span {
+  color: rgba(226, 232, 240, 0.82) !important;
+}
+/* 브랜드 · 링크: 완전 흰색 */
+#footer-plugin .site-footer .site-footer-brand,
+#footer-plugin .site-footer a {
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+#footer-plugin .site-footer a:hover,
+#footer-plugin .site-footer a:focus-visible {
+  color: #ffffff !important;
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+}
+/* footer logos: 다크 배경에서 흰 로고만 표시 */
+#footer-plugin .site-footer .site-footer-logo--on-light {
+  display: none !important;
+}
+#footer-plugin .site-footer .site-footer-logo--on-dark {
+  display: block !important;
+}
+

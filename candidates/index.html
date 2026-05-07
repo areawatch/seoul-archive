@@ -128,16 +128,6 @@
       .menu-card--expedition .menu-icon {
         background: rgba(16, 185, 129, 0.16);
       }
-      /* 랜딩: 푸터를 '박스'처럼 보이지 않게 배경에 섞기 */
-      #footer-plugin .site-footer.site-footer--dark {
-        border-top: 0 !important;
-        background: linear-gradient(
-          180deg,
-          rgba(2, 6, 23, 0) 0%,
-          rgba(2, 6, 23, 0.35) 35%,
-          rgba(2, 6, 23, 0.65) 100%
-        ) !important;
-      }
       /* 랜딩: 푸터가 화면 끝까지(좌우/하단) 꽉 차도록 — 상단 여백은 HTML의 mt-*로 조절 */
       #footer-plugin {
         width: 100%;
@@ -162,6 +152,7 @@
         }
       }
     </style>
+    <link rel="stylesheet" href="theme-light.css" />
   </head>
   <body class="min-h-screen text-slate-100 antialiased">
     <div id="header-plugin"></div>
@@ -307,7 +298,7 @@
           await inject("header-plugin", "header.html");
           clearSubnavActive();
           await inject("footer-plugin", "footer.html");
-          document.querySelector("#footer-plugin .site-footer")?.classList.add("site-footer--dark");
+          // footer theme handled by shared candidates theme css
         })();
       })();
     </script>

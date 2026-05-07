@@ -85,28 +85,6 @@
         text-shadow: none;
       }
 
-      /* list 페이지 전용: 푸터 다크 톤으로 정렬 (status와 동일) */
-      #footer-plugin .site-footer {
-        background: transparent !important;
-        border-top: 2px solid rgba(0, 0, 0, 0.7) !important;
-        box-shadow: none;
-      }
-      #footer-plugin .site-footer .text-muted,
-      #footer-plugin .site-footer,
-      #footer-plugin .site-footer p,
-      #footer-plugin .site-footer span {
-        color: rgba(226, 232, 240, 0.78) !important;
-      }
-      #footer-plugin .site-footer a {
-        color: rgba(226, 232, 240, 0.88) !important;
-      }
-      #footer-plugin .site-footer a:hover {
-        color: #fff !important;
-        text-decoration: underline !important;
-      }
-      #footer-plugin .site-footer .text-secondary {
-        color: rgba(148, 163, 184, 0.7) !important;
-      }
 
       /* 헤더 아래: 레트로 슬라이드 배너(RED LINE과 통일) */
       .villain-slide {
@@ -238,8 +216,9 @@
         box-shadow: none;
       }
     </style>
+    <link rel="stylesheet" href="theme-light.css" />
   </head>
-  <body class="min-h-screen bg-[#1a1a2e] text-slate-100 antialiased">
+  <body class="min-h-screen bg-white text-slate-800 antialiased">
     <div id="header-plugin"></div>
 
     <header class="mb-10 text-center">
@@ -308,11 +287,11 @@
         class="dash-card mb-8 grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-12 lg:items-end"
       >
         <div class="flex flex-col gap-2 lg:col-span-12">
-          <span class="text-sm font-black text-slate-100" id="officeFilterLegend">직무</span>
+          <span class="text-sm font-black text-slate-800" id="officeFilterLegend">직무</span>
           <div class="flex flex-wrap items-center gap-2 sm:gap-3">
             <div
               id="officeFilterSeg"
-              class="inline-flex max-w-full min-w-0 flex-nowrap justify-start overflow-x-auto rounded-lg border-2 border-black bg-black/20 sm:max-w-2xl [&>button]:flex-none"
+              class="inline-flex max-w-full min-w-0 flex-nowrap justify-start overflow-x-auto rounded-lg border-2 border-slate-800 bg-white sm:max-w-2xl [&>button]:flex-none"
               role="group"
               aria-labelledby="officeFilterLegend"
             >
@@ -328,7 +307,7 @@
                 type="button"
                 data-office-filter="구청장"
                 aria-pressed="false"
-                class="office-filter-seg border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-black/20 text-slate-100 hover:bg-white/10 sm:px-3"
+                class="office-filter-seg border-r border-slate-300 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3"
               >
                 구청장
               </button>
@@ -336,7 +315,7 @@
                 type="button"
                 data-office-filter="구의원"
                 aria-pressed="false"
-                class="office-filter-seg border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-black/20 text-slate-100 hover:bg-white/10 sm:px-3"
+                class="office-filter-seg border-r border-slate-300 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3"
               >
                 구의원
               </button>
@@ -344,7 +323,7 @@
                 type="button"
                 data-office-filter="시의원"
                 aria-pressed="false"
-                class="office-filter-seg border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-black/20 text-slate-100 hover:bg-white/10 sm:px-3"
+                class="office-filter-seg border-r border-slate-300 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3"
               >
                 시의원
               </button>
@@ -360,53 +339,53 @@
           <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-0.5">
             <label
               for="incumbentOnlyFilter"
-              class="inline-flex max-w-full cursor-pointer select-none items-start gap-2 text-sm text-slate-200"
+              class="inline-flex max-w-full cursor-pointer select-none items-start gap-2 text-sm text-slate-700"
             >
               <input
                 type="checkbox"
                 id="incumbentOnlyFilter"
-                class="mt-0.5 h-4 w-4 shrink-0 rounded border-black/60 bg-black/20 text-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
+                class="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-400 bg-white text-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
               />
               <span class="leading-snug">
-                <span class="font-black text-slate-100">현직만</span>
-                <span class="mt-0.5 block text-xs font-normal text-slate-300">
-                  위에서 고른 직무(또는 전체)에 해당하면서, <strong class="font-medium text-white">재산 공개 명부에 이름·자치구가 일치해 등재된 후보</strong>만 표시합니다. 여기서 말하는 현직은
-                  <strong class="font-medium text-white">구정감시서울네트워크</strong>가 재산 내역을 조사한
-                  <strong class="font-medium text-white">현직 구청장·구의원</strong>을 의미하며, 해당 명부에 맞는 인원은
-                  <strong class="font-medium text-white">공개된 재산 내역</strong>을 눌러 확인할 수 있습니다.
+                <span class="font-black text-slate-800">현직만</span>
+                <span class="mt-0.5 block text-xs font-normal text-slate-500">
+                  위에서 고른 직무(또는 전체)에 해당하면서, <strong class="font-medium text-slate-800">재산 공개 명부에 이름·자치구가 일치해 등재된 후보</strong>만 표시합니다. 여기서 말하는 현직은
+                  <strong class="font-medium text-slate-800">구정감시서울네트워크</strong>가 재산 내역을 조사한
+                  <strong class="font-medium text-slate-800">현직 구청장·구의원</strong>을 의미하며, 해당 명부에 맞는 인원은
+                  <strong class="font-medium text-slate-800">공개된 재산 내역</strong>을 눌러 확인할 수 있습니다.
                 </span>
               </span>
             </label>
           </div>
         </div>
         <div class="flex w-full flex-col gap-1.5 lg:col-span-3">
-          <label for="district" class="text-sm font-black text-slate-100"
-            >구 선택 <span class="font-normal text-slate-300">(25개구)</span></label
+          <label for="district" class="text-sm font-black text-slate-800"
+            >구 선택 <span class="font-normal text-slate-500">(25개구)</span></label
           >
           <select
             id="district"
-            class="w-full cursor-pointer appearance-none rounded-lg border-2 border-black bg-black/20 bg-[length:14px_14px] bg-[position:right_0.65rem_center] bg-no-repeat px-3 py-2 pr-9 text-xs font-black text-slate-100 shadow-inner outline-none transition focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
+            class="w-full cursor-pointer appearance-none rounded-lg border-2 border-slate-800 bg-white bg-[length:14px_14px] bg-[position:right_0.65rem_center] bg-no-repeat px-3 py-2 pr-9 text-xs font-black text-slate-800 shadow-inner outline-none transition focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
             style="
-              background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;);
+              background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;);
             "
           >
             <option value="">전체</option>
           </select>
         </div>
         <div class="flex w-full flex-col gap-1.5 lg:col-span-3">
-          <label for="party" class="text-sm font-black text-slate-100">정당</label>
+          <label for="party" class="text-sm font-black text-slate-800">정당</label>
           <select
             id="party"
-            class="w-full cursor-pointer appearance-none rounded-lg border-2 border-black bg-black/20 bg-[length:14px_14px] bg-[position:right_0.65rem_center] bg-no-repeat px-3 py-2 pr-9 text-xs font-black text-slate-100 shadow-inner outline-none transition focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
+            class="w-full cursor-pointer appearance-none rounded-lg border-2 border-slate-800 bg-white bg-[length:14px_14px] bg-[position:right_0.65rem_center] bg-no-repeat px-3 py-2 pr-9 text-xs font-black text-slate-800 shadow-inner outline-none transition focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
             style="
-              background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;);
+              background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;);
             "
           >
             <option value="">전체</option>
           </select>
         </div>
         <div class="flex w-full flex-col gap-1.5 sm:col-span-2 lg:col-span-4">
-          <label for="nameQuery" class="text-sm font-black text-slate-100"
+          <label for="nameQuery" class="text-sm font-black text-slate-800"
             >이름 검색</label
           >
           <input
@@ -414,12 +393,12 @@
             type="search"
             placeholder="이름 또는 한자 일부 입력"
             autocomplete="off"
-            class="w-full rounded-lg border-2 border-black bg-black/20 px-3 py-2 text-xs text-slate-100 shadow-inner outline-none transition placeholder:text-slate-400 focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
+            class="w-full rounded-lg border-2 border-slate-800 bg-white px-3 py-2 text-xs text-slate-800 shadow-inner outline-none transition placeholder:text-slate-400 focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
           />
         </div>
         <p
           id="countLabel"
-          class="flex items-end justify-center text-xs text-slate-300 lg:col-span-2 lg:justify-end lg:pb-2"
+          class="flex items-end justify-center text-xs text-slate-500 lg:col-span-2 lg:justify-end lg:pb-2"
         >
           불러오는 중…
         </p>
@@ -445,21 +424,23 @@
           </h2>
         </div>
       <div
-        class="overflow-x-auto border-2 border-black bg-black/20"
+        id="candidatesTableWrap"
+        class="overflow-x-auto border-2 border-black bg-white"
+        style="border-radius:14px;overflow:hidden;box-shadow:0 10px 0 rgba(2,6,23,.22);"
       >
-        <table class="min-w-[1120px] w-full border-collapse text-left text-sm text-slate-100">
+        <table class="min-w-[1120px] w-full border-collapse text-left text-sm text-slate-800">
           <thead>
-            <tr class="border-b border-white/10 bg-black/30">
+            <tr class="border-b border-white/10 bg-[#0b1220]">
               <th
                 scope="col"
-                class="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-rose-300"
+                class="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-white"
               >
                 <button
                   type="button"
                   id="sortNameBtn"
                   data-sort-scope="main"
                   data-sort-key="name"
-                  class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-300 hover:bg-white/5 hover:text-rose-200"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/10 hover:text-white"
                 >
                   이름
                   <span
@@ -472,16 +453,16 @@
                   >
                 </button>
               </th>
-              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-300">
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
                 정당
               </th>
-              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-300">
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
                 <button
                   type="button"
                   id="sortOfficeBtn"
                   data-sort-scope="main"
                   data-sort-key="office"
-                  class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-300 hover:bg-white/5 hover:text-rose-200"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/10 hover:text-white"
                 >
                   종류
                   <span
@@ -492,13 +473,13 @@
                   ></span>
                 </button>
               </th>
-              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-300">
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
                 <button
                   type="button"
                   id="sortConstituencyBtn"
                   data-sort-scope="main"
                   data-sort-key="constituency"
-                  class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-300 hover:bg-white/5 hover:text-rose-200"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/10 hover:text-white"
                 >
                   선거구
                   <span
@@ -509,13 +490,13 @@
                   ></span>
                 </button>
               </th>
-              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-300">
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
                 <button
                   type="button"
                   id="sortAgeBtn"
                   data-sort-scope="main"
                   data-sort-key="age"
-                  class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-300 hover:bg-white/5 hover:text-rose-200"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/10 hover:text-white"
                 >
                   나이
                   <span
@@ -527,22 +508,22 @@
                   ></span>
                 </button>
               </th>
-              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-rose-300">
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
                 성별
               </th>
-              <th scope="col" class="min-w-[5rem] px-3 py-3 text-xs font-semibold tracking-wide text-rose-300">
+              <th scope="col" class="min-w-[5rem] px-3 py-3 text-xs font-semibold tracking-wide text-white">
                 직업
               </th>
-              <th scope="col" class="min-w-[8rem] max-w-[14rem] px-3 py-3 text-xs font-semibold tracking-wide text-rose-300">
+              <th scope="col" class="min-w-[8rem] max-w-[14rem] px-3 py-3 text-xs font-semibold tracking-wide text-white">
                 학력
               </th>
-              <th scope="col" class="min-w-[4rem] px-3 py-3 text-xs font-semibold tracking-wide text-rose-300">
+              <th scope="col" class="min-w-[4rem] px-3 py-3 text-xs font-semibold tracking-wide text-white">
                 <button
                   type="button"
                   id="sortCriminalBtn"
                   data-sort-scope="main"
                   data-sort-key="criminal"
-                  class="inline-flex items-center gap-1 rounded-md font-semibold text-rose-300 hover:bg-white/5 hover:text-rose-200"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/10 hover:text-white"
                 >
                   전과
                   <span
@@ -556,9 +537,9 @@
               </th>
             </tr>
           </thead>
-          <tbody id="cardList" class="divide-y divide-white/10"></tbody>
+          <tbody id="cardList" class="divide-y divide-slate-200"></tbody>
         </table>
-        <div id="candidatesLoadMoreWrap" class="border-t border-white/10"></div>
+        <div id="candidatesLoadMoreWrap" class="border-t border-slate-200"></div>
       </div>
       </section>
     </div>
@@ -578,18 +559,18 @@
         aria-hidden="true"
       ></div>
       <div
-        class="dash-card relative flex max-h-[min(90vh,720px)] w-full max-w-lg flex-col overflow-hidden bg-[#0b1024] p-0"
+        class="dash-card relative flex max-h-[min(90vh,720px)] w-full max-w-lg flex-col overflow-hidden bg-white p-0"
       >
         <div
-          class="flex shrink-0 items-center justify-between gap-3 border-b-2 border-black px-4 py-3"
+          class="flex shrink-0 items-center justify-between gap-3 border-b-2 border-slate-200 px-4 py-3"
         >
           <h2
             id="detailModalTitle"
-            class="truncate text-lg font-black text-white"
+            class="truncate text-lg font-black text-slate-900"
           ></h2>
           <button
             type="button"
-            class="rounded-lg p-2 text-slate-200 hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/30"
+            class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/30"
             data-modal-close
             aria-label="닫기"
           >
@@ -600,7 +581,7 @@
         </div>
         <div
           id="detailModalBody"
-          class="min-h-0 flex-1 overflow-y-auto px-4 py-4 text-sm text-slate-100"
+          class="min-h-0 flex-1 overflow-y-auto px-4 py-4 text-sm text-slate-800"
         ></div>
       </div>
     </div>
@@ -613,12 +594,12 @@
       aria-hidden="true"
     >
       <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content bg-[#0b1024] text-slate-100 border-2 border-black">
-          <div class="modal-header border-bottom border-black">
-            <h5 class="modal-title font-black" id="archiveWealthModalLabel">재산 상세</h5>
+        <div class="modal-content bg-white text-slate-800 border-2 border-slate-300">
+          <div class="modal-header border-bottom border-slate-200">
+            <h5 class="modal-title font-black text-slate-900" id="archiveWealthModalLabel">재산 상세</h5>
             <button
               type="button"
-              class="btn-close btn-close-white"
+              class="btn-close"
               data-bs-dismiss="modal"
               aria-label="닫기"
             ></button>
@@ -703,7 +684,7 @@
           await inject("header-plugin", "header.html");
           highlightCandidatesSubnav();
           await inject("footer-plugin", "footer.html");
-          document.querySelector("#footer-plugin .site-footer")?.classList.add("site-footer--dark");
+          // footer theme handled by shared candidates theme css
         })();
       })();
     </script>
@@ -984,7 +965,7 @@
           escapeHtml(String(wealthCur)) +
           "</span>명입니다.</li>" +
           "</ol>" +
-          '<p class="mt-3 border-t border-white/10 pt-3 text-xs text-slate-400">※ 위 통계는 현재 필터·검색에 해당하는 <span class="font-black text-slate-200">' +
+          '<p class="mt-3 border-t border-slate-200 pt-3 text-xs text-slate-500">※ 위 통계는 현재 필터·검색에 해당하는 <span class="font-black text-slate-800">' +
           n +
           "</span>명을 기준으로 합니다.</p>";
       }
@@ -1087,7 +1068,7 @@
         const title =
           "재산 공개 명부에 등재된 인원입니다. 클릭하면 재산 상세를 봅니다.";
         const cap = escapeHtml(wealthDetailLinkCaption(label));
-        return `<button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="inline-flex max-w-full items-center gap-0.5 rounded-full border-2 border-black bg-black/20 px-2 py-0.5 text-[10px] font-black leading-none tracking-tight text-slate-200 transition hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/20" title="${escapeHtml(title)}"><span class="truncate">${cap}</span>${WEALTH_CHIP_ICON_SM}</button>`;
+        return `<button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="inline-flex max-w-full items-center gap-0.5 rounded-full border-2 border-slate-400 bg-slate-100 px-2 py-0.5 text-[10px] font-black leading-none tracking-tight text-slate-700 transition hover:bg-slate-200 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/20" title="${escapeHtml(title)}"><span class="truncate">${cap}</span>${WEALTH_CHIP_ICON_SM}</button>`;
       }
 
       function wealthModalSnippet(c) {
@@ -1097,15 +1078,15 @@
         const cap = escapeHtml(wealthDetailLinkCaption(label));
         return modalDetailRow(
           "재산 공개 명부",
-          `<button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="inline-flex w-full max-w-full items-center justify-center gap-1.5 rounded-xl border-2 border-black bg-black/20 px-3 py-2.5 text-left text-sm font-black tracking-tight text-slate-100 transition hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/20 sm:w-auto sm:justify-start"><span class="min-w-0 flex-1 leading-snug">${cap}</span>${WEALTH_CHIP_ICON_MD}</button>
+          `<button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="inline-flex w-full max-w-full items-center justify-center gap-1.5 rounded-xl border-2 border-slate-400 bg-slate-100 px-3 py-2.5 text-left text-sm font-black tracking-tight text-slate-700 transition hover:bg-slate-200 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/20 sm:w-auto sm:justify-start"><span class="min-w-0 flex-1 leading-snug">${cap}</span>${WEALTH_CHIP_ICON_MD}</button>
           <p class="mt-2 text-xs text-slate-300">재산 공개 데이터에서 이름·자치구가 일치합니다.</p>`
         );
       }
 
       function modalDetailRow(label, innerHtml) {
-        return `<div class="min-w-0 border-b border-white/10 pb-3 last:border-0 last:pb-0">
-          <h3 class="text-[11px] font-black uppercase tracking-wide text-slate-300">${escapeHtml(label)}</h3>
-          <div class="mt-1.5 text-sm leading-relaxed text-slate-100">${innerHtml}</div>
+        return `<div class="min-w-0 border-b border-slate-200 pb-3 last:border-0 last:pb-0">
+          <h3 class="text-[11px] font-black uppercase tracking-wide text-slate-500">${escapeHtml(label)}</h3>
+          <div class="mt-1.5 text-sm leading-relaxed text-slate-800">${innerHtml}</div>
         </div>`;
       }
 
@@ -1140,15 +1121,15 @@
 
         body.innerHTML = `
           <div class="mb-5 flex gap-4">
-            <img src="${photo || DEFAULT_AVATAR}" width="86" height="102" alt="" class="h-[102px] w-[86px] shrink-0 rounded-xl object-cover object-top ring-2 ring-black" />
+            <img src="${photo || DEFAULT_AVATAR}" width="86" height="102" alt="" class="h-[102px] w-[86px] shrink-0 rounded-xl object-cover object-top ring-2 ring-slate-300" />
             <div class="min-w-0">
               <span class="inline-block rounded px-1 py-[3px] text-[11px] font-bold leading-none ${t.badgeSolid}">${escapeHtml(c.party || "정당 미상")}</span>
-              <p class="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-lg font-black leading-tight text-white">
+              <p class="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-lg font-black leading-tight text-slate-900">
                 <span>${escapeHtml(pname)}</span>${officialBadgeHtml(c)}${wealthInlineByNameHtml(c)}
               </p>
-              ${sub ? `<p class="text-sm text-slate-300">${escapeHtml(sub)}</p>` : ""}
-              <p class="mt-2 text-xs text-slate-300">${escapeHtml(String(age))} · ${gender} · ${job}</p>
-              <p class="mt-1 text-xs text-slate-400">${candidateModalAreaLineHtml(c)}</p>
+              ${sub ? `<p class="text-sm text-slate-600">${escapeHtml(sub)}</p>` : ""}
+              <p class="mt-2 text-xs text-slate-600">${escapeHtml(String(age))} · ${gender} · ${job}</p>
+              <p class="mt-1 text-xs text-slate-500">${candidateModalAreaLineHtml(c)}</p>
             </div>
           </div>
           <div class="space-y-3">
@@ -1293,7 +1274,7 @@
         var onCls =
           "office-filter-seg flex-none border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90 sm:px-3";
         var offCls =
-          "office-filter-seg flex-none border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-black/20 text-slate-100 hover:bg-white/10 sm:px-3";
+          "office-filter-seg flex-none border-r border-slate-300 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3";
         root.querySelectorAll("button[data-office-filter]").forEach(function (b) {
           var v = String(b.getAttribute("data-office-filter") || "");
           var on = v === value;
@@ -1483,9 +1464,9 @@
         if (loadMoreWrap) {
           loadMoreWrap.innerHTML =
             remaining > 0
-              ? `<div class="flex justify-center bg-black/10 px-4 py-4">
+              ? `<div class="flex justify-center bg-slate-50 px-4 py-4">
   <button type="button" id="candidatesLoadMore" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">
-    <span class="font-black text-slate-100">${nextCount}명 더보기</span> <span class="font-normal text-slate-200">(${slice.length}/${sorted.length})</span>
+    <span class="font-black text-slate-800">${nextCount}명 더보기</span> <span class="font-normal text-slate-500">(${slice.length}/${sorted.length})</span>
   </button>
 </div>`
               : "";
@@ -1507,17 +1488,17 @@
               ? escapeHtml(necPreHuboDetailUrl(c.huboId))
               : "";
             const necLink = necHref
-              ? `<a href="${necHref}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-md p-0.5 text-slate-200 hover:bg-white/10 hover:text-white" title="선관위 후보 상세 보기" aria-label="선관위 후보 상세 보기">${extIcon}</a>`
+              ? `<a href="${necHref}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-md p-0.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900" title="선관위 후보 상세 보기" aria-label="선관위 후보 상세 보기">${extIcon}</a>`
               : `<span class="inline-flex cursor-not-allowed items-center rounded-md p-0.5 text-white/25" title="후보 식별자 없음" aria-label="후보 식별자 없음">${extIcon}</span>`;
             const wealthByName = wealthInlineByNameHtml(c);
-            return `<tr data-row-detail="${i}" class="cursor-pointer border-b border-white/10 transition hover:bg-white/5">
+            return `<tr data-row-detail="${i}" class="cursor-pointer border-b border-slate-200 transition hover:bg-slate-50">
               <td class="py-3 pl-4 pr-2 align-top">
                 <div class="flex gap-3">
-                  <div class="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-black/20 ring-2 ring-black">
+                  <div class="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-slate-200 ring-2 ring-slate-400">
                     <img src="${photo || DEFAULT_AVATAR}" alt="" width="40" height="40" class="h-full w-full object-cover object-top" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
                   </div>
                   <div class="min-w-0">
-                    <p class="flex flex-wrap items-center gap-x-1 gap-y-1 font-black leading-tight text-white">
+                    <p class="flex flex-wrap items-center gap-x-1 gap-y-1 font-black leading-tight text-slate-900">
                       <span>${escapeHtml(pname)}</span>${necLink}
                     </p>
                     ${wealthByName ? `<div class="mt-1">${wealthByName}</div>` : ""}
@@ -1527,17 +1508,17 @@
               <td class="whitespace-nowrap px-3 py-3 align-middle">
                 <span class="inline-flex whitespace-nowrap items-center rounded px-1.5 py-[3px] text-[10px] font-bold leading-none ${t.badgeSolid}">${escapeHtml(c.party || "정당 미상")}</span>
               </td>
-              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs font-black text-slate-100">${escapeHtml(
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs font-black text-slate-800">${escapeHtml(
                 candidateOffice(c)
               )}</td>
-              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs text-slate-300">${escapeHtml(
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs text-slate-600">${escapeHtml(
                 c.constituency || "—"
               )}</td>
-              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-300">${escapeHtml(ageSummary(c.age))}</td>
-              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-300">${escapeHtml(c.gender || "—")}</td>
-              <td class="max-w-[8rem] px-3 py-3 align-middle text-xs leading-snug text-slate-300">${escapeHtml(jobShort)}</td>
-              <td class="max-w-[14rem] px-3 py-3 align-middle text-xs leading-snug text-slate-300">${eduCell}</td>
-              <td class="max-w-[6rem] px-3 py-3 align-middle text-xs text-slate-300">${crimCell}</td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(ageSummary(c.age))}</td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(c.gender || "—")}</td>
+              <td class="max-w-[8rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(jobShort)}</td>
+              <td class="max-w-[14rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">${eduCell}</td>
+              <td class="max-w-[6rem] px-3 py-3 align-middle text-xs text-slate-600">${crimCell}</td>
             </tr>`;
           })
           .join("");

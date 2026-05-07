@@ -211,29 +211,9 @@
         box-shadow: none;
       }
 
-      /* briefing 페이지 전용: 푸터 다크 톤으로 정렬 (status와 동일) */
-      #footer-plugin .site-footer {
-        background: transparent !important;
-        border-top: 2px solid rgba(0, 0, 0, 0.7) !important;
-        box-shadow: none;
-      }
-      #footer-plugin .site-footer .text-muted,
-      #footer-plugin .site-footer,
-      #footer-plugin .site-footer p,
-      #footer-plugin .site-footer span {
-        color: rgba(226, 232, 240, 0.78) !important;
-      }
-      #footer-plugin .site-footer a {
-        color: rgba(226, 232, 240, 0.88) !important;
-      }
-      #footer-plugin .site-footer a:hover {
-        color: #fff !important;
-        text-decoration: underline !important;
-      }
-      #footer-plugin .site-footer .text-secondary {
-        color: rgba(148, 163, 184, 0.7) !important;
-      }
+      /* footer: theme-light.css 에서 공통 처리 */
     </style>
+    <link rel="stylesheet" href="theme-light.css" />
   </head>
   <body class="min-h-screen bg-[#1a1a2e] text-slate-100 antialiased">
     <div id="header-plugin"></div>
@@ -448,7 +428,7 @@
           await inject("header-plugin", "header.html");
           highlightCandidatesSubnav();
           await inject("footer-plugin", "footer.html");
-          document.querySelector("#footer-plugin .site-footer")?.classList.add("site-footer--dark");
+          // footer theme handled by shared candidates theme css
         })();
       })();
     </script>

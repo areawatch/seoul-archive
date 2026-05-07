@@ -85,28 +85,6 @@
         text-shadow: none;
       }
 
-      /* index 페이지 전용: 푸터 다크 톤으로 정렬 (status와 동일) */
-      #footer-plugin .site-footer {
-        background: transparent !important;
-        border-top: 2px solid rgba(0, 0, 0, 0.7) !important;
-        box-shadow: none;
-      }
-      #footer-plugin .site-footer .text-muted,
-      #footer-plugin .site-footer,
-      #footer-plugin .site-footer p,
-      #footer-plugin .site-footer span {
-        color: rgba(226, 232, 240, 0.78) !important;
-      }
-      #footer-plugin .site-footer a {
-        color: rgba(226, 232, 240, 0.88) !important;
-      }
-      #footer-plugin .site-footer a:hover {
-        color: #fff !important;
-        text-decoration: underline !important;
-      }
-      #footer-plugin .site-footer .text-secondary {
-        color: rgba(148, 163, 184, 0.7) !important;
-      }
 
       /* 헤더 아래: 레트로 슬라이드 배너 */
       .villain-slide {
@@ -257,6 +235,7 @@
         box-shadow: none;
       }
     </style>
+    <link rel="stylesheet" href="theme-light.css" />
   </head>
   <body class="min-h-screen bg-[#1a1a2e] text-slate-100 antialiased">
     <div id="header-plugin"></div>
@@ -329,11 +308,11 @@
         class="dash-card mb-8 grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-12 lg:items-end"
       >
         <div class="flex flex-col gap-2 lg:col-span-12">
-          <span class="text-sm font-black text-slate-100" id="officeFilterLegend">직무</span>
+          <span class="text-sm font-black text-slate-800" id="officeFilterLegend">직무</span>
           <div class="flex flex-wrap items-center gap-2 sm:gap-3">
             <div
               id="officeFilterSeg"
-              class="inline-flex max-w-full min-w-0 flex-nowrap justify-start overflow-x-auto rounded-lg border-2 border-black bg-black/20 sm:max-w-2xl [&>button]:flex-none"
+              class="inline-flex max-w-full min-w-0 flex-nowrap justify-start overflow-x-auto rounded-lg border-2 border-slate-800 bg-white sm:max-w-2xl [&>button]:flex-none"
               role="group"
               aria-labelledby="officeFilterLegend"
             >
@@ -341,7 +320,7 @@
                 type="button"
                 data-office-filter=""
                 aria-pressed="true"
-                class="office-filter-seg border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90 sm:px-3"
+                class="office-filter-seg border-r border-slate-300 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90 sm:px-3"
               >
                 전체
               </button>
@@ -349,7 +328,7 @@
                 type="button"
                 data-office-filter="구청장"
                 aria-pressed="false"
-                class="office-filter-seg border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-black/20 text-slate-100 hover:bg-white/10 sm:px-3"
+                class="office-filter-seg border-r border-slate-300 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3"
               >
                 구청장
               </button>
@@ -357,7 +336,7 @@
                 type="button"
                 data-office-filter="구의원"
                 aria-pressed="false"
-                class="office-filter-seg border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-black/20 text-slate-100 hover:bg-white/10 sm:px-3"
+                class="office-filter-seg border-r border-slate-300 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3"
               >
                 구의원
               </button>
@@ -365,7 +344,7 @@
                 type="button"
                 data-office-filter="시의원"
                 aria-pressed="false"
-                class="office-filter-seg border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-black/20 text-slate-100 hover:bg-white/10 sm:px-3"
+                class="office-filter-seg border-r border-slate-300 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3"
               >
                 시의원
               </button>
@@ -380,33 +359,33 @@
           </div>
         </div>
         <div class="flex w-full flex-col gap-1.5 lg:col-span-3">
-          <label for="district" class="text-sm font-black text-slate-100"
-            >구 선택 <span class="font-normal text-slate-300">(25개구)</span></label
+          <label for="district" class="text-sm font-black text-slate-800"
+            >구 선택 <span class="font-normal text-slate-500">(25개구)</span></label
           >
           <select
             id="district"
-            class="w-full cursor-pointer appearance-none rounded-lg border-2 border-black bg-black/20 bg-[length:14px_14px] bg-[position:right_0.65rem_center] bg-no-repeat px-3 py-2 pr-9 text-xs font-black text-slate-100 shadow-inner outline-none transition focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
+            class="w-full cursor-pointer appearance-none rounded-lg border-2 border-slate-800 bg-white bg-[length:14px_14px] bg-[position:right_0.65rem_center] bg-no-repeat px-3 py-2 pr-9 text-xs font-black text-slate-800 shadow-inner outline-none transition focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
             style="
-              background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;);
+              background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;);
             "
           >
             <option value="">전체</option>
           </select>
         </div>
         <div class="flex w-full flex-col gap-1.5 lg:col-span-3">
-          <label for="party" class="text-sm font-black text-slate-100">정당</label>
+          <label for="party" class="text-sm font-black text-slate-800">정당</label>
           <select
             id="party"
-            class="w-full cursor-pointer appearance-none rounded-lg border-2 border-black bg-black/20 bg-[length:14px_14px] bg-[position:right_0.65rem_center] bg-no-repeat px-3 py-2 pr-9 text-xs font-black text-slate-100 shadow-inner outline-none transition focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
+            class="w-full cursor-pointer appearance-none rounded-lg border-2 border-slate-800 bg-white bg-[length:14px_14px] bg-[position:right_0.65rem_center] bg-no-repeat px-3 py-2 pr-9 text-xs font-black text-slate-800 shadow-inner outline-none transition focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
             style="
-              background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;);
+              background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;);
             "
           >
             <option value="">전체</option>
           </select>
         </div>
         <div class="flex w-full flex-col gap-1.5 sm:col-span-2 lg:col-span-4">
-          <label for="nameQuery" class="text-sm font-black text-slate-100"
+          <label for="nameQuery" class="text-sm font-black text-slate-800"
             >이름 검색</label
           >
           <input
@@ -414,12 +393,12 @@
             type="search"
             placeholder="이름 또는 한자 일부 입력"
             autocomplete="off"
-            class="w-full rounded-lg border-2 border-black bg-black/20 px-3 py-2 text-xs text-slate-100 shadow-inner outline-none transition placeholder:text-slate-400 focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
+            class="w-full rounded-lg border-2 border-slate-800 bg-white px-3 py-2 text-xs text-slate-800 shadow-inner outline-none transition placeholder:text-slate-400 focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
           />
         </div>
         <p
           id="countLabel"
-          class="flex items-end justify-center text-xs text-slate-300 lg:col-span-2 lg:justify-end lg:pb-2"
+          class="flex items-end justify-center text-xs text-slate-500 lg:col-span-2 lg:justify-end lg:pb-2"
         >
           불러오는 중…
         </p>
@@ -552,7 +531,7 @@
           await inject("header-plugin", "header.html");
           highlightCandidatesSubnav();
           await inject("footer-plugin", "footer.html");
-          document.querySelector("#footer-plugin .site-footer")?.classList.add("site-footer--dark");
+          // footer theme handled by shared candidates theme css
         })();
       })();
     </script>
@@ -1313,9 +1292,9 @@
         var root = document.getElementById("officeFilterSeg");
         if (!root) return;
         var onCls =
-          "office-filter-seg flex-none border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90 sm:px-3";
+          "office-filter-seg flex-none border-r border-slate-300 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90 sm:px-3";
         var offCls =
-          "office-filter-seg flex-none border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-black/20 text-slate-100 hover:bg-white/10 sm:px-3";
+          "office-filter-seg flex-none border-r border-slate-300 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3";
         root.querySelectorAll("button[data-office-filter]").forEach(function (b) {
           var v = String(b.getAttribute("data-office-filter") || "");
           var on = v === value;
@@ -1424,14 +1403,17 @@
         }
         return items
           .map((item) => {
-            return `<section class="rounded-lg border border-slate-200 bg-slate-50/70">
-              <h4 class="px-3 py-2 text-sm font-semibold text-slate-800">${escapeHtml(
-                item.key
-              )} 관련 질의 응답</h4>
-              <div class="border-t border-slate-200 px-3 py-2 text-xs leading-relaxed text-slate-700 whitespace-pre-line">${escapeHtml(
+            const accentMap = { "내란": "bg-[#ff4d4d]", "부패": "bg-amber-500", "민주": "bg-blue-500" };
+            const accent = accentMap[item.key] || "bg-slate-600";
+            return `<div class="rounded-lg border border-slate-200 bg-slate-50 overflow-hidden">
+              <div class="flex items-center gap-2 border-b border-slate-200 px-3 py-2">
+                <span class="inline-block h-1.5 w-1.5 rounded-full ${accent}"></span>
+                <h4 class="text-[11px] font-black uppercase tracking-widest text-slate-600">${escapeHtml(item.key)} 관련 질의 응답</h4>
+              </div>
+              <div class="px-3 py-2.5 text-xs leading-relaxed text-slate-700 whitespace-pre-line">${escapeHtml(
                 item.value
               )}</div>
-            </section>`;
+            </div>`;
           })
           .join("");
       }
@@ -1446,9 +1428,9 @@
         if (!parts.length) return '<span class="text-slate-400">-</span>';
         return parts
           .map(function (item) {
-            return `<span class="inline-flex items-center rounded-full whitespace-nowrap border border-white/55 px-1.5 py-[2px] text-[10px] font-bold leading-none text-white/90">#${escapeHtml(
-              item
-            )}</span>`;
+          return `<span class="inline-flex items-center rounded-full whitespace-nowrap border border-slate-600 bg-slate-100 px-1.5 py-[2px] text-[10px] font-bold leading-none text-slate-800">#${escapeHtml(
+            item
+          )}</span>`;
           })
           .join("");
       }
@@ -1515,34 +1497,34 @@
                     String(meta.democracy || "").trim() !== "";
 
                   const newsListHtml = newsLinks.length
-                    ? `<ul class="m-0 list-disc space-y-1 pl-5">
+                    ? `<ul class="m-0 list-disc space-y-1.5 pl-5">
                         ${newsLinks
                           .slice(0, 10)
                           .map((href) => {
                             const title = getNewsTooltipTitle(href);
                             const label = title && title !== href ? title : href;
-                            return `<li class="text-slate-200"><a class="underline decoration-white/30 underline-offset-2 hover:text-white" href="${escapeAttr(
+                            return `<li class="text-slate-700"><a class="font-medium underline decoration-slate-400 underline-offset-2 hover:text-[#ff4d4d] hover:decoration-[#ff4d4d]" href="${escapeAttr(
                               href
                             )}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a></li>`;
                           })
                           .join("")}
                       </ul>`
-                    : `<p class="m-0 text-slate-400">-</p>`;
+                    : `<p class="m-0 text-slate-400 text-xs">연락처 없음</p>`;
 
                   const commentBlockHtml = commentText
-                    ? `<div class="whitespace-pre-line text-slate-200">${escapeHtml(commentText)}</div>`
-                    : `<p class="m-0 text-slate-400">-</p>`;
+                    ? `<div class="whitespace-pre-line text-slate-700 leading-relaxed">${escapeHtml(commentText)}</div>`
+                    : `<p class="m-0 text-slate-400 text-xs">-</p>`;
 
                   const qaText = String(meta.qaQuestionnaire || "").trim() || "-";
                   const qaAccordion = makeQaAccordionHtml(meta);
                   const crimeTagsHtml = criminalHistoryTagsHtml(meta.criminalHistory);
 
-                  const mainRow = `<tr class="align-top ${verificationBorderClass(meta.grade)} border-l-4 cursor-pointer hover:bg-white/5" data-va-row="${idx}" aria-controls="${detailsId}" aria-expanded="false">
+                  const mainRow = `<tr class="align-top ${verificationBorderClass(meta.grade)} border-l-4 cursor-pointer hover:bg-slate-50 transition-colors" data-va-row="${idx}" aria-controls="${detailsId}" aria-expanded="false">
                     <td class="py-3 pl-4 pr-2">
                       <div class="flex gap-2.5">
-                        <img src="${escapeAttr(mergedCandidatePhoto(c) || DEFAULT_AVATAR)}" alt="" class="h-10 w-10 shrink-0 rounded-full object-cover object-top ring-1 ring-white/10" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
+                        <img src="${escapeAttr(mergedCandidatePhoto(c) || DEFAULT_AVATAR)}" alt="" class="h-10 w-10 shrink-0 rounded-full object-cover object-top ring-2 ring-slate-300" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
                         <div class="min-w-0">
-                          <p class="flex items-center gap-1 font-black text-slate-100">
+                          <p class="flex items-center gap-1 font-black text-slate-900">
                             <span>${escapeHtml(primaryName(c.name))}</span>
                             ${
                               commentText
@@ -1562,44 +1544,52 @@
                         party
                       ).badgeSolid}">${escapeHtml(party)}</span>
                     </td>
-                    <td class="whitespace-nowrap px-3 py-3 text-xs font-black text-slate-100">${escapeHtml(
+                    <td class="whitespace-nowrap px-3 py-3 text-xs font-black text-slate-800">${escapeHtml(
                       candidateOffice(c)
                     )}</td>
-                    <td class="whitespace-nowrap px-3 py-3 text-xs text-slate-300">${escapeHtml(
+                    <td class="whitespace-nowrap px-3 py-3 text-xs text-slate-600">${escapeHtml(
                       c.constituency || "—"
                     )}</td>
-                    <td class="whitespace-nowrap px-3 py-3 text-xs font-black text-slate-100">${escapeHtml(
+                    <td class="whitespace-nowrap px-3 py-3 text-xs font-black text-slate-800">${escapeHtml(
                       meta.grade || "미기재"
                     )}</td>
-                    <td class="whitespace-nowrap px-3 py-3 text-xs text-slate-300">
-                      <button type="button" class="inline-flex items-center gap-1 rounded border border-white/10 bg-black/20 px-2 py-1 text-[11px] font-bold text-slate-200 hover:bg-white/10" data-va-toggle="${idx}" aria-controls="${detailsId}" aria-expanded="false">
-                        ${hasDetails ? "펼치기" : "내용 없음"}
+                    <td class="whitespace-nowrap px-3 py-3 text-xs">
+                      <button type="button" class="inline-flex items-center gap-1 rounded-md border-2 border-slate-800 bg-white px-2.5 py-1.5 text-[11px] font-black text-slate-800 shadow-[2px_2px_0_rgba(2,6,23,0.85)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all" data-va-toggle="${idx}" aria-controls="${detailsId}" aria-expanded="false">
+                        ${hasDetails ? "펼치기 ▼" : "내용 없음"}
                       </button>
                     </td>
                   </tr>`;
 
-                  const detailRow = `<tr id="${detailsId}" class="hidden bg-black/20" data-va-detail="${idx}">
-                    <td colspan="6" class="px-4 py-4">
-                      <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                        <section class="border-2 border-black bg-black/20 p-3">
-                          <h3 class="text-xs font-black tracking-wide text-white">코멘트</h3>
+                  const detailRow = `<tr id="${detailsId}" class="hidden" data-va-detail="${idx}" style="background:#f8fafc;border-top:2px solid #0b1220;">
+                    <td colspan="6" class="px-5 py-5">
+                      <div class="grid grid-cols-1 gap-3 lg:grid-cols-3">
+                        <section class="rounded-xl border-2 border-slate-800 bg-white p-4 shadow-[3px_3px_0_rgba(2,6,23,0.85)]">
+                          <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
+                            <span class="inline-block h-2 w-2 rounded-sm bg-[#ff4d4d]"></span>코멘트
+                          </h3>
                           <div class="mt-2 text-sm leading-relaxed">${commentBlockHtml}</div>
                         </section>
-                        <section class="border-2 border-black bg-black/20 p-3">
-                          <h3 class="text-xs font-black tracking-wide text-white">뉴스기사</h3>
+                        <section class="rounded-xl border-2 border-slate-800 bg-white p-4 shadow-[3px_3px_0_rgba(2,6,23,0.85)]">
+                          <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
+                            <span class="inline-block h-2 w-2 rounded-sm bg-slate-800"></span>뉴스기사
+                          </h3>
                           <div class="mt-2 text-sm leading-relaxed">${newsListHtml}</div>
                         </section>
-                        <section class="border-2 border-black bg-black/20 p-3">
-                          <h3 class="text-xs font-black tracking-wide text-white">질의서</h3>
-                          <div class="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-200">${escapeHtml(
+                        <section class="rounded-xl border-2 border-slate-800 bg-white p-4 shadow-[3px_3px_0_rgba(2,6,23,0.85)]">
+                          <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
+                            <span class="inline-block h-2 w-2 rounded-sm bg-slate-400"></span>질의서
+                          </h3>
+                          <div class="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-700">${escapeHtml(
                             qaText
                           )}</div>
                         </section>
                       </div>
-                      <section class="mt-4 border-2 border-black bg-black/20 p-3">
-                        <h3 class="text-xs font-black tracking-wide text-white">내란/부패/민주</h3>
-                        <div class="mt-2 space-y-1.5 text-sm leading-relaxed text-slate-200">
-                          ${qaAccordion ? qaAccordion : '<p class="m-0 text-slate-400">-</p>'}
+                      <section class="mt-3 rounded-xl border-2 border-slate-800 bg-white p-4 shadow-[3px_3px_0_rgba(2,6,23,0.85)]">
+                        <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
+                          <span class="inline-block h-2 w-2 rounded-sm bg-amber-500"></span>내란 / 부패 / 민주
+                        </h3>
+                        <div class="mt-3 space-y-2 text-sm leading-relaxed">
+                          ${qaAccordion ? qaAccordion : '<p class="m-0 text-xs text-slate-400">등록된 내란/부패/민주 질의 응답이 없습니다.</p>'}
                         </div>
                       </section>
                     </td>
@@ -1786,7 +1776,7 @@
           if (toggleBtn) toggleBtn.setAttribute("aria-expanded", isOpen ? "false" : "true");
           var anyBtn = verifiedListEl.querySelector('button[data-va-toggle="' + idx + '"]');
           if (anyBtn && !anyBtn.disabled) {
-            anyBtn.textContent = isOpen ? "펼치기" : "접기";
+            anyBtn.textContent = isOpen ? "펼치기 ▼" : "접기 ▲";
           }
         });
       }
