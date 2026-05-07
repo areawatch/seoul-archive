@@ -1,6 +1,33 @@
 /* candidates theme: retro-light (white base, pixel-ish accents)
    Loaded AFTER per-page <style> to override legacy dark styles. */
 
+/* ── Retro pixel font (PFStardust30) ── */
+@font-face {
+  font-family: "PFStardust30";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/PFStardustBold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PFStardust30";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/PFStardustExtraBold.woff2") format("woff2");
+  font-weight: 800 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* page titles & section headings across all candidates pages */
+.villain-slide h1,
+h1.dash-title,
+.dash-card h2,
+.dash-card h3,
+.menu-card h3 {
+  font-family: "PFStardust30", ui-monospace, "Courier New", monospace !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em;
+}
+
 :root {
   --ra-bg: #ffffff;
   --ra-ink: #0f172a;
@@ -61,27 +88,63 @@ button[class*="bg-[#"][class*="text-white"] {
   background: transparent !important;
 }
 
-/* hero */
+/* hero / villain-slide banner — retro graph-paper style */
 .villain-slide {
-  background: linear-gradient(180deg, #0b1220 0%, #0a1030 55%, #0b1220 100%) !important;
-  border-bottom: 2px solid rgba(2, 6, 23, 0.7);
+  background-color: #f9f8f4 !important;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.07) 1px, transparent 1px),
+    linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px) !important;
+  background-size: 48px 48px, 48px 48px, 12px 12px, 12px 12px !important;
+  background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px !important;
+  border-top: 3px solid rgba(2, 6, 23, 0.88) !important;
+  border-bottom: 3px solid rgba(2, 6, 23, 0.88) !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 .villain-slide::before,
 .villain-slide::after {
-  opacity: 0.22 !important;
-  filter: none !important;
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
+  display: none !important;
 }
-/* banner text colors should stay readable on dark */
-.villain-slide .text-white {
-  color: #ffffff !important;
+/* text inside banner → dark */
+.villain-slide .text-white,
+.villain-slide h1,
+.villain-slide h2,
+.villain-slide h3 {
+  color: #0b1220 !important;
 }
 .villain-slide .text-slate-200,
 .villain-slide .text-slate-300,
 .villain-slide .text-slate-400,
 .villain-slide .text-slate-500 {
-  color: rgba(226, 232, 240, 0.86) !important;
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+/* breadcrumb nav inside banner */
+.villain-slide nav[aria-label="breadcrumb"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+/* accent label (e.g. "빌런아카이브" red text) keeps its color */
+.villain-slide .text-\[\#ff4d4d\] {
+  color: #ff4d4d !important;
+}
+/* pixel-nav-btn inside banner */
+.villain-slide .pixel-nav-btn {
+  background: #ffffff !important;
+  border: 2px solid #0b1220 !important;
+  color: #0b1220 !important;
+  box-shadow: 2px 2px 0 rgba(2, 6, 23, 0.85) !important;
+}
+.villain-slide .pixel-nav-btn:hover {
+  background: #f1f5f9 !important;
+  box-shadow: none !important;
+  transform: translate(2px, 2px) !important;
 }
 
 /* cards */
