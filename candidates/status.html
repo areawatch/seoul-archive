@@ -227,9 +227,16 @@
           box-shadow: 0 6px 0 #000;
           transform: translateY(0);
           will-change: transform;
+          text-align: center;
+          line-height: 1.15;
+          letter-spacing: -0.01em;
         }
         .tip-cta:hover {
           background: #ff6262 !important;
+        }
+        .tip-cta:focus-visible {
+          outline: 3px solid rgba(250, 204, 21, 0.95);
+          outline-offset: 2px;
         }
         .tip-cta:active {
           transform: translateY(3px);
@@ -276,6 +283,17 @@
           .tip-cta,
           .tip-cta::after {
             animation: none !important;
+          }
+        }
+        .tip-cta .tip-cta__sub {
+          display: block;
+          font-size: 0.85em;
+          font-weight: 900;
+          opacity: 0.9;
+        }
+        @media (min-width: 640px) {
+          .tip-cta .tip-cta__sub {
+            font-size: 0.82em;
           }
         }
 
@@ -573,9 +591,9 @@
             href="https://tally.so/r/EkB4Rq"
             target="_blank"
             rel="noopener noreferrer"
-            class="pixel-btn tip-cta inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-black transition"
+            class="pixel-btn tip-cta inline-flex items-center justify-center gap-2 px-7 py-3.5 text-base font-black transition sm:px-8 sm:py-4 sm:text-lg"
           >
-            📸 명함 찍어서 퀘스트 완료하기! →
+            📸 명함 찍어서(아니면 적어서) <span class="tip-cta__sub">제보하기 →</span>
           </a>
           <a
             href="https://forms.gle/XWRBm2Y5fd2dt5aQ6"
