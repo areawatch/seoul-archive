@@ -760,6 +760,20 @@
           return t.split("(")[0].trim().split(/\s+/)[0].trim();
         }
 
+        function electionNameOf(c) {
+          return String((c && c.election_name) || "2026지방선거").trim() || "2026지방선거";
+        }
+
+        function candidateStatusOf(c) {
+          const v = String((c && c.candidate_status) || "preliminary").trim().toLowerCase();
+          return v === "official" ? "official" : "preliminary";
+        }
+
+        function officialBadgeInlineHtml(status) {
+          if (String(status || "").toLowerCase() !== "official") return "";
+          return ' <span class="mono inline-flex items-center rounded-full border border-black/70 bg-[#facc15]/15 px-1.5 py-0.5 text-[10px] font-black leading-none text-[#facc15] ring-1 ring-[#facc15]/20">본후보</span>';
+        }
+
         function parseCandidatesPayload(data) {
           if (Array.isArray(data)) return { list: data, updatedAt: null };
           if (data && typeof data === "object" && Array.isArray(data.candidates)) {
@@ -853,6 +867,12 @@
             if (contains) return contains;
           }
           return "";
+        }
+
+        function sheetElectionName(row) {
+          const col = findSheetColumn(row, ["선거", "선거명", "election_name", "election"]);
+          const v = col ? String(row[col] || "").trim() : "";
+          return v || "2026지방선거";
         }
 
         function hasAnyContactInfo(row) {
@@ -1191,10 +1211,12 @@
                   JSON.stringify({
                     name: it.name,
                     collected: it.collected,
+                    candidate_status: it.candidate_status,
+                    election_name: it.election_name,
                     badges: it.badges,
                     contacts: it.contacts || {},
                   })
-                )}">${escapeHtml(it.name)}</span>`;
+                )}">${escapeHtml(it.name)}${officialBadgeInlineHtml(it.candidate_status)}</span>`;
               })
               .join("");
             return `<div class="mt-2">
@@ -1545,7 +1567,9 @@
             const name = nameCol ? String(row[nameCol] || "").trim() : "";
             const dist = distCol ? String(row[distCol] || "").trim() : "";
             if (!name || !dist) return;
-            const key = normalizeLooseText(primaryName(name)) + "|" + normalizeDistrictName(dist);
+            const election = sheetElectionName(row);
+            const key =
+              normalizeLooseText(election) + "|" + normalizeLooseText(primaryName(name)) + "|" + normalizeDistrictName(dist);
             const meta = extractContactMeta(row);
             const badges = meta.badges;
             const contacts = meta.contacts;
@@ -1635,13 +1659,16 @@
             const office = String(c.office || "").trim();
             if (!candidatesByDistrictOffice[dist][office]) return;
             const name = primaryName(c.name);
-            const key = normalizeLooseText(name) + "|" + dist;
+            const election = electionNameOf(c);
+            const key = normalizeLooseText(election) + "|" + normalizeLooseText(name) + "|" + dist;
             const meta = contactByKey.get(key);
             const collected = meta ? !!meta.collected : false;
             const badges = meta ? meta.badges : [];
             const contacts = meta ? meta.contacts : {};
             candidatesByDistrictOffice[dist][office].push({
               name,
+              election_name: election,
+              candidate_status: candidateStatusOf(c),
               collected,
               badges,
               contacts,

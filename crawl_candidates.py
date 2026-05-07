@@ -61,6 +61,8 @@ TOWN_JSON = "/bizcommon/selectbox/selectbox_townCodeBySgJson.json"
 SGG_JSON = "/bizcommon/selectbox/selectbox_getSggTownCodeJson.json"
 
 DEFAULT_OUT = "public/data/candidates.json"
+DEFAULT_ELECTION_NAME = "2026지방선거"
+DEFAULT_CANDIDATE_STATUS = "preliminary"  # preliminary(예비후보) | official(본후보)
 DEFAULT_REDLINE_SHEET_CSV_URL = (
     "https://docs.google.com/spreadsheets/d/"
     "1HZOgA2XGNQe9RTyZsDDZdqfgdHIrUIfGqBKRs62cugA/gviz/tq?tqx=out:csv"
@@ -247,6 +249,8 @@ def parse_candidates_from_report(
     gu_name: str,
     *,
     office: str,
+    election_name: str,
+    candidate_status: str,
 ) -> list[dict[str, Any]]:
     soup = BeautifulSoup(html, "html.parser")
     table = soup.select_one("table#table01")
@@ -286,6 +290,8 @@ def parse_candidates_from_report(
         reg_date = tds[11].get_text(" ", strip=True)
 
         row = {
+            "election_name": election_name,
+            "candidate_status": candidate_status,
             "district": district,
             "constituency": constituency,
             "party": party,
@@ -308,6 +314,126 @@ def parse_candidates_from_report(
     return rows_out
 
 
+def _normalize_loose_text(s: str) -> str:
+    return re.sub(r"\s+", "", str(s or "").strip().lower())
+
+
+def _normalize_district_name(s: str) -> str:
+    return re.sub(r"\s+", "", str(s or "").strip())
+
+
+def _primary_name(raw: str) -> str:
+    t = str(raw or "").strip()
+    if not t:
+        return ""
+    t = t.split("(")[0].strip()
+    return re.split(r"\s+", t)[0].strip()
+
+
+def _candidate_merge_key(c: dict[str, Any]) -> str:
+    election = str(c.get("election_name") or DEFAULT_ELECTION_NAME).strip()
+    district = _normalize_district_name(str(c.get("district") or ""))
+    name = _normalize_loose_text(_primary_name(str(c.get("name") or "")))
+    return f"{election}|{district}|{name}"
+
+
+def _is_empty(v: Any) -> bool:
+    if v is None:
+        return True
+    if isinstance(v, str):
+        return v.strip() == ""
+    if isinstance(v, (list, dict, set, tuple)):
+        return len(v) == 0
+    return False
+
+
+def _inherit_fields_from_old(new: dict[str, Any], old: dict[str, Any]) -> None:
+    """
+    선관위 크롤링 데이터가 업데이트되더라도, 기존에 제보/수집된 연락처·SNS·사진 URL 등은 유지(상속).
+    - 상속 기준: election_name + district + name(정규화) 키가 동일할 때
+    - 상속 대상: contact/sns/tip/photo 관련 키 + new 값이 비어있는 경우 old 값으로 채움
+    """
+    inherit_prefixes = ("contact", "sns", "social", "tip", "card")
+    inherit_keys = {
+        "contacts",
+        "contact",
+        "phone",
+        "email",
+        "facebook",
+        "instagram",
+        "twitter",
+        "youtube",
+        "blog",
+        "homepage",
+        "tipPhoto",
+        "tipPhotos",
+        "tip_photo",
+        "cardPhoto",
+        "cardPhotoUrl",
+        "notes",
+        "memo",
+    }
+
+    for k, ov in (old or {}).items():
+        if k in ("election_name", "candidate_status"):
+            continue
+        if k in inherit_keys or k.startswith(inherit_prefixes):
+            if k not in new or _is_empty(new.get(k)):
+                if not _is_empty(ov):
+                    new[k] = ov
+
+
+def merge_with_existing_candidates(new_rows: list[dict[str, Any]], existing_path: str) -> list[dict[str, Any]]:
+    if not existing_path or not os.path.exists(existing_path):
+        return new_rows
+    try:
+        with open(existing_path, encoding="utf-8") as f:
+            old_payload = json.load(f)
+    except Exception:
+        return new_rows
+
+    old_list: list[dict[str, Any]] = []
+    if isinstance(old_payload, dict) and isinstance(old_payload.get("candidates"), list):
+        old_list = old_payload["candidates"]
+    elif isinstance(old_payload, list):
+        old_list = old_payload
+    else:
+        return new_rows
+
+    old_map: dict[str, dict[str, Any]] = {}
+    for oc in old_list:
+        if not isinstance(oc, dict):
+            continue
+        if not str(oc.get("election_name") or "").strip():
+            oc["election_name"] = DEFAULT_ELECTION_NAME
+        if not str(oc.get("candidate_status") or "").strip():
+            oc["candidate_status"] = DEFAULT_CANDIDATE_STATUS
+        old_map[_candidate_merge_key(oc)] = oc
+
+    out: list[dict[str, Any]] = []
+    for nc in new_rows:
+        if not isinstance(nc, dict):
+            continue
+        if not str(nc.get("election_name") or "").strip():
+            nc["election_name"] = DEFAULT_ELECTION_NAME
+        if not str(nc.get("candidate_status") or "").strip():
+            nc["candidate_status"] = DEFAULT_CANDIDATE_STATUS
+
+        key = _candidate_merge_key(nc)
+        oc = old_map.get(key)
+        if oc:
+            # candidate_status는 official이 우선(승격 시 유지)
+            old_status = str(oc.get("candidate_status") or DEFAULT_CANDIDATE_STATUS).strip().lower()
+            new_status = str(nc.get("candidate_status") or DEFAULT_CANDIDATE_STATUS).strip().lower()
+            if old_status == "official" or new_status == "official":
+                nc["candidate_status"] = "official"
+            else:
+                nc["candidate_status"] = "preliminary"
+            _inherit_fields_from_old(nc, oc)
+        out.append(nc)
+    return out
+
+
 def crawl_office(
     *,
     election_code: str,
@@ -315,6 +441,8 @@ def crawl_office(
     office_label: str,
     towns_filter: set[str] | None,
     dry_run: bool,
+    election_name: str,
+    candidate_status: str,
 ) -> tuple[list[dict[str, Any]], int]:
     try:
         towns = fetch_seoul_towns(election_code=election_code)
@@ -362,6 +490,10 @@ def crawl_office(
                 )
                 continue
             batch = parse_candidates_from_report(html, town["name"], office=office_label)
+            # enrich default schema fields
+            for b in batch:
+                b["election_name"] = election_name
+                b["candidate_status"] = candidate_status
             added = 0
             for c in batch:
                 hid = c.get("huboId")
@@ -397,6 +529,8 @@ def crawl(
     mode: str,
     towns_filter: set[str] | None,
     dry_run: bool,
+    election_name: str,
+    candidate_status: str,
 ) -> list[dict[str, Any]]:
     total_requests = 0
     out: list[dict[str, Any]] = []
@@ -408,6 +542,8 @@ def crawl(
             office_label=COUNCIL_OFFICE,
             towns_filter=towns_filter,
             dry_run=dry_run,
+            election_name=election_name,
+            candidate_status=candidate_status,
         )
         total_requests += nreq
         out.extend(batch)
@@ -419,6 +555,8 @@ def crawl(
             office_label=MAYOR_OFFICE,
             towns_filter=towns_filter,
             dry_run=dry_run,
+            election_name=election_name,
+            candidate_status=candidate_status,
         )
         total_requests += nreq
         out.extend(batch)
@@ -430,6 +568,8 @@ def crawl(
             office_label=METRO_OFFICE,
             towns_filter=towns_filter,
             dry_run=dry_run,
+            election_name=election_name,
+            candidate_status=candidate_status,
         )
         total_requests += nreq
         out.extend(batch)
@@ -578,12 +718,31 @@ def main() -> None:
         default=DEFAULT_NEWS_CACHE_OUT,
         help=f"RED LINE 뉴스 OG 제목 캐시 출력 경로 (기본: {DEFAULT_NEWS_CACHE_OUT})",
     )
+    parser.add_argument(
+        "--election-name",
+        default=DEFAULT_ELECTION_NAME,
+        help=f"선거 이름(다년도 구분용). 기본: {DEFAULT_ELECTION_NAME}",
+    )
+    parser.add_argument(
+        "--candidate-status",
+        choices=("preliminary", "official"),
+        default=DEFAULT_CANDIDATE_STATUS,
+        help="후보 상태: preliminary(예비후보, 기본) | official(본후보)",
+    )
     args = parser.parse_args()
 
     filt = set(args.districts) if args.districts else None
     if args.task in ("all", "candidates"):
-        rows = crawl(mode=args.only, towns_filter=filt, dry_run=args.dry_run)
+        rows = crawl(
+            mode=args.only,
+            towns_filter=filt,
+            dry_run=args.dry_run,
+            election_name=str(args.election_name or DEFAULT_ELECTION_NAME).strip() or DEFAULT_ELECTION_NAME,
+            candidate_status=str(args.candidate_status or DEFAULT_CANDIDATE_STATUS).strip() or DEFAULT_CANDIDATE_STATUS,
+        )
         if not args.dry_run:
+            # merge: preserve previously collected contact/photo/etc even if NEC updates status
+            rows = merge_with_existing_candidates(rows, args.output)
             os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
             updated_at = datetime.now(ZoneInfo("Asia/Seoul")).replace(microsecond=0)
             payload = {

@@ -1138,7 +1138,7 @@
             <div class="min-w-0">
               <span class="inline-block rounded px-1 py-[3px] text-[11px] font-bold leading-none ${t.badgeSolid}">${escapeHtml(c.party || "정당 미상")}</span>
               <p class="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-lg font-black leading-tight text-white">
-                <span>${escapeHtml(pname)}</span>${wealthInlineByNameHtml(c)}
+                <span>${escapeHtml(pname)}</span>${officialBadgeHtml(c)}${wealthInlineByNameHtml(c)}
               </p>
               ${sub ? `<p class="text-sm text-slate-300">${escapeHtml(sub)}</p>` : ""}
               <p class="mt-2 text-xs text-slate-300">${escapeHtml(String(age))} · ${gender} · ${job}</p>
@@ -1256,6 +1256,22 @@
           escapeHtml(c.constituency || "—") +
           " · " +
           escapeHtml(candidateOffice(c))
+        );
+      }
+
+      function electionNameOf(c) {
+        return String((c && c.election_name) || "2026지방선거").trim() || "2026지방선거";
+      }
+
+      function candidateStatusOf(c) {
+        const v = String((c && c.candidate_status) || "preliminary").trim().toLowerCase();
+        return v === "official" ? "official" : "preliminary";
+      }
+
+      function officialBadgeHtml(c) {
+        if (candidateStatusOf(c) !== "official") return "";
+        return (
+          ' <span class="inline-flex items-center rounded-full border border-black/70 bg-[#facc15]/15 px-1.5 py-0.5 text-[10px] font-black leading-none text-[#facc15] ring-1 ring-[#facc15]/20" title="본후보">본후보</span>'
         );
       }
 
