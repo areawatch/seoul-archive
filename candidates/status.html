@@ -1228,6 +1228,17 @@
             OFFICE_ORDER.forEach((office) => {
               (bundles[office] || []).forEach((it) => allItems.push({ ...it, office }));
             });
+            const CAT_RENDER_ORDER = { "본후보": 0, "예비후보": 1 };
+            const OFF_RENDER_ORDER = { "구청장": 0, "시의원": 1, "구의원": 2 };
+            allItems.sort((a, b) => {
+              const ca = CAT_RENDER_ORDER[a.category] ?? 1;
+              const cb = CAT_RENDER_ORDER[b.category] ?? 1;
+              if (ca !== cb) return ca - cb;
+              const oa = OFF_RENDER_ORDER[a.office] ?? 9;
+              const ob = OFF_RENDER_ORDER[b.office] ?? 9;
+              if (oa !== ob) return oa - ob;
+              return a.name.localeCompare(b.name, "ko");
+            });
 
             const bar = Math.max(0, Math.min(100, r.pct));
             const barColor = rateToColor(r.pct);
@@ -1253,8 +1264,8 @@
                 ? '<span style="display:inline-flex;align-items:center;border-radius:9999px;border:1px solid #34d399;background:#ecfdf5;padding:1px 6px;font-size:10px;font-weight:900;color:#065f46">✓</span>'
                 : '<span style="display:inline-flex;align-items:center;border-radius:9999px;border:1px solid #cbd5e1;background:#f1f5f9;padding:1px 6px;font-size:10px;font-weight:900;color:#94a3b8">—</span>';
               const catBadge = it.category === "본후보"
-                ? '<span style="display:inline-block;background:#dc2626;color:#fff;border-radius:3px;padding:1px 5px;font-size:9px;font-weight:900;white-space:nowrap;margin-right:4px">본</span>'
-                : '<span style="display:inline-block;background:#475569;color:#fff;border-radius:3px;padding:1px 5px;font-size:9px;font-weight:900;white-space:nowrap;margin-right:4px">예비</span>';
+                ? '<span style="display:inline-block;background:#0f2d5e;color:#fff;border-radius:3px;padding:1px 5px;font-size:9px;font-weight:900;white-space:nowrap;margin-right:4px">본</span>'
+                : '<span style="display:inline-block;background:#94a3b8;color:#fff;border-radius:3px;padding:1px 5px;font-size:9px;font-weight:700;white-space:nowrap;margin-right:4px">예비</span>';
               return `<tr class="dist-cand" style="display:none;border-bottom:1px solid #f1f5f9">
                 <td style="padding:7px 10px;text-align:center;vertical-align:middle">${officePill}</td>
                 <td style="padding:7px 12px;font-size:12px;font-weight:600;color:#0b1220;white-space:nowrap;vertical-align:middle">${catBadge}${escapeHtml(it.name)}${officialBadgeInlineHtml(it.candidate_status)}</td>
