@@ -643,9 +643,9 @@
       </section>
       </div>
 
-      <section class="mb-10">
+      <section class="mx-auto mb-10 max-w-5xl">
         <div class="mb-2 flex items-baseline justify-between gap-3">
-          <h2 class="text-base font-bold tracking-tight text-slate-900">자치구별 수집률 (낮은 순)</h2>
+          <h2 class="text-base font-bold tracking-tight text-slate-900">자치구별 수집률 (낮은 순, 구를 클릭하면 해당 구 후보들의 목록을 확인할 수 있습니다)</h2>
           <a
             id="sheetLinkTop"
             href="#"
@@ -657,11 +657,11 @@
           </a>
         </div>
 
-        <ul
+        <div
           id="districtList"
-          class="dash-in grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+          class="dash-in"
           style="animation-delay: 460ms"
-        ></ul>
+        ></div>
       </section>
 
       <div
@@ -1194,107 +1194,95 @@
         function renderDistrictList(statsByDistrict, candidatesByDistrictOffice) {
           const list = document.getElementById("districtList");
           if (!list) return;
-          const rows = SEOUL_DISTRICTS.map((d) => statsByDistrict[d] || { district: d, total: 0, done: 0, pct: 0 });
-          rows.sort((a, b) => (a.pct - b.pct) || a.district.localeCompare(b.district, "ko"));
-          function cardBgForPct(pct) {
-            // 라이트 테마: 0%=흰색, 100%=연한 파랑
-            if (!pct || pct <= 0) return "#ffffff";
-            const p = Math.max(0, Math.min(100, typeof pct === "number" ? pct : 0)) / 100;
-            const hue = 220;
-            const sat = Math.round(60 + p * 30);
-            const light = Math.round(98 - p * 10); // 98% ~ 88% (모두 밝은 라이트 톤)
-            return `hsl(${hue} ${sat}% ${light}%)`;
-          }
-          function districtStatus(st) {
-            if (!st || !st.total) return "NULL";
-            if (!st.done) return "NULL";
-            if (st.pct >= 71) return "READY";
-            return "NEED_DATA";
-          }
-          function statusBadgeHtml(status) {
-            const base =
-              "mono inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-bold border";
-            if (status === "READY") {
-              return `<span class="${base} bg-emerald-50 text-emerald-700 border-emerald-400">READY</span>`;
-            }
-            if (status === "NEED_DATA") {
-              return `<span class="${base} bg-sky-50 text-sky-700 border-sky-400">NEED_DATA</span>`;
-            }
-            return `<span class="${base} bg-slate-100 text-slate-500 border-slate-300">NULL</span>`;
-          }
-          function sectionHtml(title, items) {
-            const chips = (items || [])
-              .map((it) => {
-                const base =
-                  "inline-flex items-center rounded-full px-2 py-1 text-[11px] leading-none ring-1 transition-colors";
-                const cls = it.collected
-                  ? "bg-[#ff4d4d]/10 text-[#cc1a1a] ring-[#ff4d4d]/40 font-bold hover:bg-[#ff4d4d]/20 cursor-pointer"
-                  : "bg-slate-100 text-slate-600 ring-slate-300 hover:bg-slate-200 cursor-pointer";
-                const tip = escapeHtml(it.tooltip || "");
-                return `<span class="${base} ${cls}" data-chip-tooltip="${escapeHtml(
-                  JSON.stringify({
-                    name: it.name,
-                    collected: it.collected,
-                    candidate_status: it.candidate_status,
-                    election_name: it.election_name,
-                    badges: it.badges,
-                    contacts: it.contacts || {},
-                  })
-                )}">${escapeHtml(it.name)}${officialBadgeInlineHtml(it.candidate_status)}</span>`;
-              })
-              .join("");
-            return `<div class="mt-2">
-              <div class="text-[11px] font-bold text-slate-600">${escapeHtml(title)}</div>
-              <div class="mt-1 flex flex-wrap gap-1.5">${chips || '<span class="text-[11px] text-slate-400">—</span>'}</div>
-            </div>`;
+
+          const distRows = SEOUL_DISTRICTS.map((d) => statsByDistrict[d] || { district: d, total: 0, done: 0, pct: 0 });
+          distRows.sort((a, b) => (a.pct - b.pct) || a.district.localeCompare(b.district, "ko"));
+
+          const OFFICE_ORDER = ["구청장", "시의원", "구의원"];
+          const OFFICE_COLOR = { 구청장: "#7c3aed", 시의원: "#0369a1", 구의원: "#374151" };
+          const SNS_ICONS = { facebook: "bi-facebook", instagram: "bi-instagram", threads: "bi-threads", twitter: "bi-twitter-x", youtube: "bi-youtube", blog: "bi-journal-text", homepage: "bi-globe" };
+
+          function contactVal(contacts, key) {
+            const c = contacts && contacts[key];
+            if (!c || !c.href) return '<span style="color:#cbd5e1;font-size:11px">—</span>';
+            const display = escapeHtml(c.raw || c.label || key);
+            const extra = c.href.startsWith("tel:") || c.href.startsWith("mailto:") ? "" : ' target="_blank" rel="noopener noreferrer"';
+            return `<a href="${escapeHtml(c.href)}"${extra} style="color:#1e293b;font-size:11px;text-decoration:underline;text-underline-offset:2px;text-decoration-color:#cbd5e1;word-break:break-all">${display}</a>`;
           }
 
-          list.innerHTML = rows
-            .map((r) => {
-              const bar = Math.max(0, Math.min(100, r.pct));
-              const c = rateToColor(r.pct);
-              const status = districtStatus(r);
-              const bundles = candidatesByDistrictOffice[r.district] || {};
-              const mayor = bundles["구청장"] || [];
-              const city = bundles["시의원"] || [];
-              const gu = bundles["구의원"] || [];
-              const cardBg = cardBgForPct(r.pct);
-              return `<li class="dash-card dash-in rounded-3xl p-4" style="animation-delay: 520ms; background: ${cardBg};">
-                <details class="group">
-                  <summary class="flex cursor-pointer list-none items-center justify-between gap-3 py-1 marker:content-none">
-                    <div class="min-w-0 flex-1">
-                      <div class="flex items-baseline gap-2">
-                        <span class="truncate text-[13px] font-bold leading-tight text-slate-900">${escapeHtml(
-                          r.district
-                        )}</span>
-                        ${statusBadgeHtml(status)}
-                        ${
-                          status === "NULL"
-                            ? '<span class="mono text-[10px] font-semibold text-slate-400 animate-pulse">Scanning...</span>'
-                            : ""
-                        }
-                        <span class="mono shrink-0 text-[10px] font-semibold leading-none text-slate-700">${r.pct.toFixed(
-                          0
-                        )}%</span>
-                        <span class="mono shrink-0 text-[10px] leading-none text-slate-500">(${r.done}/${r.total})</span>
-                      </div>
-                      <div class="mt-2 h-1.5 w-full max-w-[420px] overflow-hidden rounded-full bg-slate-200 ring-1 ring-slate-300">
-                        <div class="h-full rounded-full" style="width:${bar.toFixed(1)}%; background:${c};"></div>
-                      </div>
-                    </div>
-                    <span class="shrink-0 text-slate-500 group-open:rotate-180 transition-transform">
-                      <i class="bi bi-chevron-down"></i>
-                    </span>
-                  </summary>
-                  <div class="pb-2 pt-1">
-                    ${sectionHtml("구청장 후보", mayor)}
-                    ${sectionHtml("시의원 후보", city)}
-                    ${sectionHtml("구의원 후보", gu)}
+          function snsCell(contacts) {
+            const links = Object.keys(SNS_ICONS)
+              .filter((k) => contacts && contacts[k] && contacts[k].href)
+              .map((k) => {
+                const c = contacts[k];
+                return `<a href="${escapeHtml(c.href)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(c.raw || k)}" style="color:#64748b;font-size:15px;line-height:1"><i class="bi ${SNS_ICONS[k]}"></i></a>`;
+              });
+            return links.length
+              ? `<div style="display:flex;gap:8px;align-items:center">${links.join("")}</div>`
+              : '<span style="color:#cbd5e1;font-size:11px">—</span>';
+          }
+
+          const tbodiesHtml = distRows.map((r, idx) => {
+            const bundles = candidatesByDistrictOffice[r.district] || {};
+            const allItems = [];
+            OFFICE_ORDER.forEach((office) => {
+              (bundles[office] || []).forEach((it) => allItems.push({ ...it, office }));
+            });
+
+            const bar = Math.max(0, Math.min(100, r.pct));
+            const barColor = rateToColor(r.pct);
+            const tbId = `dist-tb-${idx}`;
+
+            const distHeaderRow = `<tr style="cursor:pointer;border-top:2px solid #cbd5e1"
+              onclick="(function(tb){var rows=tb.querySelectorAll('.dist-cand');var open=rows[0]&&rows[0].style.display!=='none';rows.forEach(function(r){r.style.display=open?'none':'table-row'});var ic=tb.querySelector('.dist-ic');if(ic)ic.style.transform=open?'':'rotate(180deg)'})(document.getElementById('${tbId}'))">
+              <td colspan="6" style="padding:9px 14px;background:#dde3ea !important">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <span style="font-size:13px;font-weight:900;color:#0b1220;white-space:nowrap">${escapeHtml(r.district)}</span>
+                  <span style="font-size:10px;font-weight:700;color:#475569;white-space:nowrap">${r.done}/${r.total} · ${r.pct.toFixed(0)}%</span>
+                  <div style="width:64px;height:6px;background:#cbd5e1;border-radius:3px;overflow:hidden;flex-shrink:0">
+                    <div style="height:100%;width:${bar.toFixed(1)}%;background:${barColor};border-radius:3px"></div>
                   </div>
-                </details>
-              </li>`;
-            })
-            .join("");
+                  <i class="bi bi-chevron-down dist-ic" style="margin-left:auto;color:#94a3b8;transition:transform .2s;font-size:12px"></i>
+                </div>
+              </td>
+            </tr>`;
+
+            const candidateRows = allItems.map((it) => {
+              const officePill = `<span style="font-size:11px;font-weight:900;color:${OFFICE_COLOR[it.office] || "#374151"};white-space:nowrap">${escapeHtml(it.office)}</span>`;
+              const collectedBadge = it.collected
+                ? '<span style="display:inline-flex;align-items:center;border-radius:9999px;border:1px solid #34d399;background:#ecfdf5;padding:1px 6px;font-size:10px;font-weight:900;color:#065f46">✓</span>'
+                : '<span style="display:inline-flex;align-items:center;border-radius:9999px;border:1px solid #cbd5e1;background:#f1f5f9;padding:1px 6px;font-size:10px;font-weight:900;color:#94a3b8">—</span>';
+              const catBadge = it.category === "본후보"
+                ? '<span style="display:inline-block;background:#dc2626;color:#fff;border-radius:3px;padding:1px 5px;font-size:9px;font-weight:900;white-space:nowrap;margin-right:4px">본</span>'
+                : '<span style="display:inline-block;background:#475569;color:#fff;border-radius:3px;padding:1px 5px;font-size:9px;font-weight:900;white-space:nowrap;margin-right:4px">예비</span>';
+              return `<tr class="dist-cand" style="display:none;border-bottom:1px solid #f1f5f9">
+                <td style="padding:7px 10px;text-align:center;vertical-align:middle">${officePill}</td>
+                <td style="padding:7px 12px;font-size:12px;font-weight:600;color:#0b1220;white-space:nowrap;vertical-align:middle">${catBadge}${escapeHtml(it.name)}${officialBadgeInlineHtml(it.candidate_status)}</td>
+                <td style="padding:7px 10px;text-align:center;vertical-align:middle">${collectedBadge}</td>
+                <td style="padding:7px 12px;vertical-align:middle">${contactVal(it.contacts, "phone")}</td>
+                <td style="padding:7px 12px;vertical-align:middle">${contactVal(it.contacts, "email")}</td>
+                <td style="padding:7px 12px;vertical-align:middle">${snsCell(it.contacts)}</td>
+              </tr>`;
+            }).join("");
+
+            return `<tbody id="${tbId}">${distHeaderRow}${candidateRows}</tbody>`;
+          }).join("");
+
+          list.innerHTML = `<div style="overflow-x:auto;border-radius:12px;border:2px solid #0b1220;box-shadow:3px 3px 0 rgba(2,6,23,0.85)">
+            <table style="min-width:100%;border-collapse:collapse;font-size:13px;background:#fff;font-family:'Pretendard Variable','Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif">
+              <thead>
+                <tr style="background:#0b1220">
+                  <th style="padding:10px 10px;text-align:center;font-size:11px;font-weight:900;color:#ffffff;letter-spacing:.08em;white-space:nowrap">직책</th>
+                  <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:900;color:#ffffff;letter-spacing:.08em">이름</th>
+                  <th style="padding:10px 10px;text-align:center;font-size:11px;font-weight:900;color:#ffffff;letter-spacing:.08em">수집</th>
+                  <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:900;color:#ffffff;letter-spacing:.08em;white-space:nowrap">전화번호</th>
+                  <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:900;color:#ffffff;letter-spacing:.08em">이메일</th>
+                  <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:900;color:#ffffff;letter-spacing:.08em">소셜/링크</th>
+                </tr>
+              </thead>
+              ${tbodiesHtml}
+            </table>
+          </div>`;
         }
 
         async function inject(id, url) {
@@ -1604,6 +1592,7 @@
           const sheetRows = csvToObjects(sheetCsv);
           const nameCol = sheetRows.length ? findSheetColumn(sheetRows[0], ["이름", "성명"]) : "";
           const distCol = sheetRows.length ? findSheetColumn(sheetRows[0], ["지역구", "자치구", "구"]) : "";
+          const categoryCol = sheetRows.length ? findSheetColumn(sheetRows[0], ["후보분류"]) : "";
 
           const contactByKey = new Map();
           sheetRows.forEach((row) => {
@@ -1615,6 +1604,7 @@
             const meta = extractContactMeta(row);
             const badges = meta.badges;
             const contacts = meta.contacts;
+            const category = categoryCol ? String(row[categoryCol] || "").trim() : "";
             // sheet에 같은 키가 여러 줄 있으면 합집합
             const prev = contactByKey.get(key);
             if (prev) {
@@ -1626,9 +1616,11 @@
               Object.keys(contacts || {}).forEach((k) => {
                 if (!mergedContacts[k]) mergedContacts[k] = contacts[k];
               });
-              contactByKey.set(key, { badges: mergedArr, contacts: mergedContacts, collected: mergedArr.length > 0 });
+              // 본후보 우선 (이미 본후보면 유지)
+              const mergedCategory = prev.category === "본후보" ? "본후보" : (category || prev.category || "");
+              contactByKey.set(key, { badges: mergedArr, contacts: mergedContacts, collected: mergedArr.length > 0, category: mergedCategory });
             } else {
-              contactByKey.set(key, { badges, contacts, collected: badges.length > 0 });
+              contactByKey.set(key, { badges, contacts, collected: badges.length > 0, category });
             }
           });
 
@@ -1707,18 +1699,26 @@
             const collected = meta ? !!meta.collected : false;
             const badges = meta ? meta.badges : [];
             const contacts = meta ? meta.contacts : {};
+            const category = meta ? (meta.category || "") : "";
             candidatesByDistrictOffice[dist][office].push({
               name,
               election_name: election,
               candidate_status: candidateStatusOf(c),
+              category,
               collected,
               badges,
               contacts,
             });
           });
+          const CAT_ORDER = { "본후보": 0, "예비후보": 1 };
           Object.values(candidatesByDistrictOffice).forEach((bundle) => {
             Object.values(bundle).forEach((arr) => {
-              arr.sort((a, b) => a.name.localeCompare(b.name, "ko"));
+              arr.sort((a, b) => {
+                const ca = CAT_ORDER[a.category] ?? 2;
+                const cb = CAT_ORDER[b.category] ?? 2;
+                if (ca !== cb) return ca - cb;
+                return a.name.localeCompare(b.name, "ko");
+              });
             });
           });
           renderDistrictList(statsByDistrict, candidatesByDistrictOffice);
