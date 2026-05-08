@@ -1207,7 +1207,7 @@
             if (!c || !c.href) return '<span style="color:#cbd5e1;font-size:11px">—</span>';
             const display = escapeHtml(c.raw || c.label || key);
             const extra = c.href.startsWith("tel:") || c.href.startsWith("mailto:") ? "" : ' target="_blank" rel="noopener noreferrer"';
-            return `<a href="${escapeHtml(c.href)}"${extra} style="color:#1e293b;font-size:11px;text-decoration:underline;text-underline-offset:2px;text-decoration-color:#cbd5e1;word-break:break-all">${display}</a>`;
+            return `<a href="${escapeHtml(c.href)}"${extra} style="color:#1e293b;font-size:11px;text-decoration:underline;text-underline-offset:2px;text-decoration-color:#cbd5e1;white-space:nowrap">${display}</a>`;
           }
 
           function snsCell(contacts) {
@@ -1269,7 +1269,7 @@
           }).join("");
 
           list.innerHTML = `<div style="overflow-x:auto;border-radius:12px;border:2px solid #0b1220;box-shadow:3px 3px 0 rgba(2,6,23,0.85)">
-            <table style="min-width:100%;border-collapse:collapse;font-size:13px;background:#fff;font-family:'Pretendard Variable','Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif">
+            <table style="min-width:640px;width:100%;border-collapse:collapse;font-size:13px;background:#fff;font-family:'Pretendard Variable','Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif">
               <thead>
                 <tr style="background:#0b1220">
                   <th style="padding:10px 10px;text-align:center;font-size:11px;font-weight:900;color:#ffffff;letter-spacing:.08em;white-space:nowrap">직책</th>
