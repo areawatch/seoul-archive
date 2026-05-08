@@ -58,7 +58,7 @@
     />
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
     />
     <link rel="stylesheet" href="../style.css" />
     <style>
@@ -692,6 +692,7 @@
           { key: "email", labels: ["이메일"], icon: "bi-envelope" },
           { key: "facebook", labels: ["페이스북"], icon: "bi-facebook" },
           { key: "instagram", labels: ["인스타그램"], icon: "bi-instagram" },
+          { key: "threads", labels: ["스레드", "Threads"], icon: "bi-threads" },
           { key: "twitter", labels: ["트위터(X)", "트위터"], icon: "bi-twitter-x" },
           { key: "youtube", labels: ["유튜브"], icon: "bi-youtube" },
           { key: "blog", labels: ["블로그"], icon: "bi-journal-text" },
@@ -932,6 +933,11 @@
             if (/^https?:\/\//i.test(v) || v.includes("facebook.com")) return ensureHttp(v);
             const handle = v.replace(/^@/, "").replace(/\s+/g, "");
             return handle ? "https://www.facebook.com/" + handle : "";
+          }
+          if (key === "threads") {
+            if (/^https?:\/\//i.test(v) || v.includes("threads.net")) return ensureHttp(v);
+            const handle = v.replace(/^@/, "").replace(/\s+/g, "");
+            return handle ? "https://www.threads.net/@" + handle : "";
           }
           if (key === "twitter") {
             if (/^https?:\/\//i.test(v) || v.includes("twitter.com") || v.includes("x.com")) return ensureHttp(v);
