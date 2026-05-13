@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>데이터 원정대 · 내부 취합(비공개)</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: [
+                "Pretendard Variable",
+                "Pretendard",
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "system-ui",
+                "Apple SD Gothic Neo",
+                "Noto Sans KR",
+                "sans-serif",
+              ],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="./theme-light.css" />
+    <style>
+      /* This page is internal; prioritize readability */
+      body {
+        font-family: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+      }
+      .internal-note {
+        background: #fff7ed;
+        border: 2px solid #0b1220;
+        border-radius: 12px;
+        box-shadow: 3px 3px 0 rgba(2, 6, 23, 0.85);
+      }
+      .merge-table-wrap {
+        overflow-x: auto;
+        border-radius: 12px;
+        border: 2px solid #0b1220;
+        box-shadow: 3px 3px 0 rgba(2, 6, 23, 0.85);
+        background: #ffffff;
+      }
+      .merge-table {
+        min-width: 920px;
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      .merge-table thead th {
+        background: #0b1220;
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        padding: 10px 12px;
+        white-space: nowrap;
+      }
+      .merge-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+      }
+      .merge-district-row td {
+        background: #dde3ea !important;
+        border-top: 2px solid #cbd5e1;
+        font-weight: 900;
+      }
+      .merge-cons-row td {
+        background: #f1f5f9 !important;
+        border-top: 1px solid #e2e8f0;
+        font-weight: 800;
+      }
+      .tag-cat {
+        display: inline-block;
+        color: #fff;
+        border-radius: 3px;
+        padding: 1px 5px;
+        font-size: 10px;
+        font-weight: 800;
+        margin-right: 6px;
+        white-space: nowrap;
+      }
+      .tag-cat--official {
+        background: #0f2d5e;
+      }
+      .tag-cat--pre {
+        background: #94a3b8;
+        font-weight: 700;
+      }
+      .office-text {
+        font-size: 11px;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+      .c-link {
+        color: #1e293b;
+        font-size: 11px;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        text-decoration-color: #cbd5e1;
+        white-space: nowrap;
+      }
+      .c-link:hover {
+        color: #ff4d4d;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-white text-slate-800 antialiased">
+    <div id="header-plugin"></div>
+
+    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-5xl">
+        <h1 class="text-xl font-black tracking-tight text-slate-900">내부 취합 리스트 (비공개)</h1>
+        <p class="mt-1 text-sm text-slate-600">
+          크롤링된 후보 명단 + 데이터원정대 시트(연락처/후보분류)를 합쳐서 보여줍니다. 검색 노출 방지를 위해
+          <code class="rounded bg-slate-100 px-1 py-0.5 text-[12px]">noindex</code>로 설정되어 있습니다.
+        </p>
+        <div class="internal-note mt-4 px-4 py-3 text-sm text-slate-800">
+          <div class="font-black">제외 규칙</div>
+          <div class="mt-1 leading-relaxed">
+            시트 A열 <span class="font-black">후보분류</span>가 <span class="font-black">탈락</span>인 경우, 전체 명단/집계에서 제외합니다.
+          </div>
+        </div>
+
+        <div class="mt-6 flex items-center justify-between gap-3">
+          <h2 class="text-base font-bold tracking-tight text-slate-900">구 · 선거구별 전체 취합</h2>
+          <a
+            id="sheetLinkTop"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-xs font-semibold text-slate-600 underline decoration-slate-400 underline-offset-2 hover:text-slate-900"
+          >
+            구글 시트 열기 →
+          </a>
+        </div>
+
+        <div id="mergedTable" class="mt-2 merge-table-wrap" aria-live="polite"></div>
+        <div id="mergeError" class="mt-3 hidden text-sm font-bold text-red-600"></div>
+      </div>
+    </main>
+
+    <div id="footer-plugin"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const SHEET_VIEW_URL =
+        "https://docs.google.com/spreadsheets/d/1vWnrVF0wdJyhL6OnEZh3LpXNQnc3owKYovrd5jo6jfY/edit?gid=0#gid=0";
+      const SHEET_CSV_URL_CANDIDATES = [
+        "https://docs.google.com/spreadsheets/d/1vWnrVF0wdJyhL6OnEZh3LpXNQnc3owKYovrd5jo6jfY/gviz/tq?tqx=out:csv",
+        // fallback
+        "https://docs.google.com/spreadsheets/d/1zmjXBcr-5HnjkgxxChJa_U7IRdDeyND1IQ0wvrWReRk/gviz/tq?tqx=out:csv",
+      ];
+
+      const OFFICE_COLOR = { 구청장: "#7c3aed", 시의원: "#0369a1", 구의원: "#374151" };
+      const OFFICE_ORDER = { 구청장: 0, 시의원: 1, 구의원: 2 };
+      const CAT_ORDER = { 본후보: 0, 예비후보: 1 };
+      const SNS_ICONS = {
+        facebook: "bi-facebook",
+        instagram: "bi-instagram",
+        threads: "bi-threads",
+        twitter: "bi-twitter-x",
+        youtube: "bi-youtube",
+        blog: "bi-journal-text",
+        homepage: "bi-globe",
+      };
+      const CONTACT_DEFS = [
+        { key: "phone", labels: ["전화번호"], icon: "bi-telephone" },
+        { key: "email", labels: ["이메일"], icon: "bi-envelope" },
+        { key: "facebook", labels: ["페이스북"], icon: "bi-facebook" },
+        { key: "instagram", labels: ["인스타그램"], icon: "bi-instagram" },
+        { key: "threads", labels: ["스레드", "Threads"], icon: "bi-threads" },
+        { key: "twitter", labels: ["트위터(X)", "트위터"], icon: "bi-twitter-x" },
+        { key: "youtube", labels: ["유튜브"], icon: "bi-youtube" },
+        { key: "blog", labels: ["블로그"], icon: "bi-journal-text" },
+        { key: "homepage", labels: ["홈페이지"], icon: "bi-globe" },
+      ];
+
+      function escapeHtml(s) {
+        return String(s ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function normalizeLooseText(s) {
+        return String(s ?? "")
+          .trim()
+          .replace(/\s+/g, "")
+          .replace(/[·ㆍ•]/g, "")
+          .toLowerCase();
+      }
+
+      function primaryName(name) {
+        const s = String(name || "");
+        return s.split("\n")[0].trim();
+      }
+
+      function normalizeDistrictName(d) {
+        const s = String(d || "").trim();
+        if (!s) return "";
+        // already normalized in existing pages
+        return s.replace(/\s+/g, "");
+      }
+
+      function electionNameOf(c) {
+        return String((c && c.election_name) || "2026지방선거").trim() || "2026지방선거";
+      }
+
+      function candidateKey(electionName, name, district) {
+        const election = String(electionName || "2026지방선거").trim() || "2026지방선거";
+        const dist = normalizeDistrictName(district);
+        const pname = primaryName(name);
+        return normalizeLooseText(election) + "|" + normalizeLooseText(pname) + "|" + dist;
+      }
+
+      function sheetElectionName(row) {
+        if (!row || typeof row !== "object") return "2026지방선거";
+        const col = findSheetColumn(row, ["선거 종류", "선거", "election"]);
+        const v = col ? String(row[col] || "").trim() : "";
+        // 값이 직무(구의원/시의원/구청장)로 들어온 경우는 선거명이 아니므로 무시
+        if (v === "구의원" || v === "시의원" || v === "구청장") return "2026지방선거";
+        return v || "2026지방선거";
+      }
+
+      // Minimal CSV parser that handles quoted commas/newlines.
+      function parseCsv(text) {
+        const rows = [];
+        let row = [];
+        let cur = "";
+        let i = 0;
+        let inQuotes = false;
+        const s = String(text ?? "");
+        while (i < s.length) {
+          const ch = s[i];
+          if (inQuotes) {
+            if (ch === '"') {
+              if (s[i + 1] === '"') {
+                cur += '"';
+                i += 2;
+                continue;
+              }
+              inQuotes = false;
+              i += 1;
+              continue;
+            }
+            cur += ch;
+            i += 1;
+            continue;
+          }
+          if (ch === '"') {
+            inQuotes = true;
+            i += 1;
+            continue;
+          }
+          if (ch === ",") {
+            row.push(cur);
+            cur = "";
+            i += 1;
+            continue;
+          }
+          if (ch === "\n") {
+            row.push(cur);
+            rows.push(row);
+            row = [];
+            cur = "";
+            i += 1;
+            continue;
+          }
+          if (ch === "\r") {
+            i += 1;
+            continue;
+          }
+          cur += ch;
+          i += 1;
+        }
+        row.push(cur);
+        rows.push(row);
+        return rows.filter((r) => r.some((c) => String(c || "").trim() !== ""));
+      }
+
+      function csvToObjects(csvText) {
+        const rows = parseCsv(csvText);
+        if (!rows.length) return [];
+        const header = rows[0].map((h) => String(h || "").trim());
+        return rows.slice(1).map((r) => {
+          const obj = {};
+          header.forEach((h, idx) => (obj[h] = r[idx] ?? ""));
+          return obj;
+        });
+      }
+
+      function findSheetColumn(row, candidates) {
+        if (!row) return "";
+        const keys = Object.keys(row);
+        const lookup = keys.reduce((acc, k) => {
+          acc[normalizeLooseText(k)] = k;
+          return acc;
+        }, {});
+        for (const c of candidates || []) {
+          const hit = lookup[normalizeLooseText(c)];
+          if (hit) return hit;
+        }
+        return "";
+      }
+
+      function ensureHttp(v) {
+        const s = String(v || "").trim();
+        if (!s) return "";
+        if (/^https?:\/\//i.test(s)) return s;
+        return "https://" + s.replace(/^\/+/, "");
+      }
+
+      function normalizeContactUrl(key, raw) {
+        const v = String(raw || "").trim();
+        if (!v) return "";
+        if (key === "phone") {
+          const digits = v.replace(/[^\d+]/g, "");
+          return digits ? "tel:" + digits : "";
+        }
+        if (key === "email") {
+          const mail = v.replace(/\s+/g, "");
+          return mail.includes("@") ? "mailto:" + mail : "";
+        }
+        if (key === "threads") {
+          if (/^https?:\/\//i.test(v) || v.includes("threads.net")) return ensureHttp(v);
+          const handle = v.replace(/^@/, "").replace(/\s+/g, "");
+          return handle ? "https://www.threads.net/@" + handle : "";
+        }
+        // socials/links
+        if (/^https?:\/\//i.test(v)) return v;
+        if (v.includes("facebook.com") || v.includes("instagram.com") || v.includes("twitter.com") || v.includes("x.com")) return ensureHttp(v);
+        if (v.includes("youtube.com") || v.includes("youtu.be") || v.includes("blog") || v.includes("tistory.com") || v.includes("naver.com")) return ensureHttp(v);
+        if (v.includes(".")) return ensureHttp(v);
+        return "";
+      }
+
+      function extractContactMeta(row) {
+        if (!row || typeof row !== "object") return { contacts: {}, badges: [] };
+        const contacts = {};
+        const badges = [];
+        CONTACT_DEFS.forEach((def) => {
+          const col = findSheetColumn(row, def.labels);
+          if (!col) return;
+          const raw = String(row[col] || "").trim();
+          if (!raw) return;
+          const href = normalizeContactUrl(def.key, raw);
+          if (!href) return;
+          const entry = { key: def.key, icon: def.icon, label: def.labels[0], raw, href };
+          contacts[def.key] = entry;
+          badges.push({ key: def.key, icon: def.icon, label: def.labels[0] });
+        });
+        return { contacts, badges };
+      }
+
+      async function fetchFirstOkText(urls) {
+        let lastErr = null;
+        for (const u of urls) {
+          try {
+            const r = await fetch(u, { cache: "no-store" });
+            if (!r.ok) throw new Error(String(r.status));
+            return await r.text();
+          } catch (e) {
+            lastErr = e;
+          }
+        }
+        throw lastErr || new Error("fetch failed");
+      }
+
+      async function inject(id, url) {
+        try {
+          const r = await fetch(url);
+          if (!r.ok) return;
+          const el = document.getElementById(id);
+          if (el) el.innerHTML = await r.text();
+        } catch (e) {
+          console.warn("[internal merged] 헤더·푸터 로드:", e);
+        }
+      }
+
+      function contactCell(contacts, key) {
+        const c = contacts && contacts[key];
+        if (!c || !c.href) return '<span style="color:#cbd5e1;font-size:11px">—</span>';
+        const extra = c.href.startsWith("tel:") || c.href.startsWith("mailto:") ? "" : ' target="_blank" rel="noopener noreferrer"';
+        return `<a class="c-link" href="${escapeHtml(c.href)}"${extra}>${escapeHtml(c.raw || c.label || key)}</a>`;
+      }
+
+      function socialsCell(contacts) {
+        const links = Object.keys(SNS_ICONS)
+          .filter((k) => contacts && contacts[k] && contacts[k].href)
+          .map((k) => {
+            const c = contacts[k];
+            return `<a href="${escapeHtml(c.href)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(
+              c.raw || k
+            )}" style="color:#64748b;font-size:15px;line-height:1"><i class="bi ${SNS_ICONS[k]}"></i></a>`;
+          });
+        return links.length
+          ? `<div style="display:flex;gap:8px;align-items:center">${links.join("")}</div>`
+          : '<span style="color:#cbd5e1;font-size:11px">—</span>';
+      }
+
+      function catBadge(category) {
+        const cat = String(category || "").trim();
+        if (cat === "본후보") return '<span class="tag-cat tag-cat--official">본</span>';
+        // default
+        return '<span class="tag-cat tag-cat--pre">예비</span>';
+      }
+
+      function officeText(office) {
+        const o = String(office || "").trim();
+        const color = OFFICE_COLOR[o] || "#374151";
+        return `<span class="office-text" style="color:${color}">${escapeHtml(o || "—")}</span>`;
+      }
+
+      function buildMergedTable(candidates, sheetRows) {
+        const mergedEl = document.getElementById("mergedTable");
+        if (!mergedEl) return;
+
+        const sample = sheetRows && sheetRows.length ? sheetRows[0] : null;
+        const nameCol = sample ? findSheetColumn(sample, ["이름", "성명"]) : "";
+        const distCol = sample ? findSheetColumn(sample, ["지역구", "자치구", "구"]) : "";
+        const categoryCol = sample ? findSheetColumn(sample, ["후보분류"]) : "";
+
+        const contactByKey = new Map();
+        (sheetRows || []).forEach((row) => {
+          const name = nameCol ? String(row[nameCol] || "").trim() : "";
+          const dist = distCol ? String(row[distCol] || "").trim() : "";
+          if (!name || !dist) return;
+          const election = sheetElectionName(row);
+          const key = candidateKey(election, name, dist);
+          const meta = extractContactMeta(row);
+          const category = categoryCol ? String(row[categoryCol] || "").trim() : "";
+          const prev = contactByKey.get(key);
+          if (prev) {
+            const mergedContacts = Object.assign({}, prev.contacts || {});
+            Object.keys(meta.contacts || {}).forEach((k) => {
+              if (!mergedContacts[k]) mergedContacts[k] = meta.contacts[k];
+            });
+            const pCat = String(prev.category || "").trim();
+            const nCat = String(category || "").trim();
+            let mergedCategory = "";
+            if (pCat === "탈락" || nCat === "탈락") mergedCategory = "탈락";
+            else if (pCat === "본후보" || nCat === "본후보") mergedCategory = "본후보";
+            else mergedCategory = nCat || pCat || "";
+            contactByKey.set(key, {
+              contacts: mergedContacts,
+              collected: Object.keys(mergedContacts).length > 0,
+              category: mergedCategory,
+            });
+          } else {
+            contactByKey.set(key, {
+              contacts: meta.contacts,
+              collected: Object.keys(meta.contacts || {}).length > 0,
+              category,
+            });
+          }
+        });
+
+        // group: district -> constituency -> rows
+        const groups = new Map();
+        (candidates || []).forEach((c) => {
+          const district = normalizeDistrictName(c.district);
+          const constituency = String(c.constituency || "").trim() || district || "—";
+          const name = primaryName(c.name);
+          const office = String(c.office || "").trim();
+          const party = String(c.party || "").trim();
+          const key = candidateKey(electionNameOf(c), name, district);
+          const meta = contactByKey.get(key);
+          const category = meta ? String(meta.category || "").trim() : "";
+          if (category === "탈락") return;
+          const contacts = meta ? meta.contacts : {};
+          const row = {
+            district,
+            constituency,
+            office,
+            name,
+            party,
+            category,
+            contacts,
+          };
+          const dk = district || "—";
+          const ck = constituency || "—";
+          if (!groups.has(dk)) groups.set(dk, new Map());
+          const byCons = groups.get(dk);
+          if (!byCons.has(ck)) byCons.set(ck, []);
+          byCons.get(ck).push(row);
+        });
+
+        const districtNames = Array.from(groups.keys()).sort((a, b) => a.localeCompare(b, "ko"));
+        const tbodyHtml = districtNames
+          .map((d) => {
+            const consMap = groups.get(d);
+            const consNames = Array.from(consMap.keys()).sort((a, b) => a.localeCompare(b, "ko"));
+            const districtHeader = `<tr class="merge-district-row"><td colspan="7">${escapeHtml(d)}</td></tr>`;
+            const consSections = consNames
+              .map((cons) => {
+                const rows = consMap.get(cons) || [];
+                rows.sort((a, b) => {
+                  const ca = CAT_ORDER[String(a.category || "").trim()] ?? 1;
+                  const cb = CAT_ORDER[String(b.category || "").trim()] ?? 1;
+                  if (ca !== cb) return ca - cb;
+                  const oa = OFFICE_ORDER[String(a.office || "").trim()] ?? 9;
+                  const ob = OFFICE_ORDER[String(b.office || "").trim()] ?? 9;
+                  if (oa !== ob) return oa - ob;
+                  return String(a.name || "").localeCompare(String(b.name || ""), "ko");
+                });
+                const consHeader = `<tr class="merge-cons-row"><td colspan="7">선거구: ${escapeHtml(cons)}</td></tr>`;
+                const rowHtml = rows
+                  .map((r) => {
+                    return `<tr>
+                      <td>${officeText(r.office)}</td>
+                      <td style="white-space:nowrap;font-weight:700;color:#0b1220">${catBadge(r.category)}${escapeHtml(
+                      r.name
+                    )}</td>
+                      <td style="white-space:nowrap">${escapeHtml(r.party || "—")}</td>
+                      <td>${contactCell(r.contacts, "phone")}</td>
+                      <td>${contactCell(r.contacts, "email")}</td>
+                      <td>${socialsCell(r.contacts)}</td>
+                    </tr>`;
+                  })
+                  .join("");
+                return consHeader + rowHtml;
+              })
+              .join("");
+            return districtHeader + consSections;
+          })
+          .join("");
+
+        mergedEl.innerHTML = `<table class="merge-table" aria-label="구/선거구별 취합 테이블">
+          <thead>
+            <tr>
+              <th>직책</th>
+              <th>이름</th>
+              <th>정당</th>
+              <th>전화번호</th>
+              <th>이메일</th>
+              <th>소셜/링크</th>
+            </tr>
+          </thead>
+          <tbody>${tbodyHtml}</tbody>
+        </table>`;
+      }
+
+      (async function init() {
+        document.getElementById("sheetLinkTop").href = SHEET_VIEW_URL;
+        inject("header-plugin", "header.html");
+        inject("footer-plugin", "footer.html");
+
+        const errorEl = document.getElementById("mergeError");
+        const mergedEl = document.getElementById("mergedTable");
+        try {
+          const candidatesPayload = await fetch("../public/data/candidates.json", { cache: "no-store" }).then((r) =>
+            r.json()
+          );
+          const candidates = Array.isArray(candidatesPayload) ? candidatesPayload : candidatesPayload.candidates || [];
+          const sheetCsv = await fetchFirstOkText(SHEET_CSV_URL_CANDIDATES);
+          const sheetRows = csvToObjects(sheetCsv);
+          buildMergedTable(candidates, sheetRows);
+        } catch (e) {
+          console.warn("[internal merged] init fail", e);
+          if (mergedEl) mergedEl.innerHTML = "";
+          if (errorEl) {
+            errorEl.textContent = "데이터 로드 실패: candidates.json 또는 시트 CSV를 가져오지 못했습니다.";
+            errorEl.classList.remove("hidden");
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>
+
