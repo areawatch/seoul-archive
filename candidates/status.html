@@ -1627,13 +1627,22 @@
               Object.keys(contacts || {}).forEach((k) => {
                 if (!mergedContacts[k]) mergedContacts[k] = contacts[k];
               });
-              // 본후보 우선 (이미 본후보면 유지)
-              const mergedCategory = prev.category === "본후보" ? "본후보" : (category || prev.category || "");
+              const pCat = String(prev.category || "").trim();
+              const nCat = String(category || "").trim();
+              let mergedCategory = "";
+              if (pCat === "탈락" || nCat === "탈락") mergedCategory = "탈락";
+              else if (pCat === "본후보" || nCat === "본후보") mergedCategory = "본후보";
+              else mergedCategory = nCat || pCat || "";
               contactByKey.set(key, { badges: mergedArr, contacts: mergedContacts, collected: mergedArr.length > 0, category: mergedCategory });
             } else {
               contactByKey.set(key, { badges, contacts, collected: badges.length > 0, category });
             }
           });
+
+          function expeditionExcludeCandidate(meta) {
+            const cat = meta ? String(meta.category || "").trim() : "";
+            return cat === "탈락";
+          }
 
           const statsByDistrict = {};
           SEOUL_DISTRICTS.forEach((d) => {
@@ -1646,10 +1655,11 @@
           parsed.list.forEach((c) => {
             const d = normalizeDistrictName(c.district);
             if (!statsByDistrict[d]) return;
-            statsByDistrict[d].total += 1;
-            totalAll += 1;
             const key = candidateKey(electionNameOf(c), c.name, d);
             const sheetMeta = contactByKey.get(key);
+            if (expeditionExcludeCandidate(sheetMeta)) return;
+            statsByDistrict[d].total += 1;
+            totalAll += 1;
             if (sheetMeta && sheetMeta.collected) {
               statsByDistrict[d].done += 1;
               doneAll += 1;
@@ -1707,6 +1717,7 @@
             const election = electionNameOf(c);
             const key = candidateKey(election, name, dist);
             const meta = contactByKey.get(key);
+            if (expeditionExcludeCandidate(meta)) return;
             const collected = meta ? !!meta.collected : false;
             const badges = meta ? meta.badges : [];
             const contacts = meta ? meta.contacts : {};
