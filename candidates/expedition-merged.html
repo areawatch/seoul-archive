@@ -43,12 +43,6 @@
       body {
         font-family: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
       }
-      .internal-note {
-        background: #fff7ed;
-        border: 2px solid #0b1220;
-        border-radius: 12px;
-        box-shadow: 3px 3px 0 rgba(2, 6, 23, 0.85);
-      }
       .merge-table-wrap {
         overflow-x: auto;
         border-radius: 12px;
@@ -125,12 +119,6 @@
           선관위 크롤링 <span class="font-semibold">본후보</span> 명단(<code class="rounded bg-slate-100 px-1 py-0.5 text-[12px]">candidates.json</code>)과 데이터원정대 시트(연락처)를 합쳐서 보여줍니다. 검색 노출 방지를 위해
           <code class="rounded bg-slate-100 px-1 py-0.5 text-[12px]">noindex</code>로 설정되어 있습니다.
         </p>
-        <div class="internal-note mt-4 px-4 py-3 text-sm text-slate-800">
-          <div class="font-black">제외 규칙</div>
-          <div class="mt-1 leading-relaxed">
-            시트 A열 <span class="font-black">후보분류</span>가 <span class="font-black">탈락</span>인 경우, 전체 명단/집계에서 제외합니다.
-          </div>
-        </div>
 
         <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 class="text-base font-bold tracking-tight text-slate-900">구 · 선거구별 전체 취합</h2>
@@ -532,11 +520,30 @@
         return meta + flag;
       }
 
+      function countUnopposedConstituencies(consMap, seatIndex) {
+        if (!consMap || !seatIndex) return 0;
+        let n = 0;
+        consMap.forEach((rows, cons) => {
+          if (!rows || !rows.length) return;
+          const office = String(rows[0].office || "").trim();
+          if (isUnopposedWin(office, cons, rows.length, seatIndex)) n += 1;
+        });
+        return n;
+      }
+
+      function districtHeaderHtml(district, consMap, seatIndex) {
+        const n = countUnopposedConstituencies(consMap, seatIndex);
+        let html = escapeHtml(district);
+        if (n > 0) {
+          html += `<span class="merge-cons-meta"> · 무투표 당선 <span class="merge-unopposed" style="margin-left:0">${n}</span>선거구</span>`;
+        }
+        return html;
+      }
+
       function buildContactByKeyFromSheet(sheetRows) {
         const sample = sheetRows && sheetRows.length ? sheetRows[0] : null;
         const nameCol = sample ? findSheetColumn(sample, ["이름", "성명"]) : "";
         const distCol = sample ? findSheetColumn(sample, ["지역구", "자치구", "구"]) : "";
-        const categoryCol = sample ? findSheetColumn(sample, ["후보분류"]) : "";
 
         const contactByKey = new Map();
         (sheetRows || []).forEach((row) => {
@@ -546,29 +553,20 @@
           const election = sheetElectionName(row);
           const key = candidateKey(election, name, dist);
           const meta = extractContactMeta(row);
-          const category = categoryCol ? String(row[categoryCol] || "").trim() : "";
           const prev = contactByKey.get(key);
           if (prev) {
             const mergedContacts = Object.assign({}, prev.contacts || {});
             Object.keys(meta.contacts || {}).forEach((k) => {
               if (!mergedContacts[k]) mergedContacts[k] = meta.contacts[k];
             });
-            const pCat = String(prev.category || "").trim();
-            const nCat = String(category || "").trim();
-            let mergedCategory = "";
-            if (pCat === "탈락" || nCat === "탈락") mergedCategory = "탈락";
-            else if (pCat === "본후보" || nCat === "본후보") mergedCategory = "본후보";
-            else mergedCategory = nCat || pCat || "";
             contactByKey.set(key, {
               contacts: mergedContacts,
               collected: Object.keys(mergedContacts).length > 0,
-              category: mergedCategory,
             });
           } else {
             contactByKey.set(key, {
               contacts: meta.contacts,
               collected: Object.keys(meta.contacts || {}).length > 0,
-              category,
             });
           }
         });
@@ -585,8 +583,6 @@
           const party = String(c.party || "").trim();
           const key = candidateKey(electionNameOf(c), name, district);
           const meta = contactByKey.get(key);
-          const category = meta ? String(meta.category || "").trim() : "";
-          if (category === "탈락") return;
           const contacts = meta ? meta.contacts : {};
           const row = {
             district,
@@ -594,7 +590,6 @@
             office,
             name,
             party,
-            category,
             contacts,
           };
           const dk = district || "—";
@@ -659,7 +654,11 @@
             const consMap = groups.get(d);
             if (!consMap) return "";
             const consNames = orderedConstituencyKeys(consMap);
-            const districtHeader = `<tr class="merge-district-row"><td colspan="6">${escapeHtml(d)}</td></tr>`;
+            const districtHeader = `<tr class="merge-district-row"><td colspan="6">${districtHeaderHtml(
+              d,
+              consMap,
+              seatIndex
+            )}</td></tr>`;
             const consSections = consNames
               .map((cons) => {
                 const rows = consMap.get(cons) || [];
