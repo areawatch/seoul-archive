@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-서울특별시 25개 자치구 — 예비후보자 명부를
+서울특별시 25개 자치구 — 후보자 명부(예비·본)를
 중앙선거관리위원회 선거통계시스템(info.nec.go.kr)에서 수집합니다.
 
 - 구·시·군의회의원(구의원): electionCode 6
@@ -900,18 +900,38 @@ def main() -> None:
                 args.output,
                 preliminary_archive_path=prelim_path,
             )
-            os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
-            updated_at = datetime.now(ZoneInfo("Asia/Seoul")).replace(microsecond=0)
-            payload = {
-                "updatedAt": updated_at.isoformat(),
-                "candidates": rows,
-            }
-            with open(args.output, "w", encoding="utf-8") as f:
-                json.dump(payload, f, ensure_ascii=False, indent=2)
-            print(
-                f"저장 완료: {args.output} ({len(rows)}명, 갱신시각 {payload['updatedAt']})",
-                file=sys.stderr,
-            )
+            write_status = str(args.candidate_status or DEFAULT_CANDIDATE_STATUS).strip().lower()
+            if write_status == "official" and len(rows) == 0:
+                prev_n = len(_load_candidates_list_from_file(args.output))
+                if prev_n > 0:
+                    print(
+                        f"[skip] 본후보 크롤 결과가 0명이라 기존 파일을 덮어쓰지 않습니다: {args.output} (기존 {prev_n}명 유지). "
+                        "NEC 본후보 명부 POST/파서를 확인하세요.",
+                        file=sys.stderr,
+                    )
+                else:
+                    os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
+                    updated_at = datetime.now(ZoneInfo("Asia/Seoul")).replace(microsecond=0)
+                    payload = {"updatedAt": updated_at.isoformat(), "candidates": rows}
+                    with open(args.output, "w", encoding="utf-8") as f:
+                        json.dump(payload, f, ensure_ascii=False, indent=2)
+                    print(
+                        f"저장 완료: {args.output} ({len(rows)}명, 갱신시각 {payload['updatedAt']})",
+                        file=sys.stderr,
+                    )
+            else:
+                os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
+                updated_at = datetime.now(ZoneInfo("Asia/Seoul")).replace(microsecond=0)
+                payload = {
+                    "updatedAt": updated_at.isoformat(),
+                    "candidates": rows,
+                }
+                with open(args.output, "w", encoding="utf-8") as f:
+                    json.dump(payload, f, ensure_ascii=False, indent=2)
+                print(
+                    f"저장 완료: {args.output} ({len(rows)}명, 갱신시각 {payload['updatedAt']})",
+                    file=sys.stderr,
+                )
 
     if args.task in ("all", "news"):
         if args.dry_run:

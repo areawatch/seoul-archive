@@ -1550,7 +1550,9 @@
           buildWealthIndex(wealthData);
 
           const parsed = parseCandidatesPayload(candidatesPayload);
-          allCandidates = parsed.list;
+          allCandidates = parsed.list.filter(function (c) {
+            return String((c && c.candidate_status) || "").trim().toLowerCase() !== "official";
+          });
 
           document.getElementById("errorBox").classList.add("hidden");
           setDataUpdatedLine(parsed.updatedAt);

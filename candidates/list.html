@@ -332,6 +332,20 @@
         role="alert"
       ></div>
 
+      <div
+        id="officialStaleDataBanner"
+        class="mb-6 hidden rounded-lg border-2 border-amber-500 bg-amber-50 px-4 py-3 text-left text-sm leading-relaxed text-slate-800 shadow-[2px_2px_0_rgba(2,6,23,0.12)]"
+        role="status"
+      >
+        <p class="m-0 font-black text-amber-900">본후보(<code class="text-xs font-bold">candidate_status: &quot;official&quot;</code>) 행이 없습니다.</p>
+        <p class="mt-2 mb-0 text-slate-700">
+          지금 불러온 <code class="rounded bg-white px-1 py-0.5 text-xs">candidates.json</code>은 예비 명부만 있거나, 필드가 없는 예전 형식일 수 있습니다. 전체 예비 명단은 위의
+          <strong>예비후보 명부 보기</strong>로 이동하세요. 저장소의 본후보 갱신은 로컬 또는 CI에서
+          <code class="whitespace-pre-wrap rounded bg-white px-1 py-0.5 text-[11px]">python3 crawl_candidates.py --task candidates --candidate-status official</code>
+          로 실행합니다(NEC 본후보 표가 열릴 때부터 인원이 채워집니다).
+        </p>
+      </div>
+
       <section aria-labelledby="allCandidatesTitle">
         <div class="mb-3 flex items-end justify-between gap-3">
           <h2 id="allCandidatesTitle" class="text-xl font-black tracking-tight text-white">
@@ -1550,7 +1564,19 @@
           buildWealthIndex(wealthData);
 
           const parsed = parseCandidatesPayload(candidatesPayload);
-          allCandidates = parsed.list;
+          const rawFromFile = parsed.list;
+          const officialRows = rawFromFile.filter(function (c) {
+            return String((c && c.candidate_status) || "").trim().toLowerCase() === "official";
+          });
+          var staleEl = document.getElementById("officialStaleDataBanner");
+          if (staleEl) {
+            if (rawFromFile.length > 0 && officialRows.length === 0) {
+              staleEl.classList.remove("hidden");
+            } else {
+              staleEl.classList.add("hidden");
+            }
+          }
+          allCandidates = officialRows;
 
           document.getElementById("errorBox").classList.add("hidden");
           setDataUpdatedLine(parsed.updatedAt);
