@@ -544,9 +544,9 @@
             >
               <defs>
                 <pattern id="fogDots" width="8" height="8" patternUnits="userSpaceOnUse">
-                  <rect width="8" height="8" fill="#6b7280"></rect>
-                  <rect x="0" y="0" width="2" height="2" fill="#9ca3af"></rect>
-                  <rect x="4" y="4" width="2" height="2" fill="#9ca3af"></rect>
+                  <rect width="8" height="8" fill="#9cb8ad"></rect>
+                  <rect x="0" y="0" width="2" height="2" fill="#c5ddd4"></rect>
+                  <rect x="4" y="4" width="2" height="2" fill="#c5ddd4"></rect>
                 </pattern>
               </defs>
               <rect x="0" y="0" width="520" height="520" fill="transparent" />
@@ -961,8 +961,10 @@
           return { contacts, badges };
         }
 
-        /** 수집률 10% 구간별 남색(100% = #0b1220, 낮을수록 밝음). 0%는 UNKNOWN(안개 패턴). */
-        const MAP_NAVY_100 = [11, 18, 32];
+        /** 수집률 10% 구간·녹색 스케일(중간 #23c175, 100% #006b4d). 0%는 UNKNOWN(안개). */
+        const MAP_GREEN_MIN = { r: 178, g: 238, b: 210 }; /* ~#b2eed2 밝은 민트 */
+        const MAP_GREEN_MID = { r: 35, g: 193, b: 117 }; /* #23c175 */
+        const MAP_GREEN_MAX = { r: 0, g: 107, b: 77 }; /* #006b4d */
 
         function mapPctBucket(pct) {
           const v = typeof pct === "number" ? pct : 0;
@@ -970,16 +972,25 @@
           return Math.min(10, Math.floor((v - 1) / 10) + 1);
         }
 
+        function lerpRgb(a, b, t) {
+          const u = Math.max(0, Math.min(1, t));
+          return {
+            r: Math.round(a.r + (b.r - a.r) * u),
+            g: Math.round(a.g + (b.g - a.g) * u),
+            b: Math.round(a.b + (b.b - a.b) * u),
+          };
+        }
+
+        function mapGreenForPct(pct) {
+          const t = Math.max(0, Math.min(1, (typeof pct === "number" ? pct : 0) / 100));
+          const c = t <= 0.5 ? lerpRgb(MAP_GREEN_MIN, MAP_GREEN_MID, t / 0.5) : lerpRgb(MAP_GREEN_MID, MAP_GREEN_MAX, (t - 0.5) / 0.5);
+          return "rgb(" + c.r + "," + c.g + "," + c.b + ")";
+        }
+
         function rateToColor(pct) {
-          const bucket = mapPctBucket(pct);
-          if (bucket === 0) return "url(#fogDots)";
-          const t = bucket / 10;
-          const mix = 1 - t;
-          const w = [241, 245, 249];
-          const r = Math.round(MAP_NAVY_100[0] * t + w[0] * mix);
-          const g = Math.round(MAP_NAVY_100[1] * t + w[1] * mix);
-          const b = Math.round(MAP_NAVY_100[2] * t + w[2] * mix);
-          return "rgb(" + r + "," + g + "," + b + ")";
+          const v = typeof pct === "number" ? pct : 0;
+          if (v <= 0) return "url(#fogDots)";
+          return mapGreenForPct(v);
         }
 
         function mapLegendLabel(bucket) {
@@ -995,7 +1006,7 @@
           const sep = '<span class="mx-1.5 text-slate-400">|</span>';
           const items = [];
           for (let b = 0; b <= 10; b += 1) {
-            const fill = b === 0 ? "#9ca3af" : rateToColor(b === 10 ? 100 : b * 10);
+            const fill = b === 0 ? "#9cb8ad" : rateToColor(b === 10 ? 100 : b * 10);
             items.push(
               '<span class="inline-flex items-center gap-1">' +
                 '<span class="h-2.5 w-2.5 shrink-0 rounded-sm ring-1 ring-slate-800" style="background:' +
