@@ -630,6 +630,18 @@
         sel.innerHTML = opts.join("");
       }
 
+      /** 구 안 선거구: 구청장 → 시의원 → 구의원, 같은 직책은 선거구명 가나다 */
+      function orderedConstituencyKeys(consMap) {
+        return Array.from(consMap.keys()).sort((a, b) => {
+          const rowsA = consMap.get(a) || [];
+          const rowsB = consMap.get(b) || [];
+          const oa = OFFICE_ORDER[String(rowsA[0]?.office || "").trim()] ?? 9;
+          const ob = OFFICE_ORDER[String(rowsB[0]?.office || "").trim()] ?? 9;
+          if (oa !== ob) return oa - ob;
+          return a.localeCompare(b, "ko");
+        });
+      }
+
       function renderMergedTableBody(groups, districtFilter, seatIndex) {
         const filter = String(districtFilter || "").trim();
         const districtNames = filter
@@ -646,7 +658,7 @@
           .map((d) => {
             const consMap = groups.get(d);
             if (!consMap) return "";
-            const consNames = Array.from(consMap.keys()).sort((a, b) => a.localeCompare(b, "ko"));
+            const consNames = orderedConstituencyKeys(consMap);
             const districtHeader = `<tr class="merge-district-row"><td colspan="6">${escapeHtml(d)}</td></tr>`;
             const consSections = consNames
               .map((cons) => {
