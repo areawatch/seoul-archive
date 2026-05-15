@@ -29,7 +29,7 @@
   각 후보에 "office": "구의원" | "시의원" | "구청장" 필드가 붙습니다(없으면 화면에서 구의원으로 간주).
 
 선거구명(constituency)·주소(address)는 이 스크립트가 넣는 필드입니다.
-huboId는 선관위 예비·본후보 상세(전과 스캔 서류) 링크용입니다. 본후보 명부는 PCRI04·pcri04_ex.jsp POST로 조회합니다.
+huboId는 선관위 예비·본후보 상세(전과 스캔 서류) 링크용입니다. 제9회 지방선거(0020260603) 통계는 topMenuId=CP·CPRI03/CPRI04·…/cp/cpri03_ex.jsp 형식을 사용합니다.
 """
 
 from __future__ import annotations
@@ -52,20 +52,24 @@ BASE = "https://info.nec.go.kr"
 ELECTION_ID = "0020260603"
 SEOUL_CITY_CODE = "1100"
 
-# 구·시·군의회의원
+# 구·시·군의회의원 (2026 지방선거: topMenuId CP, secondMenuId CPRI03/04)
 COUNCIL_ELECTION_CODE = "6"
-COUNCIL_STATEMENT_ID = "PCRI03_#6"
+COUNCIL_STATEMENT_ID = "CPRI03_#6"
 COUNCIL_OFFICE = "구의원"
 
 # 시장·군수·구청장 (서울 25구 → 구청장)
 MAYOR_CLASS_ELECTION_CODE = "4"
-MAYOR_CLASS_STATEMENT_ID = "PCRI03_#4"
+MAYOR_CLASS_STATEMENT_ID = "CPRI03_#4"
 MAYOR_OFFICE = "구청장"
 
 # 시·도의회의원 (서울시의회 = 시의원, 구 단위 선거구)
 METRO_COUNCIL_ELECTION_CODE = "5"
-METRO_COUNCIL_STATEMENT_ID = "PCRI03_#5"
+METRO_COUNCIL_STATEMENT_ID = "CPRI03_#5"
 METRO_OFFICE = "시의원"
+
+# 선거통계 후보 명부 공통 (지방선거 2026)
+NEC_TOP_MENU_ID = "CP"
+NEC_REPORT_JSP_DIR = "cp"  # requestURI 경로: .../electioninfo/{id}/cp/cpri03_ex.jsp
 
 REPORT_PATH = "/electioninfo/electionInfo_report.xhtml"
 TOWN_JSON = "/bizcommon/selectbox/selectbox_townCodeBySgJson.json"
@@ -126,7 +130,10 @@ def _http_session() -> Any:
         s = requests.Session()
         s.headers.update(
             {
-                "User-Agent": "Mozilla/5.0 (compatible; seoul-archive-crawler/1.0)",
+                "User-Agent": (
+                    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                ),
                 "Accept-Language": "ko-KR,ko;q=0.9",
             }
         )
@@ -205,21 +212,24 @@ def fetch_sgg_town_codes(town_code: str, *, election_code: str) -> list[dict[str
 
 def _nec_pc_report_menu(*, candidate_status: str) -> tuple[str, str]:
     """
-    선거통계 PC 메뉴: 예비후보 명부 PCRI03, 본후보자 명부 PCRI04.
-    반환: (secondMenuId/menuId 동일 값, requestURI 내 JSP 파일명 pcri03_ex.jsp | pcri04_ex.jsp).
+    선거통계 지방선거(2026) 후보 명부: 예비 CPRI03, 본후보 CPRI04.
+    반환: (secondMenuId/menuId, JSP 파일명 cpri03_ex.jsp | cpri04_ex.jsp).
     """
     if str(candidate_status or "").strip().lower() == "official":
-        return ("PCRI04", "pcri04_ex.jsp")
-    return ("PCRI03", "pcri03_ex.jsp")
+        return ("CPRI04", "cpri04_ex.jsp")
+    return ("CPRI03", "cpri03_ex.jsp")
 
 
 def _nec_statement_id_for_status(statement_id: str, *, candidate_status: str) -> str:
-    """PCRI03_#6 형태를 official일 때 PCRI04_#6으로 치환."""
+    """CPRI03_#6 형태를 official일 때 CPRI04_#6으로 치환."""
     sid = str(statement_id or "").strip()
     if str(candidate_status or "").strip().lower() != "official":
         return sid
+    if sid.startswith("CPRI03_"):
+        return "CPRI04_" + sid[len("CPRI03_") :]
+    # 구형 PCRI03_ 저장값 호환
     if sid.startswith("PCRI03_"):
-        return "PCRI04_" + sid[len("PCRI03_") :]
+        return "CPRI04_" + sid[len("PCRI03_") :]
     return sid
 
 
@@ -238,8 +248,8 @@ def post_report_html(
     stmt = _nec_statement_id_for_status(statement_id, candidate_status=candidate_status)
     form = {
         "electionId": ELECTION_ID,
-        "requestURI": f"/electioninfo/{ELECTION_ID}/pc/{jsp_name}",
-        "topMenuId": "PC",
+        "requestURI": f"/electioninfo/{ELECTION_ID}/{NEC_REPORT_JSP_DIR}/{jsp_name}",
+        "topMenuId": NEC_TOP_MENU_ID,
         "secondMenuId": menu_id,
         "menuId": menu_id,
         "statementId": stmt,
@@ -250,7 +260,17 @@ def post_report_html(
         "sggCityCode": sgg_town_code,
     }
     url = urljoin(BASE, REPORT_PATH)
-    r = _request_with_retry("POST", url, timeout=90, data=form)
+    referer = urljoin(
+        BASE,
+        f"/main/showDocument.xhtml?electionId={ELECTION_ID}&topMenuId={NEC_TOP_MENU_ID}&secondMenuId={menu_id}",
+    )
+    r = _request_with_retry(
+        "POST",
+        url,
+        timeout=90,
+        data=form,
+        headers={"Referer": referer, "Origin": BASE},
+    )
     r.encoding = r.apparent_encoding or "utf-8"
     return r.text
 
