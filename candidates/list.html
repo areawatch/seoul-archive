@@ -342,7 +342,7 @@
           지금 불러온 <code class="rounded bg-white px-1 py-0.5 text-xs">candidates.json</code>은 예비 명부만 있거나, 필드가 없는 예전 형식일 수 있습니다. 전체 예비 명단은 위의
           <strong>예비후보 명부 보기</strong>로 이동하세요. 저장소의 본후보 갱신은 로컬 또는 CI에서
           <code class="whitespace-pre-wrap rounded bg-white px-1 py-0.5 text-[11px]">python3 crawl_candidates.py --task candidates --candidate-status official</code>
-          로 실행합니다. 크롤러는 본후보일 때 선관위 <strong>topMenuId=CP, CPRI04(본후보자 명부)</strong> 및 <code class="text-[11px]">…/cp/cpri04_ex.jsp</code> 형식으로 POST합니다. 여전히 구·선거구마다 +0명이면 해당 시점에 본후보 등록이 없거나, 선관위 HTML·statementId가 바뀐 경우이니 브라우저 개발자 도구(Network)에서 요청 본문과 응답을 확인해 주세요.
+          로 실행합니다. 크롤러는 본후보일 때 선관위 <strong>topMenuId=CP, CPRI04(본후보자 명부)</strong> 및 <code class="text-[11px]">…/cp/cpri04.jsp</code> 형식으로 POST합니다. 여전히 구·선거구마다 +0명이면 해당 시점에 본후보 등록이 없거나, 선관위 HTML·statementId가 바뀐 경우이니 브라우저 개발자 도구(Network)에서 요청 본문과 응답을 확인해 주세요.
         </p>
       </div>
 

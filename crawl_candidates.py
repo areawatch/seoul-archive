@@ -33,7 +33,7 @@
   각 후보에 "office": "구의원" | "시의원" | "구청장" 필드가 붙습니다(없으면 화면에서 구의원으로 간주).
 
 선거구명(constituency)·주소(address)는 이 스크립트가 넣는 필드입니다.
-huboId는 선관위 예비·본후보 상세(전과 스캔 서류) 링크용입니다. 제9회 지방선거(0020260603) 통계는 topMenuId=CP·CPRI03/CPRI04·…/cp/cpri03_ex.jsp 형식을 사용합니다.
+huboId는 선관위 예비·본후보 상세(전과 스캔 서류) 링크용입니다. 제9회 지방선거(0020260603) 명부 POST의 requestURI는 …/cp/cpri03.jsp·cpri04.jsp(구형 cpri03_ex.jsp는 404)입니다.
 """
 
 from __future__ import annotations
@@ -217,11 +217,11 @@ def fetch_sgg_town_codes(town_code: str, *, election_code: str) -> list[dict[str
 def _nec_pc_report_menu(*, candidate_status: str) -> tuple[str, str]:
     """
     선거통계 지방선거(2026) 후보 명부: 예비 CPRI03, 본후보 CPRI04.
-    반환: (secondMenuId/menuId, JSP 파일명 cpri03_ex.jsp | cpri04_ex.jsp).
+    반환: (secondMenuId/menuId, JSP 파일명 cpri03.jsp | cpri04.jsp) — cpri*_ex.jsp 는 404.
     """
     if str(candidate_status or "").strip().lower() == "official":
-        return ("CPRI04", "cpri04_ex.jsp")
-    return ("CPRI03", "cpri03_ex.jsp")
+        return ("CPRI04", "cpri04.jsp")
+    return ("CPRI03", "cpri03.jsp")
 
 
 def _nec_statement_id_for_status(statement_id: str, *, candidate_status: str) -> str:
@@ -260,6 +260,8 @@ def _nec_report_post_form(
         "townCode": town_code,
         "sggTownCode": sgg_town_code,
         "sggCityCode": sgg_town_code,
+        "dateCode": "0",
+        "proportionalRepresentationCode": "-1",
     }
 
 
