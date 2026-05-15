@@ -23,8 +23,22 @@
 
 #detailModal .custom-detail-table,
 #archiveWealthModal .custom-detail-table {
+  --wealth-cell-border: 1px solid #ced4da;
   font-size: 0.75rem;
   line-height: 1.3;
+  border-collapse: collapse;
+  border: var(--wealth-cell-border);
+}
+
+#detailModal .custom-detail-table > :not(caption) > * > *,
+#archiveWealthModal .custom-detail-table > :not(caption) > * > * {
+  border: var(--wealth-cell-border) !important;
+  box-shadow: none !important;
+}
+
+#detailModal .custom-detail-table tfoot,
+#archiveWealthModal .custom-detail-table tfoot {
+  border-top: var(--wealth-cell-border);
 }
 
 #detailModal .custom-detail-table thead th,

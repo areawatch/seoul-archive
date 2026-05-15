@@ -335,7 +335,7 @@
     });
 
     html +=
-      "</tbody><tfoot style=\"border-top: 1px solid #dee2e6;\"><tr class=\"fw-bold\">" +
+      "</tbody><tfoot><tr class=\"fw-bold\">" +
       '<td class="text-center bg-light">총계</td>' +
       '<td class="text-end text-danger">' +
       t26.toLocaleString() +
