@@ -5,5 +5,5 @@ node_modules/
 .env.*
 .DS_Store
 
-# 예비 명부 스냅샷(crawl_candidates.py --snapshot-existing-output). 저장소에는 디렉터리만 유지.
-public/data/archive/candidates-snapshot-*.json
+# crawl_candidates.py --task nec-probe 로 생성되는 로컬 진단 HTML
+nec-probe-council-*.html

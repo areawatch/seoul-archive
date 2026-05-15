@@ -24,6 +24,10 @@
   (선택) --no-preliminary-merge 로 예비 고정본 상속을 끌 수 있습니다.
   (선택) --snapshot-existing-output 으로 덮어쓰기 직전에 public/data/archive/에 타임스탬프 복사본을 남길 수 있습니다.
 
+진단(본·예비 POST 비교, HTML 저장):
+  python3 crawl_candidates.py --task nec-probe --nec-probe-district 종로구
+  → nec-probe-council-preliminary.html, nec-probe-council-official.html 및 stderr에 폼 필드·파싱 건수 출력
+
 출력: public/data/candidates.json
   형식: {"updatedAt": "ISO8601(Asia/Seoul)", "candidates": [ ... ]}
   각 후보에 "office": "구의원" | "시의원" | "구청장" 필드가 붙습니다(없으면 화면에서 구의원으로 간주).
@@ -233,20 +237,18 @@ def _nec_statement_id_for_status(statement_id: str, *, candidate_status: str) ->
     return sid
 
 
-def post_report_html(
+def _nec_report_post_form(
     town_code: str,
     sgg_town_code: str,
     *,
     election_code: str,
     statement_id: str,
     candidate_status: str,
-) -> str:
-    # 선관위 폼은 electionCode=4(구·시·군의 장)일 때 sggCityCode 없이는
-    # townCode+sggTownCode만으로는 표가 비어 「검색된 결과가 없습니다」만 온다.
-    # 웹 화면은 sggCityCode(선거구)를 쓰므로, API에서 받은 코드를 동일 값으로 넣는다.
+) -> dict[str, str]:
+    """선거통계 electionInfo_report.xhtml POST 본문(dict)."""
     menu_id, jsp_name = _nec_pc_report_menu(candidate_status=candidate_status)
     stmt = _nec_statement_id_for_status(statement_id, candidate_status=candidate_status)
-    form = {
+    return {
         "electionId": ELECTION_ID,
         "requestURI": f"/electioninfo/{ELECTION_ID}/{NEC_REPORT_JSP_DIR}/{jsp_name}",
         "topMenuId": NEC_TOP_MENU_ID,
@@ -259,6 +261,27 @@ def post_report_html(
         "sggTownCode": sgg_town_code,
         "sggCityCode": sgg_town_code,
     }
+
+
+def post_report_html(
+    town_code: str,
+    sgg_town_code: str,
+    *,
+    election_code: str,
+    statement_id: str,
+    candidate_status: str,
+) -> str:
+    # 선관위 폼은 electionCode=4(구·시·군의 장)일 때 sggCityCode 없이는
+    # townCode+sggTownCode만으로는 표가 비어 「검색된 결과가 없습니다」만 온다.
+    # 웹 화면은 sggCityCode(선거구)를 쓰므로, API에서 받은 코드를 동일 값으로 넣는다.
+    form = _nec_report_post_form(
+        town_code,
+        sgg_town_code,
+        election_code=election_code,
+        statement_id=statement_id,
+        candidate_status=candidate_status,
+    )
+    menu_id = str(form.get("secondMenuId") or "")
     url = urljoin(BASE, REPORT_PATH)
     referer = urljoin(
         BASE,
@@ -273,6 +296,82 @@ def post_report_html(
     )
     r.encoding = r.apparent_encoding or "utf-8"
     return r.text
+
+
+def run_nec_probe(
+    *,
+    district: str,
+    output_dir: str,
+    election_name: str,
+) -> None:
+    """구의원 한 구·첫 선거구에 대해 예비/본 POST 응답을 비교하고 HTML을 저장합니다."""
+    d = str(district or "").strip() or "종로구"
+    out = os.path.abspath(str(output_dir or ".").strip() or ".")
+    os.makedirs(out, exist_ok=True)
+
+    towns = fetch_seoul_towns(election_code=COUNCIL_ELECTION_CODE)
+    town = next((t for t in towns if t["name"] == d), None)
+    if not town:
+        raise SystemExit(f"nec-probe: 구 이름을 찾을 수 없습니다: {d}")
+
+    sggs = fetch_sgg_town_codes(town["code"], election_code=COUNCIL_ELECTION_CODE)
+    if not sggs:
+        raise SystemExit(f"nec-probe: {d} 선거구 코드 없음")
+    sgg = sggs[0]
+
+    post_url = urljoin(BASE, REPORT_PATH)
+    for status in ("preliminary", "official"):
+        form = _nec_report_post_form(
+            town["code"],
+            sgg["code"],
+            election_code=COUNCIL_ELECTION_CODE,
+            statement_id=COUNCIL_STATEMENT_ID,
+            candidate_status=status,
+        )
+        print(f"\n[nec-probe] === 구의원 / {status} ===", file=sys.stderr)
+        print(f"[nec-probe] POST {post_url}", file=sys.stderr)
+        for k in sorted(form.keys()):
+            print(f"  {k}={form[k]}", file=sys.stderr)
+
+        html = post_report_html(
+            town["code"],
+            sgg["code"],
+            election_code=COUNCIL_ELECTION_CODE,
+            statement_id=COUNCIL_STATEMENT_ID,
+            candidate_status=status,
+        )
+        path = os.path.join(out, f"nec-probe-council-{status}.html")
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(html)
+
+        err_page = (
+            "비정상적인 접근" in html
+            or "서비스하고 있지 않은 페이지" in html
+            or "This is error page" in html
+        )
+        empty_phrase = (
+            "검색된 결과가 없습니다" in html
+            or "조회된 자료가 없습니다" in html
+            or "등록된 후보자가 없습니다" in html
+        )
+        parsed = parse_candidates_from_report(
+            html,
+            town["name"],
+            office=COUNCIL_OFFICE,
+            election_name=election_name,
+            candidate_status=status,
+        )
+        print(
+            f"[nec-probe] bytes={len(html)} err_page={err_page} empty_phrase={empty_phrase} "
+            f"popupPreHBJ={html.count('popupPreHBJ')} parsed_rows={len(parsed)} → {path}",
+            file=sys.stderr,
+        )
+
+    print(
+        "\n[nec-probe] 브라우저 Network에서 본 명부 표가 보일 때의 electionInfo_report POST "
+        "Form Data가 위와 다르면, 차이 나는 키·값을 알려 주시면 폼에 반영할 수 있습니다.",
+        file=sys.stderr,
+    )
 
 
 def _district_from_constituency(constituency: str) -> str:
@@ -879,9 +978,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--task",
-        choices=("all", "candidates", "news", "export-preliminary"),
+        choices=("all", "candidates", "news", "export-preliminary", "nec-probe"),
         default="all",
-        help="실행 작업: all(기본) | candidates(선관위 명부만) | news(RED LINE 뉴스 OG만) | export-preliminary(현재 출력 JSON을 예비 고정본으로 저장)",
+        help="실행 작업: all(기본) | candidates(선관위 명부만) | news(RED LINE 뉴스 OG만) | export-preliminary(현재 출력 JSON을 예비 고정본으로 저장) | nec-probe(구의원 1구·1선거구 예비/본 HTML·파싱 진단)",
     )
     parser.add_argument(
         "--dry-run",
@@ -924,9 +1023,27 @@ def main() -> None:
         action="store_true",
         help="본후보(또는 일반) 크롤 시 예비 고정본(--preliminary-archive)에서 상속하지 않습니다.",
     )
+    parser.add_argument(
+        "--nec-probe-district",
+        default="종로구",
+        help="--task nec-probe 시 조회할 자치구명 (기본: 종로구)",
+    )
+    parser.add_argument(
+        "--nec-probe-output-dir",
+        default=".",
+        help="--task nec-probe 시 nec-probe-council-*.html 저장 디렉터리 (기본: 현재 디렉터리)",
+    )
     args = parser.parse_args()
 
     filt = set(args.districts) if args.districts else None
+    if args.task == "nec-probe":
+        run_nec_probe(
+            district=str(args.nec_probe_district or "종로구").strip(),
+            output_dir=str(args.nec_probe_output_dir or ".").strip(),
+            election_name=str(args.election_name or DEFAULT_ELECTION_NAME).strip() or DEFAULT_ELECTION_NAME,
+        )
+        return
+
     if args.task == "export-preliminary":
         n = export_preliminary_archive(
             source_path=args.output,
