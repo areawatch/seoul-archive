@@ -34,7 +34,7 @@
 
 선거구명(constituency)·주소(address)는 이 스크립트가 넣는 필드입니다.
 huboId는 선관위 예비·본후보 상세(전과 스캔 서류) 링크용입니다. 제9회 지방선거(0020260603) 명부 POST는 requestURI …/cp/cpri03.jsp 로 통일하고,
-본후보는 statementId만 CPRI04_#N 으로 구분합니다(cpri04.jsp 전용 POST는 오류 응답이 나는 경우가 있습니다).
+본후보는 statementId만 CPRI04_#N 으로 1차 POST하고, NEC가 빈 표만 줄 때는 같은 조건으로 CPRI03_#N 을 재요청합니다(화면 명부와 맞추기 위함).
 시·도의회의원·구의원(electionCode 5·6)은 브라우저와 동일하게 sggCityCode=-1, sggTownCode=0 으로 자치구 단위 한 번에 조회합니다.
 """
 
@@ -226,7 +226,7 @@ def _nec_pc_report_menu() -> tuple[str, str]:
 
 
 def _nec_statement_id_for_status(statement_id: str, *, candidate_status: str) -> str:
-    """CPRI03_#6 형태를 official일 때 CPRI04_#6으로 치환."""
+    """CPRI03_#6 형태를 official일 때 CPRI04_#6으로 치환(POST 1차 시도)."""
     sid = str(statement_id or "").strip()
     if str(candidate_status or "").strip().lower() != "official":
         return sid
@@ -236,6 +236,13 @@ def _nec_statement_id_for_status(statement_id: str, *, candidate_status: str) ->
     if sid.startswith("PCRI03_"):
         return "CPRI04_" + sid[len("PCRI03_") :]
     return sid
+
+
+def _nec_official_report_empty(html: str) -> bool:
+    """본후보( CPRI04 ) POST가 빈 표·오류인지(예비 명부로 폴백할지) 판별."""
+    if "비정상적인 접근" in html or "서비스하고 있지 않은 페이지" in html or "This is error page" in html:
+        return True
+    return "검색된 결과가 없습니다" in html
 
 
 def _nec_report_post_form(
@@ -303,15 +310,34 @@ def post_report_html(
         BASE,
         f"/main/showDocument.xhtml?electionId={ELECTION_ID}&topMenuId={NEC_TOP_MENU_ID}&secondMenuId={menu_id}",
     )
-    r = _request_with_retry(
-        "POST",
-        url,
-        timeout=90,
-        data=form,
-        headers={"Referer": referer, "Origin": BASE},
-    )
-    r.encoding = r.apparent_encoding or "utf-8"
-    return r.text
+
+    def _post_once(data: dict[str, str]) -> str:
+        r = _request_with_retry(
+            "POST",
+            url,
+            timeout=90,
+            data=data,
+            headers={"Referer": referer, "Origin": BASE},
+        )
+        r.encoding = r.apparent_encoding or "utf-8"
+        return r.text
+
+    html = _post_once(form)
+    if (
+        str(candidate_status or "").strip().lower() == "official"
+        and _nec_official_report_empty(html)
+    ):
+        form_fb = _nec_report_post_form(
+            town_code,
+            sgg_town_code,
+            election_code=election_code,
+            statement_id=statement_id,
+            candidate_status="preliminary",
+        )
+        html_fb = _post_once(form_fb)
+        if not _nec_official_report_empty(html_fb):
+            return html_fb
+    return html
 
 
 def run_nec_probe(
