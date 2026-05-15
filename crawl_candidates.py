@@ -35,6 +35,7 @@
 선거구명(constituency)·주소(address)는 이 스크립트가 넣는 필드입니다.
 huboId는 선관위 예비·본후보 상세(전과 스캔 서류) 링크용입니다. 제9회 지방선거(0020260603) 명부 POST는 requestURI …/cp/cpri03.jsp 로 통일하고,
 본후보는 statementId만 CPRI04_#N 으로 구분합니다(cpri04.jsp 전용 POST는 오류 응답이 나는 경우가 있습니다).
+시·도의회의원·구의원(electionCode 5·6)은 브라우저와 동일하게 sggCityCode=-1, sggTownCode=0 으로 자치구 단위 한 번에 조회합니다.
 """
 
 from __future__ import annotations
@@ -245,9 +246,23 @@ def _nec_report_post_form(
     statement_id: str,
     candidate_status: str,
 ) -> dict[str, str]:
-    """선거통계 electionInfo_report.xhtml POST 본문(dict)."""
+    """
+    선거통계 electionInfo_report.xhtml POST 본문(dict).
+
+    시·도의회의원(5)·구·시·군의회의원(6)은 브라우저와 같이 자치구만 선택 후 조회할 때
+    sggCityCode=-1, sggTownCode=0 이어야 구 안 모든 기초선거구 행이 한 응답에 옵니다.
+    (sgg 코드를 시도 코드에 넣으면 선거구별 1~2명만 오거나 본후보 분기와 맞지 않을 수 있음.)
+    구·시·군의 장(4)은 JSON에서 받은 단일 선거구 코드를 sggCityCode·sggTownCode 모두에 넣습니다.
+    """
     menu_id, jsp_name = _nec_pc_report_menu()
     stmt = _nec_statement_id_for_status(statement_id, candidate_status=candidate_status)
+    ec = str(election_code or "").strip()
+    if ec in (METRO_COUNCIL_ELECTION_CODE, COUNCIL_ELECTION_CODE):
+        sgg_city = "-1"
+        sgg_town = "0"
+    else:
+        sgg_city = str(sgg_town_code or "").strip()
+        sgg_town = sgg_city
     return {
         "electionId": ELECTION_ID,
         "requestURI": f"/electioninfo/{ELECTION_ID}/{NEC_REPORT_JSP_DIR}/{jsp_name}",
@@ -258,8 +273,8 @@ def _nec_report_post_form(
         "electionCode": election_code,
         "cityCode": SEOUL_CITY_CODE,
         "townCode": town_code,
-        "sggTownCode": sgg_town_code,
-        "sggCityCode": sgg_town_code,
+        "sggTownCode": sgg_town,
+        "sggCityCode": sgg_city,
         "dateCode": "0",
         "proportionalRepresentationCode": "-1",
     }
@@ -273,9 +288,8 @@ def post_report_html(
     statement_id: str,
     candidate_status: str,
 ) -> str:
-    # 선관위 폼은 electionCode=4(구·시·군의 장)일 때 sggCityCode 없이는
-    # townCode+sggTownCode만으로는 표가 비어 「검색된 결과가 없습니다」만 온다.
-    # 웹 화면은 sggCityCode(선거구)를 쓰므로, API에서 받은 코드를 동일 값으로 넣는다.
+    # electionCode=4(구청장 등): sggCityCode·sggTownCode에 선거구 JSON 코드 필요.
+    # electionCode=5·6: _nec_report_post_form 이 sggCityCode=-1, sggTownCode=0 으로 맞춤.
     form = _nec_report_post_form(
         town_code,
         sgg_town_code,
@@ -786,6 +800,9 @@ def crawl_office(
     merged: list[dict[str, Any]] = []
     request_count = 0
 
+    ec = str(election_code or "").strip()
+    use_town_aggregate = ec in (METRO_COUNCIL_ELECTION_CODE, COUNCIL_ELECTION_CODE)
+
     for town in towns:
         try:
             sggs = fetch_sgg_town_codes(town["code"], election_code=election_code)
@@ -796,7 +813,13 @@ def crawl_office(
             print(f"[skip] [{office_label}] {town['name']}: 선거구 코드 없음", file=sys.stderr)
             continue
 
-        for sgg in sggs:
+        sgg_loop: list[dict[str, str]] = (
+            [{"code": "0", "name": "(구 단위·기초선거구 통합)"}]
+            if use_town_aggregate
+            else sggs
+        )
+
+        for sgg in sgg_loop:
             request_count += 1
             if dry_run:
                 print(
@@ -840,7 +863,7 @@ def crawl_office(
                         c.get("name", ""),
                         c.get("party", ""),
                         c.get("regDate", ""),
-                        sgg["code"],
+                        str(c.get("constituency") or sgg["code"]),
                     )
                     if fb in seen_fallback:
                         continue
