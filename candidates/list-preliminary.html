@@ -13,7 +13,7 @@
       gtag("js", new Date());
       gtag("config", "G-HXSD5K4LM6");
     </script>
-    <title>우리동네빌런찾기 · 후보 검증 결과</title>
+    <title>서울시 구청장·구의원·시의원 예비후보 — 직무·구·정당·이름 필터</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -81,7 +81,39 @@
       }
 
 
-      
+      /* 헤더 아래: 레트로 슬라이드 배너(RED LINE과 통일) */
+.villain-slide::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.38;
+        background-image:
+          repeating-linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0.09) 0px,
+            rgba(255, 255, 255, 0.09) 1px,
+            rgba(0, 0, 0, 0) 3px,
+            rgba(0, 0, 0, 0) 6px
+          ),
+          radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+        background-size: auto, 10px 10px;
+        mix-blend-mode: overlay;
+      }
+      .villain-slide::after {
+        content: "";
+        position: absolute;
+        inset: -40% -20%;
+        pointer-events: none;
+        background:
+          radial-gradient(closest-side, rgba(250, 204, 21, 0.16), transparent 60%),
+          radial-gradient(rgba(34, 211, 238, 0.12) 1px, transparent 1px),
+          radial-gradient(rgba(255, 77, 77, 0.10) 1px, transparent 1px);
+        background-size: auto, 14px 14px, 18px 18px;
+        background-position: 0 0, 0 0, 8px 10px;
+        opacity: 0.55;
+        animation: villainSlideBreath 14s ease-in-out infinite;
+      }
       @keyframes villainSlideBreath {
         0%,
         100% {
@@ -100,7 +132,6 @@
           opacity: 0.25;
         }
       }
-
       .pixel-mono {
         font-family: "DungGeunMo", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
           "Courier New", monospace;
@@ -127,7 +158,7 @@
     </style>
     <link rel="stylesheet" href="theme-light.css" />
   </head>
-  <body class="min-h-screen bg-white text-slate-900 antialiased">
+  <body class="min-h-screen bg-white text-slate-800 antialiased">
     <div id="header-plugin"></div>
 
     <header class="mb-10 text-center">
@@ -135,9 +166,9 @@
         <div class="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
           <!-- title -->
           <div>
-            <p class="text-xs font-black uppercase tracking-widest text-[#ff4d4d]">빌런아카이브</p>
+            <p class="text-xs font-black uppercase tracking-widest text-[#ff4d4d]">CANDIDATES</p>
             <h1 class="dash-title mt-1 text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900">
-              후보 검증 결과
+              구청장·구의원·시의원 예비후보 명부
             </h1>
           </div>
           <!-- breadcrumb -->
@@ -146,16 +177,19 @@
             <span class="text-slate-400 text-[10px] font-black">&gt;</span>
             <a href="/candidates/" class="inline-flex items-center rounded border-2 border-slate-300 bg-white/80 px-2 py-0.5 text-[10px] font-black tracking-widest text-slate-500 shadow-[1px_1px_0_rgba(2,6,23,0.25)] transition hover:border-slate-500 hover:text-slate-800">VILLAIN ARCHIVE</a>
             <span class="text-slate-400 text-[10px] font-black">&gt;</span>
-            <span class="inline-flex items-center rounded border-2 border-[#ff4d4d] bg-[#fff0f0] px-2 py-0.5 text-[10px] font-black tracking-widest text-[#ff4d4d] shadow-[1px_1px_0_rgba(2,6,23,0.45)]">FIND VILLAIN</span>
+            <span class="inline-flex items-center rounded border-2 border-[#ff4d4d] bg-[#fff0f0] px-2 py-0.5 text-[10px] font-black tracking-widest text-[#ff4d4d] shadow-[1px_1px_0_rgba(2,6,23,0.45)]">예비 CANDIDATES</span>
           </nav>
           <!-- nav buttons -->
           <div class="mt-4 flex w-full flex-wrap justify-center gap-2">
             <a href="index.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">🏠 개요</a>
-            <a href="list.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">👥 후보자 목록 →</a>
+            <a href="villain.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">😈 빌런아카이브 ←</a>
             <a href="briefing.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">📋 브리핑 →</a>
             <a href="status.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">🛰️ 데이터 원정대 →</a>
+            <a
+              href="list.html"
+              class="inline-flex items-center justify-center rounded-lg border-2 border-slate-800 bg-emerald-100 px-4 py-2 text-sm font-black text-slate-900 shadow-[2px_2px_0_rgba(2,6,23,0.35)] transition hover:bg-emerald-200"
+              >✅ 본후보 명부 보기</a>
           </div>
-          <p class="mt-3 text-sm text-slate-500">구글 시트에 등재된 후보만 표시됩니다.</p>
           <p id="dataUpdatedLine" class="mt-1 hidden text-sm text-slate-500" aria-live="polite"></p>
         </div>
       </section>
@@ -180,7 +214,7 @@
                 type="button"
                 data-office-filter=""
                 aria-pressed="true"
-                class="office-filter-seg border-r border-slate-300 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90 sm:px-3"
+                class="office-filter-seg border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90 sm:px-3"
               >
                 전체
               </button>
@@ -216,6 +250,27 @@
             >
               필터 초기화
             </button>
+          </div>
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-0.5">
+            <label
+              for="incumbentOnlyFilter"
+              class="inline-flex max-w-full cursor-pointer select-none items-start gap-2 text-sm text-slate-700"
+            >
+              <input
+                type="checkbox"
+                id="incumbentOnlyFilter"
+                class="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-400 bg-white text-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20"
+              />
+              <span class="leading-snug">
+                <span class="font-black text-slate-800">현직만</span>
+                <span class="mt-0.5 block text-xs font-normal text-slate-500">
+                  위에서 고른 직무(또는 전체)에 해당하면서, <strong class="font-medium text-slate-800">재산 공개 명부에 이름·자치구가 일치해 등재된 후보</strong>만 표시합니다. 여기서 말하는 현직은
+                  <strong class="font-medium text-slate-800">구정감시서울네트워크</strong>가 재산 내역을 조사한
+                  <strong class="font-medium text-slate-800">현직 구청장·구의원</strong>을 의미하며, 해당 명부에 맞는 인원은
+                  <strong class="font-medium text-slate-800">공개된 재산 내역</strong>을 눌러 확인할 수 있습니다.
+                </span>
+              </span>
+            </label>
           </div>
         </div>
         <div class="flex w-full flex-col gap-1.5 lg:col-span-3">
@@ -265,67 +320,220 @@
       </div>
 
       <div
+        id="candidatesStatsPanel"
+        class="dash-card mb-8 p-4"
+        role="region"
+        aria-label="필터 결과 요약 통계"
+      ></div>
+
+      <div
         id="errorBox"
         class="mb-6 hidden border-2 border-black bg-amber-400/10 px-4 py-3 text-sm text-amber-200"
         role="alert"
       ></div>
 
-      <section class="mb-8" aria-labelledby="verifiedCandidatesTitle">
+      <section aria-labelledby="allCandidatesTitle">
         <div class="mb-3 flex items-end justify-between gap-3">
-          <div>
-            <h2 id="verifiedCandidatesTitle" class="text-lg font-black tracking-tight text-white">
-              검증 후보 목록
-            </h2>
-            <p class="mt-1 text-xs text-slate-300">표 상단 필터로 구·정당·이름을 좁힐 수 있습니다.</p>
-          </div>
-          <div class="flex shrink-0 items-center gap-2">
-            <a
-              id="runCandidatesCrawlerBtn"
-              href="https://github.com/areawatch/seoul-archive/actions/workflows/crawl-candidates.yml"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="pixel-nav-btn inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition"
-              title="선관위 예비후보 수집 수동 실행"
-            >
-              선관위 크롤
-            </a>
-            <a
-              id="runNewsCrawlerBtn"
-              href="https://github.com/areawatch/seoul-archive/actions/workflows/crawl-redline-news.yml"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="pixel-nav-btn inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition"
-              title="뉴스 제목 수집 수동 실행"
-            >
-              뉴스기사 수집
-            </a>
-            <p id="verifiedCountLabel" class="text-sm font-black text-slate-200">0명</p>
-          </div>
+          <h2 id="allCandidatesTitle" class="text-xl font-black tracking-tight text-white">
+            전체 예비후보자 명부
+          </h2>
         </div>
-        <div
-          id="verifiedCandidatesEmpty"
-          class="hidden border-2 border-dashed border-white/20 bg-black/20 px-4 py-5 text-sm text-slate-300"
-        >
-          현재 필터 조건과 일치하는 심층 검증 후보가 없습니다.
-        </div>
-        <div id="verifiedCandidatesList" class="w-full"></div>
+      <div
+        id="candidatesTableWrap"
+        class="overflow-x-auto border-2 border-black bg-white"
+        style="border-radius:14px;overflow:hidden;box-shadow:0 10px 0 rgba(2,6,23,.22);"
+      >
+        <table class="min-w-[1120px] w-full border-collapse text-left text-sm text-slate-800">
+          <thead>
+            <tr class="border-b border-white/10 bg-[#0b1220]">
+              <th
+                scope="col"
+                class="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-white"
+              >
+                <button
+                  type="button"
+                  id="sortNameBtn"
+                  data-sort-scope="main"
+                  data-sort-key="name"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/10 hover:text-white"
+                >
+                  이름
+                  <span
+                    id="sortNameIcon"
+                    data-sort-scope="main"
+                    data-sort-icon-for="name"
+                    class="inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                    >↑</span
+                  >
+                </button>
+              </th>
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
+                정당
+              </th>
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
+                <button
+                  type="button"
+                  id="sortOfficeBtn"
+                  data-sort-scope="main"
+                  data-sort-key="office"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/10 hover:text-white"
+                >
+                  종류
+                  <span
+                    data-sort-icon-for="office"
+                    data-sort-scope="main"
+                    class="invisible inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                  ></span>
+                </button>
+              </th>
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
+                <button
+                  type="button"
+                  id="sortConstituencyBtn"
+                  data-sort-scope="main"
+                  data-sort-key="constituency"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/10 hover:text-white"
+                >
+                  선거구
+                  <span
+                    data-sort-icon-for="constituency"
+                    data-sort-scope="main"
+                    class="invisible inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                  ></span>
+                </button>
+              </th>
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
+                <button
+                  type="button"
+                  id="sortAgeBtn"
+                  data-sort-scope="main"
+                  data-sort-key="age"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/10 hover:text-white"
+                >
+                  나이
+                  <span
+                    id="sortAgeIcon"
+                    data-sort-scope="main"
+                    data-sort-icon-for="age"
+                    class="invisible inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                  ></span>
+                </button>
+              </th>
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
+                성별
+              </th>
+              <th scope="col" class="min-w-[5rem] px-3 py-3 text-xs font-semibold tracking-wide text-white">
+                직업
+              </th>
+              <th scope="col" class="min-w-[8rem] max-w-[14rem] px-3 py-3 text-xs font-semibold tracking-wide text-white">
+                학력
+              </th>
+              <th scope="col" class="min-w-[4rem] px-3 py-3 text-xs font-semibold tracking-wide text-white">
+                <button
+                  type="button"
+                  id="sortCriminalBtn"
+                  data-sort-scope="main"
+                  data-sort-key="criminal"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/10 hover:text-white"
+                >
+                  전과
+                  <span
+                    id="sortCriminalIcon"
+                    data-sort-scope="main"
+                    data-sort-icon-for="criminal"
+                    class="invisible inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                  ></span>
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="cardList" class="divide-y divide-slate-200"></tbody>
+        </table>
+        <div id="candidatesLoadMoreWrap" class="border-t border-slate-200"></div>
+      </div>
       </section>
-
-      <div id="cardList" class="hidden" aria-hidden="true"></div>
-      <div id="candidatesLoadMoreWrap" class="hidden" aria-hidden="true"></div>
     </div>
 
     <div id="footer-plugin"></div>
 
+      <div
+        id="detailModal"
+        class="fixed inset-0 z-[100] hidden items-center justify-center p-4 sm:p-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="detailModalTitle"
+      >
+      <div
+        class="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px]"
+        data-modal-backdrop
+        aria-hidden="true"
+      ></div>
+      <div
+        class="dash-card relative flex max-h-[min(90vh,720px)] w-full max-w-lg flex-col overflow-hidden bg-white p-0"
+      >
+        <div
+          class="flex shrink-0 items-center justify-between gap-3 border-b-2 border-slate-200 px-4 py-3"
+        >
+          <h2
+            id="detailModalTitle"
+            class="truncate text-lg font-black text-slate-900"
+          ></h2>
+          <button
+            type="button"
+            class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/30"
+            data-modal-close
+            aria-label="닫기"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div
+          id="detailModalBody"
+          class="min-h-0 flex-1 overflow-y-auto px-4 py-4 text-sm text-slate-800"
+        ></div>
+      </div>
+    </div>
+
     <div
-      id="verifiedFloatingTooltip"
-      class="pointer-events-none fixed z-[140] hidden max-w-[min(20rem,calc(100vw-1rem))] rounded-lg border-2 border-black bg-slate-950/70 px-3 py-2 text-xs leading-relaxed text-slate-200 backdrop-blur"
-      role="tooltip"
+      class="modal fade"
+      id="archiveWealthModal"
+      tabindex="-1"
+      aria-labelledby="archiveWealthModalLabel"
       aria-hidden="true"
-    ></div>
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-white text-slate-800 border-2 border-slate-300">
+          <div class="modal-header border-bottom border-slate-200">
+            <h5 class="modal-title font-black text-slate-900" id="archiveWealthModalLabel">재산 상세</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="닫기"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-4" style="height: 250px">
+              <canvas id="archiveWealthChart"></canvas>
+            </div>
+            <div class="text-slate-300 small mb-2">단위: 천원 (채무/부채는 총계에서 감산)</div>
+            <div id="archiveWealthContent"></div>
+          </div>
+          <div class="modal-footer border-top border-black">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
     <script>
       (function () {
         async function inject(id, url) {
@@ -395,8 +603,12 @@
         })();
       })();
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../config.js"></script>
+    <script src="../archive-wealth-modal.js"></script>
+
     <script>
-      /* 선관위 예비후보 명부「구시군」선택 순서와 동일 */
+      /* 선관위 후보자 명부「구시군」선택 순서와 동일(예비·본 명부 공통) */
       const SEOUL_DISTRICTS = [
         "종로구",
         "중구",
@@ -426,197 +638,6 @@
       ];
 
       const NEC_ELECTION_ID = "0020260603";
-      const VERIFIED_SHEET_CSV_URL =
-        "https://docs.google.com/spreadsheets/d/1HZOgA2XGNQe9RTyZsDDZdqfgdHIrUIfGqBKRs62cugA/gviz/tq?tqx=out:csv";
-
-      function normalizeLooseText(value) {
-        return String(value || "")
-          .trim()
-          .replace(/\s+/g, "")
-          .replace(/[()（）]/g, "")
-          .toLowerCase();
-      }
-
-      function normalizeDistrictName(value) {
-        return String(value || "")
-          .trim()
-          .replace(/\s+/g, "")
-          .replace(/서울특별시|서울시|서울/g, "")
-          .replace(/자치구/g, "구");
-      }
-
-      function parseCsvText(csvText) {
-        const text = String(csvText || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-        const rows = [];
-        let row = [];
-        let cell = "";
-        let inQuotes = false;
-        for (let i = 0; i < text.length; i++) {
-          const ch = text[i];
-          if (ch === '"') {
-            if (inQuotes && text[i + 1] === '"') {
-              cell += '"';
-              i++;
-            } else {
-              inQuotes = !inQuotes;
-            }
-          } else if (ch === "," && !inQuotes) {
-            row.push(cell);
-            cell = "";
-          } else if (ch === "\n" && !inQuotes) {
-            row.push(cell);
-            rows.push(row);
-            row = [];
-            cell = "";
-          } else {
-            cell += ch;
-          }
-        }
-        if (cell.length || row.length) {
-          row.push(cell);
-          rows.push(row);
-        }
-        const meaningfulRows = rows.filter((cells) => cells.some((c) => String(c || "").trim() !== ""));
-        if (!meaningfulRows.length) return [];
-        const headers = meaningfulRows[0].map((h) => String(h || "").trim());
-        if (!headers.length) return [];
-        return meaningfulRows.slice(1).map((cells) => {
-          const obj = {};
-          headers.forEach((header, idx) => {
-            obj[header] = String(cells[idx] || "").trim();
-          });
-          return obj;
-        });
-      }
-
-      function findSheetColumn(row, candidates) {
-        const keys = Object.keys(row || {});
-        for (const c of candidates) {
-          const exact = keys.find((k) => k === c);
-          if (exact) return exact;
-        }
-        for (const c of candidates) {
-          const contains = keys.find((k) => k.includes(c));
-          if (contains) return contains;
-        }
-        return "";
-      }
-
-      function findSheetColumnsByContains(row, token) {
-        return Object.keys(row || {}).filter((key) => key.includes(token));
-      }
-
-      function parseSheetNewsLinks(raw) {
-        const text = String(raw || "").trim();
-        if (!text) return [];
-        return text
-          .split(/\n|,|;/g)
-          .map((item) => item.trim())
-          .filter(Boolean)
-          .map((item) => {
-            const m = item.match(/https?:\/\/\S+/);
-            return m ? m[0] : "";
-          })
-          .filter(Boolean);
-      }
-
-      function guessArticleTitleFromUrl(link) {
-        const raw = String(link || "").trim();
-        if (!raw) return "기사 보기";
-        try {
-          const u = new URL(raw);
-          const seg = decodeURIComponent((u.pathname || "").split("/").filter(Boolean).pop() || "");
-          const cleaned = seg
-            .replace(/\.[a-z0-9]+$/i, "")
-            .replace(/[-_]+/g, " ")
-            .replace(/\s+/g, " ")
-            .trim();
-          if (cleaned) return cleaned;
-          return u.hostname.replace(/^www\./, "");
-        } catch {
-          return "기사 보기";
-        }
-      }
-
-      let redlineNewsTitleByUrl = {};
-
-      function getNewsTooltipTitle(link) {
-        const key = String(link || "").trim();
-        const cached = redlineNewsTitleByUrl[key];
-        if (cached) return cached;
-        return guessArticleTitleFromUrl(link);
-      }
-
-      function normalizeVerifiedRow(row) {
-        if (!row || typeof row !== "object") return null;
-        const nameCol = findSheetColumn(row, ["이름", "성명"]);
-        const districtCol = findSheetColumn(row, ["지역구", "자치구", "구"]);
-        if (!nameCol || !districtCol) return null;
-        const name = String(row[nameCol] || "").trim();
-        const district = String(row[districtCol] || "").trim();
-        if (!name || !district) return null;
-        const gradeCol = findSheetColumn(row, ["검증등급", "등급"]);
-        const commentCol = findSheetColumn(row, ["구서넷 코멘트", "코멘트", "comment"]);
-        const crimeCol = findSheetColumn(row, ["범죄이력", "범죄", "전과"]);
-        const newsCol = findSheetColumn(row, ["뉴스링크", "뉴스 링크", "뉴스"]);
-        const imageCol = findSheetColumn(row, ["이미지 주소", "사진 주소", "이미지", "photo"]);
-        const insurrectionCols = findSheetColumnsByContains(row, "내란");
-        const corruptionCols = findSheetColumnsByContains(row, "부패");
-        const democracyCols = findSheetColumnsByContains(row, "민주");
-        const newsCols = findSheetColumnsByContains(row, "뉴스링크");
-        const questionnaireCols = findSheetColumnsByContains(row, "질의서");
-        const insurrectionText = insurrectionCols
-          .map((col) => String(row[col] || "").trim())
-          .filter(Boolean)
-          .join("\n");
-        const corruptionText = corruptionCols
-          .map((col) => String(row[col] || "").trim())
-          .filter(Boolean)
-          .join("\n");
-        const democracyText = democracyCols
-          .map((col) => String(row[col] || "").trim())
-          .filter(Boolean)
-          .join("\n");
-        const newsRaw = newsCols.length
-          ? newsCols.map((col) => String(row[col] || "").trim()).filter(Boolean).join("\n")
-          : String(row[newsCol] || "");
-        const questionnaireText = questionnaireCols
-          .map((col) => String(row[col] || "").trim())
-          .filter(Boolean)
-          .join("\n");
-        return {
-          name,
-          district,
-          grade: String(row[gradeCol] || "").trim(),
-          comment: String(row[commentCol] || "").trim(),
-          criminalHistory: String(row[crimeCol] || "").trim(),
-          newsLinks: parseSheetNewsLinks(newsRaw),
-          imageUrl: String(row[imageCol] || "").trim(),
-          qaInsurrection: insurrectionText,
-          qaCorruption: corruptionText,
-          qaDemocracy: democracyText,
-          qaQuestionnaire: questionnaireText,
-        };
-      }
-
-      function buildVerifiedRowIndex(rows) {
-        const map = new Map();
-        (rows || []).forEach((row) => {
-          const normalized = normalizeVerifiedRow(row);
-          if (!normalized) return;
-          const key = normalizeLooseText(normalized.name) + "|" + normalizeDistrictName(normalized.district);
-          if (!map.has(key)) map.set(key, normalized);
-        });
-        return map;
-      }
-
-      function verificationBorderClass(grade) {
-        const g = String(grade || "").trim().toUpperCase();
-        if (g.includes("위험")) return "border-red-500 ring-red-100";
-        if (g.includes("주의")) return "border-amber-500 ring-amber-100";
-        if (g.includes("PASS")) return "border-emerald-500 ring-emerald-100";
-        return "border-white/10 ring-white/10";
-      }
 
       function criminalShowsRecord(criminal) {
         const t = String(criminal ?? "").trim();
@@ -748,7 +769,7 @@
           t.badgeSolid +
           '">' +
           escapeHtml(p) +
-          '</span><strong class="font-bold text-slate-900">' +
+          '</span><strong class="font-black text-white">' +
           escapeHtml(primaryName(c.name)) +
           "</strong>"
         );
@@ -760,7 +781,7 @@
         var n = filtered.length;
         if (n === 0) {
           el.innerHTML =
-            '<p class="text-sm text-slate-500">필터와 일치하는 후보가 없어 통계를 표시할 수 없습니다.</p>';
+            '<p class="text-sm text-slate-300">필터와 일치하는 후보가 없어 통계를 표시할 수 없습니다.</p>';
           return;
         }
         var ageSum = 0;
@@ -826,16 +847,16 @@
           return hasWealthDisclosureInArchive(c);
         }).length;
         el.innerHTML =
-          '<h2 class="mb-3 text-base font-bold tracking-tight text-slate-900">👀구정감시 브리핑</h2>' +
-          '<ol class="m-0 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-slate-700">' +
-          '<li>평균 나이는 <span class="font-semibold text-slate-900">' +
+          '<h2 class="mb-3 text-base font-black tracking-tight text-white">👀구정감시 브리핑</h2>' +
+          '<ol class="m-0 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-slate-200">' +
+          '<li>평균 나이는 <span class="font-black text-white">' +
           escapeHtml(avgAgeStr) +
           "</span> 입니다." +
           ageExt +
           "</li>" +
-          '<li>전과가 있는 후보는 총 <span class="font-semibold text-slate-900">' +
+          '<li>전과가 있는 후보는 총 <span class="font-black text-white">' +
           escapeHtml(String(withCr)) +
-          '</span>명으로 전체 후보의 <span class="font-semibold text-slate-900">' +
+          '</span>명으로 전체 후보의 <span class="font-black text-white">' +
           escapeHtml(crPct) +
           "%</span>입니다" +
           (withCr > 0 && topCrList.length > 0
@@ -850,16 +871,16 @@
               "입니다"
             : "") +
           ".</li>" +
-          '<li>여성 후보는 <span class="font-semibold text-slate-900">' +
+          '<li>여성 후보는 <span class="font-black text-white">' +
           escapeHtml(String(female)) +
-          '</span>명으로 전체 후보의 <span class="font-semibold text-slate-900">' +
+          '</span>명으로 전체 후보의 <span class="font-black text-white">' +
           escapeHtml(fPct) +
           "%</span>입니다.</li>" +
-          '<li>재산 공개 명부에 등재되어 재산 내역을 열람할 수 있는 후보는 <span class="font-semibold text-slate-900">' +
+          '<li>재산 공개 명부에 등재되어 재산 내역을 열람할 수 있는 후보는 <span class="font-black text-white">' +
           escapeHtml(String(wealthCur)) +
           "</span>명입니다.</li>" +
           "</ol>" +
-          '<p class="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-400">※ 위 통계는 현재 필터·검색에 해당하는 <span class="font-medium text-slate-600">' +
+          '<p class="mt-3 border-t border-slate-200 pt-3 text-xs text-slate-500">※ 위 통계는 현재 필터·검색에 해당하는 <span class="font-black text-slate-800">' +
           n +
           "</span>명을 기준으로 합니다.</p>";
       }
@@ -890,8 +911,6 @@
       let lastFilteredCandidates = [];
       let mainSortKey = "name";
       let mainSortAsc = true;
-      let verifiedSortKey = "name";
-      let verifiedSortAsc = true;
       var LIST_PAGE_SIZE = 20;
       var visibleRowCount = LIST_PAGE_SIZE;
       let wealthPositionByKey = {};
@@ -950,7 +969,7 @@
       }
 
       function wealthDetailLinkCaption(label) {
-        return String(label || "").trim() + "(재산내역 보기)";
+        return "재산내역";
       }
 
       const WEALTH_CHIP_ICON_SM = `<svg class="h-2.5 w-2.5 shrink-0 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>`;
@@ -964,7 +983,7 @@
         const title =
           "재산 공개 명부에 등재된 인원입니다. 클릭하면 재산 상세를 봅니다.";
         const cap = escapeHtml(wealthDetailLinkCaption(label));
-        return `<button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="ml-1.5 inline-flex max-w-full items-center gap-0.5 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold leading-none tracking-tight text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800 focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-400" title="${escapeHtml(title)}"><span class="truncate">${cap}</span>${WEALTH_CHIP_ICON_SM}</button>`;
+        return `<button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="inline-flex max-w-full items-center gap-0.5 rounded-full border-2 border-slate-400 bg-slate-100 px-2 py-0.5 text-[10px] font-black leading-none tracking-tight text-slate-700 transition hover:bg-slate-200 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/20" title="${escapeHtml(title)}"><span class="truncate">${cap}</span>${WEALTH_CHIP_ICON_SM}</button>`;
       }
 
       function wealthModalSnippet(c) {
@@ -974,14 +993,14 @@
         const cap = escapeHtml(wealthDetailLinkCaption(label));
         return modalDetailRow(
           "재산 공개 명부",
-          `<button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="inline-flex w-full max-w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-left text-sm font-semibold tracking-tight text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-400 sm:w-auto sm:justify-start"><span class="min-w-0 flex-1 leading-snug">${cap}</span>${WEALTH_CHIP_ICON_MD}</button>
-          <p class="mt-2 text-xs text-slate-500">재산 공개 데이터에서 이름·자치구가 일치합니다.</p>`
+          `<button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="inline-flex w-full max-w-full items-center justify-center gap-1.5 rounded-xl border-2 border-slate-400 bg-slate-100 px-3 py-2.5 text-left text-sm font-black tracking-tight text-slate-700 transition hover:bg-slate-200 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/20 sm:w-auto sm:justify-start"><span class="min-w-0 flex-1 leading-snug">${cap}</span>${WEALTH_CHIP_ICON_MD}</button>
+          <p class="mt-2 text-xs text-slate-300">재산 공개 데이터에서 이름·자치구가 일치합니다.</p>`
         );
       }
 
       function modalDetailRow(label, innerHtml) {
-        return `<div class="min-w-0 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-          <h3 class="text-[11px] font-bold uppercase tracking-wide text-slate-400">${escapeHtml(label)}</h3>
+        return `<div class="min-w-0 border-b border-slate-200 pb-3 last:border-0 last:pb-0">
+          <h3 class="text-[11px] font-black uppercase tracking-wide text-slate-500">${escapeHtml(label)}</h3>
           <div class="mt-1.5 text-sm leading-relaxed text-slate-800">${innerHtml}</div>
         </div>`;
       }
@@ -1017,15 +1036,15 @@
 
         body.innerHTML = `
           <div class="mb-5 flex gap-4">
-            <img src="${photo || DEFAULT_AVATAR}" width="86" height="102" alt="" class="h-[102px] w-[86px] shrink-0 rounded-xl object-cover object-top ring-1 ring-slate-200" />
+            <img src="${photo || DEFAULT_AVATAR}" width="86" height="102" alt="" class="h-[102px] w-[86px] shrink-0 rounded-xl object-cover object-top ring-2 ring-slate-300" />
             <div class="min-w-0">
               <span class="inline-block rounded px-1 py-[3px] text-[11px] font-bold leading-none ${t.badgeSolid}">${escapeHtml(c.party || "정당 미상")}</span>
-              <p class="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-lg font-bold leading-tight text-slate-900">
-                <span>${escapeHtml(pname)}</span>${wealthInlineByNameHtml(c)}
+              <p class="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-lg font-black leading-tight text-slate-900">
+                <span>${escapeHtml(pname)}</span>${officialBadgeHtml(c)}${wealthInlineByNameHtml(c)}
               </p>
-              ${sub ? `<p class="text-sm text-slate-500">${escapeHtml(sub)}</p>` : ""}
-              <p class="mt-2 text-xs text-slate-500">${escapeHtml(String(age))} · ${gender} · ${job}</p>
-              <p class="mt-1 text-xs text-slate-400">${candidateModalAreaLineHtml(c)}</p>
+              ${sub ? `<p class="text-sm text-slate-600">${escapeHtml(sub)}</p>` : ""}
+              <p class="mt-2 text-xs text-slate-600">${escapeHtml(String(age))} · ${gender} · ${job}</p>
+              <p class="mt-1 text-xs text-slate-500">${candidateModalAreaLineHtml(c)}</p>
             </div>
           </div>
           <div class="space-y-3">
@@ -1142,6 +1161,22 @@
         );
       }
 
+      function electionNameOf(c) {
+        return String((c && c.election_name) || "2026지방선거").trim() || "2026지방선거";
+      }
+
+      function candidateStatusOf(c) {
+        const v = String((c && c.candidate_status) || "preliminary").trim().toLowerCase();
+        return v === "official" ? "official" : "preliminary";
+      }
+
+      function officialBadgeHtml(c) {
+        if (candidateStatusOf(c) !== "official") return "";
+        return (
+          ' <span class="inline-flex items-center rounded-full border border-black/70 bg-[#facc15]/15 px-1.5 py-0.5 text-[10px] font-black leading-none text-[#facc15] ring-1 ring-[#facc15]/20" title="본후보">본후보</span>'
+        );
+      }
+
       function getOfficeFilterValue() {
         var btn = document.querySelector("#officeFilterSeg button[aria-pressed='true']");
         if (!btn) return "";
@@ -1152,7 +1187,7 @@
         var root = document.getElementById("officeFilterSeg");
         if (!root) return;
         var onCls =
-          "office-filter-seg flex-none border-r border-slate-300 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90 sm:px-3";
+          "office-filter-seg flex-none border-r border-black/60 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90 sm:px-3";
         var offCls =
           "office-filter-seg flex-none border-r border-slate-300 px-2.5 py-2 text-center text-xs font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ff4d4d]/40 focus-visible:ring-inset bg-white text-slate-700 hover:bg-slate-50 sm:px-3";
         root.querySelectorAll("button[data-office-filter]").forEach(function (b) {
@@ -1214,7 +1249,6 @@
       }
 
       let allCandidates = [];
-      let verifiedCandidates = [];
 
       function fillDistrictSelect() {
         const sel = document.getElementById("district");
@@ -1248,237 +1282,7 @@
       }
 
       function mergedCandidatePhoto(c) {
-        if (c && c.verifiedMeta && c.verifiedMeta.imageUrl) return c.verifiedMeta.imageUrl;
-        return c.photo || "";
-      }
-
-      function makeQaAccordionHtml(meta) {
-        const items = [
-          { key: "내란", value: meta.qaInsurrection },
-          { key: "부패", value: meta.qaCorruption },
-          { key: "민주", value: meta.qaDemocracy },
-        ].filter((it) => it.value);
-        if (!items.length) {
-          return '<p class="text-xs text-slate-500">등록된 내란/부패/민주 질의 응답이 없습니다.</p>';
-        }
-        return items
-          .map((item) => {
-            const accentMap = { "내란": "bg-[#ff4d4d]", "부패": "bg-amber-500", "민주": "bg-blue-500" };
-            const accent = accentMap[item.key] || "bg-slate-600";
-            return `<div class="rounded-lg border border-slate-200 bg-slate-50 overflow-hidden">
-              <div class="flex items-center gap-2 border-b border-slate-200 px-3 py-2">
-                <span class="inline-block h-1.5 w-1.5 rounded-full ${accent}"></span>
-                <h4 class="text-[11px] font-black uppercase tracking-widest text-slate-600">${escapeHtml(item.key)} 관련 질의 응답</h4>
-              </div>
-              <div class="px-3 py-2.5 text-xs leading-relaxed text-slate-700 whitespace-pre-line">${escapeHtml(
-                item.value
-              )}</div>
-            </div>`;
-          })
-          .join("");
-      }
-
-      function criminalHistoryTagsHtml(raw) {
-        const text = String(raw || "").trim();
-        if (!text) return '<span class="text-slate-400">-</span>';
-        const parts = text
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean);
-        if (!parts.length) return '<span class="text-slate-400">-</span>';
-        return parts
-          .map(function (item) {
-          return `<span class="inline-flex items-center rounded-full whitespace-nowrap border border-slate-600 bg-slate-100 px-1.5 py-[2px] text-[10px] font-bold leading-none text-slate-800">#${escapeHtml(
-            item
-          )}</span>`;
-          })
-          .join("");
-      }
-
-      function renderVerifiedCandidates(filtered) {
-        const listEl = document.getElementById("verifiedCandidatesList");
-        const emptyEl = document.getElementById("verifiedCandidatesEmpty");
-        const countEl = document.getElementById("verifiedCountLabel");
-        if (!listEl || !emptyEl || !countEl) return;
-        const filteredVerified = filtered.filter((c) => !!c.verifiedMeta);
-        countEl.textContent = `${filteredVerified.length}명`;
-        if (!filteredVerified.length) {
-          listEl.innerHTML = "";
-          emptyEl.classList.remove("hidden");
-          return;
-        }
-        emptyEl.classList.add("hidden");
-        const sortedVerified = sortCandidatesByKey(
-          filteredVerified,
-          verifiedSortKey,
-          verifiedSortAsc
-        );
-        listEl.innerHTML = `<div class="overflow-x-auto border-2 border-black bg-black/20">
-          <table class="min-w-[1080px] w-full border-collapse text-left text-sm text-slate-100">
-            <thead>
-              <tr class="border-b border-white/10 bg-black/30">
-                <th class="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-white">
-                  <button type="button" data-sort-scope="verified" data-sort-key="name" class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/5 hover:text-white">
-                    후보
-                    <span data-sort-scope="verified" data-sort-icon-for="name" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
-                  </button>
-                </th>
-                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">정당</th>
-                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
-                  <button type="button" data-sort-scope="verified" data-sort-key="office" class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/5 hover:text-white">
-                    종류
-                    <span data-sort-scope="verified" data-sort-icon-for="office" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
-                  </button>
-                </th>
-                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
-                  <button type="button" data-sort-scope="verified" data-sort-key="constituency" class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/5 hover:text-white">
-                    선거구
-                    <span data-sort-scope="verified" data-sort-icon-for="constituency" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
-                  </button>
-                </th>
-                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">검증등급</th>
-                <th class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">상세</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-white/10">
-              ${sortedVerified
-                .map((c, idx) => {
-                  const meta = c.verifiedMeta;
-                  const party = c.party || "정당 미상";
-                  const commentText = String(meta.comment || "").trim();
-                  const newsLinks = Array.isArray(meta.newsLinks) ? meta.newsLinks.filter(Boolean) : [];
-                  const detailsId = "va-detail-" + idx;
-                  const hasDetails =
-                    !!commentText ||
-                    newsLinks.length > 0 ||
-                    String(meta.qaQuestionnaire || "").trim() !== "" ||
-                    String(meta.coup || "").trim() !== "" ||
-                    String(meta.corruption || "").trim() !== "" ||
-                    String(meta.democracy || "").trim() !== "";
-
-                  const newsListHtml = newsLinks.length
-                    ? `<ul class="m-0 list-disc space-y-1.5 pl-5">
-                        ${newsLinks
-                          .slice(0, 10)
-                          .map((href) => {
-                            const title = getNewsTooltipTitle(href);
-                            const label = title && title !== href ? title : href;
-                            return `<li class="text-slate-700"><a class="font-medium underline decoration-slate-400 underline-offset-2 hover:text-[#ff4d4d] hover:decoration-[#ff4d4d]" href="${escapeAttr(
-                              href
-                            )}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a></li>`;
-                          })
-                          .join("")}
-                      </ul>`
-                    : `<p class="m-0 text-slate-400 text-xs">연락처 없음</p>`;
-
-                  const commentBlockHtml = commentText
-                    ? `<div class="whitespace-pre-line text-slate-700 leading-relaxed">${escapeHtml(commentText)}</div>`
-                    : `<p class="m-0 text-slate-400 text-xs">-</p>`;
-
-                  const qaText = String(meta.qaQuestionnaire || "").trim() || "-";
-                  const qaAccordion = makeQaAccordionHtml(meta);
-                  const crimeTagsHtml = criminalHistoryTagsHtml(meta.criminalHistory);
-
-                  const mainRow = `<tr class="align-top ${verificationBorderClass(meta.grade)} border-l-4 cursor-pointer hover:bg-slate-50 transition-colors" data-va-row="${idx}" aria-controls="${detailsId}" aria-expanded="false">
-                    <td class="py-3 pl-4 pr-2">
-                      <div class="flex gap-2.5">
-                        <img src="${escapeAttr(mergedCandidatePhoto(c) || DEFAULT_AVATAR)}" alt="" class="h-10 w-10 shrink-0 rounded-full object-cover object-top ring-2 ring-slate-300" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
-                        <div class="min-w-0">
-                          <p class="flex items-center gap-1 font-black text-slate-900">
-                            <span>${escapeHtml(primaryName(c.name))}</span>
-                            ${
-                              commentText
-                                ? `<span class="ml-0.5 inline-flex items-center gap-1 whitespace-nowrap rounded-full px-1.5 py-[2px] text-[10px] font-black leading-none" style="background:#ffffff;border:2px solid #ff0049;color:#cc1a1a;box-shadow:1px 1px 0 rgba(204,26,26,0.3)">
-                                  <img src="/ghost.svg" alt="" class="h-3 w-3" aria-hidden="true" />
-                                  <span>빌런?</span>
-                                </span>`
-                                : ""
-                            }
-                          </p>
-                          <div class="mt-1 flex flex-wrap gap-1">${crimeTagsHtml}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-3">
-                      <span class="inline-flex rounded px-1.5 py-[3px] text-[10px] font-bold leading-none ${partyTheme(
-                        party
-                      ).badgeSolid}">${escapeHtml(party)}</span>
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-3 text-xs font-black text-slate-800">${escapeHtml(
-                      candidateOffice(c)
-                    )}</td>
-                    <td class="whitespace-nowrap px-3 py-3 text-xs text-slate-600">${escapeHtml(
-                      c.constituency || "—"
-                    )}</td>
-                    <td class="whitespace-nowrap px-3 py-3 text-xs font-black text-slate-800">${escapeHtml(
-                      meta.grade || "미기재"
-                    )}</td>
-                    <td class="whitespace-nowrap px-3 py-3 text-xs">
-                      <button type="button" class="inline-flex items-center gap-1 rounded-md border-2 border-slate-800 bg-white px-2.5 py-1.5 text-[11px] font-black text-slate-800 shadow-[2px_2px_0_rgba(2,6,23,0.85)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all" data-va-toggle="${idx}" aria-controls="${detailsId}" aria-expanded="false">
-                        ${hasDetails ? "펼치기 ▼" : "내용 없음"}
-                      </button>
-                    </td>
-                  </tr>`;
-
-                  const detailRow = `<tr id="${detailsId}" class="hidden" data-va-detail="${idx}" style="background:#f8fafc;border-top:2px solid #0b1220;">
-                    <td colspan="6" class="px-5 py-5">
-                      <div class="grid grid-cols-1 gap-3 lg:grid-cols-3">
-                        <section class="rounded-xl border-2 border-slate-800 bg-white p-4 shadow-[3px_3px_0_rgba(2,6,23,0.85)]">
-                          <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
-                            <span class="inline-block h-2 w-2 rounded-sm bg-[#ff4d4d]"></span>코멘트
-                          </h3>
-                          <div class="mt-2 text-sm leading-relaxed">${commentBlockHtml}</div>
-                        </section>
-                        <section class="rounded-xl border-2 border-slate-800 bg-white p-4 shadow-[3px_3px_0_rgba(2,6,23,0.85)]">
-                          <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
-                            <span class="inline-block h-2 w-2 rounded-sm bg-slate-800"></span>뉴스기사
-                          </h3>
-                          <div class="mt-2 text-sm leading-relaxed">${newsListHtml}</div>
-                        </section>
-                        <section class="rounded-xl border-2 border-slate-800 bg-white p-4 shadow-[3px_3px_0_rgba(2,6,23,0.85)]">
-                          <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
-                            <span class="inline-block h-2 w-2 rounded-sm bg-slate-400"></span>질의서
-                          </h3>
-                          <div class="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-700">${escapeHtml(
-                            qaText
-                          )}</div>
-                        </section>
-                      </div>
-                      <section class="mt-3 rounded-xl border-2 border-slate-800 bg-white p-4 shadow-[3px_3px_0_rgba(2,6,23,0.85)]">
-                        <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
-                          <span class="inline-block h-2 w-2 rounded-sm bg-amber-500"></span>내란 / 부패 / 민주
-                        </h3>
-                        <div class="mt-3 space-y-2 text-sm leading-relaxed">
-                          ${qaAccordion ? qaAccordion : '<p class="m-0 text-xs text-slate-400">등록된 내란/부패/민주 질의 응답이 없습니다.</p>'}
-                        </div>
-                      </section>
-                    </td>
-                  </tr>`;
-
-                  return mainRow + detailRow;
-                })
-                .join("")}
-            </tbody>
-          </table>
-        </div>`;
-        if (typeof lucide !== "undefined" && lucide.createIcons) {
-          lucide.createIcons({
-            attrs: { "stroke-width": 1.5 },
-          });
-        }
-        ["name", "office", "constituency"].forEach(function (key) {
-          listEl
-            .querySelectorAll('[data-sort-scope="verified"][data-sort-icon-for="' + key + '"]')
-            .forEach(function (el) {
-              if (verifiedSortKey === key) {
-                el.textContent = verifiedSortAsc ? "↑" : "↓";
-                el.classList.remove("invisible");
-              } else {
-                el.textContent = "";
-                el.classList.add("invisible");
-              }
-            });
-        });
+        return (c && c.photo) || "";
       }
 
       function sortCandidatesByKey(candidates, sortKey, sortAsc) {
@@ -1533,7 +1337,9 @@
         const office = getOfficeFilterValue();
         const incumbentOnly = getIncumbentOnlyChecked();
         const q = normalizeSearch(document.getElementById("nameQuery").value);
+        const list = document.getElementById("cardList");
         const countLabel = document.getElementById("countLabel");
+        const loadMoreWrap = document.getElementById("candidatesLoadMoreWrap");
 
         const filtered = allCandidates.filter((c) => {
           if (district && c.district !== district) return false;
@@ -1544,12 +1350,93 @@
         });
 
         const usingFilter = Boolean(district || party || q || office || incumbentOnly);
-        const verifiedCount = filtered.filter((c) => !!c.verifiedMeta).length;
         countLabel.textContent = usingFilter
-          ? `심층검증 ${verifiedCount}명 (필터 후보 ${filtered.length}명 / 전체 ${allCandidates.length}명)`
-          : `심층검증 ${verifiedCount}명 (전체 후보 ${filtered.length}명)`;
+          ? `표시 ${filtered.length}명 / 전체 ${allCandidates.length}명`
+          : `전체 ${filtered.length}명`;
 
-        renderVerifiedCandidates(filtered);
+        updateCandidatesStatsPanel(filtered);
+
+        ["name", "age", "criminal", "office", "constituency"].forEach(function (key) {
+          document
+            .querySelectorAll('[data-sort-scope="main"][data-sort-icon-for="' + key + '"]')
+            .forEach(function (el) {
+              if (mainSortKey === key) {
+                el.textContent = mainSortAsc ? "↑" : "↓";
+                el.classList.remove("invisible");
+              } else {
+                el.textContent = "";
+                el.classList.add("invisible");
+              }
+            });
+        });
+
+        const sorted = sortCandidatesByKey(filtered, mainSortKey, mainSortAsc);
+        lastFilteredCandidates = sorted;
+
+        const slice = sorted.slice(0, visibleRowCount);
+        const remaining = sorted.length - slice.length;
+        const nextCount = Math.min(LIST_PAGE_SIZE, Math.max(0, remaining));
+        if (loadMoreWrap) {
+          loadMoreWrap.innerHTML =
+            remaining > 0
+              ? `<div class="flex justify-center bg-slate-50 px-4 py-4">
+  <button type="button" id="candidatesLoadMore" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">
+    <span class="font-black text-slate-800">${nextCount}명 더보기</span> <span class="font-normal text-slate-500">(${slice.length}/${sorted.length})</span>
+  </button>
+</div>`
+              : "";
+        }
+
+        const extIcon = `<svg class="h-3 w-3 shrink-0 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>`;
+
+        list.innerHTML = slice
+          .map(function (c, i) {
+            const t = partyTheme(c.party);
+            const pname = primaryName(c.name);
+            const photo = mergedCandidatePhoto(c)
+              ? escapeHtml(mergedCandidatePhoto(c))
+              : "";
+            const jobShort = elide(c.job, 26) || "—";
+            const eduCell = escapeHtml(educationFirstLine(c.education));
+            const crimCell = escapeHtml(criminalTableCell(c));
+            const necHref = c.huboId
+              ? escapeHtml(necPreHuboDetailUrl(c.huboId))
+              : "";
+            const necLink = necHref
+              ? `<a href="${necHref}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-md p-0.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900" title="선관위 후보 상세 보기" aria-label="선관위 후보 상세 보기">${extIcon}</a>`
+              : `<span class="inline-flex cursor-not-allowed items-center rounded-md p-0.5 text-white/25" title="후보 식별자 없음" aria-label="후보 식별자 없음">${extIcon}</span>`;
+            const wealthByName = wealthInlineByNameHtml(c);
+            return `<tr data-row-detail="${i}" class="cursor-pointer border-b border-slate-200 transition hover:bg-slate-50">
+              <td class="py-3 pl-4 pr-2 align-top">
+                <div class="flex gap-3">
+                  <div class="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-slate-200 ring-2 ring-slate-400">
+                    <img src="${photo || DEFAULT_AVATAR}" alt="" width="40" height="40" class="h-full w-full object-cover object-top" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
+                  </div>
+                  <div class="min-w-0">
+                    <p class="flex flex-wrap items-center gap-x-1 gap-y-1 font-black leading-tight text-slate-900">
+                      <span>${escapeHtml(pname)}</span>${necLink}
+                    </p>
+                    ${wealthByName ? `<div class="mt-1">${wealthByName}</div>` : ""}
+                  </div>
+                </div>
+              </td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle">
+                <span class="inline-flex whitespace-nowrap items-center rounded px-1.5 py-[3px] text-[10px] font-bold leading-none ${t.badgeSolid}">${escapeHtml(c.party || "정당 미상")}</span>
+              </td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs font-black text-slate-800">${escapeHtml(
+                candidateOffice(c)
+              )}</td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs text-slate-600">${escapeHtml(
+                c.constituency || "—"
+              )}</td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(ageSummary(c.age))}</td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(c.gender || "—")}</td>
+              <td class="max-w-[8rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(jobShort)}</td>
+              <td class="max-w-[14rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">${eduCell}</td>
+              <td class="max-w-[6rem] px-3 py-3 align-middle text-xs text-slate-600">${crimCell}</td>
+            </tr>`;
+          })
+          .join("");
       }
 
       function showError(msg) {
@@ -1560,105 +1447,25 @@
 
       fillDistrictSelect();
 
-      var verifiedTooltipEl = document.getElementById("verifiedFloatingTooltip");
-      var verifiedTooltipTriggerEl = null;
-
-      function closeVerifiedTooltips() {
-        if (!verifiedTooltipEl) return;
-        verifiedTooltipEl.classList.add("hidden");
-        verifiedTooltipEl.classList.add("pointer-events-none");
-        verifiedTooltipEl.classList.remove("pointer-events-auto");
-        verifiedTooltipEl.innerHTML = "";
-        verifiedTooltipEl.setAttribute("aria-hidden", "true");
-        verifiedTooltipTriggerEl = null;
-      }
-
-      function placeVerifiedTooltip(triggerEl) {
-        if (!verifiedTooltipEl || !triggerEl) return;
-        var rect = triggerEl.getBoundingClientRect();
-        var gap = 10;
-        var ttRect = verifiedTooltipEl.getBoundingClientRect();
-        var vw = window.innerWidth;
-        var vh = window.innerHeight;
-        var left = rect.left + rect.width / 2 - ttRect.width / 2;
-        left = Math.max(8, Math.min(left, vw - ttRect.width - 8));
-        var top = rect.bottom + gap;
-        if (top + ttRect.height > vh - 8) {
-          top = Math.max(8, rect.top - ttRect.height - gap);
-        }
-        verifiedTooltipEl.style.left = Math.round(left) + "px";
-        verifiedTooltipEl.style.top = Math.round(top) + "px";
-      }
-
-      function openVerifiedTooltip(triggerEl) {
-        if (!verifiedTooltipEl || !triggerEl) return;
-        var text = String(triggerEl.getAttribute("data-v-tooltip-text") || "").trim();
-        if (!text) return;
-        var link = String(triggerEl.getAttribute("data-v-tooltip-url") || "").trim();
-        if (link) {
-          verifiedTooltipEl.innerHTML =
-            '<a href="' +
-            escapeAttr(link) +
-            '" target="_blank" rel="noopener noreferrer" class="block text-xs leading-relaxed text-slate-700 hover:text-slate-900 underline decoration-slate-300 underline-offset-2">' +
-            escapeHtml(text) +
-            "</a>";
-        } else {
-          verifiedTooltipEl.textContent = text;
-        }
-        verifiedTooltipEl.classList.remove("hidden");
-        verifiedTooltipEl.setAttribute("aria-hidden", "false");
-        placeVerifiedTooltip(triggerEl);
-        var isMobile = window.matchMedia("(max-width: 767px)").matches;
-        verifiedTooltipEl.classList.toggle("pointer-events-auto", isMobile && !!link);
-        verifiedTooltipEl.classList.toggle("pointer-events-none", !(isMobile && !!link));
-        verifiedTooltipTriggerEl = triggerEl;
-      }
-
-      var verifiedListEl = document.getElementById("verifiedCandidatesList");
-      if (verifiedListEl) {
-        verifiedListEl.addEventListener("click", function (e) {
-          var a = e.target.closest("a[href]");
-          if (a) return;
-          var toggleBtn = e.target.closest("button[data-va-toggle]");
-          var row = e.target.closest("tr[data-va-row]");
-          if (!toggleBtn && !row) return;
-          e.preventDefault();
-          var idx = toggleBtn
-            ? String(toggleBtn.getAttribute("data-va-toggle") || "")
-            : String(row.getAttribute("data-va-row") || "");
-          if (!idx) return;
-          var detail = verifiedListEl.querySelector('tr[data-va-detail="' + idx + '"]');
-          var main = verifiedListEl.querySelector('tr[data-va-row="' + idx + '"]');
-          if (!detail || !main) return;
-          var isOpen = !detail.classList.contains("hidden");
-          detail.classList.toggle("hidden", isOpen);
-          main.setAttribute("aria-expanded", isOpen ? "false" : "true");
-          if (toggleBtn) toggleBtn.setAttribute("aria-expanded", isOpen ? "false" : "true");
-          var anyBtn = verifiedListEl.querySelector('button[data-va-toggle="' + idx + '"]');
-          if (anyBtn && !anyBtn.disabled) {
-            anyBtn.textContent = isOpen ? "펼치기 ▼" : "접기 ▲";
-          }
-        });
-      }
-
-      document.addEventListener("click", function (e) {
-        var inVerified = e.target.closest("#verifiedCandidatesList");
-        if (!inVerified) closeVerifiedTooltips();
-      });
-
-      window.addEventListener("resize", function () {
-        if (verifiedTooltipTriggerEl && !verifiedTooltipEl.classList.contains("hidden")) {
-          placeVerifiedTooltip(verifiedTooltipTriggerEl);
+      document.getElementById("cardList").addEventListener("click", function (e) {
+        var t = e.target;
+        var el = t.nodeType === 3 ? t.parentElement : t;
+        if (el && el.closest && el.closest("a[href]")) return;
+        if (el && el.closest && el.closest("[data-open-archive-wealth]")) return;
+        var row = el && el.closest ? el.closest("tr[data-row-detail]") : null;
+        if (!row) return;
+        const i = parseInt(row.getAttribute("data-row-detail"), 10);
+        if (!Number.isNaN(i) && lastFilteredCandidates[i]) {
+          openCandidateModal(lastFilteredCandidates[i]);
         }
       });
-      window.addEventListener("scroll", function () {
-        if (verifiedTooltipTriggerEl && !verifiedTooltipEl.classList.contains("hidden")) {
-          placeVerifiedTooltip(verifiedTooltipTriggerEl);
-        }
+
+      document.querySelectorAll("[data-modal-close], [data-modal-backdrop]").forEach(function (el) {
+        el.addEventListener("click", closeCandidateModal);
       });
 
       document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") closeVerifiedTooltips();
+        if (e.key === "Escape") closeCandidateModal();
       });
 
       document.getElementById("officeFilterSeg").addEventListener("click", function (e) {
@@ -1680,6 +1487,14 @@
         render(true);
       });
 
+      var incumbentOnlyEl = document.getElementById("incumbentOnlyFilter");
+      if (incumbentOnlyEl) {
+        incumbentOnlyEl.addEventListener("change", function () {
+          fillPartySelect();
+          render(true);
+        });
+      }
+
       function resetFilters() {
         document.getElementById("district").value = "";
         document.getElementById("nameQuery").value = "";
@@ -1688,8 +1503,6 @@
         if (inc) inc.checked = false;
         mainSortKey = "name";
         mainSortAsc = true;
-        verifiedSortKey = "name";
-        verifiedSortAsc = true;
         fillPartySelect();
         document.getElementById("party").value = "";
         render(true);
@@ -1699,19 +1512,17 @@
         resetFilters();
       });
 
+      document.getElementById("candidatesLoadMoreWrap").addEventListener("click", function (e) {
+        var btn = e.target && e.target.closest && e.target.closest("#candidatesLoadMore");
+        if (!btn) return;
+        visibleRowCount += LIST_PAGE_SIZE;
+        render(false);
+      });
       function setSort(scope, key) {
-        if (scope === "verified") {
-          if (verifiedSortKey === key) verifiedSortAsc = !verifiedSortAsc;
-          else {
-            verifiedSortKey = key;
-            verifiedSortAsc = true;
-          }
-        } else {
-          if (mainSortKey === key) mainSortAsc = !mainSortAsc;
-          else {
-            mainSortKey = key;
-            mainSortAsc = true;
-          }
+        if (mainSortKey === key) mainSortAsc = !mainSortAsc;
+        else {
+          mainSortKey = key;
+          mainSortAsc = true;
         }
         render(true);
       }
@@ -1721,61 +1532,25 @@
         var key = String(btn.getAttribute("data-sort-key") || "").trim();
         var scope = String(btn.getAttribute("data-sort-scope") || "main").trim();
         if (!key) return;
+        if (scope !== "main") return;
         setSort(scope, key);
       });
 
       const wealthFetch = fetch("../data.json")
         .then((r) => (r.ok ? r.json() : null))
         .catch(() => null);
-      const candidatesFetch = fetch("../public/data/candidates.json").then((r) => {
-        if (!r.ok) throw new Error(`candidates.json HTTP ${r.status}`);
+      const candidatesFetch = fetch("../public/data/candidates-2026-preliminary.json").then((r) => {
+        if (!r.ok) throw new Error(`candidates-2026-preliminary.json HTTP ${r.status}`);
         return r.json();
       });
-      const verifiedSheetFetch = fetch(VERIFIED_SHEET_CSV_URL).then((r) => {
-        if (!r.ok) throw new Error(`google sheet CSV HTTP ${r.status}`);
-        return r.text();
-      });
-      const redlineNewsCacheFetch = fetch("../public/data/redline-news-cache.json")
-        .then((r) => (r.ok ? r.json() : null))
-        .catch(() => null);
-
-      Promise.all([candidatesFetch, verifiedSheetFetch, wealthFetch, redlineNewsCacheFetch])
+      Promise.all([candidatesFetch, wealthFetch])
         .then((results) => {
           const candidatesPayload = results[0];
-          const verifiedCsvText = results[1];
-          const wealthData = results[2];
-          const newsCacheData = results[3];
+          const wealthData = results[1];
           buildWealthIndex(wealthData);
-          if (newsCacheData && typeof newsCacheData === "object") {
-            const map = {};
-            Object.entries(newsCacheData).forEach(function (entry) {
-              const key = String(entry[0] || "").trim();
-              const meta = entry[1];
-              if (!key) return;
-              if (meta && typeof meta === "object") {
-                map[key] = String(meta.title || "").trim();
-              } else {
-                map[key] = String(meta || "").trim();
-              }
-            });
-            redlineNewsTitleByUrl = map;
-          } else {
-            redlineNewsTitleByUrl = {};
-          }
 
           const parsed = parseCandidatesPayload(candidatesPayload);
-          const verifiedRows = parseCsvText(verifiedCsvText);
-          const verifiedIndex = buildVerifiedRowIndex(verifiedRows);
-
-          allCandidates = parsed.list.map((candidate) => {
-            const key =
-              normalizeLooseText(primaryName(candidate.name)) +
-              "|" +
-              normalizeDistrictName(candidate.district);
-            const matched = verifiedIndex.get(key) || null;
-            return matched ? { ...candidate, verifiedMeta: matched } : { ...candidate };
-          });
-          verifiedCandidates = allCandidates.filter((candidate) => !!candidate.verifiedMeta);
+          allCandidates = parsed.list;
 
           document.getElementById("errorBox").classList.add("hidden");
           setDataUpdatedLine(parsed.updatedAt);
@@ -1784,12 +1559,10 @@
         })
         .catch((e) => {
           showError(
-                "데이터를 불러오지 못했습니다. 로컬 서버로 열었는지 확인하세요. (예: 프로젝트 루트에서 npx serve . 후 /candidates/index.html) — " +
+                "데이터를 불러오지 못했습니다. 로컬 서버로 열었는지 확인하세요. (예: 프로젝트 루트에서 npx serve . 후 /candidates/list-preliminary.html, public/data/candidates-2026-preliminary.json) — " +
               (e && e.message ? e.message : String(e))
           );
           document.getElementById("countLabel").textContent = "0명";
-          var vCount = document.getElementById("verifiedCountLabel");
-          if (vCount) vCount.textContent = "0명";
         });
     </script>
   </body>

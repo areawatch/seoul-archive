@@ -13,7 +13,7 @@
       gtag("js", new Date());
       gtag("config", "G-HXSD5K4LM6");
     </script>
-    <title>서울시 구청장·구의원·시의원 예비후보 — 직무·구·정당·이름 필터</title>
+    <title>서울시 구청장·구의원·시의원 본후보 — 직무·구·정당·이름 필터</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -168,7 +168,7 @@
           <div>
             <p class="text-xs font-black uppercase tracking-widest text-[#ff4d4d]">CANDIDATES</p>
             <h1 class="dash-title mt-1 text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900">
-              구청장·구의원·시의원 후보자 목록
+              구청장·구의원·시의원 본후보 명부
             </h1>
           </div>
           <!-- breadcrumb -->
@@ -185,6 +185,10 @@
             <a href="villain.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">😈 빌런아카이브 ←</a>
             <a href="briefing.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">📋 브리핑 →</a>
             <a href="status.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">🛰️ 데이터 원정대 →</a>
+            <a
+              href="list-preliminary.html"
+              class="inline-flex items-center justify-center rounded-lg border-2 border-slate-800 bg-amber-100 px-4 py-2 text-sm font-black text-slate-900 shadow-[2px_2px_0_rgba(2,6,23,0.35)] transition hover:bg-amber-200"
+              >📋 예비후보 명부 보기</a>
           </div>
           <p id="dataUpdatedLine" class="mt-1 hidden text-sm text-slate-500" aria-live="polite"></p>
         </div>
@@ -331,7 +335,7 @@
       <section aria-labelledby="allCandidatesTitle">
         <div class="mb-3 flex items-end justify-between gap-3">
           <h2 id="allCandidatesTitle" class="text-xl font-black tracking-tight text-white">
-            전체 예비후보자 명부
+            전체 본후보자 명부
           </h2>
         </div>
       <div
@@ -567,7 +571,7 @@
             expeditionLink.removeAttribute("aria-current");
           }
           var page = "landing";
-          if (base === "list") page = "list";
+          if (base === "list" || base === "list-preliminary") page = "list";
           else if (base === "briefing") page = "briefing";
           else if (base === "status") page = "expedition";
           else if (base === "villain" || base === "redline") page = "villain";
@@ -604,7 +608,7 @@
     <script src="../archive-wealth-modal.js"></script>
 
     <script>
-      /* 선관위 예비후보 명부「구시군」선택 순서와 동일 */
+      /* 선관위 후보자 명부「구시군」선택 순서와 동일(예비·본 명부 공통) */
       const SEOUL_DISTRICTS = [
         "종로구",
         "중구",
@@ -1555,7 +1559,7 @@
         })
         .catch((e) => {
           showError(
-                "데이터를 불러오지 못했습니다. 로컬 서버로 열었는지 확인하세요. (예: 프로젝트 루트에서 npx serve . 후 /candidates/list.html) — " +
+                "데이터를 불러오지 못했습니다. 로컬 서버로 열었는지 확인하세요. (예: 프로젝트 루트에서 npx serve . 후 /candidates/list.html, public/data/candidates.json) — " +
               (e && e.message ? e.message : String(e))
           );
           document.getElementById("countLabel").textContent = "0명";

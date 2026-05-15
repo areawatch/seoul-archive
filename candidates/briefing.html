@@ -260,7 +260,7 @@
             expeditionLink.removeAttribute("aria-current");
           }
           var page = "landing";
-          if (base === "list") page = "list";
+          if (base === "list" || base === "list-preliminary") page = "list";
           else if (base === "briefing") page = "briefing";
           else if (base === "status") page = "expedition";
           else if (base === "villain" || base === "redline") page = "villain";
