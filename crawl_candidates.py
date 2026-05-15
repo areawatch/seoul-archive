@@ -29,7 +29,7 @@
   각 후보에 "office": "구의원" | "시의원" | "구청장" 필드가 붙습니다(없으면 화면에서 구의원으로 간주).
 
 선거구명(constituency)·주소(address)는 이 스크립트가 넣는 필드입니다.
-huboId는 선관위 예비후보 상세(전과 스캔 서류) 링크용입니다.
+huboId는 선관위 예비·본후보 상세(전과 스캔 서류) 링크용입니다. 본후보 명부는 PCRI04·pcri04_ex.jsp POST로 조회합니다.
 """
 
 from __future__ import annotations
@@ -203,23 +203,46 @@ def fetch_sgg_town_codes(town_code: str, *, election_code: str) -> list[dict[str
     return out
 
 
+def _nec_pc_report_menu(*, candidate_status: str) -> tuple[str, str]:
+    """
+    선거통계 PC 메뉴: 예비후보 명부 PCRI03, 본후보자 명부 PCRI04.
+    반환: (secondMenuId/menuId 동일 값, requestURI 내 JSP 파일명 pcri03_ex.jsp | pcri04_ex.jsp).
+    """
+    if str(candidate_status or "").strip().lower() == "official":
+        return ("PCRI04", "pcri04_ex.jsp")
+    return ("PCRI03", "pcri03_ex.jsp")
+
+
+def _nec_statement_id_for_status(statement_id: str, *, candidate_status: str) -> str:
+    """PCRI03_#6 형태를 official일 때 PCRI04_#6으로 치환."""
+    sid = str(statement_id or "").strip()
+    if str(candidate_status or "").strip().lower() != "official":
+        return sid
+    if sid.startswith("PCRI03_"):
+        return "PCRI04_" + sid[len("PCRI03_") :]
+    return sid
+
+
 def post_report_html(
     town_code: str,
     sgg_town_code: str,
     *,
     election_code: str,
     statement_id: str,
+    candidate_status: str,
 ) -> str:
     # 선관위 폼은 electionCode=4(구·시·군의 장)일 때 sggCityCode 없이는
     # townCode+sggTownCode만으로는 표가 비어 「검색된 결과가 없습니다」만 온다.
     # 웹 화면은 sggCityCode(선거구)를 쓰므로, API에서 받은 코드를 동일 값으로 넣는다.
+    menu_id, jsp_name = _nec_pc_report_menu(candidate_status=candidate_status)
+    stmt = _nec_statement_id_for_status(statement_id, candidate_status=candidate_status)
     form = {
         "electionId": ELECTION_ID,
-        "requestURI": f"/electioninfo/{ELECTION_ID}/pc/pcri03_ex.jsp",
+        "requestURI": f"/electioninfo/{ELECTION_ID}/pc/{jsp_name}",
         "topMenuId": "PC",
-        "secondMenuId": "PCRI03",
-        "menuId": "PCRI03",
-        "statementId": statement_id,
+        "secondMenuId": menu_id,
+        "menuId": menu_id,
+        "statementId": stmt,
         "electionCode": election_code,
         "cityCode": SEOUL_CITY_CODE,
         "townCode": town_code,
@@ -263,11 +286,27 @@ def _name_from_cell(td) -> str:
 
 
 def _hubo_id_from_cell(td) -> str | None:
-    a = td.find("a", href=re.compile(r"popupPreHBJ"))
-    if not a or not a.get("href"):
-        return None
-    m = re.search(r"popupPreHBJ\s*\(\s*'[^']*'\s*,\s*'(\d+)'\s*\)", a["href"])
-    return m.group(1) if m else None
+    """예비·본 명부 모두 이름 셀의 링크에서 huboId 추출."""
+    href_patterns = (
+        re.compile(r"popupPreHBJ\s*\(\s*'[^']*'\s*,\s*'(\d+)'\s*\)"),
+        re.compile(r"popupHBJ\s*\(\s*'[^']*'\s*,\s*'(\d+)'\s*\)", re.I),
+        re.compile(r"popup\w*HBJ\s*\(\s*'[^']*'\s*,\s*'(\d+)'\s*\)", re.I),
+    )
+    for a in td.find_all("a", href=True):
+        href = str(a.get("href") or "")
+        if not href:
+            continue
+        for pat in href_patterns:
+            m = pat.search(href)
+            if m:
+                return m.group(1)
+    for a in td.find_all("a", onclick=True):
+        oc = str(a.get("onclick") or "")
+        for pat in href_patterns:
+            m = pat.search(oc)
+            if m:
+                return m.group(1)
+    return None
 
 
 def _candidate_stage_ko_label(candidate_status: str) -> str:
@@ -598,6 +637,7 @@ def crawl_office(
                     sgg["code"],
                     election_code=election_code,
                     statement_id=statement_id,
+                    candidate_status=candidate_status,
                 )
             except Exception as e:
                 print(
