@@ -999,7 +999,7 @@
         const title =
           "재산 공개 명부에 등재된 인원입니다. 클릭하면 재산 상세를 봅니다.";
         const cap = escapeHtml(wealthDetailLinkCaption(label));
-        return `<button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="ml-0.5 inline-flex shrink-0 items-center gap-0 rounded-full border border-slate-300 bg-slate-100 px-1 py-px text-[9px] font-bold leading-none tracking-tight text-slate-700 transition hover:border-slate-400 hover:bg-slate-200 hover:text-slate-900 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#ff4d4d]/25" title="${escapeHtml(title)}"><span>${cap}</span>${WEALTH_CHIP_ICON_SM}</button>`;
+        return `<button type="button" data-open-archive-wealth data-archive-wealth="${escapeAttr(key.name)}" data-archive-district="${escapeAttr(key.district)}" class="ml-0.5 inline-flex shrink-0 items-center gap-0 rounded-full border-[0.5px] border-slate-200 bg-slate-100 px-1 py-px text-[9px] font-bold leading-none tracking-tight text-slate-700 transition hover:border-slate-300 hover:bg-slate-200 hover:text-slate-900 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#ff4d4d]/25" title="${escapeHtml(title)}"><span>${cap}</span>${WEALTH_CHIP_ICON_SM}</button>`;
       }
 
       function wealthModalSnippet(c) {
