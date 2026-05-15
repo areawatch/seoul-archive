@@ -9,16 +9,16 @@
 
 사용:
   pip install -r requirements-crawl.txt
-  python crawl_candidates.py
+  python3 crawl_candidates.py
 
 데이터 구분(선거 + 예비/본):
   - 각 후보 JSON에 election_name(예: "2026지방선거"), candidate_status("preliminary"|"official"),
     표시용 candidate_stage_ko("예비후보"|"본후보")가 들어갑니다.
 
 예비 전체를 고정 파일로 남긴 뒤 본후보로 갈아타기:
-  1) python crawl_candidates.py --task export-preliminary
+  1) python3 crawl_candidates.py --task export-preliminary
      → public/data/candidates-2026-preliminary.json (전원 preliminary + 예비후보 라벨)
-  2) python crawl_candidates.py --candidate-status official
+  2) python3 crawl_candidates.py --candidate-status official
      → public/data/candidates.json 은 본후보 명부로 갱신,
        단 --preliminary-archive 파일이 있으면 같은 사람 키로 연락처 등을 상속합니다.
   (선택) --no-preliminary-merge 로 예비 고정본 상속을 끌 수 있습니다.
