@@ -588,23 +588,10 @@
             </svg>
           </div>
           <div class="mt-2">
-            <p class="mono text-center text-[11px] text-slate-600">
-              <span class="inline-flex items-center gap-1.5">
-                <span class="h-2.5 w-2.5 rounded-sm bg-[#6b7280] ring-1 ring-slate-800"></span>UNKNOWN
-              </span>
-              <span class="mx-2 text-slate-400">|</span>
-              <span class="inline-flex items-center gap-1.5">
-                <span class="h-2.5 w-2.5 rounded-sm bg-[#3b82f6] ring-1 ring-slate-800"></span>1~30
-              </span>
-              <span class="mx-2 text-slate-400">|</span>
-              <span class="inline-flex items-center gap-1.5">
-                <span class="h-2.5 w-2.5 rounded-sm bg-[#facc15] ring-1 ring-slate-800"></span>31~70
-              </span>
-              <span class="mx-2 text-slate-400">|</span>
-              <span class="inline-flex items-center gap-1.5">
-                <span class="h-2.5 w-2.5 rounded-sm bg-[#ff4d4d] ring-1 ring-slate-800"></span>71~100
-              </span>
-            </p>
+            <p
+              id="mapLegend"
+              class="mono flex flex-wrap items-center justify-center gap-x-1 gap-y-1 text-center text-[10px] leading-relaxed text-slate-600 sm:text-[11px]"
+            ></p>
             <p class="mono mt-1 text-center text-[10px] font-bold leading-snug text-slate-600">
               UFO는 가장 진행률이 낮은 구 위를 배회합니다. 동일한 구가 여러 개일 경우 랜덤으로 위치를 옮깁니다
             </p>
@@ -974,12 +961,51 @@
           return { contacts, badges };
         }
 
-        function rateToColor(pct) {
+        /** 수집률 10% 구간별 남색(100% = #0b1220, 낮을수록 밝음). 0%는 UNKNOWN(안개 패턴). */
+        const MAP_NAVY_100 = [11, 18, 32];
+
+        function mapPctBucket(pct) {
           const v = typeof pct === "number" ? pct : 0;
-          if (v <= 0) return "url(#fogDots)";
-          if (v <= 30) return "#3b82f6";
-          if (v <= 70) return "#facc15";
-          return "#ff4d4d";
+          if (v <= 0) return 0;
+          return Math.min(10, Math.floor((v - 1) / 10) + 1);
+        }
+
+        function rateToColor(pct) {
+          const bucket = mapPctBucket(pct);
+          if (bucket === 0) return "url(#fogDots)";
+          const t = bucket / 10;
+          const mix = 1 - t;
+          const w = [241, 245, 249];
+          const r = Math.round(MAP_NAVY_100[0] * t + w[0] * mix);
+          const g = Math.round(MAP_NAVY_100[1] * t + w[1] * mix);
+          const b = Math.round(MAP_NAVY_100[2] * t + w[2] * mix);
+          return "rgb(" + r + "," + g + "," + b + ")";
+        }
+
+        function mapLegendLabel(bucket) {
+          if (bucket === 0) return "UNKNOWN";
+          const lo = (bucket - 1) * 10 + 1;
+          const hi = bucket * 10;
+          return lo + "~" + hi;
+        }
+
+        function renderMapLegend() {
+          const el = document.getElementById("mapLegend");
+          if (!el) return;
+          const sep = '<span class="mx-1.5 text-slate-400">|</span>';
+          const items = [];
+          for (let b = 0; b <= 10; b += 1) {
+            const fill = b === 0 ? "#9ca3af" : rateToColor(b === 10 ? 100 : b * 10);
+            items.push(
+              '<span class="inline-flex items-center gap-1">' +
+                '<span class="h-2.5 w-2.5 shrink-0 rounded-sm ring-1 ring-slate-800" style="background:' +
+                fill +
+                '"></span>' +
+                mapLegendLabel(b) +
+                "</span>"
+            );
+          }
+          el.innerHTML = items.join(sep);
         }
 
         function setOverallBar(pct) {
@@ -1082,7 +1108,7 @@
             p.setAttribute("tabindex", "-1");
             p.style.cursor = "pointer";
             p.style.outline = "none";
-            if (st.pct >= 71) p.classList.add("is-hot");
+            if (st.pct >= 91) p.classList.add("is-hot");
             frag.appendChild(p);
           });
           g.appendChild(frag);
@@ -1555,6 +1581,7 @@
         }
 
         async function main() {
+          renderMapLegend();
           document.getElementById("sheetLinkTop").href = SHEET_VIEW_URL;
 
           async function fetchFirstOkText(urls) {
@@ -1682,7 +1709,7 @@
           Object.values(statsByDistrict).forEach((st) => {
             if (!st.total || !st.done) {
               nul += 1;
-            } else if (st.pct >= 71) {
+            } else if (st.pct >= 91) {
               ready += 1;
             } else {
               need += 1;
