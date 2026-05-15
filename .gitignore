@@ -4,3 +4,6 @@ node_modules/
 .env
 .env.*
 .DS_Store
+
+# 예비 명부 스냅샷(crawl_candidates.py --snapshot-existing-output). 저장소에는 디렉터리만 유지.
+public/data/archive/candidates-snapshot-*.json

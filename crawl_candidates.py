@@ -11,6 +11,19 @@
   pip install -r requirements-crawl.txt
   python crawl_candidates.py
 
+데이터 구분(선거 + 예비/본):
+  - 각 후보 JSON에 election_name(예: "2026지방선거"), candidate_status("preliminary"|"official"),
+    표시용 candidate_stage_ko("예비후보"|"본후보")가 들어갑니다.
+
+예비 전체를 고정 파일로 남긴 뒤 본후보로 갈아타기:
+  1) python crawl_candidates.py --task export-preliminary
+     → public/data/candidates-2026-preliminary.json (전원 preliminary + 예비후보 라벨)
+  2) python crawl_candidates.py --candidate-status official
+     → public/data/candidates.json 은 본후보 명부로 갱신,
+       단 --preliminary-archive 파일이 있으면 같은 사람 키로 연락처 등을 상속합니다.
+  (선택) --no-preliminary-merge 로 예비 고정본 상속을 끌 수 있습니다.
+  (선택) --snapshot-existing-output 으로 덮어쓰기 직전에 public/data/archive/에 타임스탬프 복사본을 남길 수 있습니다.
+
 출력: public/data/candidates.json
   형식: {"updatedAt": "ISO8601(Asia/Seoul)", "candidates": [ ... ]}
   각 후보에 "office": "구의원" | "시의원" | "구청장" 필드가 붙습니다(없으면 화면에서 구의원으로 간주).
@@ -26,12 +39,13 @@ import csv
 import json
 import os
 import re
+import shutil
 import sys
 import time
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from html import unescape
-from typing import Any
+from typing import Any, Optional
 from urllib.parse import urlencode, urljoin
 
 import requests
@@ -63,6 +77,8 @@ SGG_JSON = "/bizcommon/selectbox/selectbox_getSggTownCodeJson.json"
 DEFAULT_OUT = "public/data/candidates.json"
 DEFAULT_ELECTION_NAME = "2026지방선거"
 DEFAULT_CANDIDATE_STATUS = "preliminary"  # preliminary(예비후보) | official(본후보)
+# 예비 명부 전체를 고정 저장한 뒤, 본후보 크롤 시 연락처 등을 이 파일에서 상속합니다.
+DEFAULT_PRELIMINARY_ARCHIVE = "public/data/candidates-2026-preliminary.json"
 DEFAULT_REDLINE_SHEET_CSV_URL = (
     "https://docs.google.com/spreadsheets/d/"
     "1HZOgA2XGNQe9RTyZsDDZdqfgdHIrUIfGqBKRs62cugA/gviz/tq?tqx=out:csv"
@@ -244,6 +260,12 @@ def _hubo_id_from_cell(td) -> str | None:
     return m.group(1) if m else None
 
 
+def _candidate_stage_ko_label(candidate_status: str) -> str:
+    """시트/표시용: election_name(선거) + 이 필드(예비·본) 두 축으로 구분."""
+    s = str(candidate_status or "").strip().lower()
+    return "본후보" if s == "official" else "예비후보"
+
+
 def parse_candidates_from_report(
     html: str,
     gu_name: str,
@@ -292,6 +314,7 @@ def parse_candidates_from_report(
         row = {
             "election_name": election_name,
             "candidate_status": candidate_status,
+            "candidate_stage_ko": _candidate_stage_ko_label(candidate_status),
             "district": district,
             "constituency": constituency,
             "party": party,
@@ -375,7 +398,7 @@ def _inherit_fields_from_old(new: dict[str, Any], old: dict[str, Any]) -> None:
     }
 
     for k, ov in (old or {}).items():
-        if k in ("election_name", "candidate_status"):
+        if k in ("election_name", "candidate_status", "candidate_stage_ko"):
             continue
         if k in inherit_keys or k.startswith(inherit_prefixes):
             if k not in new or _is_empty(new.get(k)):
@@ -383,32 +406,68 @@ def _inherit_fields_from_old(new: dict[str, Any], old: dict[str, Any]) -> None:
                     new[k] = ov
 
 
-def merge_with_existing_candidates(new_rows: list[dict[str, Any]], existing_path: str) -> list[dict[str, Any]]:
-    if not existing_path or not os.path.exists(existing_path):
-        return new_rows
+def _load_candidates_list_from_file(path: str) -> list[dict[str, Any]]:
+    if not path or not os.path.isfile(path):
+        return []
     try:
-        with open(existing_path, encoding="utf-8") as f:
-            old_payload = json.load(f)
+        with open(path, encoding="utf-8") as f:
+            payload = json.load(f)
     except Exception:
-        return new_rows
+        return []
+    if isinstance(payload, dict) and isinstance(payload.get("candidates"), list):
+        return [c for c in payload["candidates"] if isinstance(c, dict)]
+    if isinstance(payload, list):
+        return [c for c in payload if isinstance(c, dict)]
+    return []
 
-    old_list: list[dict[str, Any]] = []
-    if isinstance(old_payload, dict) and isinstance(old_payload.get("candidates"), list):
-        old_list = old_payload["candidates"]
-    elif isinstance(old_payload, list):
-        old_list = old_payload
-    else:
-        return new_rows
 
-    old_map: dict[str, dict[str, Any]] = {}
-    for oc in old_list:
-        if not isinstance(oc, dict):
-            continue
+def _merge_key_map_from_candidates(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    m: dict[str, dict[str, Any]] = {}
+    for oc in rows:
         if not str(oc.get("election_name") or "").strip():
             oc["election_name"] = DEFAULT_ELECTION_NAME
         if not str(oc.get("candidate_status") or "").strip():
             oc["candidate_status"] = DEFAULT_CANDIDATE_STATUS
-        old_map[_candidate_merge_key(oc)] = oc
+        if not str(oc.get("candidate_stage_ko") or "").strip():
+            oc["candidate_stage_ko"] = _candidate_stage_ko_label(str(oc.get("candidate_status") or ""))
+        m[_candidate_merge_key(oc)] = oc
+    return m
+
+
+def merge_with_existing_candidates(
+    new_rows: list[dict[str, Any]],
+    existing_path: str,
+    *,
+    preliminary_archive_path: Optional[str] = None,
+) -> list[dict[str, Any]]:
+    """
+    new_rows: 이번 크롤 결과.
+    existing_path: 직전에 쓰인 메인 출력(예: public/data/candidates.json).
+    preliminary_archive_path: 예비 명부 고정본이 있으면, 키가 같을 때 연락처 등 상속에 사용(메인보다 먼저 적재 후 메인이 덮어씀).
+    """
+    old_map: dict[str, dict[str, Any]] = {}
+
+    if preliminary_archive_path and os.path.isfile(preliminary_archive_path):
+        prelim_rows = _load_candidates_list_from_file(preliminary_archive_path)
+        old_map.update(_merge_key_map_from_candidates(prelim_rows))
+
+    if existing_path and os.path.isfile(existing_path):
+        exist_rows = _load_candidates_list_from_file(existing_path)
+        old_map.update(_merge_key_map_from_candidates(exist_rows))
+
+    if not old_map:
+        # 이전 파일이 없으면 new_rows만 정규화해 반환
+        out0: list[dict[str, Any]] = []
+        for nc in new_rows:
+            if not isinstance(nc, dict):
+                continue
+            if not str(nc.get("election_name") or "").strip():
+                nc["election_name"] = DEFAULT_ELECTION_NAME
+            if not str(nc.get("candidate_status") or "").strip():
+                nc["candidate_status"] = DEFAULT_CANDIDATE_STATUS
+            nc["candidate_stage_ko"] = _candidate_stage_ko_label(str(nc.get("candidate_status") or ""))
+            out0.append(nc)
+        return out0
 
     out: list[dict[str, Any]] = []
     for nc in new_rows:
@@ -418,6 +477,7 @@ def merge_with_existing_candidates(new_rows: list[dict[str, Any]], existing_path
             nc["election_name"] = DEFAULT_ELECTION_NAME
         if not str(nc.get("candidate_status") or "").strip():
             nc["candidate_status"] = DEFAULT_CANDIDATE_STATUS
+        nc["candidate_stage_ko"] = _candidate_stage_ko_label(str(nc.get("candidate_status") or ""))
 
         key = _candidate_merge_key(nc)
         oc = old_map.get(key)
@@ -429,9 +489,53 @@ def merge_with_existing_candidates(new_rows: list[dict[str, Any]], existing_path
                 nc["candidate_status"] = "official"
             else:
                 nc["candidate_status"] = "preliminary"
+            nc["candidate_stage_ko"] = _candidate_stage_ko_label(nc["candidate_status"])
             _inherit_fields_from_old(nc, oc)
         out.append(nc)
     return out
+
+
+def export_preliminary_archive(
+    *,
+    source_path: str,
+    dest_path: str,
+    election_name: str,
+) -> int:
+    """
+    현재 메인 JSON(예비 명부)을 읽어 election_name + preliminary + candidate_stage_ko 로 고정 저장합니다.
+    본후보 크롤 전에 한 번 실행해 두면 데이터 관리용 예비 전체 리스트가 남습니다.
+    """
+    rows = _load_candidates_list_from_file(source_path)
+    if not rows:
+        raise SystemExit(f"예비보내기 실패: 소스 파일이 없거나 후보가 없습니다: {source_path}")
+    for c in rows:
+        c["election_name"] = str(election_name or DEFAULT_ELECTION_NAME).strip() or DEFAULT_ELECTION_NAME
+        c["candidate_status"] = "preliminary"
+        c["candidate_stage_ko"] = "예비후보"
+    os.makedirs(os.path.dirname(dest_path) or ".", exist_ok=True)
+    updated_at = datetime.now(ZoneInfo("Asia/Seoul")).replace(microsecond=0)
+    payload = {"updatedAt": updated_at.isoformat(), "candidates": rows}
+    with open(dest_path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+    return len(rows)
+
+
+def snapshot_existing_output_file(output_path: str) -> Optional[str]:
+    """
+    덮어쓰기 전에 현재 candidates.json(등 출력 파일) 전체를 보관합니다.
+    본후보 전환 시 예비 명부 스냅샷 용도.
+    """
+    if not output_path or not os.path.isfile(output_path):
+        return None
+    abs_out = os.path.abspath(output_path)
+    parent = os.path.dirname(abs_out)
+    archive_dir = os.path.join(parent, "archive")
+    os.makedirs(archive_dir, exist_ok=True)
+    ts = datetime.now(ZoneInfo("Asia/Seoul")).strftime("%Y%m%dT%H%M%S")
+    stem, _ext = os.path.splitext(os.path.basename(abs_out))
+    dest = os.path.join(archive_dir, f"{stem}-snapshot-{ts}.json")
+    shutil.copy2(abs_out, dest)
+    return dest
 
 
 def crawl_office(
@@ -494,6 +598,7 @@ def crawl_office(
             for b in batch:
                 b["election_name"] = election_name
                 b["candidate_status"] = candidate_status
+                b["candidate_stage_ko"] = _candidate_stage_ko_label(candidate_status)
             added = 0
             for c in batch:
                 hid = c.get("huboId")
@@ -699,9 +804,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--task",
-        choices=("all", "candidates", "news"),
+        choices=("all", "candidates", "news", "export-preliminary"),
         default="all",
-        help="실행 작업: all(기본) | candidates(선관위 명부만) | news(RED LINE 뉴스 OG만)",
+        help="실행 작업: all(기본) | candidates(선관위 명부만) | news(RED LINE 뉴스 OG만) | export-preliminary(현재 출력 JSON을 예비 고정본으로 저장)",
     )
     parser.add_argument(
         "--dry-run",
@@ -729,9 +834,35 @@ def main() -> None:
         default=DEFAULT_CANDIDATE_STATUS,
         help="후보 상태: preliminary(예비후보, 기본) | official(본후보)",
     )
+    parser.add_argument(
+        "--snapshot-existing-output",
+        action="store_true",
+        help="출력 파일이 이미 있으면, 덮어쓰기 전에 public/data/archive/ 아래에 타임스탬프 파일로 복사합니다(예비 명부 보존).",
+    )
+    parser.add_argument(
+        "--preliminary-archive",
+        default=DEFAULT_PRELIMINARY_ARCHIVE,
+        help=f"예비 명부 고정 저장 경로(기본: {DEFAULT_PRELIMINARY_ARCHIVE}). export-preliminary 출력 및 본후보 크롤 시 상속 소스.",
+    )
+    parser.add_argument(
+        "--no-preliminary-merge",
+        action="store_true",
+        help="본후보(또는 일반) 크롤 시 예비 고정본(--preliminary-archive)에서 상속하지 않습니다.",
+    )
     args = parser.parse_args()
 
     filt = set(args.districts) if args.districts else None
+    if args.task == "export-preliminary":
+        n = export_preliminary_archive(
+            source_path=args.output,
+            dest_path=str(args.preliminary_archive or DEFAULT_PRELIMINARY_ARCHIVE).strip()
+            or DEFAULT_PRELIMINARY_ARCHIVE,
+            election_name=str(args.election_name or DEFAULT_ELECTION_NAME).strip() or DEFAULT_ELECTION_NAME,
+        )
+        dest = str(args.preliminary_archive or DEFAULT_PRELIMINARY_ARCHIVE).strip() or DEFAULT_PRELIMINARY_ARCHIVE
+        print(f"예비 명부 고정 저장: {dest} ({n}명)", file=sys.stderr)
+        return
+
     if args.task in ("all", "candidates"):
         rows = crawl(
             mode=args.only,
@@ -741,8 +872,19 @@ def main() -> None:
             candidate_status=str(args.candidate_status or DEFAULT_CANDIDATE_STATUS).strip() or DEFAULT_CANDIDATE_STATUS,
         )
         if not args.dry_run:
+            if args.snapshot_existing_output:
+                snap = snapshot_existing_output_file(args.output)
+                if snap:
+                    print(f"기존 출력 스냅샷 저장: {snap}", file=sys.stderr)
+                else:
+                    print("스냅샷: 기존 출력 파일이 없어 건너뜁니다.", file=sys.stderr)
             # merge: preserve previously collected contact/photo/etc even if NEC updates status
-            rows = merge_with_existing_candidates(rows, args.output)
+            prelim_path = None if args.no_preliminary_merge else str(args.preliminary_archive or "").strip() or None
+            rows = merge_with_existing_candidates(
+                rows,
+                args.output,
+                preliminary_archive_path=prelim_path,
+            )
             os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
             updated_at = datetime.now(ZoneInfo("Asia/Seoul")).replace(microsecond=0)
             payload = {
