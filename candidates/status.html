@@ -772,11 +772,6 @@
           return normalizeLooseText(election) + "|" + normalizeLooseText(pname) + "|" + dist;
         }
 
-        function officialBadgeInlineHtml(status) {
-          if (String(status || "").toLowerCase() !== "official") return "";
-          return ' <span class="mono inline-flex items-center rounded-full border border-black/70 bg-[#facc15]/15 px-1.5 py-0.5 text-[10px] font-black leading-none text-[#facc15] ring-1 ring-[#facc15]/20">본후보</span>';
-        }
-
         function parseCandidatesPayload(data) {
           if (Array.isArray(data)) return { list: data, updatedAt: null };
           if (data && typeof data === "object" && Array.isArray(data.candidates)) {
@@ -1263,12 +1258,9 @@
               const collectedBadge = it.collected
                 ? '<span style="display:inline-flex;align-items:center;border-radius:9999px;border:1px solid #34d399;background:#ecfdf5;padding:1px 6px;font-size:10px;font-weight:900;color:#065f46">✓</span>'
                 : '<span style="display:inline-flex;align-items:center;border-radius:9999px;border:1px solid #cbd5e1;background:#f1f5f9;padding:1px 6px;font-size:10px;font-weight:900;color:#94a3b8">—</span>';
-              const catBadge = it.category === "본후보"
-                ? '<span style="display:inline-block;background:#0f2d5e;color:#fff;border-radius:3px;padding:1px 5px;font-size:9px;font-weight:900;white-space:nowrap;margin-right:4px">본</span>'
-                : '<span style="display:inline-block;background:#94a3b8;color:#fff;border-radius:3px;padding:1px 5px;font-size:9px;font-weight:700;white-space:nowrap;margin-right:4px">예비</span>';
               return `<tr class="dist-cand" style="display:none;border-bottom:1px solid #f1f5f9">
                 <td style="padding:7px 10px;text-align:center;vertical-align:middle">${officePill}</td>
-                <td style="padding:7px 12px;font-size:12px;font-weight:600;color:#0b1220;white-space:nowrap;vertical-align:middle">${catBadge}${escapeHtml(it.name)}${officialBadgeInlineHtml(it.candidate_status)}</td>
+                <td style="padding:7px 12px;font-size:12px;font-weight:600;color:#0b1220;white-space:nowrap;vertical-align:middle">${escapeHtml(it.name)}</td>
                 <td style="padding:7px 10px;text-align:center;vertical-align:middle">${collectedBadge}</td>
                 <td style="padding:7px 12px;vertical-align:middle">${contactVal(it.contacts, "phone")}</td>
                 <td style="padding:7px 12px;vertical-align:middle">${contactVal(it.contacts, "email")}</td>
