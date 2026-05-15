@@ -158,9 +158,9 @@
       const SHEET_VIEW_URL =
         "https://docs.google.com/spreadsheets/d/1vWnrVF0wdJyhL6OnEZh3LpXNQnc3owKYovrd5jo6jfY/edit?gid=0#gid=0";
       const SHEET_CSV_URL_CANDIDATES = [
+        "https://docs.google.com/spreadsheets/d/1vWnrVF0wdJyhL6OnEZh3LpXNQnc3owKYovrd5jo6jfY/export?format=csv&gid=0",
         "https://docs.google.com/spreadsheets/d/1vWnrVF0wdJyhL6OnEZh3LpXNQnc3owKYovrd5jo6jfY/gviz/tq?tqx=out:csv",
-        // fallback
-        "https://docs.google.com/spreadsheets/d/1zmjXBcr-5HnjkgxxChJa_U7IRdDeyND1IQ0wvrWReRk/gviz/tq?tqx=out:csv",
+        "https://docs.google.com/spreadsheets/d/1zmjXBcr-5HnjkgxxChJa_U7IRdDeyND1IQ0wvrWReRk/export?format=csv&gid=0",
       ];
 
       const OFFICE_COLOR = { 구청장: "#7c3aed", 시의원: "#0369a1", 구의원: "#374151" };
@@ -237,8 +237,10 @@
       }
 
       function primaryName(name) {
-        const s = String(name || "");
-        return s.split("\n")[0].trim();
+        const t = String(name ?? "").trim();
+        if (!t) return "";
+        const firstLine = t.split("\n")[0].trim();
+        return firstLine.split("(")[0].trim().split(/\s+/)[0].trim() || firstLine;
       }
 
       function normalizeDistrictName(d) {
