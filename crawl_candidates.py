@@ -555,7 +555,7 @@ def parse_candidates_from_report(
             continue
 
         constituency = tds[ix["constituency"]].get_text(" ", strip=True)
-        district = gu_name or _district_from_constituency(constituency)
+        district = _district_from_constituency(constituency) or gu_name
         party = tds[ix["party"]].get_text(" ", strip=True)
 
         img = tds[ix["photo"]].find("input", attrs={"type": "image"})
@@ -803,6 +803,63 @@ def snapshot_existing_output_file(output_path: str) -> Optional[str]:
     return dest
 
 
+def _filter_batch_for_sgg(
+    batch: list[dict[str, Any]],
+    sgg: dict[str, str],
+) -> list[dict[str, Any]]:
+    """선거구명이 sgg['name']과 일치하는 행만 (본후보 통합 응답에 타 선거구가 섞이는 경우 제거)."""
+    sgg_norm = _normalize_district_name(str(sgg.get("name") or ""))
+    if not sgg_norm:
+        return batch
+    out: list[dict[str, Any]] = []
+    for c in batch:
+        cons = str(c.get("constituency") or "").strip()
+        if _normalize_district_name(cons) != sgg_norm:
+            continue
+        dist = _district_from_constituency(cons)
+        if dist:
+            c["district"] = dist
+        out.append(c)
+    return out
+
+
+def _fetch_parsed_batch_for_sgg(
+    town: dict[str, str],
+    sgg: dict[str, str],
+    *,
+    election_code: str,
+    statement_id: str,
+    office_label: str,
+    election_name: str,
+    candidate_status: str,
+) -> list[dict[str, Any]]:
+    """
+    선거구(sgg) 단위 명부. 본후보 POST가 비었거나 타 선거구가 섞이면 예비 명부 HTML로 한 번 더 시도합니다.
+    저장 라벨(candidate_status)은 호출자가 요청한 값(보통 official)을 유지합니다.
+    """
+    want_official = str(candidate_status or "").strip().lower() == "official"
+    try_statuses = ("official", "preliminary") if want_official else (str(candidate_status or "preliminary"),)
+    for st in try_statuses:
+        html = post_report_html(
+            town["code"],
+            sgg["code"],
+            election_code=election_code,
+            statement_id=statement_id,
+            candidate_status=st,
+        )
+        batch = parse_candidates_from_report(
+            html,
+            town["name"],
+            office=office_label,
+            election_name=election_name,
+            candidate_status=candidate_status,
+        )
+        batch = _filter_batch_for_sgg(batch, sgg)
+        if batch:
+            return batch
+    return []
+
+
 def crawl_office(
     *,
     election_code: str,
@@ -826,9 +883,6 @@ def crawl_office(
     merged: list[dict[str, Any]] = []
     request_count = 0
 
-    ec = str(election_code or "").strip()
-    use_town_aggregate = ec in (METRO_COUNCIL_ELECTION_CODE, COUNCIL_ELECTION_CODE)
-
     for town in towns:
         try:
             sggs = fetch_sgg_town_codes(town["code"], election_code=election_code)
@@ -839,13 +893,7 @@ def crawl_office(
             print(f"[skip] [{office_label}] {town['name']}: 선거구 코드 없음", file=sys.stderr)
             continue
 
-        sgg_loop: list[dict[str, str]] = (
-            [{"code": "0", "name": "(구 단위·기초선거구 통합)"}]
-            if use_town_aggregate
-            else sggs
-        )
-
-        for sgg in sgg_loop:
+        for sgg in sggs:
             request_count += 1
             if dry_run:
                 print(
@@ -855,11 +903,13 @@ def crawl_office(
                 continue
 
             try:
-                html = post_report_html(
-                    town["code"],
-                    sgg["code"],
+                batch = _fetch_parsed_batch_for_sgg(
+                    town,
+                    sgg,
                     election_code=election_code,
                     statement_id=statement_id,
+                    office_label=office_label,
+                    election_name=election_name,
                     candidate_status=candidate_status,
                 )
             except Exception as e:
@@ -868,13 +918,6 @@ def crawl_office(
                     file=sys.stderr,
                 )
                 continue
-            batch = parse_candidates_from_report(
-                html,
-                town["name"],
-                office=office_label,
-                election_name=election_name,
-                candidate_status=candidate_status,
-            )
             added = 0
             for c in batch:
                 hid = c.get("huboId")
