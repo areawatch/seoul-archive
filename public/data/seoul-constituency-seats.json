@@ -1,0 +1,1563 @@
+{
+  "updatedAt": "2026-05-15T20:03:59+09:00",
+  "source": "info.nec.go.kr electionInfo_report.xhtml (BIGI05 / bigi05.jsp)",
+  "electionId": "0020260603",
+  "byConstituency": {
+    "종로구가선거구": 2,
+    "종로구나선거구": 2,
+    "종로구다선거구": 2,
+    "종로구라선거구": 3,
+    "종로구제1선거구": 1,
+    "종로구제2선거구": 1,
+    "중구가선거구": 2,
+    "중구나선거구": 2,
+    "중구다선거구": 2,
+    "중구라선거구": 2,
+    "중구제1선거구": 1,
+    "중구제2선거구": 1,
+    "용산구가선거구": 2,
+    "용산구나선거구": 2,
+    "용산구다선거구": 3,
+    "용산구라선거구": 2,
+    "용산구마선거구": 2,
+    "용산구제1선거구": 1,
+    "용산구제2선거구": 1,
+    "성동구가선거구": 3,
+    "성동구나선거구": 3,
+    "성동구다선거구": 3,
+    "성동구라선거구": 3,
+    "성동구제1선거구": 1,
+    "성동구제2선거구": 1,
+    "성동구제3선거구": 1,
+    "성동구제4선거구": 1,
+    "광진구가선거구": 3,
+    "광진구나선거구": 3,
+    "광진구다선거구": 3,
+    "광진구라선거구": 3,
+    "광진구제1선거구": 1,
+    "광진구제2선거구": 1,
+    "광진구제3선거구": 1,
+    "광진구제4선거구": 1,
+    "동대문구가선거구": 2,
+    "동대문구나선거구": 2,
+    "동대문구다선거구": 2,
+    "동대문구라선거구": 2,
+    "동대문구마선거구": 4,
+    "동대문구바선거구": 5,
+    "동대문구제1선거구": 1,
+    "동대문구제2선거구": 1,
+    "동대문구제3선거구": 1,
+    "동대문구제4선거구": 1,
+    "중랑구가선거구": 2,
+    "중랑구나선거구": 2,
+    "중랑구다선거구": 3,
+    "중랑구라선거구": 2,
+    "중랑구마선거구": 2,
+    "중랑구바선거구": 2,
+    "중랑구사선거구": 2,
+    "중랑구제1선거구": 1,
+    "중랑구제2선거구": 1,
+    "중랑구제3선거구": 1,
+    "중랑구제4선거구": 1,
+    "성북구가선거구": 5,
+    "성북구나선거구": 3,
+    "성북구다선거구": 3,
+    "성북구라선거구": 2,
+    "성북구마선거구": 3,
+    "성북구바선거구": 2,
+    "성북구사선거구": 2,
+    "성북구제1선거구": 1,
+    "성북구제2선거구": 1,
+    "성북구제3선거구": 1,
+    "성북구제4선거구": 1,
+    "강북구가선거구": 3,
+    "강북구나선거구": 3,
+    "강북구다선거구": 3,
+    "강북구라선거구": 3,
+    "강북구제1선거구": 1,
+    "강북구제2선거구": 1,
+    "강북구제3선거구": 1,
+    "강북구제4선거구": 1,
+    "도봉구가선거구": 3,
+    "도봉구나선거구": 4,
+    "도봉구다선거구": 2,
+    "도봉구라선거구": 2,
+    "도봉구마선거구": 2,
+    "도봉구제1선거구": 1,
+    "도봉구제2선거구": 1,
+    "도봉구제3선거구": 1,
+    "도봉구제4선거구": 1,
+    "노원구가선거구": 3,
+    "노원구나선거구": 3,
+    "노원구다선거구": 3,
+    "노원구라선거구": 3,
+    "노원구마선거구": 3,
+    "노원구바선거구": 3,
+    "노원구제1선거구": 1,
+    "노원구제2선거구": 1,
+    "노원구제3선거구": 1,
+    "노원구제4선거구": 1,
+    "노원구제5선거구": 1,
+    "노원구제6선거구": 1,
+    "은평구가선거구": 2,
+    "은평구나선거구": 2,
+    "은평구다선거구": 2,
+    "은평구라선거구": 3,
+    "은평구마선거구": 2,
+    "은평구바선거구": 2,
+    "은평구사선거구": 2,
+    "은평구아선거구": 2,
+    "은평구제1선거구": 1,
+    "은평구제2선거구": 1,
+    "은평구제3선거구": 1,
+    "은평구제4선거구": 1,
+    "서대문구가선거구": 3,
+    "서대문구나선거구": 2,
+    "서대문구다선거구": 2,
+    "서대문구라선거구": 3,
+    "서대문구마선거구": 3,
+    "서대문구제1선거구": 1,
+    "서대문구제2선거구": 1,
+    "서대문구제3선거구": 1,
+    "서대문구제4선거구": 1,
+    "마포구가선거구": 2,
+    "마포구나선거구": 2,
+    "마포구다선거구": 2,
+    "마포구라선거구": 2,
+    "마포구마선거구": 2,
+    "마포구바선거구": 2,
+    "마포구사선거구": 2,
+    "마포구아선거구": 3,
+    "마포구제1선거구": 1,
+    "마포구제2선거구": 1,
+    "마포구제3선거구": 1,
+    "마포구제4선거구": 1,
+    "양천구가선거구": 2,
+    "양천구나선거구": 2,
+    "양천구다선거구": 2,
+    "양천구라선거구": 2,
+    "양천구마선거구": 2,
+    "양천구바선거구": 2,
+    "양천구사선거구": 2,
+    "양천구아선거구": 2,
+    "양천구제1선거구": 1,
+    "양천구제2선거구": 1,
+    "양천구제3선거구": 1,
+    "양천구제4선거구": 1,
+    "강서구가선거구": 3,
+    "강서구나선거구": 2,
+    "강서구다선거구": 2,
+    "강서구라선거구": 3,
+    "강서구마선거구": 4,
+    "강서구바선거구": 2,
+    "강서구사선거구": 2,
+    "강서구아선거구": 2,
+    "강서구제1선거구": 1,
+    "강서구제2선거구": 1,
+    "강서구제3선거구": 1,
+    "강서구제4선거구": 1,
+    "강서구제5선거구": 1,
+    "강서구제6선거구": 1,
+    "구로구가선거구": 3,
+    "구로구나선거구": 2,
+    "구로구다선거구": 3,
+    "구로구라선거구": 2,
+    "구로구마선거구": 2,
+    "구로구바선거구": 2,
+    "구로구제1선거구": 1,
+    "구로구제2선거구": 1,
+    "구로구제3선거구": 1,
+    "구로구제4선거구": 1,
+    "금천구가선거구": 3,
+    "금천구나선거구": 2,
+    "금천구다선거구": 2,
+    "금천구라선거구": 2,
+    "금천구제1선거구": 1,
+    "금천구제2선거구": 1,
+    "영등포구가선거구": 2,
+    "영등포구나선거구": 2,
+    "영등포구다선거구": 2,
+    "영등포구라선거구": 2,
+    "영등포구마선거구": 2,
+    "영등포구바선거구": 2,
+    "영등포구사선거구": 3,
+    "영등포구제1선거구": 1,
+    "영등포구제2선거구": 1,
+    "영등포구제3선거구": 1,
+    "영등포구제4선거구": 1,
+    "동작구가선거구": 2,
+    "동작구나선거구": 2,
+    "동작구다선거구": 2,
+    "동작구라선거구": 2,
+    "동작구마선거구": 2,
+    "동작구바선거구": 2,
+    "동작구사선거구": 3,
+    "동작구제1선거구": 1,
+    "동작구제2선거구": 1,
+    "동작구제3선거구": 1,
+    "동작구제4선거구": 1,
+    "관악구가선거구": 3,
+    "관악구나선거구": 3,
+    "관악구다선거구": 4,
+    "관악구라선거구": 3,
+    "관악구마선거구": 2,
+    "관악구바선거구": 2,
+    "관악구사선거구": 3,
+    "관악구제1선거구": 1,
+    "관악구제2선거구": 1,
+    "관악구제3선거구": 1,
+    "관악구제4선거구": 1,
+    "관악구제5선거구": 1,
+    "서초구가선거구": 4,
+    "서초구나선거구": 3,
+    "서초구다선거구": 3,
+    "서초구라선거구": 2,
+    "서초구마선거구": 3,
+    "서초구제1선거구": 1,
+    "서초구제2선거구": 1,
+    "서초구제3선거구": 1,
+    "서초구제4선거구": 1,
+    "강남구가선거구": 2,
+    "강남구나선거구": 3,
+    "강남구다선거구": 3,
+    "강남구라선거구": 3,
+    "강남구마선거구": 2,
+    "강남구바선거구": 2,
+    "강남구사선거구": 2,
+    "강남구아선거구": 2,
+    "강남구자선거구": 3,
+    "강남구제1선거구": 1,
+    "강남구제2선거구": 1,
+    "강남구제3선거구": 1,
+    "강남구제4선거구": 1,
+    "강남구제5선거구": 1,
+    "강남구제6선거구": 1,
+    "송파구가선거구": 3,
+    "송파구나선거구": 2,
+    "송파구다선거구": 2,
+    "송파구라선거구": 3,
+    "송파구마선거구": 3,
+    "송파구바선거구": 2,
+    "송파구사선거구": 2,
+    "송파구아선거구": 3,
+    "송파구자선거구": 2,
+    "송파구차선거구": 2,
+    "송파구제1선거구": 1,
+    "송파구제2선거구": 1,
+    "송파구제3선거구": 1,
+    "송파구제4선거구": 1,
+    "송파구제5선거구": 1,
+    "송파구제6선거구": 1,
+    "강동구가선거구": 3,
+    "강동구나선거구": 3,
+    "강동구다선거구": 2,
+    "강동구라선거구": 3,
+    "강동구마선거구": 3,
+    "강동구바선거구": 2,
+    "강동구사선거구": 3,
+    "강동구제1선거구": 1,
+    "강동구제2선거구": 1,
+    "강동구제3선거구": 1,
+    "강동구제4선거구": 1,
+    "강동구제5선거구": 1,
+    "강동구제6선거구": 1
+  },
+  "defaults": {
+    "구청장": 1,
+    "시의원": 1
+  },
+  "council": [
+    {
+      "district": "종로구",
+      "constituency": "종로구가선거구",
+      "seats": 2
+    },
+    {
+      "district": "종로구",
+      "constituency": "종로구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "종로구",
+      "constituency": "종로구다선거구",
+      "seats": 2
+    },
+    {
+      "district": "종로구",
+      "constituency": "종로구라선거구",
+      "seats": 3
+    },
+    {
+      "district": "중구",
+      "constituency": "중구가선거구",
+      "seats": 2
+    },
+    {
+      "district": "중구",
+      "constituency": "중구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "중구",
+      "constituency": "중구다선거구",
+      "seats": 2
+    },
+    {
+      "district": "중구",
+      "constituency": "중구라선거구",
+      "seats": 2
+    },
+    {
+      "district": "용산구",
+      "constituency": "용산구가선거구",
+      "seats": 2
+    },
+    {
+      "district": "용산구",
+      "constituency": "용산구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "용산구",
+      "constituency": "용산구다선거구",
+      "seats": 3
+    },
+    {
+      "district": "용산구",
+      "constituency": "용산구라선거구",
+      "seats": 2
+    },
+    {
+      "district": "용산구",
+      "constituency": "용산구마선거구",
+      "seats": 2
+    },
+    {
+      "district": "성동구",
+      "constituency": "성동구가선거구",
+      "seats": 3
+    },
+    {
+      "district": "성동구",
+      "constituency": "성동구나선거구",
+      "seats": 3
+    },
+    {
+      "district": "성동구",
+      "constituency": "성동구다선거구",
+      "seats": 3
+    },
+    {
+      "district": "성동구",
+      "constituency": "성동구라선거구",
+      "seats": 3
+    },
+    {
+      "district": "광진구",
+      "constituency": "광진구가선거구",
+      "seats": 3
+    },
+    {
+      "district": "광진구",
+      "constituency": "광진구나선거구",
+      "seats": 3
+    },
+    {
+      "district": "광진구",
+      "constituency": "광진구다선거구",
+      "seats": 3
+    },
+    {
+      "district": "광진구",
+      "constituency": "광진구라선거구",
+      "seats": 3
+    },
+    {
+      "district": "동대문구",
+      "constituency": "동대문구가선거구",
+      "seats": 2
+    },
+    {
+      "district": "동대문구",
+      "constituency": "동대문구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "동대문구",
+      "constituency": "동대문구다선거구",
+      "seats": 2
+    },
+    {
+      "district": "동대문구",
+      "constituency": "동대문구라선거구",
+      "seats": 2
+    },
+    {
+      "district": "동대문구",
+      "constituency": "동대문구마선거구",
+      "seats": 4
+    },
+    {
+      "district": "동대문구",
+      "constituency": "동대문구바선거구",
+      "seats": 5
+    },
+    {
+      "district": "중랑구",
+      "constituency": "중랑구가선거구",
+      "seats": 2
+    },
+    {
+      "district": "중랑구",
+      "constituency": "중랑구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "중랑구",
+      "constituency": "중랑구다선거구",
+      "seats": 3
+    },
+    {
+      "district": "중랑구",
+      "constituency": "중랑구라선거구",
+      "seats": 2
+    },
+    {
+      "district": "중랑구",
+      "constituency": "중랑구마선거구",
+      "seats": 2
+    },
+    {
+      "district": "중랑구",
+      "constituency": "중랑구바선거구",
+      "seats": 2
+    },
+    {
+      "district": "중랑구",
+      "constituency": "중랑구사선거구",
+      "seats": 2
+    },
+    {
+      "district": "성북구",
+      "constituency": "성북구가선거구",
+      "seats": 5
+    },
+    {
+      "district": "성북구",
+      "constituency": "성북구나선거구",
+      "seats": 3
+    },
+    {
+      "district": "성북구",
+      "constituency": "성북구다선거구",
+      "seats": 3
+    },
+    {
+      "district": "성북구",
+      "constituency": "성북구라선거구",
+      "seats": 2
+    },
+    {
+      "district": "성북구",
+      "constituency": "성북구마선거구",
+      "seats": 3
+    },
+    {
+      "district": "성북구",
+      "constituency": "성북구바선거구",
+      "seats": 2
+    },
+    {
+      "district": "성북구",
+      "constituency": "성북구사선거구",
+      "seats": 2
+    },
+    {
+      "district": "강북구",
+      "constituency": "강북구가선거구",
+      "seats": 3
+    },
+    {
+      "district": "강북구",
+      "constituency": "강북구나선거구",
+      "seats": 3
+    },
+    {
+      "district": "강북구",
+      "constituency": "강북구다선거구",
+      "seats": 3
+    },
+    {
+      "district": "강북구",
+      "constituency": "강북구라선거구",
+      "seats": 3
+    },
+    {
+      "district": "도봉구",
+      "constituency": "도봉구가선거구",
+      "seats": 3
+    },
+    {
+      "district": "도봉구",
+      "constituency": "도봉구나선거구",
+      "seats": 4
+    },
+    {
+      "district": "도봉구",
+      "constituency": "도봉구다선거구",
+      "seats": 2
+    },
+    {
+      "district": "도봉구",
+      "constituency": "도봉구라선거구",
+      "seats": 2
+    },
+    {
+      "district": "도봉구",
+      "constituency": "도봉구마선거구",
+      "seats": 2
+    },
+    {
+      "district": "노원구",
+      "constituency": "노원구가선거구",
+      "seats": 3
+    },
+    {
+      "district": "노원구",
+      "constituency": "노원구나선거구",
+      "seats": 3
+    },
+    {
+      "district": "노원구",
+      "constituency": "노원구다선거구",
+      "seats": 3
+    },
+    {
+      "district": "노원구",
+      "constituency": "노원구라선거구",
+      "seats": 3
+    },
+    {
+      "district": "노원구",
+      "constituency": "노원구마선거구",
+      "seats": 3
+    },
+    {
+      "district": "노원구",
+      "constituency": "노원구바선거구",
+      "seats": 3
+    },
+    {
+      "district": "은평구",
+      "constituency": "은평구가선거구",
+      "seats": 2
+    },
+    {
+      "district": "은평구",
+      "constituency": "은평구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "은평구",
+      "constituency": "은평구다선거구",
+      "seats": 2
+    },
+    {
+      "district": "은평구",
+      "constituency": "은평구라선거구",
+      "seats": 3
+    },
+    {
+      "district": "은평구",
+      "constituency": "은평구마선거구",
+      "seats": 2
+    },
+    {
+      "district": "은평구",
+      "constituency": "은평구바선거구",
+      "seats": 2
+    },
+    {
+      "district": "은평구",
+      "constituency": "은평구사선거구",
+      "seats": 2
+    },
+    {
+      "district": "은평구",
+      "constituency": "은평구아선거구",
+      "seats": 2
+    },
+    {
+      "district": "서대문구",
+      "constituency": "서대문구가선거구",
+      "seats": 3
+    },
+    {
+      "district": "서대문구",
+      "constituency": "서대문구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "서대문구",
+      "constituency": "서대문구다선거구",
+      "seats": 2
+    },
+    {
+      "district": "서대문구",
+      "constituency": "서대문구라선거구",
+      "seats": 3
+    },
+    {
+      "district": "서대문구",
+      "constituency": "서대문구마선거구",
+      "seats": 3
+    },
+    {
+      "district": "마포구",
+      "constituency": "마포구가선거구",
+      "seats": 2
+    },
+    {
+      "district": "마포구",
+      "constituency": "마포구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "마포구",
+      "constituency": "마포구다선거구",
+      "seats": 2
+    },
+    {
+      "district": "마포구",
+      "constituency": "마포구라선거구",
+      "seats": 2
+    },
+    {
+      "district": "마포구",
+      "constituency": "마포구마선거구",
+      "seats": 2
+    },
+    {
+      "district": "마포구",
+      "constituency": "마포구바선거구",
+      "seats": 2
+    },
+    {
+      "district": "마포구",
+      "constituency": "마포구사선거구",
+      "seats": 2
+    },
+    {
+      "district": "마포구",
+      "constituency": "마포구아선거구",
+      "seats": 3
+    },
+    {
+      "district": "양천구",
+      "constituency": "양천구가선거구",
+      "seats": 2
+    },
+    {
+      "district": "양천구",
+      "constituency": "양천구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "양천구",
+      "constituency": "양천구다선거구",
+      "seats": 2
+    },
+    {
+      "district": "양천구",
+      "constituency": "양천구라선거구",
+      "seats": 2
+    },
+    {
+      "district": "양천구",
+      "constituency": "양천구마선거구",
+      "seats": 2
+    },
+    {
+      "district": "양천구",
+      "constituency": "양천구바선거구",
+      "seats": 2
+    },
+    {
+      "district": "양천구",
+      "constituency": "양천구사선거구",
+      "seats": 2
+    },
+    {
+      "district": "양천구",
+      "constituency": "양천구아선거구",
+      "seats": 2
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구가선거구",
+      "seats": 3
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구다선거구",
+      "seats": 2
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구라선거구",
+      "seats": 3
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구마선거구",
+      "seats": 4
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구바선거구",
+      "seats": 2
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구사선거구",
+      "seats": 2
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구아선거구",
+      "seats": 2
+    },
+    {
+      "district": "구로구",
+      "constituency": "구로구가선거구",
+      "seats": 3
+    },
+    {
+      "district": "구로구",
+      "constituency": "구로구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "구로구",
+      "constituency": "구로구다선거구",
+      "seats": 3
+    },
+    {
+      "district": "구로구",
+      "constituency": "구로구라선거구",
+      "seats": 2
+    },
+    {
+      "district": "구로구",
+      "constituency": "구로구마선거구",
+      "seats": 2
+    },
+    {
+      "district": "구로구",
+      "constituency": "구로구바선거구",
+      "seats": 2
+    },
+    {
+      "district": "금천구",
+      "constituency": "금천구가선거구",
+      "seats": 3
+    },
+    {
+      "district": "금천구",
+      "constituency": "금천구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "금천구",
+      "constituency": "금천구다선거구",
+      "seats": 2
+    },
+    {
+      "district": "금천구",
+      "constituency": "금천구라선거구",
+      "seats": 2
+    },
+    {
+      "district": "영등포구",
+      "constituency": "영등포구가선거구",
+      "seats": 2
+    },
+    {
+      "district": "영등포구",
+      "constituency": "영등포구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "영등포구",
+      "constituency": "영등포구다선거구",
+      "seats": 2
+    },
+    {
+      "district": "영등포구",
+      "constituency": "영등포구라선거구",
+      "seats": 2
+    },
+    {
+      "district": "영등포구",
+      "constituency": "영등포구마선거구",
+      "seats": 2
+    },
+    {
+      "district": "영등포구",
+      "constituency": "영등포구바선거구",
+      "seats": 2
+    },
+    {
+      "district": "영등포구",
+      "constituency": "영등포구사선거구",
+      "seats": 3
+    },
+    {
+      "district": "동작구",
+      "constituency": "동작구가선거구",
+      "seats": 2
+    },
+    {
+      "district": "동작구",
+      "constituency": "동작구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "동작구",
+      "constituency": "동작구다선거구",
+      "seats": 2
+    },
+    {
+      "district": "동작구",
+      "constituency": "동작구라선거구",
+      "seats": 2
+    },
+    {
+      "district": "동작구",
+      "constituency": "동작구마선거구",
+      "seats": 2
+    },
+    {
+      "district": "동작구",
+      "constituency": "동작구바선거구",
+      "seats": 2
+    },
+    {
+      "district": "동작구",
+      "constituency": "동작구사선거구",
+      "seats": 3
+    },
+    {
+      "district": "관악구",
+      "constituency": "관악구가선거구",
+      "seats": 3
+    },
+    {
+      "district": "관악구",
+      "constituency": "관악구나선거구",
+      "seats": 3
+    },
+    {
+      "district": "관악구",
+      "constituency": "관악구다선거구",
+      "seats": 4
+    },
+    {
+      "district": "관악구",
+      "constituency": "관악구라선거구",
+      "seats": 3
+    },
+    {
+      "district": "관악구",
+      "constituency": "관악구마선거구",
+      "seats": 2
+    },
+    {
+      "district": "관악구",
+      "constituency": "관악구바선거구",
+      "seats": 2
+    },
+    {
+      "district": "관악구",
+      "constituency": "관악구사선거구",
+      "seats": 3
+    },
+    {
+      "district": "서초구",
+      "constituency": "서초구가선거구",
+      "seats": 4
+    },
+    {
+      "district": "서초구",
+      "constituency": "서초구나선거구",
+      "seats": 3
+    },
+    {
+      "district": "서초구",
+      "constituency": "서초구다선거구",
+      "seats": 3
+    },
+    {
+      "district": "서초구",
+      "constituency": "서초구라선거구",
+      "seats": 2
+    },
+    {
+      "district": "서초구",
+      "constituency": "서초구마선거구",
+      "seats": 3
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구가선거구",
+      "seats": 2
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구나선거구",
+      "seats": 3
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구다선거구",
+      "seats": 3
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구라선거구",
+      "seats": 3
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구마선거구",
+      "seats": 2
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구바선거구",
+      "seats": 2
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구사선거구",
+      "seats": 2
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구아선거구",
+      "seats": 2
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구자선거구",
+      "seats": 3
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구가선거구",
+      "seats": 3
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구나선거구",
+      "seats": 2
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구다선거구",
+      "seats": 2
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구라선거구",
+      "seats": 3
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구마선거구",
+      "seats": 3
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구바선거구",
+      "seats": 2
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구사선거구",
+      "seats": 2
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구아선거구",
+      "seats": 3
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구자선거구",
+      "seats": 2
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구차선거구",
+      "seats": 2
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구가선거구",
+      "seats": 3
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구나선거구",
+      "seats": 3
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구다선거구",
+      "seats": 2
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구라선거구",
+      "seats": 3
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구마선거구",
+      "seats": 3
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구바선거구",
+      "seats": 2
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구사선거구",
+      "seats": 3
+    }
+  ],
+  "metro": [
+    {
+      "district": "종로구",
+      "constituency": "종로구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "종로구",
+      "constituency": "종로구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "중구",
+      "constituency": "중구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "중구",
+      "constituency": "중구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "용산구",
+      "constituency": "용산구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "용산구",
+      "constituency": "용산구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "성동구",
+      "constituency": "성동구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "성동구",
+      "constituency": "성동구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "성동구",
+      "constituency": "성동구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "성동구",
+      "constituency": "성동구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "광진구",
+      "constituency": "광진구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "광진구",
+      "constituency": "광진구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "광진구",
+      "constituency": "광진구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "광진구",
+      "constituency": "광진구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "동대문구",
+      "constituency": "동대문구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "동대문구",
+      "constituency": "동대문구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "동대문구",
+      "constituency": "동대문구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "동대문구",
+      "constituency": "동대문구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "중랑구",
+      "constituency": "중랑구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "중랑구",
+      "constituency": "중랑구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "중랑구",
+      "constituency": "중랑구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "중랑구",
+      "constituency": "중랑구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "성북구",
+      "constituency": "성북구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "성북구",
+      "constituency": "성북구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "성북구",
+      "constituency": "성북구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "성북구",
+      "constituency": "성북구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "강북구",
+      "constituency": "강북구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "강북구",
+      "constituency": "강북구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "강북구",
+      "constituency": "강북구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "강북구",
+      "constituency": "강북구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "도봉구",
+      "constituency": "도봉구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "도봉구",
+      "constituency": "도봉구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "도봉구",
+      "constituency": "도봉구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "도봉구",
+      "constituency": "도봉구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "노원구",
+      "constituency": "노원구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "노원구",
+      "constituency": "노원구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "노원구",
+      "constituency": "노원구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "노원구",
+      "constituency": "노원구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "노원구",
+      "constituency": "노원구제5선거구",
+      "seats": 1
+    },
+    {
+      "district": "노원구",
+      "constituency": "노원구제6선거구",
+      "seats": 1
+    },
+    {
+      "district": "은평구",
+      "constituency": "은평구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "은평구",
+      "constituency": "은평구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "은평구",
+      "constituency": "은평구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "은평구",
+      "constituency": "은평구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "서대문구",
+      "constituency": "서대문구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "서대문구",
+      "constituency": "서대문구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "서대문구",
+      "constituency": "서대문구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "서대문구",
+      "constituency": "서대문구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "마포구",
+      "constituency": "마포구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "마포구",
+      "constituency": "마포구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "마포구",
+      "constituency": "마포구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "마포구",
+      "constituency": "마포구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "양천구",
+      "constituency": "양천구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "양천구",
+      "constituency": "양천구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "양천구",
+      "constituency": "양천구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "양천구",
+      "constituency": "양천구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구제5선거구",
+      "seats": 1
+    },
+    {
+      "district": "강서구",
+      "constituency": "강서구제6선거구",
+      "seats": 1
+    },
+    {
+      "district": "구로구",
+      "constituency": "구로구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "구로구",
+      "constituency": "구로구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "구로구",
+      "constituency": "구로구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "구로구",
+      "constituency": "구로구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "금천구",
+      "constituency": "금천구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "금천구",
+      "constituency": "금천구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "영등포구",
+      "constituency": "영등포구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "영등포구",
+      "constituency": "영등포구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "영등포구",
+      "constituency": "영등포구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "영등포구",
+      "constituency": "영등포구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "동작구",
+      "constituency": "동작구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "동작구",
+      "constituency": "동작구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "동작구",
+      "constituency": "동작구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "동작구",
+      "constituency": "동작구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "관악구",
+      "constituency": "관악구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "관악구",
+      "constituency": "관악구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "관악구",
+      "constituency": "관악구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "관악구",
+      "constituency": "관악구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "관악구",
+      "constituency": "관악구제5선거구",
+      "seats": 1
+    },
+    {
+      "district": "서초구",
+      "constituency": "서초구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "서초구",
+      "constituency": "서초구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "서초구",
+      "constituency": "서초구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "서초구",
+      "constituency": "서초구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구제5선거구",
+      "seats": 1
+    },
+    {
+      "district": "강남구",
+      "constituency": "강남구제6선거구",
+      "seats": 1
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구제5선거구",
+      "seats": 1
+    },
+    {
+      "district": "송파구",
+      "constituency": "송파구제6선거구",
+      "seats": 1
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구제1선거구",
+      "seats": 1
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구제2선거구",
+      "seats": 1
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구제3선거구",
+      "seats": 1
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구제4선거구",
+      "seats": 1
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구제5선거구",
+      "seats": 1
+    },
+    {
+      "district": "강동구",
+      "constituency": "강동구제6선거구",
+      "seats": 1
+    }
+  ]
+}

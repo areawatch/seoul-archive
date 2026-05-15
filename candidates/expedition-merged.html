@@ -86,6 +86,17 @@
         border-top: 1px solid #e2e8f0;
         font-weight: 800;
       }
+      .merge-cons-meta {
+        font-size: 12px;
+        font-weight: 700;
+        color: #475569;
+      }
+      .merge-unopposed {
+        margin-left: 6px;
+        font-size: 12px;
+        font-weight: 900;
+        color: #006b4d;
+      }
       .office-text {
         font-size: 11px;
         font-weight: 900;
@@ -216,6 +227,9 @@
       ];
 
       let mergeGroupsCache = null;
+      let seatIndexCache = null;
+
+      const SEATS_JSON_URL = "../public/data/seoul-constituency-seats.json";
 
       function escapeHtml(s) {
         return String(s ?? "")
@@ -455,6 +469,69 @@
         return `<span class="office-text" style="color:${color}">${escapeHtml(o || "—")}</span>`;
       }
 
+      function normalizeSeatIndex(payload) {
+        if (!payload || typeof payload !== "object") return null;
+        const by = payload.byConstituency && typeof payload.byConstituency === "object" ? payload.byConstituency : {};
+        const defaults =
+          payload.defaults && typeof payload.defaults === "object"
+            ? payload.defaults
+            : { 구청장: 1, 시의원: 1 };
+        return { byConstituency: by, defaults };
+      }
+
+      async function loadSeatIndex() {
+        try {
+          const r = await fetch(SEATS_JSON_URL, { cache: "no-store" });
+          if (!r.ok) throw new Error(String(r.status));
+          return normalizeSeatIndex(await r.json());
+        } catch (e) {
+          console.warn("[internal merged] seat index load:", e);
+          return null;
+        }
+      }
+
+      function seatCountFor(office, constituency, seatIndex) {
+        if (!seatIndex) return null;
+        const o = String(office || "").trim();
+        const cons = String(constituency || "").trim();
+        if (o === "구청장") return Number(seatIndex.defaults.구청장) || 1;
+        if (o === "시의원") {
+          const n = seatIndex.byConstituency[cons];
+          return n != null ? Number(n) : Number(seatIndex.defaults.시의원) || 1;
+        }
+        if (o === "구의원") {
+          const n = seatIndex.byConstituency[cons];
+          return n != null ? Number(n) : null;
+        }
+        return null;
+      }
+
+      function isUnopposedWin(office, constituency, candidateCount, seatIndex) {
+        const seats = seatCountFor(office, constituency, seatIndex);
+        if (seats == null || seats < 1) return false;
+        return candidateCount > 0 && candidateCount <= seats;
+      }
+
+      function constituencyHeaderMeta(office, constituency, candidateCount, seatIndex) {
+        const o = String(office || "").trim();
+        const seats = seatCountFor(o, constituency, seatIndex);
+        const parts = [];
+        if (o === "구의원" && seats != null && seats > 0) {
+          parts.push(`${seats}인선거구`);
+        }
+        if (seats != null && seats > 0) {
+          parts.push(`후보 ${candidateCount}명`);
+        } else if (candidateCount > 0) {
+          parts.push(`후보 ${candidateCount}명`);
+        }
+        const unopposed = isUnopposedWin(o, constituency, candidateCount, seatIndex);
+        const meta = parts.length
+          ? `<span class="merge-cons-meta"> · ${parts.map((p) => escapeHtml(p)).join(" · ")}</span>`
+          : "";
+        const flag = unopposed ? `<span class="merge-unopposed">무투표 당선</span>` : "";
+        return meta + flag;
+      }
+
       function buildContactByKeyFromSheet(sheetRows) {
         const sample = sheetRows && sheetRows.length ? sheetRows[0] : null;
         const nameCol = sample ? findSheetColumn(sample, ["이름", "성명"]) : "";
@@ -553,7 +630,7 @@
         sel.innerHTML = opts.join("");
       }
 
-      function renderMergedTableBody(groups, districtFilter) {
+      function renderMergedTableBody(groups, districtFilter, seatIndex) {
         const filter = String(districtFilter || "").trim();
         const districtNames = filter
           ? groups.has(filter)
@@ -580,7 +657,11 @@
                   if (oa !== ob) return oa - ob;
                   return String(a.name || "").localeCompare(String(b.name || ""), "ko");
                 });
-                const consHeader = `<tr class="merge-cons-row"><td colspan="6">선거구: ${escapeHtml(cons)}</td></tr>`;
+                const office = rows.length ? String(rows[0].office || "").trim() : "";
+                const consMeta = constituencyHeaderMeta(office, cons, rows.length, seatIndex);
+                const consHeader = `<tr class="merge-cons-row"><td colspan="6">선거구: ${escapeHtml(
+                  cons
+                )}${consMeta}</td></tr>`;
                 const rowHtml = rows
                   .map((r) => {
                     return `<tr>
@@ -601,10 +682,10 @@
           .join("");
       }
 
-      function paintMergedTable(groups, districtFilter) {
+      function paintMergedTable(groups, districtFilter, seatIndex) {
         const mergedEl = document.getElementById("mergedTable");
         if (!mergedEl) return;
-        const tbodyHtml = renderMergedTableBody(groups, districtFilter);
+        const tbodyHtml = renderMergedTableBody(groups, districtFilter, seatIndex || seatIndexCache);
         mergedEl.innerHTML = `<table class="merge-table" aria-label="구/선거구별 취합 테이블">
           <thead>
             <tr>
@@ -620,13 +701,14 @@
         </table>`;
       }
 
-      function buildMergedTable(candidates, sheetRows) {
+      function buildMergedTable(candidates, sheetRows, seatIndex) {
         const contactByKey = buildContactByKeyFromSheet(sheetRows);
         mergeGroupsCache = buildGroupsFromCandidates(candidates, contactByKey);
+        seatIndexCache = seatIndex || seatIndexCache;
         populateDistrictFilter(mergeGroupsCache);
         const sel = document.getElementById("districtFilter");
         const current = sel ? String(sel.value || "") : "";
-        paintMergedTable(mergeGroupsCache, current);
+        paintMergedTable(mergeGroupsCache, current, seatIndexCache);
       }
 
       (async function init() {
@@ -649,13 +731,14 @@
           }
           const sheetCsv = await fetchFirstOkText(SHEET_CSV_URL_CANDIDATES);
           const sheetRows = csvToObjects(sheetCsv);
-          buildMergedTable(candidates, sheetRows);
+          const seatIndex = await loadSeatIndex();
+          buildMergedTable(candidates, sheetRows, seatIndex);
 
           const districtFilterEl = document.getElementById("districtFilter");
           if (districtFilterEl) {
             districtFilterEl.addEventListener("change", function () {
               if (!mergeGroupsCache) return;
-              paintMergedTable(mergeGroupsCache, this.value);
+              paintMergedTable(mergeGroupsCache, this.value, seatIndexCache);
             });
           }
         } catch (e) {
