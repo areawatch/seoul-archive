@@ -75,6 +75,19 @@
         border-top: 2px solid #cbd5e1;
         font-weight: 900;
       }
+      .merge-missing-row td {
+        background: #fff7ed !important;
+        border-bottom: 1px solid #fed7aa;
+        font-size: 12px;
+        font-weight: 600;
+        color: #78350f;
+        line-height: 1.55;
+      }
+      .merge-missing-label {
+        font-weight: 900;
+        color: #b45309;
+        margin-right: 6px;
+      }
       .merge-cons-row td {
         background: #f1f5f9 !important;
         border-top: 1px solid #e2e8f0;
@@ -459,6 +472,38 @@
         return `<span class="office-text" style="color:${color}">${escapeHtml(o || "—")}</span>`;
       }
 
+      function rowHasCollectedContacts(contacts) {
+        if (!contacts || typeof contacts !== "object") return false;
+        return Object.keys(contacts).some((k) => {
+          const c = contacts[k];
+          return c && String(c.href || "").trim();
+        });
+      }
+
+      function missingContactsRowHtml(consMap) {
+        const missing = [];
+        (consMap || new Map()).forEach((rows) => {
+          (rows || []).forEach((r) => {
+            if (!rowHasCollectedContacts(r.contacts)) missing.push(r);
+          });
+        });
+        if (!missing.length) return "";
+        missing.sort((a, b) => {
+          const oa = OFFICE_ORDER[String(a.office || "").trim()] ?? 9;
+          const ob = OFFICE_ORDER[String(b.office || "").trim()] ?? 9;
+          if (oa !== ob) return oa - ob;
+          return primaryName(a.name).localeCompare(primaryName(b.name), "ko");
+        });
+        const line = missing
+          .map((r) => {
+            const n = primaryName(r.name) || String(r.name || "").trim();
+            const o = String(r.office || "").trim() || "—";
+            return `${escapeHtml(n)}(${escapeHtml(o)})`;
+          })
+          .join(", ");
+        return `<tr class="merge-missing-row"><td colspan="6"><span class="merge-missing-label">연락처 미취합</span>${line}</td></tr>`;
+      }
+
       function normalizeSeatIndex(payload) {
         if (!payload || typeof payload !== "object") return null;
         const by = payload.byConstituency && typeof payload.byConstituency === "object" ? payload.byConstituency : {};
@@ -690,7 +735,7 @@
                 return consHeader + rowHtml;
               })
               .join("");
-            return districtHeader + consSections;
+            return districtHeader + missingContactsRowHtml(consMap) + consSections;
           })
           .join("");
       }
