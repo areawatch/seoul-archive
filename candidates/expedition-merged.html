@@ -86,23 +86,6 @@
         border-top: 1px solid #e2e8f0;
         font-weight: 800;
       }
-      .tag-cat {
-        display: inline-block;
-        color: #fff;
-        border-radius: 3px;
-        padding: 1px 5px;
-        font-size: 10px;
-        font-weight: 800;
-        margin-right: 6px;
-        white-space: nowrap;
-      }
-      .tag-cat--official {
-        background: #0f2d5e;
-      }
-      .tag-cat--pre {
-        background: #94a3b8;
-        font-weight: 700;
-      }
       .office-text {
         font-size: 11px;
         font-weight: 900;
@@ -128,7 +111,7 @@
       <div class="mx-auto max-w-5xl">
         <h1 class="text-xl font-black tracking-tight text-slate-900">내부 취합 리스트 (비공개)</h1>
         <p class="mt-1 text-sm text-slate-600">
-          크롤링된 후보 명단 + 데이터원정대 시트(연락처/후보분류)를 합쳐서 보여줍니다. 검색 노출 방지를 위해
+          선관위 크롤링 <span class="font-semibold">본후보</span> 명단(<code class="rounded bg-slate-100 px-1 py-0.5 text-[12px]">candidates.json</code>)과 데이터원정대 시트(연락처)를 합쳐서 보여줍니다. 검색 노출 방지를 위해
           <code class="rounded bg-slate-100 px-1 py-0.5 text-[12px]">noindex</code>로 설정되어 있습니다.
         </p>
         <div class="internal-note mt-4 px-4 py-3 text-sm text-slate-800">
@@ -183,7 +166,6 @@
 
       const OFFICE_COLOR = { 구청장: "#7c3aed", 시의원: "#0369a1", 구의원: "#374151" };
       const OFFICE_ORDER = { 구청장: 0, 시의원: 1, 구의원: 2 };
-      const CAT_ORDER = { 본후보: 0, 예비후보: 1 };
       const SNS_ICONS = {
         facebook: "bi-facebook",
         instagram: "bi-instagram",
@@ -266,6 +248,13 @@
 
       function electionNameOf(c) {
         return String((c && c.election_name) || "2026지방선거").trim() || "2026지방선거";
+      }
+
+      /** public/data/candidates.json — 본후보만(예비·레거시 제외) */
+      function filterOfficialCandidates(candidates) {
+        return (candidates || []).filter(function (c) {
+          return String((c && c.candidate_status) || "").trim().toLowerCase() === "official";
+        });
       }
 
       function candidateKey(electionName, name, district) {
@@ -460,13 +449,6 @@
           : '<span style="color:#cbd5e1;font-size:11px">—</span>';
       }
 
-      function catBadge(category) {
-        const cat = String(category || "").trim();
-        if (cat === "본후보") return '<span class="tag-cat tag-cat--official">본</span>';
-        // default
-        return '<span class="tag-cat tag-cat--pre">예비</span>';
-      }
-
       function officeText(office) {
         const o = String(office || "").trim();
         const color = OFFICE_COLOR[o] || "#374151";
@@ -593,9 +575,6 @@
               .map((cons) => {
                 const rows = consMap.get(cons) || [];
                 rows.sort((a, b) => {
-                  const ca = CAT_ORDER[String(a.category || "").trim()] ?? 1;
-                  const cb = CAT_ORDER[String(b.category || "").trim()] ?? 1;
-                  if (ca !== cb) return ca - cb;
                   const oa = OFFICE_ORDER[String(a.office || "").trim()] ?? 9;
                   const ob = OFFICE_ORDER[String(b.office || "").trim()] ?? 9;
                   if (oa !== ob) return oa - ob;
@@ -606,9 +585,7 @@
                   .map((r) => {
                     return `<tr>
                       <td>${officeText(r.office)}</td>
-                      <td style="white-space:nowrap;font-weight:700;color:#0b1220">${catBadge(r.category)}${escapeHtml(
-                      r.name
-                    )}</td>
+                      <td style="white-space:nowrap;font-weight:700;color:#0b1220">${escapeHtml(r.name)}</td>
                       <td style="white-space:nowrap">${escapeHtml(r.party || "—")}</td>
                       <td>${contactCell(r.contacts, "phone")}</td>
                       <td>${contactCell(r.contacts, "email")}</td>
@@ -663,7 +640,13 @@
           const candidatesPayload = await fetch("../public/data/candidates.json", { cache: "no-store" }).then((r) =>
             r.json()
           );
-          const candidates = Array.isArray(candidatesPayload) ? candidatesPayload : candidatesPayload.candidates || [];
+          const rawCandidates = Array.isArray(candidatesPayload)
+            ? candidatesPayload
+            : candidatesPayload.candidates || [];
+          const candidates = filterOfficialCandidates(rawCandidates);
+          if (!candidates.length) {
+            throw new Error("본후보(candidate_status: official) 데이터가 없습니다. candidates.json을 갱신하세요.");
+          }
           const sheetCsv = await fetchFirstOkText(SHEET_CSV_URL_CANDIDATES);
           const sheetRows = csvToObjects(sheetCsv);
           buildMergedTable(candidates, sheetRows);
