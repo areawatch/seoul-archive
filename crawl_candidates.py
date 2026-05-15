@@ -48,9 +48,6 @@ from html import unescape
 from typing import Any, Optional
 from urllib.parse import urlencode, urljoin
 
-import requests
-from bs4 import BeautifulSoup
-
 BASE = "https://info.nec.go.kr"
 ELECTION_ID = "0020260603"
 SEOUL_CITY_CODE = "1100"
@@ -117,20 +114,33 @@ SEOUL_GU_ORDER = [
 ]
 _GU_ORDER_RANK = {n: i for i, n in enumerate(SEOUL_GU_ORDER)}
 
-SESSION = requests.Session()
-SESSION.headers.update(
-    {
-        "User-Agent": "Mozilla/5.0 (compatible; seoul-archive-crawler/1.0)",
-        "Accept-Language": "ko-KR,ko;q=0.9",
-    }
-)
+# HTTP 크롤 시에만 requests 로드 (export-preliminary 등은 표준 라이브러리만으로 동작)
+_SESSION: Any = None
 
 
-def _request_with_retry(method: str, url: str, *, timeout: int, **kwargs) -> requests.Response:
+def _http_session() -> Any:
+    global _SESSION
+    if _SESSION is None:
+        import requests
+
+        s = requests.Session()
+        s.headers.update(
+            {
+                "User-Agent": "Mozilla/5.0 (compatible; seoul-archive-crawler/1.0)",
+                "Accept-Language": "ko-KR,ko;q=0.9",
+            }
+        )
+        _SESSION = s
+    return _SESSION
+
+
+def _request_with_retry(method: str, url: str, *, timeout: int, **kwargs) -> Any:
+    import requests
+
     last_err: Exception | None = None
     for attempt in range(1, REQUEST_RETRY_COUNT + 1):
         try:
-            r = SESSION.request(method, url, timeout=timeout, **kwargs)
+            r = _http_session().request(method, url, timeout=timeout, **kwargs)
             r.raise_for_status()
             return r
         except requests.RequestException as e:
@@ -274,6 +284,8 @@ def parse_candidates_from_report(
     election_name: str,
     candidate_status: str,
 ) -> list[dict[str, Any]]:
+    from bs4 import BeautifulSoup
+
     soup = BeautifulSoup(html, "html.parser")
     table = soup.select_one("table#table01")
     if not table:
@@ -710,6 +722,8 @@ def _extract_sheet_news_urls(sheet_csv_url: str) -> set[str]:
 
 
 def _extract_og_title_from_html(html_text: str) -> str:
+    from bs4 import BeautifulSoup
+
     soup = BeautifulSoup(html_text, "html.parser")
     for selector in (
         'meta[property="og:title"]',
