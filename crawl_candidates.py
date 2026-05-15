@@ -605,12 +605,13 @@ def crawl_office(
                     file=sys.stderr,
                 )
                 continue
-            batch = parse_candidates_from_report(html, town["name"], office=office_label)
-            # enrich default schema fields
-            for b in batch:
-                b["election_name"] = election_name
-                b["candidate_status"] = candidate_status
-                b["candidate_stage_ko"] = _candidate_stage_ko_label(candidate_status)
+            batch = parse_candidates_from_report(
+                html,
+                town["name"],
+                office=office_label,
+                election_name=election_name,
+                candidate_status=candidate_status,
+            )
             added = 0
             for c in batch:
                 hid = c.get("huboId")
