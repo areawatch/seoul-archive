@@ -33,7 +33,8 @@
   각 후보에 "office": "구의원" | "시의원" | "구청장" 필드가 붙습니다(없으면 화면에서 구의원으로 간주).
 
 선거구명(constituency)·주소(address)는 이 스크립트가 넣는 필드입니다.
-huboId는 선관위 예비·본후보 상세(전과 스캔 서류) 링크용입니다. 제9회 지방선거(0020260603) 명부 POST의 requestURI는 …/cp/cpri03.jsp·cpri04.jsp(구형 cpri03_ex.jsp는 404)입니다.
+huboId는 선관위 예비·본후보 상세(전과 스캔 서류) 링크용입니다. 제9회 지방선거(0020260603) 명부 POST는 requestURI …/cp/cpri03.jsp 로 통일하고,
+본후보는 statementId만 CPRI04_#N 으로 구분합니다(cpri04.jsp 전용 POST는 오류 응답이 나는 경우가 있습니다).
 """
 
 from __future__ import annotations
@@ -56,7 +57,7 @@ BASE = "https://info.nec.go.kr"
 ELECTION_ID = "0020260603"
 SEOUL_CITY_CODE = "1100"
 
-# 구·시·군의회의원 (2026 지방선거: topMenuId CP, secondMenuId CPRI03/04)
+# 구·시·군의회의원 (2026 지방선거: topMenuId CP, secondMenuId CPRI03 — 본후보는 statementId CPRI04_#6)
 COUNCIL_ELECTION_CODE = "6"
 COUNCIL_STATEMENT_ID = "CPRI03_#6"
 COUNCIL_OFFICE = "구의원"
@@ -214,13 +215,12 @@ def fetch_sgg_town_codes(town_code: str, *, election_code: str) -> list[dict[str
     return out
 
 
-def _nec_pc_report_menu(*, candidate_status: str) -> tuple[str, str]:
+def _nec_pc_report_menu() -> tuple[str, str]:
     """
-    선거통계 지방선거(2026) 후보 명부: 예비 CPRI03, 본후보 CPRI04.
-    반환: (secondMenuId/menuId, JSP 파일명 cpri03.jsp | cpri04.jsp) — cpri*_ex.jsp 는 404.
+    선거통계 지방선거(2026) 후보 명부: 예비·본 모두 동일하게 CPRI03 / cpri03.jsp.
+    본후보 데이터는 _nec_statement_id_for_status 로 statementId만 CPRI04_#N 으로 바꿉니다.
+    (secondMenuId=CPRI04 + cpri04.jsp 조합은 서버가 짧은 오류 HTML을 돌려주는 경우가 있음.)
     """
-    if str(candidate_status or "").strip().lower() == "official":
-        return ("CPRI04", "cpri04.jsp")
     return ("CPRI03", "cpri03.jsp")
 
 
@@ -246,7 +246,7 @@ def _nec_report_post_form(
     candidate_status: str,
 ) -> dict[str, str]:
     """선거통계 electionInfo_report.xhtml POST 본문(dict)."""
-    menu_id, jsp_name = _nec_pc_report_menu(candidate_status=candidate_status)
+    menu_id, jsp_name = _nec_pc_report_menu()
     stmt = _nec_statement_id_for_status(statement_id, candidate_status=candidate_status)
     return {
         "electionId": ELECTION_ID,
@@ -406,6 +406,55 @@ def _name_from_cell(td) -> str:
     return unescape(td.get_text("\n", strip=True))
 
 
+def _td_has_report_photo_image(td) -> bool:
+    """후보 명부 표에서 사진 열의 type=image 입력 여부."""
+    return bool(td.find("input", attrs={"type": "image"}))
+
+
+def _candidate_table_td_indices(tds: list) -> dict[str, int] | None:
+    """
+    NEC 후보 명부 table01 행 레이아웃(연도·메뉴별 열 순서)에 따른 td 인덱스.
+    - 구형(예): 선거구, 정당, 사진, 성명, …, 전과, 등록일 (12열 전후)
+    - 2026 구형 확장: 선거구, 사진, 기호, 정당, 성명, …, 전과, 입후보횟수 등 (18열 전후)
+    """
+    n = len(tds)
+    if n < 12:
+        return None
+    # 제9회 지방선거 등: 사진이 두 번째 열(인덱스 1)
+    if _td_has_report_photo_image(tds[1]) and n >= 17:
+        return {
+            "constituency": 0,
+            "party": 3,
+            "photo": 1,
+            "name": 4,
+            "gender": 5,
+            "age": 6,
+            "address": 7,
+            "job": 8,
+            "education": 9,
+            "career": 10,
+            "criminal": 16,
+            "reg_date": -1,  # 열 없음 → 빈 문자열
+        }
+    # 기존: 정당 다음에 사진
+    if _td_has_report_photo_image(tds[2]):
+        return {
+            "constituency": 0,
+            "party": 1,
+            "photo": 2,
+            "name": 3,
+            "gender": 4,
+            "age": 5,
+            "address": 6,
+            "job": 7,
+            "education": 8,
+            "career": 9,
+            "criminal": 10,
+            "reg_date": 11,
+        }
+    return None
+
+
 def _hubo_id_from_cell(td) -> str | None:
     """예비·본 명부 모두 이름 셀의 링크에서 huboId 추출."""
     href_patterns = (
@@ -457,31 +506,35 @@ def parse_candidates_from_report(
     rows_out: list[dict[str, Any]] = []
     for tr in tbody.find_all("tr", recursive=False):
         tds = tr.find_all("td", recursive=False)
-        if len(tds) < 12:
+        if not tds:
             continue
         if tds[0].get("colspan"):
             continue
+        ix = _candidate_table_td_indices(tds)
+        if not ix:
+            continue
 
-        constituency = tds[0].get_text(" ", strip=True)
+        constituency = tds[ix["constituency"]].get_text(" ", strip=True)
         district = gu_name or _district_from_constituency(constituency)
-        party = tds[1].get_text(" ", strip=True)
+        party = tds[ix["party"]].get_text(" ", strip=True)
 
-        img = tds[2].find("input", attrs={"type": "image"})
+        img = tds[ix["photo"]].find("input", attrs={"type": "image"})
         src = img.get("src") if img else None
         photo = _abs_photo_url(src)
 
-        name = _name_from_cell(tds[3])
-        hubo_id = _hubo_id_from_cell(tds[3])
+        name = _name_from_cell(tds[ix["name"]])
+        hubo_id = _hubo_id_from_cell(tds[ix["name"]])
 
-        gender = tds[4].get_text(" ", strip=True)
-        age_block = tds[5].get_text("\n", strip=True)
-        address = tds[6].get_text(" ", strip=True)
+        gender = tds[ix["gender"]].get_text(" ", strip=True)
+        age_block = tds[ix["age"]].get_text("\n", strip=True)
+        address = tds[ix["address"]].get_text(" ", strip=True)
 
-        job = tds[7].get_text(" ", strip=True)
-        education = tds[8].get_text("\n", strip=True)
-        career = tds[9].get_text("\n", strip=True)
-        criminal = tds[10].get_text(" ", strip=True)
-        reg_date = tds[11].get_text(" ", strip=True)
+        job = tds[ix["job"]].get_text(" ", strip=True)
+        education = tds[ix["education"]].get_text("\n", strip=True)
+        career = tds[ix["career"]].get_text("\n", strip=True)
+        criminal = tds[ix["criminal"]].get_text(" ", strip=True)
+        ri = ix["reg_date"]
+        reg_date = "" if ri < 0 else tds[ri].get_text(" ", strip=True)
 
         row = {
             "election_name": election_name,
@@ -1085,7 +1138,8 @@ def main() -> None:
                 if prev_n > 0:
                     print(
                         f"[skip] 본후보 크롤 결과가 0명이라 기존 파일을 덮어쓰지 않습니다: {args.output} (기존 {prev_n}명 유지). "
-                        "NEC 본후보 명부 POST/파서를 확인하세요.",
+                        "NEC가 아직 본후보를 등록하지 않았으면(표에 「검색된 결과가 없습니다」) 정상입니다. "
+                        "그렇지 않다면 브라우저 Network의 electionInfo_report Form Data와 대조해 주세요.",
                         file=sys.stderr,
                     )
                 else:
