@@ -466,6 +466,7 @@ def _candidate_table_td_indices(tds: list) -> dict[str, int] | None:
             "constituency": 0,
             "party": 3,
             "photo": 1,
+            "ballot": 2,
             "name": 4,
             "gender": 5,
             "age": 6,
@@ -473,7 +474,13 @@ def _candidate_table_td_indices(tds: list) -> dict[str, int] | None:
             "job": 8,
             "education": 9,
             "career": 10,
+            "property_declared": 11,
+            "military": 12,
+            "tax_paid": 13,
+            "tax_arrears_5y": 14,
+            "tax_arrears_current": 15,
             "criminal": 16,
+            "candidacy_count": 17 if n >= 18 else -1,
             "reg_date": -1,  # 열 없음 → 빈 문자열
         }
     # 기존: 정당 다음에 사진
@@ -493,6 +500,14 @@ def _candidate_table_td_indices(tds: list) -> dict[str, int] | None:
             "reg_date": 11,
         }
     return None
+
+
+def _td_cell_text(tds: list, ix: dict[str, int], key: str, *, multiline: bool = False) -> str:
+    i = ix.get(key, -1)
+    if i is None or i < 0 or i >= len(tds):
+        return ""
+    sep = "\n" if multiline else " "
+    return tds[i].get_text(sep, strip=True)
 
 
 def _hubo_id_from_cell(td) -> str | None:
@@ -565,16 +580,15 @@ def parse_candidates_from_report(
         name = _name_from_cell(tds[ix["name"]])
         hubo_id = _hubo_id_from_cell(tds[ix["name"]])
 
-        gender = tds[ix["gender"]].get_text(" ", strip=True)
-        age_block = tds[ix["age"]].get_text("\n", strip=True)
-        address = tds[ix["address"]].get_text(" ", strip=True)
-
-        job = tds[ix["job"]].get_text(" ", strip=True)
-        education = tds[ix["education"]].get_text("\n", strip=True)
-        career = tds[ix["career"]].get_text("\n", strip=True)
-        criminal = tds[ix["criminal"]].get_text(" ", strip=True)
-        ri = ix["reg_date"]
-        reg_date = "" if ri < 0 else tds[ri].get_text(" ", strip=True)
+        gender = _td_cell_text(tds, ix, "gender")
+        age_block = _td_cell_text(tds, ix, "age", multiline=True)
+        address = _td_cell_text(tds, ix, "address")
+        job = _td_cell_text(tds, ix, "job")
+        education = _td_cell_text(tds, ix, "education", multiline=True)
+        career = _td_cell_text(tds, ix, "career", multiline=True)
+        criminal = _td_cell_text(tds, ix, "criminal")
+        ri = ix.get("reg_date", -1)
+        reg_date = "" if ri is None or ri < 0 else tds[ri].get_text(" ", strip=True)
 
         row = {
             "election_name": election_name,
@@ -595,6 +609,27 @@ def parse_candidates_from_report(
             "regDate": reg_date,
             "office": office,
         }
+        ballot = _td_cell_text(tds, ix, "ballot")
+        if ballot:
+            row["ballot"] = ballot
+        prop = _td_cell_text(tds, ix, "property_declared")
+        if prop:
+            row["propertyDeclared"] = prop
+        military = _td_cell_text(tds, ix, "military")
+        if military:
+            row["military"] = military
+        tax_paid = _td_cell_text(tds, ix, "tax_paid")
+        if tax_paid:
+            row["taxPaid"] = tax_paid
+        tax_a5 = _td_cell_text(tds, ix, "tax_arrears_5y")
+        if tax_a5:
+            row["taxArrears5y"] = tax_a5
+        tax_cur = _td_cell_text(tds, ix, "tax_arrears_current")
+        if tax_cur:
+            row["taxArrearsCurrent"] = tax_cur
+        run_ct = _td_cell_text(tds, ix, "candidacy_count")
+        if run_ct != "":
+            row["candidacyCount"] = run_ct
         if hubo_id:
             row["huboId"] = hubo_id
         rows_out.append(row)

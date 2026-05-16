@@ -442,11 +442,8 @@
               <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
                 성별
               </th>
-              <th scope="col" class="min-w-[5rem] px-3 py-3 text-xs font-semibold tracking-wide text-white">
-                직업
-              </th>
-              <th scope="col" class="min-w-[8rem] max-w-[14rem] px-3 py-3 text-xs font-semibold tracking-wide text-white">
-                학력
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
+                재산신고액<br /><span class="font-normal text-white/70">(천원)</span>
               </th>
               <th scope="col" class="min-w-[4rem] px-3 py-3 text-xs font-semibold tracking-wide text-white">
                 <button
@@ -465,6 +462,9 @@
                     aria-hidden="true"
                   ></span>
                 </button>
+              </th>
+              <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
+                입후보횟수
               </th>
             </tr>
           </thead>
@@ -662,15 +662,16 @@
         return true;
       }
 
-      function necPreHuboDetailUrl(huboId) {
+      function necHuboDetailUrl(huboId, candidate) {
         const q = new URLSearchParams({
           electionId: NEC_ELECTION_ID,
           huboId: String(huboId),
         });
-        return (
-          "https://info.nec.go.kr/electioninfo/precandidate_detail_info.xhtml?" +
-          q.toString()
-        );
+        const path =
+          candidateStatusOf(candidate) === "official"
+            ? "candidate_detail_info.xhtml"
+            : "precandidate_detail_info.xhtml";
+        return "https://info.nec.go.kr/electioninfo/" + path + "?" + q.toString();
       }
 
       function formatCriminalBlock(c) {
@@ -679,7 +680,7 @@
         if (!criminalShowsRecord(c.criminal) || !hid) {
           return `<span class="font-medium">${label}</span>`;
         }
-        const href = escapeHtml(necPreHuboDetailUrl(c.huboId));
+        const href = escapeHtml(necHuboDetailUrl(c.huboId, c));
         return `<span class="font-medium">${label}</span>
           <a href="${href}" target="_blank" rel="noopener noreferrer" title="선관위 상세 창에서 「전과」를 누르면 스캔 서류를 볼 수 있습니다." class="ml-2 inline-block font-medium text-blue-700 underline decoration-blue-300 underline-offset-2 hover:text-blue-900">전과 서류 보기</a>`;
       }
@@ -918,6 +919,22 @@
         return line ? elide(line, 56) : "—";
       }
 
+      function propertyTableCell(c) {
+        const t = String((c && c.propertyDeclared) || "").trim();
+        return t || "—";
+      }
+
+      function candidacyTableCell(c) {
+        const t = String((c && c.candidacyCount) ?? "").trim();
+        return t !== "" ? t : "—";
+      }
+
+      function candidateDetailPageUrl(c) {
+        const hid = c && c.huboId != null && String(c.huboId).trim() !== "";
+        if (!hid) return "";
+        return "detail.html?huboId=" + encodeURIComponent(String(c.huboId).trim());
+      }
+
       function criminalTableCell(c) {
         const t = String(c.criminal ?? "").trim();
         if (!t || t === "없음" || /^0\s*건$/.test(t)) return "—";
@@ -1069,7 +1086,23 @@
             ${modalDetailRow("학력", `<span class="whitespace-pre-line">${eduHtml}</span>`)}
             ${modalDetailRow("경력", `<span class="whitespace-pre-line">${carHtml}</span>`)}
             ${modalDetailRow("생년월일(연령)", `<span class="whitespace-pre-line">${ageHtml}</span>`)}
+            ${c.ballot ? modalDetailRow("기호", escapeHtml(c.ballot)) : ""}
+            ${c.propertyDeclared ? modalDetailRow("재산신고액(천원)", escapeHtml(c.propertyDeclared)) : ""}
+            ${c.military ? modalDetailRow("병역 신고(본인)", escapeHtml(c.military)) : ""}
+            ${
+              c.taxPaid || c.taxArrears5y || c.taxArrearsCurrent
+                ? modalDetailRow(
+                    "납세실적(천원)",
+                    `<ul class="space-y-1 text-sm">
+                      <li>납부액: ${escapeHtml(c.taxPaid || "—")}</li>
+                      <li>최근 5년간 체납액: ${escapeHtml(c.taxArrears5y || "—")}</li>
+                      <li>현체납액: ${escapeHtml(c.taxArrearsCurrent || "—")}</li>
+                    </ul>`
+                  )
+                : ""
+            }
             ${modalDetailRow("전과 기록", formatCriminalBlock(c))}
+            ${c.candidacyCount !== undefined && c.candidacyCount !== "" ? modalDetailRow("입후보 횟수", escapeHtml(String(c.candidacyCount))) : ""}
             ${modalDetailRow("등록일자", escapeHtml(c.regDate || "—"))}
             ${wealthModalSnippet(c)}
           </div>`;
@@ -1412,17 +1445,18 @@
             const photo = mergedCandidatePhoto(c)
               ? escapeHtml(mergedCandidatePhoto(c))
               : "";
-            const jobShort = elide(c.job, 26) || "—";
-            const eduCell = escapeHtml(educationFirstLine(c.education));
+            const propCell = escapeHtml(propertyTableCell(c));
             const crimCell = escapeHtml(criminalTableCell(c));
+            const runCell = escapeHtml(candidacyTableCell(c));
+            const detailHref = candidateDetailPageUrl(c);
             const necHref = c.huboId
-              ? escapeHtml(necPreHuboDetailUrl(c.huboId))
+              ? escapeHtml(necHuboDetailUrl(c.huboId, c))
               : "";
             const necLink = necHref
               ? `<a href="${necHref}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-md p-0.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900" title="선관위 후보 상세 보기" aria-label="선관위 후보 상세 보기">${extIcon}</a>`
               : `<span class="inline-flex cursor-not-allowed items-center rounded-md p-0.5 text-white/25" title="후보 식별자 없음" aria-label="후보 식별자 없음">${extIcon}</span>`;
             const wealthByName = wealthInlineByNameHtml(c);
-            return `<tr data-row-detail="${i}" class="cursor-pointer border-b border-slate-200 transition hover:bg-slate-50">
+            return `<tr data-row-detail="${i}"${detailHref ? ` data-detail-href="${escapeAttr(detailHref)}"` : ""} class="cursor-pointer border-b border-slate-200 transition hover:bg-slate-50">
               <td class="py-3 pl-4 pr-2 align-top">
                 <div class="flex gap-3">
                   <div class="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-slate-200 ring-2 ring-slate-400">
@@ -1447,9 +1481,9 @@
               )}</td>
               <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(ageSummary(c.age))}</td>
               <td class="whitespace-nowrap px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(c.gender || "—")}</td>
-              <td class="max-w-[8rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">${escapeHtml(jobShort)}</td>
-              <td class="max-w-[14rem] px-3 py-3 align-middle text-xs leading-snug text-slate-600">${eduCell}</td>
-              <td class="max-w-[6rem] px-3 py-3 align-middle text-xs text-slate-600">${crimCell}</td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs tabular-nums text-slate-700">${propCell}</td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs text-slate-600">${crimCell}</td>
+              <td class="whitespace-nowrap px-3 py-3 align-middle text-xs tabular-nums text-slate-700">${runCell}</td>
             </tr>`;
           })
           .join("");
@@ -1470,6 +1504,11 @@
         if (el && el.closest && el.closest("[data-open-archive-wealth]")) return;
         var row = el && el.closest ? el.closest("tr[data-row-detail]") : null;
         if (!row) return;
+        var detailHref = row.getAttribute("data-detail-href");
+        if (detailHref) {
+          window.location.href = detailHref;
+          return;
+        }
         const i = parseInt(row.getAttribute("data-row-detail"), 10);
         if (!Number.isNaN(i) && lastFilteredCandidates[i]) {
           openCandidateModal(lastFilteredCandidates[i]);
