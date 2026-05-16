@@ -13,7 +13,7 @@
       gtag("js", new Date());
       gtag("config", "G-HXSD5K4LM6");
     </script>
-    <title>📋 브리핑 — 서울시 구청장·구의원·시의원 예비후보</title>
+    <title>📋 브리핑 — 서울시 구청장·구의원·시의원 본후보</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -106,6 +106,46 @@
       }
 
       /* footer: theme-light.css 에서 공통 처리 */
+
+      .briefing-snapshot-ol {
+        margin: 0;
+        padding-left: 1.35rem;
+        list-style: decimal;
+      }
+      .briefing-snapshot-ol > li {
+        padding: 0.4rem 0;
+        border-bottom: 1px solid rgb(226 232 240);
+        font-size: 0.8125rem;
+        line-height: 1.55;
+        color: rgb(51 65 85);
+      }
+      .briefing-snapshot-ol > li:last-child {
+        border-bottom: 0;
+      }
+      .briefing-snapshot-ol .briefing-num {
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        color: rgb(15 23 42);
+      }
+      .briefing-office-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-top: 0.35rem;
+      }
+      .briefing-office-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        border: 2px solid rgb(15 23 42);
+        border-radius: 0.375rem;
+        background: rgb(248 250 252);
+        padding: 0.15rem 0.45rem;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: rgb(15 23 42);
+        box-shadow: 1px 1px 0 rgba(2, 6, 23, 0.2);
+      }
     </style>
     <link rel="stylesheet" href="theme-light.css" />
   </head>
@@ -134,18 +174,46 @@
           <div class="mt-4 flex w-full flex-wrap justify-center gap-2">
             <a href="index.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">🏠 개요</a>
             <a href="villain.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">😈 빌런아카이브 ←</a>
-            <a href="list.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">👥 후보자 목록 ←</a>
+            <a href="list.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">👥 본후보 명부 ←</a>
             <a href="status.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">🛰️ 데이터 원정대 →</a>
+            <a
+              href="list-preliminary.html"
+              class="inline-flex items-center justify-center rounded-lg border-2 border-slate-800 bg-amber-100 px-4 py-2 text-sm font-black text-slate-900 shadow-[2px_2px_0_rgba(2,6,23,0.35)] transition hover:bg-amber-200"
+              >📋 예비후보 명부</a>
           </div>
-          <p class="mt-3 text-sm text-slate-500">서울시 구청장·구의원·시의원 예비후보 명부를 바탕으로 한 요약입니다.</p>
+          <p class="mt-3 text-sm text-slate-500">
+            서울시 구청장·구의원·시의원 <strong class="font-semibold text-slate-800">본후보</strong> 명부(선관위 등록 기준)를 바탕으로 한 요약입니다.
+          </p>
           <p id="briefingDataUpdatedLine" class="mt-1 hidden text-sm text-slate-500" aria-live="polite"></p>
+          <div
+            id="briefingOfficialStaleBanner"
+            class="mx-auto mt-3 hidden max-w-xl rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-left text-sm text-amber-950"
+            role="status"
+          >
+            <p class="m-0 font-black">본후보 데이터가 없어 예비 명부로 집계했습니다.</p>
+            <p class="mt-1 mb-0 text-xs">
+              <code class="rounded bg-white/80 px-1 py-0.5 text-[11px]">python3 crawl_candidates.py --candidate-status official</code>
+              로 갱신하거나 <a href="list-preliminary.html" class="font-bold underline">예비후보 명부</a>를 참고하세요.
+            </p>
+          </div>
         </div>
       </section>
     </header>
 
     <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
 
-      <section class="dash-card p-4 sm:p-6" aria-labelledby="briefing-party-chart-heading">
+      <section class="dash-card p-4 sm:p-6" aria-labelledby="briefing-snapshot-heading">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="briefing-snapshot-heading" class="text-lg font-black text-slate-900 sm:text-xl">
+            👀 구정감시 브리핑
+          </h2>
+          <p id="briefingSnapshotCount" class="text-xs font-bold tabular-nums text-slate-500"></p>
+        </div>
+        <p class="mt-1 text-xs text-slate-500">본후보 명부 전체를 한 번에 요약합니다. 아래 차트·순위는 같은 기준입니다.</p>
+        <ol id="briefingSnapshotList" class="briefing-snapshot-ol mt-3"></ol>
+      </section>
+
+      <section class="dash-card mt-8 p-4 sm:p-6" aria-labelledby="briefing-party-chart-heading">
         <h2
           id="briefing-party-chart-heading"
           class="text-lg font-black text-slate-900 sm:text-xl"
@@ -153,7 +221,7 @@
           정당별 출마자 수
         </h2>
         <p class="mt-1 text-sm text-slate-600">
-          예비후보 등록 기준 정당별 인원입니다. 색상은 후보 목록 페이지의 정당 뱃지와 같은 기준입니다.
+          본후보 등록 기준 정당별 인원입니다. 색상은 후보 목록 페이지의 정당 뱃지와 같은 기준입니다.
         </p>
         <p id="briefingPartyChartError" class="mt-4 hidden text-sm text-red-600" role="alert"></p>
         <div
@@ -165,12 +233,12 @@
         </div>
       </section>
 
-      <section class="dash-card mt-10 p-4 sm:p-6" aria-labelledby="briefing-female-rate-heading">
+      <section class="dash-card mt-8 p-4 sm:p-6" aria-labelledby="briefing-female-rate-heading">
         <h2 id="briefing-female-rate-heading" class="text-lg font-black text-slate-900 sm:text-xl">
           정당별 여성후보 출마율
         </h2>
         <p class="mt-1 text-sm text-slate-600">
-          예비후보 명부의 성별 필드(남·여) 기준입니다. 출마율은 <strong class="font-semibold text-slate-900">여성 인원 ÷ 해당 정당 전체 인원</strong>이며, 비율이 높은 정당부터 순위를 매겼습니다.
+          본후보 명부의 성별 필드(남·여) 기준입니다. 출마율은 <strong class="font-semibold text-slate-900">여성 인원 ÷ 해당 정당 전체 인원</strong>이며, 비율이 높은 정당부터 순위를 매겼습니다.
         </p>
         <ol
           id="briefingFemaleRankList"
@@ -178,7 +246,7 @@
         ></ol>
       </section>
 
-      <section class="dash-card mt-10 p-4 sm:p-6" aria-labelledby="briefing-incumbent-heading">
+      <section class="dash-card mt-8 p-4 sm:p-6" aria-labelledby="briefing-incumbent-heading">
         <h2 id="briefing-incumbent-heading" class="text-lg font-black text-slate-900 sm:text-xl">
           정당별 현직 인원
         </h2>
@@ -307,6 +375,24 @@
           throw new Error("JSON 형식이 올바르지 않습니다.");
         }
 
+        /** 본후보 우선; 없으면 예비·구형 명부 폴백 (list.html과 동일) */
+        function selectBriefingCandidates(parsed) {
+          var raw = parsed.list || [];
+          var official = raw.filter(function (c) {
+            return String((c && c.candidate_status) || "").trim().toLowerCase() === "official";
+          });
+          if (official.length > 0) {
+            return { list: official, statusSource: "official" };
+          }
+          var preliminary = raw.filter(function (c) {
+            return String((c && c.candidate_status) || "").trim().toLowerCase() === "preliminary";
+          });
+          if (preliminary.length > 0) {
+            return { list: preliminary, statusSource: "preliminary" };
+          }
+          return { list: raw.slice(), statusSource: "legacy" };
+        }
+
         function formatUpdatedAtKo(iso) {
           if (!iso) return "";
           try {
@@ -349,6 +435,381 @@
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;");
+        }
+
+        function primaryName(raw) {
+          return String(raw || "").split("\n")[0].trim();
+        }
+
+        function candidateOffice(c) {
+          return String((c && c.office) || "구의원").trim() || "구의원";
+        }
+
+        function sortableAgeYears(ageStr) {
+          var s = String(ageStr || "").replace(/\n/g, " ");
+          var m = s.match(/\((\d+)세\)/);
+          if (m) return parseInt(m[1], 10);
+          var m2 = s.match(/(\d+)세/);
+          if (m2) return parseInt(m2[1], 10);
+          return null;
+        }
+
+        function sortablePropertyThousands(c) {
+          var t = String((c && c.propertyDeclared) || "")
+            .replace(/,/g, "")
+            .trim();
+          if (!t) return null;
+          var n = parseInt(t, 10);
+          return Number.isFinite(n) ? n : null;
+        }
+
+        function formatPropertyThousands(n) {
+          return Number(n).toLocaleString("ko-KR");
+        }
+
+        function parseAmount(s) {
+          var t = String(s || "")
+            .replace(/,/g, "")
+            .trim();
+          if (!t) return 0;
+          var n = parseInt(t, 10);
+          return Number.isFinite(n) ? n : 0;
+        }
+
+        function criminalSortRank(c) {
+          var t = String(c.criminal ?? "").trim();
+          if (!t || t === "없음" || /^0\s*건$/.test(t)) return 0;
+          return 1;
+        }
+
+        function parseCriminalCaseCount(criminal) {
+          var s = String(criminal ?? "").trim();
+          if (!s || s === "없음" || /^0\s*건$/.test(s)) return 0;
+          var re = /(\d+)\s*건/g;
+          var sum = 0;
+          var m;
+          while ((m = re.exec(s)) !== null) sum += parseInt(m[1], 10);
+          return sum > 0 ? sum : 1;
+        }
+
+        function parseCandidacyRuns(s) {
+          var m = String(s || "").match(/(\d+)/);
+          return m ? parseInt(m[1], 10) : 0;
+        }
+
+        function militaryCategory(s) {
+          var t = String(s || "").trim();
+          if (!t) return "미기재";
+          if (/해당없음|비대상/.test(t)) return "비대상";
+          if (/면제/.test(t)) return "면제";
+          if (/마친|복무|필/.test(t)) return "군필";
+          return "기타";
+        }
+
+        function medianOf(nums) {
+          if (!nums.length) return null;
+          var s = nums.slice().sort(function (a, b) {
+            return a - b;
+          });
+          var mid = Math.floor(s.length / 2);
+          return s.length % 2 ? s[mid] : Math.round((s[mid - 1] + s[mid]) / 2);
+        }
+
+        function briefCandOne(c) {
+          var color = partyBarColor(c.party);
+          return (
+            '<span class="inline-flex items-center gap-1 whitespace-nowrap">' +
+            '<span class="inline-block h-2 w-2 shrink-0 rounded-sm" style="background-color:' +
+            escapeHtml(color) +
+            '" aria-hidden="true"></span>' +
+            '<strong class="font-bold text-slate-900">' +
+            escapeHtml(primaryName(c.name)) +
+            "</strong></span>"
+          );
+        }
+
+        function briefCandNames(cands, max) {
+          max = max || 2;
+          if (!cands.length) return "—";
+          var shown = cands
+            .slice(0, max)
+            .map(function (c) {
+              return briefCandOne(c) + " 후보";
+            })
+            .join(", ");
+          if (cands.length > max) shown += " 외 " + (cands.length - max) + "명";
+          return shown;
+        }
+
+        function extremaBy(list, valueFn, mode) {
+          var best = mode === "min" ? Infinity : -Infinity;
+          var picked = [];
+          list.forEach(function (c) {
+            var v = valueFn(c);
+            if (v == null || !Number.isFinite(v)) return;
+            if (mode === "min" ? v < best : v > best) {
+              best = v;
+              picked = [c];
+            } else if (v === best) {
+              picked.push(c);
+            }
+          });
+          if (!picked.length) return { value: null, candidates: [] };
+          return { value: best, candidates: picked };
+        }
+
+        function pct(part, total) {
+          if (!total) return "0.0";
+          return ((100 * part) / total).toFixed(1);
+        }
+
+        function renderBriefingSnapshot(list) {
+          var ol = document.getElementById("briefingSnapshotList");
+          var countEl = document.getElementById("briefingSnapshotCount");
+          if (!ol) return;
+          var n = list.length;
+          if (countEl) countEl.textContent = "총 " + n + "명";
+          if (!n) {
+            ol.innerHTML =
+              '<li style="list-style:none;margin-left:-1.25rem" class="text-slate-500">표시할 후보가 없습니다.</li>';
+            return;
+          }
+
+          var ageSum = 0;
+          var ageN = 0;
+          list.forEach(function (c) {
+            var y = sortableAgeYears(c.age);
+            if (y != null) {
+              ageSum += y;
+              ageN++;
+            }
+          });
+          var ageEx = extremaBy(list, function (c) {
+            return sortableAgeYears(c.age);
+          }, "max");
+          var ageMn = extremaBy(list, function (c) {
+            return sortableAgeYears(c.age);
+          }, "min");
+          var li1 =
+            "평균 <span class=\"briefing-num\">" +
+            (ageN ? (ageSum / ageN).toFixed(1) + "세" : "—") +
+            "</span>" +
+            (ageEx.value != null && ageMn.value != null
+              ? " · 최고령 " +
+                ageEx.value +
+                "세(" +
+                briefCandNames(ageEx.candidates, 1) +
+                ") · 최연소 " +
+                ageMn.value +
+                "세(" +
+                briefCandNames(ageMn.candidates, 1) +
+                ")"
+              : "");
+
+          var props = [];
+          list.forEach(function (c) {
+            var p = sortablePropertyThousands(c);
+            if (p != null) props.push(p);
+          });
+          var propMax = extremaBy(list, sortablePropertyThousands, "max");
+          var propMin = extremaBy(list, sortablePropertyThousands, "min");
+          var med = medianOf(props);
+          var propAvg = props.length
+            ? Math.round(props.reduce(function (a, b) {
+                return a + b;
+              }, 0) / props.length)
+            : null;
+          var li2 =
+            props.length > 0
+              ? "평균 <span class=\"briefing-num\">" +
+                formatPropertyThousands(propAvg) +
+                "</span>천원 · 중앙값 <span class=\"briefing-num\">" +
+                formatPropertyThousands(med) +
+                "</span>천원 · 최고 <span class=\"briefing-num\">" +
+                formatPropertyThousands(propMax.value) +
+                "</span>(" +
+                briefCandNames(propMax.candidates, 1) +
+                ") · 최저 <span class=\"briefing-num\">" +
+                formatPropertyThousands(propMin.value) +
+                "</span>(" +
+                briefCandNames(propMin.candidates, 1) +
+                ")"
+              : "재산신고액 데이터 없음";
+
+          var withCr = list.filter(function (c) {
+            return criminalSortRank(c) === 1;
+          });
+          var topCrN = -1;
+          var topCrList = [];
+          withCr.forEach(function (c) {
+            var cnt = parseCriminalCaseCount(c.criminal);
+            if (cnt > topCrN) {
+              topCrN = cnt;
+              topCrList = [c];
+            } else if (cnt === topCrN) {
+              topCrList.push(c);
+            }
+          });
+          var li3 =
+            "<span class=\"briefing-num\">" +
+            withCr.length +
+            "</span>명(" +
+            pct(withCr.length, n) +
+            "%) · 최다 " +
+            (topCrN > 0
+              ? "<span class=\"briefing-num\">" + topCrN + "</span>건(" + briefCandNames(topCrList, 2) + ")"
+              : "—");
+
+          var female = list.filter(isFemaleCandidate).length;
+          var officeOrder = ["구청장", "구의원", "시의원"];
+          var officeFemaleBits = officeOrder
+            .map(function (off) {
+              var sub = list.filter(function (c) {
+                return candidateOffice(c) === off;
+              });
+              if (!sub.length) return off + " —";
+              var f = sub.filter(isFemaleCandidate).length;
+              return off + " " + pct(f, sub.length) + "%";
+            })
+            .join(" · ");
+          var li4 =
+            "전체 <span class=\"briefing-num\">" +
+            female +
+            "</span>명(" +
+            pct(female, n) +
+            "%) · 직무별 " +
+            officeFemaleBits;
+
+          var officeCounts = { 구청장: 0, 구의원: 0, 시의원: 0 };
+          list.forEach(function (c) {
+            var o = candidateOffice(c);
+            if (officeCounts[o] != null) officeCounts[o] += 1;
+          });
+          var li5 =
+            '직무별 인원 · <span class="briefing-office-row">' +
+            officeOrder
+              .map(function (off) {
+                return (
+                  '<span class="briefing-office-pill">' +
+                  escapeHtml(off) +
+                  ' <span class="briefing-num">' +
+                  officeCounts[off] +
+                  "</span>명</span>"
+                );
+              })
+              .join("") +
+            "</span>";
+
+          var taxIssue = list.filter(function (c) {
+            return parseAmount(c.taxArrears5y) > 0 || parseAmount(c.taxArrearsCurrent) > 0;
+          });
+          var li6 =
+            "체납 이력 <span class=\"briefing-num\">" +
+            taxIssue.length +
+            "</span>명(" +
+            pct(taxIssue.length, n) +
+            "%) · 5년 체납·현체납 0원이 아닌 경우";
+
+          var repeat = list.filter(function (c) {
+            return parseCandidacyRuns(c.candidacyCount) >= 2;
+          });
+          var runEx = extremaBy(
+            list,
+            function (c) {
+              return parseCandidacyRuns(c.candidacyCount);
+            },
+            "max"
+          );
+          var li7 =
+            "2회 이상 출마 <span class=\"briefing-num\">" +
+            repeat.length +
+            "</span>명(" +
+            pct(repeat.length, n) +
+            "%)" +
+            (runEx.value > 0
+              ? " · 최다 <span class=\"briefing-num\">" +
+                runEx.value +
+                "</span>회(" +
+                briefCandNames(runEx.candidates, 2) +
+                ")"
+              : "");
+
+          var milMap = {};
+          list.forEach(function (c) {
+            var k = militaryCategory(c.military);
+            milMap[k] = (milMap[k] || 0) + 1;
+          });
+          var milOrder = ["군필", "비대상", "면제", "기타", "미기재"];
+          var li8 = milOrder
+            .filter(function (k) {
+              return milMap[k];
+            })
+            .map(function (k) {
+              return (
+                k +
+                ' <span class="briefing-num">' +
+                milMap[k] +
+                "</span>명(" +
+                pct(milMap[k], n) +
+                "%)"
+              );
+            })
+            .join(" · ");
+
+          var constMap = new Map();
+          list.forEach(function (c) {
+            var k = String(c.constituency || "").trim() || String(c.district || "").trim();
+            if (!k) return;
+            constMap.set(k, (constMap.get(k) || 0) + 1);
+          });
+          var constArr = Array.from(constMap.entries()).sort(function (a, b) {
+            return b[1] - a[1];
+          });
+          var constN = constArr.length;
+          var oneCand = constArr.filter(function (x) {
+            return x[1] === 1;
+          }).length;
+          var hot = constArr[0];
+          var li9 = constN
+            ? "선거구 <span class=\"briefing-num\">" +
+              constN +
+              "</span>개 · 평균 " +
+              (n / constN).toFixed(1) +
+              "명/구 · 1인구 " +
+              oneCand +
+              "개 · 최다 경쟁 <span class=\"briefing-num\">" +
+              hot[1] +
+              "</span>명(" +
+              escapeHtml(hot[0]) +
+              ")"
+            : "선거구 정보 없음";
+
+          var partyPairs = aggregateByParty(list);
+          var topParty = partyPairs[0];
+          var indie = list.filter(function (c) {
+            return String(c.party || "").trim() === "무소속";
+          }).length;
+          var li10 = topParty
+            ? "1위 <span class=\"briefing-num\">" +
+              escapeHtml(topParty[0]) +
+              "</span> " +
+              topParty[1] +
+              "명(" +
+              pct(topParty[1], n) +
+              "%) · 무소속 <span class=\"briefing-num\">" +
+              indie +
+              "</span>명(" +
+              pct(indie, n) +
+              "%) · 정당 " +
+              partyPairs.length +
+              "개"
+            : "—";
+
+          ol.innerHTML = [li1, li2, li3, li4, li5, li6, li7, li8, li9, li10]
+            .map(function (html) {
+              return "<li>" + html + "</li>";
+            })
+            .join("");
         }
 
         function isFemaleCandidate(c) {
@@ -650,7 +1111,16 @@
             var wealthLoaded = Boolean(wealthObj);
 
             var parsed = parseCandidatesPayload(data);
-            var list = parsed.list;
+            var selected = selectBriefingCandidates(parsed);
+            var list = selected.list;
+            var staleBanner = document.getElementById("briefingOfficialStaleBanner");
+            if (staleBanner) {
+              if (selected.statusSource !== "official") {
+                staleBanner.classList.remove("hidden");
+              } else {
+                staleBanner.classList.add("hidden");
+              }
+            }
             var updatedEl = document.getElementById("briefingDataUpdatedLine");
             var u = formatUpdatedAtKo(parsed.updatedAt);
             if (updatedEl && u) {
@@ -658,6 +1128,7 @@
               updatedEl.classList.remove("hidden");
             }
 
+            renderBriefingSnapshot(list);
             renderFemaleRank(list);
             renderIncumbentRank(list, wealthLoaded);
 
@@ -709,7 +1180,7 @@
                 labels: labels,
                 datasets: [
                   {
-                    label: "출마자 수",
+                    label: "본후보 수",
                     data: values,
                     backgroundColor: colors,
                     borderColor: colors.map(function(c) { return c; }),
@@ -773,6 +1244,11 @@
               "데이터를 불러오지 못했습니다. 로컬 서버로 열었는지 확인하세요. (예: 프로젝트 루트에서 npx serve . 후 /candidates/briefing.html) — " +
                 (e && e.message ? e.message : String(e))
             );
+            var snap = document.getElementById("briefingSnapshotList");
+            if (snap) {
+              snap.innerHTML =
+                '<li style="list-style:none;margin-left:-1.25rem" class="text-red-600">데이터를 불러오지 못했습니다.</li>';
+            }
             var fr = document.getElementById("briefingFemaleRankList");
             if (fr) {
               fr.innerHTML =
