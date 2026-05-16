@@ -443,7 +443,22 @@
                 성별
               </th>
               <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
-                재산신고액<br /><span class="font-normal text-white/70">(천원)</span>
+                <button
+                  type="button"
+                  id="sortPropertyBtn"
+                  data-sort-scope="main"
+                  data-sort-key="property"
+                  class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/10 hover:text-white"
+                >
+                  재산신고액<br /><span class="font-normal text-white/80">(천원)</span>
+                  <span
+                    id="sortPropertyIcon"
+                    data-sort-scope="main"
+                    data-sort-icon-for="property"
+                    class="invisible inline-block w-2.5 text-center text-[10px] font-bold"
+                    aria-hidden="true"
+                  ></span>
+                </button>
               </th>
               <th scope="col" class="min-w-[4rem] px-3 py-3 text-xs font-semibold tracking-wide text-white">
                 <button
@@ -760,6 +775,20 @@
         return null;
       }
 
+      /** 재산신고액(천원) 정렬·통계용 숫자; 없거나 파싱 불가 시 null */
+      function sortablePropertyThousands(c) {
+        const t = String((c && c.propertyDeclared) || "")
+          .replace(/,/g, "")
+          .trim();
+        if (!t) return null;
+        const n = parseInt(t, 10);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatPropertyThousands(n) {
+        return Number(n).toLocaleString("ko-KR");
+      }
+
       function criminalSortRank(c) {
         const t = String(c.criminal ?? "").trim();
         if (!t || t === "없음" || /^0\s*건$/.test(t)) return 0;
@@ -860,9 +889,47 @@
           return String(c.gender || "").trim() === "여";
         }).length;
         var fPct = ((female / n) * 100).toFixed(1);
-        var wealthCur = filtered.filter(function (c) {
-          return hasWealthDisclosureInArchive(c);
-        }).length;
+        var propN = 0;
+        var maxProp = -Infinity;
+        var minProp = Infinity;
+        var maxPropList = [];
+        var minPropList = [];
+        filtered.forEach(function (c) {
+          var p = sortablePropertyThousands(c);
+          if (p == null) return;
+          propN++;
+          if (p > maxProp) {
+            maxProp = p;
+            maxPropList = [c];
+          } else if (p === maxProp) {
+            maxPropList.push(c);
+          }
+          if (p < minProp) {
+            minProp = p;
+            minPropList = [c];
+          } else if (p === minProp) {
+            minPropList.push(c);
+          }
+        });
+        var propBriefNames = function (list) {
+          return list
+            .map(function (c) {
+              return statsBriefPartyBoldName(c) + " 후보";
+            })
+            .join(", ");
+        };
+        var propLi =
+          propN > 0 && maxPropList.length > 0 && minPropList.length > 0
+            ? '<li>재산신고액 최고액은 <span class="font-black text-white">' +
+              escapeHtml(formatPropertyThousands(maxProp)) +
+              '</span>천원으로 ' +
+              propBriefNames(maxPropList) +
+              " 이며, 최저액은 <span class=\"font-black text-white\">" +
+              escapeHtml(formatPropertyThousands(minProp)) +
+              "</span>천원으로 " +
+              propBriefNames(minPropList) +
+              "입니다.</li>"
+            : '<li>재산신고액 정보가 있는 후보가 없어 최고·최저액을 산출할 수 없습니다.</li>';
         el.innerHTML =
           '<h2 class="mb-3 text-base font-black tracking-tight text-white">👀구정감시 브리핑</h2>' +
           '<ol class="m-0 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-slate-200">' +
@@ -871,6 +938,7 @@
           "</span> 입니다." +
           ageExt +
           "</li>" +
+          propLi +
           '<li>전과가 있는 후보는 총 <span class="font-black text-white">' +
           escapeHtml(String(withCr)) +
           '</span>명으로 전체 후보의 <span class="font-black text-white">' +
@@ -893,9 +961,6 @@
           '</span>명으로 전체 후보의 <span class="font-black text-white">' +
           escapeHtml(fPct) +
           "%</span>입니다.</li>" +
-          '<li>재산 공개 명부에 등재되어 재산 내역을 열람할 수 있는 후보는 <span class="font-black text-white">' +
-          escapeHtml(String(wealthCur)) +
-          "</span>명입니다.</li>" +
           "</ol>" +
           '<p class="mt-3 border-t border-slate-200 pt-3 text-xs text-slate-500">※ 위 통계는 현재 필터·검색에 해당하는 <span class="font-black text-slate-800">' +
           n +
@@ -1351,6 +1416,16 @@
             if (d !== 0) return d;
             return nameCmp;
           }
+          if (sortKey === "property") {
+            const pa = sortablePropertyThousands(a);
+            const pb = sortablePropertyThousands(b);
+            if (pa == null && pb == null) return nameCmp;
+            if (pa == null) return 1;
+            if (pb == null) return -1;
+            const d = sortAsc ? pa - pb : pb - pa;
+            if (d !== 0) return d;
+            return nameCmp;
+          }
           if (sortKey === "criminal") {
             const ra = criminalSortRank(a);
             const rb = criminalSortRank(b);
@@ -1405,7 +1480,7 @@
 
         updateCandidatesStatsPanel(filtered);
 
-        ["name", "age", "criminal", "office", "constituency"].forEach(function (key) {
+        ["name", "age", "property", "criminal", "office", "constituency"].forEach(function (key) {
           document
             .querySelectorAll('[data-sort-scope="main"][data-sort-icon-for="' + key + '"]')
             .forEach(function (el) {
