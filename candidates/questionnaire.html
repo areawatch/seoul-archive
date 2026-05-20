@@ -174,7 +174,7 @@
           title: "내란",
           description: "민주주의 수호에 대한 입장",
           lead:
-            "지방자치단체는 대한민국을 민주적으로 발전시켜야 할 의무가 있습니다. 12.3 불법 비상계엄 이후 처음 치러지는 지방선거에서 민주주의 수호는 공직자의 기본 의제입니다.",
+            "지방자치법 제1조(목적) “지방자치행정을 민주적이고 능률적으로 수행하고, 지방을 균형 있게 발전시키며, 대한민국을 민주적으로 발전시키려는 것을 목적으로 한다.”\n\n지방자치법 제1조에 따르면 지방자치단체는 ‘대한민국을 민주적으로 발전’시켜야 할 의무가 있습니다. 헌법의 가치를 지키고 민주주의를 수호하고 대한민국을 민주적으로 발전시키는 것을 목적으로 합니다.\n\n이번 지방선거는 12.3 불법 비상계엄 이후 처음으로 치러지는 매우 중요한 선거입니다. 1심에서 내란으로 규정된 12.3 불법 비상계엄에 대한 입장은 대한민국을 민주적으로 발전시켜야 할 공직자로서 가장 기본적인 의제입니다.",
           questions: [
             {
               text: "12.3 불법 비상계엄 및 관련 사법절차에 대한 견해는 무엇입니까?",
@@ -222,14 +222,13 @@
               ],
             },
           ],
-          freeText: "공직후보자로서 민주주의 수호에 관해 추가로 제출할 의견이 있다면 자유롭게 적어주십시오.",
         },
         {
           id: "corruption",
           title: "부패",
           description: "공직자 윤리에 대한 입장",
           lead:
-            "공직자는 국민으로부터 막대한 권한을 위임받은 국민에 대한 봉사자입니다. 권한을 위임받은 만큼 윤리적 책임은 보통의 시민보다 강력해야 합니다.",
+            "공직자윤리법 제1조(목적) “이 법은 … 공직자의 부정한 재산 증식을 방지하고, 공무집행의 공정성을 확보하는 등 공익과 사익의 이해충돌을 방지하여 국민에 대한 봉사자로서 가져야 할 공직자의 윤리를 확립함을 목적으로 한다.”\n\n공직자는 국민으로부터 막대한 권한을 위임받은 국민에 대한 봉사자입니다. 막대한 권한을 위임한만큼, 윤리적 책임은 보통의 시민들보다 더욱 강력해야 합니다.\n공직자로서 윤리적 책임에 대한 후보자들의 입장을 확인하고자 합니다.",
           questions: [
             {
               text: "지방의회 윤리특위의 회의록, 징계 심사 과정, 투표 결과 등을 시민에게 전면 공개하는 조례 제정에 대한 견해는 무엇입니까?",
@@ -268,14 +267,13 @@
               ],
             },
           ],
-          freeText: "공직자의 윤리에 관해 추가로 제출할 의견이 있다면 자유롭게 적어주십시오.",
         },
         {
           id: "democracy",
           title: "민주주의",
           description: "투명한 공직 수행 및 시민의 민주적 참여에 대한 입장",
           lead:
-            "지방자치는 주민주권을 구현하기 위해 헌법적으로 보장된 제도입니다. 시민 참여를 위해 공직자의 업무와 일정은 투명하게 공개되어야 합니다.",
+            "지방자치는 민주주의의 질적 향상(풀뿌리 민주주의)과 권력분립(지방분권)을 통한 주민주권의 구현하기 위해서 헌법적으로 보장된 제도입니다. 또한 공직자는 ‘주권자’인 국민의 뜻을 ‘대의’하고 ‘대표’하는 기구로서 존재합니다.\n주민투표, 조례제정, 주민소환 등을 통해 대의제의 한계를 보완하고, 주민이 지역 정책의 주체로서 스스로 책임을 지는 실질적 자치를 실현하는 방향으로 나아가야 합니다.\n시민의 참여를 위해서는 공직자들의 업무와 일정들이 투명하게 공개되어야 하며, 시민의 민주적 참여를 위한 제도적 장치 또한 보장되어야 합니다.",
           questions: [
             {
               text: "공직자가 수행하는 공적 업무 영역의 시민 공개에 대한 견해는 무엇입니까?",
@@ -314,8 +312,6 @@
               ],
             },
           ],
-          freeText:
-            "공직자의 투명한 공직 수행 및 시민의 민주적 참여에 관해 추가로 제출할 의견이 있다면 자유롭게 적어주십시오.",
         },
       ];
 
@@ -379,7 +375,7 @@
                     <p class="text-[11px] font-black uppercase tracking-widest text-[#ff4d4d]">PART ${sectionIndex + 1}</p>
                     <h2 class="mt-1 text-xl font-black text-slate-900">${escapeHtml(section.title)}</h2>
                     <p class="mt-1 text-sm font-black text-slate-700">${escapeHtml(section.description || "")}</p>
-                    <p class="mt-2 max-w-4xl text-sm leading-relaxed text-slate-600">${escapeHtml(section.lead)}</p>
+                    <p class="mt-2 max-w-4xl whitespace-pre-line text-sm leading-relaxed text-slate-600">${escapeHtml(section.lead)}</p>
                   </div>
                   <span class="inline-flex w-fit rounded-full border-2 border-slate-900 bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">${section.questions.length}문항</span>
                 </div>
@@ -408,12 +404,6 @@
                     )
                     .join("")}
                 </div>
-                <label class="mt-4 block">
-                  <span class="text-sm font-black text-slate-800">자유 의견</span>
-                  <textarea class="mt-1 min-h-[86px] w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20" placeholder="${escapeHtml(
-                    section.freeText
-                  )}"></textarea>
-                </label>
               </section>
             `
           )
