@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HXSD5K4LM6"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-HXSD5K4LM6");
+    </script>
+
+    <title>질의서 자가진단 · 우리동네빌런찾기</title>
+    <meta
+      name="description"
+      content="지방선거 후보자에게 보내는 공개 질의서에 시민도 직접 답하고 민주주의·공직윤리·시민참여 점수를 확인해 보세요."
+    />
+    <meta property="og:title" content="질의서 자가진단 · 우리동네빌런찾기" />
+    <meta
+      property="og:description"
+      content="후보자 질의서에 직접 답하고 내 점수를 확인한 뒤 SNS로 공유해 보세요."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://seoularchive.net/candidates/questionnaire.html" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: [
+                "Pretendard Variable",
+                "Pretendard",
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "system-ui",
+                "sans-serif",
+              ],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="../style.css" />
+    <style>
+      body,
+      p,
+      span,
+      a,
+      button,
+      h1,
+      h2,
+      h3,
+      h4 {
+        text-shadow: none;
+      }
+      .pixel-nav-btn {
+        border: 2px solid #000;
+        background: rgba(16, 16, 35, 0.92);
+        color: rgba(226, 232, 240, 0.92);
+        font-weight: 900;
+        text-shadow: none !important;
+        box-shadow: none;
+        filter: none;
+      }
+      .pixel-nav-btn:hover {
+        background: rgba(16, 16, 35, 1);
+        color: #ffffff;
+        text-decoration: none;
+      }
+      .qa-option {
+        transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+      }
+      .qa-option:hover {
+        transform: translateY(-1px);
+      }
+      .qa-option.is-selected {
+        border-color: #ff4d4d;
+        box-shadow: 3px 3px 0 rgba(255, 77, 77, 0.45);
+      }
+      .qa-option input {
+        accent-color: #ff4d4d;
+      }
+    </style>
+    <link rel="stylesheet" href="theme-light.css" />
+  </head>
+  <body class="min-h-screen bg-white text-slate-900 antialiased">
+    <div id="header-plugin"></div>
+
+    <header class="mb-8 text-center">
+      <section class="villain-slide w-full px-0 py-8 sm:py-10">
+        <div class="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <p class="text-xs font-black uppercase tracking-widest text-[#ff4d4d]">QUESTIONNAIRE SELF CHECK</p>
+          <h1 class="dash-title mt-1 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+            질의서 자가진단
+          </h1>
+          <p class="mx-auto mt-3 max-w-3xl text-sm leading-relaxed text-slate-700 sm:text-base">
+            후보자들에게 보낼 공개 질의서에 시민도 직접 답해볼 수 있습니다. 각 문항의 선택지는 매번 섞이며,
+            답변을 마치면 평균 점수와 인증 문구를 확인할 수 있습니다.
+          </p>
+          <nav class="mt-4 flex flex-wrap items-center justify-center gap-1.5" aria-label="breadcrumb">
+            <a href="/" class="inline-flex items-center rounded border-2 border-slate-300 bg-white/80 px-2 py-0.5 text-[10px] font-black tracking-widest text-slate-500 shadow-[1px_1px_0_rgba(2,6,23,0.25)] transition hover:border-slate-500 hover:text-slate-800">SEOUL ARCHIVE</a>
+            <span class="text-slate-400 text-[10px] font-black">&gt;</span>
+            <a href="/candidates/" class="inline-flex items-center rounded border-2 border-slate-300 bg-white/80 px-2 py-0.5 text-[10px] font-black tracking-widest text-slate-500 shadow-[1px_1px_0_rgba(2,6,23,0.25)] transition hover:border-slate-500 hover:text-slate-800">VILLAIN ARCHIVE</a>
+            <span class="text-slate-400 text-[10px] font-black">&gt;</span>
+            <span class="inline-flex items-center rounded border-2 border-[#ff4d4d] bg-[#fff0f0] px-2 py-0.5 text-[10px] font-black tracking-widest text-[#ff4d4d] shadow-[1px_1px_0_rgba(2,6,23,0.45)]">SELF CHECK</span>
+          </nav>
+          <div class="mt-4 flex w-full flex-wrap justify-center gap-2">
+            <a href="index.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">🏠 개요</a>
+            <a href="villain.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">😈 빌런아카이브 →</a>
+            <a href="list.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">👥 후보자 목록 →</a>
+          </div>
+        </div>
+      </section>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 pb-14 sm:px-6 lg:px-8">
+      <section class="dash-card p-4 sm:p-5">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 class="text-lg font-black tracking-tight text-slate-900">점수 기준</h2>
+            <p class="mt-1 text-sm leading-relaxed text-slate-600">
+              각 문항은 10점, 6점, 3점, 0점 중 하나로 계산됩니다. 실제 후보자에게 보내는 선택지 순서와 무관하게
+              이 페이지에서는 선택지가 무작위로 표시됩니다.
+            </p>
+          </div>
+          <div class="grid grid-cols-4 gap-2 text-center text-xs font-black">
+            <div class="rounded-lg border-2 border-slate-800 bg-white px-3 py-2 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">10점</div>
+            <div class="rounded-lg border-2 border-slate-800 bg-white px-3 py-2 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">6점</div>
+            <div class="rounded-lg border-2 border-slate-800 bg-white px-3 py-2 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">3점</div>
+            <div class="rounded-lg border-2 border-slate-800 bg-white px-3 py-2 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">0점</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="resultPanel" class="mt-5 hidden rounded-2xl border-4 border-slate-900 bg-[#fff7ed] p-5 shadow-[6px_6px_0_rgba(2,6,23,0.85)]" aria-live="polite">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_280px] lg:items-center">
+          <div>
+            <p class="text-xs font-black uppercase tracking-widest text-[#ff4d4d]">MY RESULT</p>
+            <h2 id="resultTitle" class="mt-1 text-2xl font-black text-slate-900">결과</h2>
+            <p id="resultDescription" class="mt-2 text-sm leading-relaxed text-slate-700"></p>
+            <div id="categoryScores" class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3"></div>
+          </div>
+          <div class="rounded-xl border-2 border-slate-900 bg-white p-4 text-center shadow-[3px_3px_0_rgba(2,6,23,0.75)]">
+            <p class="text-xs font-black text-slate-500">평균 점수</p>
+            <p class="mt-1"><span id="scoreValue" class="text-5xl font-black text-[#ff4d4d]">0.0</span><span class="text-lg font-black text-slate-700">/10</span></p>
+            <p id="answeredValue" class="mt-1 text-xs font-bold text-slate-500"></p>
+            <div class="mt-4 flex flex-col gap-2">
+              <button id="shareBtn" type="button" class="rounded-lg border-2 border-slate-900 bg-[#ff4d4d] px-3 py-2 text-sm font-black text-white shadow-[2px_2px_0_rgba(2,6,23,0.75)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
+                SNS 공유하기
+              </button>
+              <button id="copyBtn" type="button" class="rounded-lg border-2 border-slate-900 bg-white px-3 py-2 text-sm font-black text-slate-900 shadow-[2px_2px_0_rgba(2,6,23,0.75)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
+                인증 문구 복사
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <form id="questionnaireForm" class="mt-5 space-y-5">
+        <div id="questionsRoot"></div>
+        <div class="sticky bottom-3 z-20 mt-6 rounded-2xl border-4 border-slate-900 bg-white/95 p-3 shadow-[5px_5px_0_rgba(2,6,23,0.85)] backdrop-blur">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p id="progressText" class="m-0 text-sm font-black text-slate-700">0/13 문항 답변 완료</p>
+            <div class="flex flex-wrap gap-2">
+              <button id="shuffleBtn" type="button" class="rounded-lg border-2 border-slate-900 bg-white px-4 py-2 text-sm font-black text-slate-900 shadow-[2px_2px_0_rgba(2,6,23,0.75)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
+                선택지 다시 섞기
+              </button>
+              <button id="scoreBtn" type="submit" class="rounded-lg border-2 border-slate-900 bg-[#ff4d4d] px-4 py-2 text-sm font-black text-white shadow-[2px_2px_0_rgba(2,6,23,0.75)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
+                점수 확인하기
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </main>
+
+    <div id="footer-plugin"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const SCORE_BY_ORIGINAL_CHOICE = [10, 6, 3, 0];
+      const QUESTION_SECTIONS = [
+        {
+          id: "democracy",
+          title: "민주주의 수호에 대한 입장",
+          lead:
+            "지방자치단체는 대한민국을 민주적으로 발전시켜야 할 의무가 있습니다. 12.3 불법 비상계엄 이후 처음 치러지는 지방선거에서 민주주의 수호는 공직자의 기본 의제입니다.",
+          questions: [
+            {
+              text: "12.3 불법 비상계엄 및 관련 사법절차에 대한 견해는 무엇입니까?",
+              options: [
+                "헌정질서를 훼손한 중대한 위헌·위법 행위로 최종 선고 후 절대 감형, 사면 없는 엄격한 형 집행이 이뤄져야 한다.",
+                "불법 내란이나, 국민통합과 대통령 예우 등을 고려하여 추후 감형이나 사면 등을 검토할 수 있다.",
+                "국정 마비 상태를 타개하기 위한 대통령의 부득이한 통치권 차원의 결단으로 이해한다.",
+                "국가 안보와 체제 수호를 위한 정당한 조치였으며, 즉각적 국정 복귀가 이뤄져야 한다.",
+              ],
+            },
+            {
+              text: "이른바 ‘윤어게인’ 세력의 정치 참여 및 활동에 대한 견해는 무엇입니까?",
+              options: [
+                "헌법재판소에 의해 파면된 원인인 '내란'을 옹호하는 세력이다. 민주주의 가치를 훼손하므로 이들의 정치 참여를 단호히 반대하며 청산의 대상이라 생각한다.",
+                "구호 내용에는 동의하지 않으나, 민주주의 국가에서 사상과 집회의 자유는 보장되어야 하므로 그들의 활동 자체를 막을 수는 없다.",
+                "사법적 판단과 정당 활동의 자유는 별개의 문제이며, 해당 세력의 주장은 개인이나 특정 단체의 입장일 뿐이므로 공당의 후보로서 공식적인 입장을 밝히기는 적절치 않다.",
+                "파면과 사법 처리가 과도하거나 억울한 측면이 있다고 보며, 전직 대통령의 명예회복과 정치적 부활이 필요하다는 주장에 공감한다.",
+              ],
+            },
+            {
+              text: "‘부정선거 음모론’과 선거 시스템의 신뢰성에 대한 견해는 무엇입니까?",
+              options: [
+                "근거 없는 부정선거 주장은 민주주의의 근간을 흔드는 가짜뉴스로, 사회적 혼란을 야기하는 허위사실 유포에 대해 엄중한 법적 처벌이 필요하다.",
+                "음모론 자체에는 동의하지 않으나, 시민의 의혹 제기는 민주주의 국가에서 허용되는 표현의 자유 영역이므로 처벌보다는 투명한 정보 공개로 해결해야 한다.",
+                "사전투표 관리 부실 등 현재 선거 시스템에는 조작 가능성이 상존한다. 선거 무효 소송과 별개로 국회 차원의 철저한 전수조사가 필요하다.",
+                "지난 선거들은 특정 세력이나 외부 세력(중국 등)이 개입한 명백한 부정선거다. 진상이 밝혀질 때까지 현 선거 시스템 하에서의 선거 결과를 수용하기 어렵다.",
+              ],
+            },
+            {
+              text: "임기 중 지난 12.3 비상계엄과 같은 헌정 중단 사태가 발생할 경우 어떻게 행동하시겠습니까?",
+              options: [
+                "구청·시의회·구의회 차원의 '비상계엄 해제 촉구 결의안'을 즉각 채택하고, 주민들과 함께 평화적인 저지 운동에 앞장서겠다.",
+                "구청 및 관계 기관이 계엄군의 부당한 지시에 협조하지 않도록 감시하고, 주민의 안전을 지키는 매뉴얼을 구축하겠다.",
+                "지방공직자는 중앙 정부와 계엄 사령부의 지침을 따르는 것이 법적 절차이므로 법률과 절차에 따라 대응하겠다.",
+                "개인이 판단할 영역이 아니므로 본인이 속한 중앙당의 입장과 지침에 따라 행동하겠다.",
+              ],
+            },
+            {
+              text: "대통령의 계엄권 남용을 막기 위한 국회의 견제 권한 강화 ‘헌법 개정’에 대한 견해는 무엇입니까?",
+              options: [
+                "다시는 12.3 불법 비상계엄 사태와 같은 일이 반복되지 않도록 헌법 전문에 그 정신을 새기고, 계엄 요건을 엄격히 강화해야 한다.",
+                "권력 구조 개편 등 복잡한 개헌보다는, 계엄권 오남용 방지를 위한 최소한의 원포인트 개헌에는 동의한다.",
+                "헌법을 개정하는 것은 국가적 혼란과 비용이 크므로, 개헌보다는 계엄법 등 관련 법률을 개정하여 국회의 통제 절차를 촘촘하게 보완하는 것이 우선이다.",
+                "현행 헌법으로도 충분히 통제가 가능하며, 선거를 앞두고 정치적으로 이용되는 개헌 논의에는 반대한다.",
+              ],
+            },
+          ],
+          freeText: "공직후보자로서 민주주의 수호에 관해 추가로 제출할 의견이 있다면 자유롭게 적어주십시오.",
+        },
+        {
+          id: "ethics",
+          title: "공직자 윤리에 대한 입장",
+          lead:
+            "공직자는 국민으로부터 막대한 권한을 위임받은 국민에 대한 봉사자입니다. 권한을 위임받은 만큼 윤리적 책임은 보통의 시민보다 강력해야 합니다.",
+          questions: [
+            {
+              text: "지방의회 윤리특위의 회의록, 징계 심사 과정, 투표 결과 등을 시민에게 전면 공개하는 조례 제정에 대한 견해는 무엇입니까?",
+              options: [
+                "투명성 확보를 위해 윤리특위의 모든 회의록과 의결 과정을 전면 공개(라이브 중계 포함)해야 한다.",
+                "개인정보나 명예훼손의 소지가 있는 경우를 제외하고는 원칙적으로 전면 공개해야 한다.",
+                "현재도 결과는 공개되고 있으므로, 심사 과정의 비공개는 의원들이 소신 있게 심사하기 위해 필요하다.",
+                "의회의 자율성을 침해할 수 있으므로 강제적 공개 조례나 지침에는 반대한다.",
+              ],
+            },
+            {
+              text: "부패·이해충돌·선거법 위반 등이 확인될 경우 즉각 직무를 정지하거나 배제하는 ‘원스트라이크 아웃제’ 도입에 대해 어떻게 생각하십니까?",
+              options: [
+                "부패 혐의로 기소되거나 법 위반이 확인되는 즉시(최종 판결 전이라도) 직무를 정지하고 수당 지급을 중단하는 강력한 제도가 필요하다.",
+                "위반의 경중을 따져 중대한 위반일 경우에 한해 판결 전 직무 배제를 적용해야 한다.",
+                "헌법상 무죄추정의 원칙이 있으므로, 최종 사법 판단(확정판결)이 나오기 전까지는 직무를 유지해야 한다.",
+                "정치적 기소 등 악용의 소지가 있으므로 별도의 직무 정지 제도는 불필요하다.",
+              ],
+            },
+            {
+              text: "지자체 계약·미공개 정보·부동산 투기 등 이해충돌 행위가 적발될 경우 처벌 및 환수 수준은 어떠해야 한다고 보십니까?",
+              options: [
+                "즉각적인 의원직 박탈/파면과 함께, 부당하게 취득한 이익 및 계약 금액의 전액(또는 징벌적 배수)을 환수해야 한다.",
+                "현행 이해충돌방지법 및 형법에 고발 조치하고, 법원 판결에 따라 처벌과 환수를 진행하면 충분하다.",
+                "사법 처벌과 별개로 의회나 지자체 내부에서 최고 수위의 징계(제명 등)를 즉각 내리는 제도를 정비해야 한다.",
+                "합법적인 공모 절차나 경미한 사안까지 과도하게 규제하는 것은 기업 활동이나 재산권을 침해할 수 있다.",
+              ],
+            },
+            {
+              text: "업무추진비 오남용, 영수증 허위 청구, 부실 해외연수에 대한 예산 집행 감시 체계 강화에 대한 견해는 무엇입니까?",
+              options: [
+                "업무추진비 영수증(상호, 시간 포함)을 실시간에 가깝게 전면 온라인 공개하고, 시민 참여 검증단을 구성해 상시 감시해야 한다.",
+                "현행 분기별 공개를 유지하되, 부정 사용 적발 시 사용액의 5배를 환수하는 등 사후 처벌을 강화해야 한다.",
+                "현재도 지자체 홈페이지 등을 통해 적절히 투명하게 공개되고 있으므로 현행 제도로 충분하다.",
+                "지나친 영수증 세부 공개는 정상적인 격려 및 공무 수행 활동을 위축시킬 우려가 있다.",
+              ],
+            },
+          ],
+          freeText: "공직자의 윤리에 관해 추가로 제출할 의견이 있다면 자유롭게 적어주십시오.",
+        },
+        {
+          id: "participation",
+          title: "투명한 공직 수행 및 시민의 민주적 참여에 대한 입장",
+          lead:
+            "지방자치는 주민주권을 구현하기 위해 헌법적으로 보장된 제도입니다. 시민 참여를 위해 공직자의 업무와 일정은 투명하게 공개되어야 합니다.",
+          questions: [
+            {
+              text: "공직자가 수행하는 공적 업무 영역의 시민 공개에 대한 견해는 무엇입니까?",
+              options: [
+                "공직자로서 공직을 수행하는 모든 업무와 일정을 투명하게 공개해야 한다.",
+                "공직을 수행하더라도 공개하는 범위는 일정부분 제한이 필요하다.",
+                "공직자의 자율성을 보장하기 위해서는 공개의 범위를 공직자가 결정할 수 있어야 한다.",
+                "공직을 수행하는데 필요한 비밀을 유지하기 위해서는 일부만 공개해야 한다.",
+              ],
+            },
+            {
+              text: "행정 기록물 및 내부 결재 문서 공개 범위를 확대하고 자체 정보공개 기준을 마련하는 것에 대한 견해는 무엇입니까?",
+              options: [
+                "투명한 행정시스템 구현을 위해서 조례제정 등 제도화를 통해 정보공개의 범위를 더욱 투명하게 확대해야 한다.",
+                "정보공개의 범위 확대에 동의한다. 다만, 지금 시스템하에서도 정보공개의 범위를 충분히 확대할 수 있다.",
+                "현재도 행정 정보가 충분히 정보가 공개되고 있다. 굳이 더 확대할 필요는 없다.",
+                "현재 시스템에서도 정보공개가 매우 투명하게 되고 있다. 오히려 정보공개에 대한 기준을 엄격하게 제한해야 한다.",
+              ],
+            },
+            {
+              text: "시민참여조례 제정 등 더 적극적인 시민의 지방자치 참여에 대한 견해는 무엇입니까?",
+              options: [
+                "시민참여조례 제정 및 시민참여 제도 운영을 위한 예산편성을 통해 시민들의 참여를 더욱 적극적으로 보장해야 한다.",
+                "현재의 제도를 통해서도 충분히 시민들의 참여 확대를 보장할 수 있다.",
+                "지금도 충분히 시민들의 참여를 통해서 지방자치가 활발하게 운영되고 있다. 시민들의 참여를 굳이 더 확대할 필요는 없다.",
+                "지금도 시민들의 과도한 참여로 업무를 수행하는데 어려움이 있다. 오히려 시민들의 참여를 제한해야 한다.",
+              ],
+            },
+            {
+              text: "시민사회와의 소통창구를 통해 일상적인 감시와 협력으로 지방자치를 만들어가는 것에 대한 견해는 무엇입니까?",
+              options: [
+                "시민사회와의 창구 마련 및 정례적인 소통을 통해서 공직자로서의 역할을 수행할 것이다.",
+                "시민사회와의 소통이 필요할 경우 별도의 소통을 통해서 업무를 수행하면 된다.",
+                "현재 주민자치위원회 등 각종 위원회, 직능단체 등 시민사회의 활발한 참여를 통해서 지방자치를 만들어가고 있다. 현재 창구를 잘 활용하면 된다.",
+                "이미 많은 시민사회단체의 활발한 참여를 통해서 지방자치를 만들어가고 있다. 굳이 소통을 추가할 필요가 없다.",
+              ],
+            },
+          ],
+          freeText:
+            "공직자의 투명한 공직 수행 및 시민의 민주적 참여에 관해 추가로 제출할 의견이 있다면 자유롭게 적어주십시오.",
+        },
+      ];
+
+      let shuffledSections = [];
+      let lastShareText = "";
+
+      function shuffle(items) {
+        const arr = items.slice();
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function getAllQuestions() {
+        return QUESTION_SECTIONS.flatMap((section) =>
+          section.questions.map((question, questionIndex) => ({
+            sectionId: section.id,
+            sectionTitle: section.title,
+            id: `${section.id}-${questionIndex}`,
+            ...question,
+          }))
+        );
+      }
+
+      function totalQuestionCount() {
+        return getAllQuestions().length;
+      }
+
+      function renderQuestions() {
+        shuffledSections = QUESTION_SECTIONS.map((section) => ({
+          ...section,
+          questions: section.questions.map((question, questionIndex) => ({
+            ...question,
+            id: `${section.id}-${questionIndex}`,
+            shuffledOptions: shuffle(
+              question.options.map((text, originalIndex) => ({
+                text,
+                score: SCORE_BY_ORIGINAL_CHOICE[originalIndex],
+              }))
+            ),
+          })),
+        }));
+
+        const root = document.getElementById("questionsRoot");
+        root.innerHTML = shuffledSections
+          .map(
+            (section, sectionIndex) => `
+              <section class="mt-5 rounded-2xl border-4 border-slate-900 bg-white p-4 shadow-[5px_5px_0_rgba(2,6,23,0.85)] sm:p-5">
+                <div class="flex flex-col gap-2 border-b-2 border-slate-900 pb-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p class="text-[11px] font-black uppercase tracking-widest text-[#ff4d4d]">PART ${sectionIndex + 1}</p>
+                    <h2 class="mt-1 text-xl font-black text-slate-900">${escapeHtml(section.title)}</h2>
+                    <p class="mt-2 max-w-4xl text-sm leading-relaxed text-slate-600">${escapeHtml(section.lead)}</p>
+                  </div>
+                  <span class="inline-flex w-fit rounded-full border-2 border-slate-900 bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">${section.questions.length}문항</span>
+                </div>
+                <div class="mt-4 space-y-4">
+                  ${section.questions
+                    .map(
+                      (question, questionIndex) => `
+                        <fieldset class="rounded-xl border-2 border-slate-200 bg-slate-50 p-3 sm:p-4" data-question-id="${question.id}" data-section-id="${section.id}">
+                          <legend class="px-1 text-sm font-black leading-relaxed text-slate-900">
+                            질의 ${questionIndex + 1}. ${escapeHtml(question.text)}
+                          </legend>
+                          <div class="mt-3 grid grid-cols-1 gap-2">
+                            ${question.shuffledOptions
+                              .map(
+                                (option, optionIndex) => `
+                                  <label class="qa-option flex cursor-pointer gap-3 rounded-lg border-2 border-slate-200 bg-white p-3 text-sm leading-relaxed text-slate-700 shadow-[2px_2px_0_rgba(2,6,23,0.18)]">
+                                    <input class="mt-1 shrink-0" type="radio" name="${question.id}" value="${option.score}" />
+                                    <span><span class="mr-1 font-black text-slate-900">${String.fromCharCode(65 + optionIndex)}.</span>${escapeHtml(option.text)}</span>
+                                  </label>
+                                `
+                              )
+                              .join("")}
+                          </div>
+                        </fieldset>
+                      `
+                    )
+                    .join("")}
+                </div>
+                <label class="mt-4 block">
+                  <span class="text-sm font-black text-slate-800">자유 의견</span>
+                  <textarea class="mt-1 min-h-[86px] w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-[#ff4d4d] focus:ring-2 focus:ring-[#ff4d4d]/20" placeholder="${escapeHtml(
+                    section.freeText
+                  )}"></textarea>
+                </label>
+              </section>
+            `
+          )
+          .join("");
+        updateProgress();
+      }
+
+      function selectedInputs() {
+        return Array.from(document.querySelectorAll('#questionnaireForm input[type="radio"]:checked'));
+      }
+
+      function updateProgress() {
+        const total = totalQuestionCount();
+        const answered = selectedInputs().length;
+        document.getElementById("progressText").textContent = `${answered}/${total} 문항 답변 완료`;
+      }
+
+      function categoryLabel(score) {
+        if (score >= 8.5) return "민주주의·윤리·참여 기준에 매우 적극적입니다.";
+        if (score >= 6.5) return "대체로 적극적이지만 일부 쟁점에서 유보가 있습니다.";
+        if (score >= 4) return "핵심 기준에 대한 입장이 다소 미온적입니다.";
+        return "민주주의·공직윤리 기준과 거리가 큽니다.";
+      }
+
+      function calculateResult() {
+        const questions = getAllQuestions();
+        const bySection = new Map(QUESTION_SECTIONS.map((section) => [section.id, { title: section.title, sum: 0, count: 0 }]));
+        let sum = 0;
+        let answered = 0;
+        questions.forEach((question) => {
+          const input = document.querySelector(`input[name="${question.id}"]:checked`);
+          if (!input) return;
+          const score = Number(input.value);
+          sum += score;
+          answered += 1;
+          const section = bySection.get(question.sectionId);
+          section.sum += score;
+          section.count += 1;
+        });
+        return {
+          answered,
+          total: questions.length,
+          average: answered ? sum / answered : 0,
+          sections: Array.from(bySection.values()).map((section) => ({
+            ...section,
+            average: section.count ? section.sum / section.count : 0,
+          })),
+        };
+      }
+
+      function renderResult(result) {
+        const average = result.average;
+        const scoreText = average.toFixed(1);
+        document.getElementById("scoreValue").textContent = scoreText;
+        document.getElementById("answeredValue").textContent = `${result.answered}/${result.total} 문항 반영`;
+        document.getElementById("resultTitle").textContent = `내 질의서 자가진단 점수는 ${scoreText}점`;
+        document.getElementById("resultDescription").textContent = categoryLabel(average);
+        document.getElementById("categoryScores").innerHTML = result.sections
+          .map(
+            (section) => `
+              <div class="rounded-xl border-2 border-slate-900 bg-white p-3 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">
+                <p class="text-[11px] font-black text-slate-500">${escapeHtml(section.title)}</p>
+                <p class="mt-1 text-2xl font-black text-slate-900">${section.average.toFixed(1)}<span class="text-sm text-slate-500">/10</span></p>
+              </div>
+            `
+          )
+          .join("");
+        lastShareText = `질의서 자가진단 완료! 내 평균 점수는 ${scoreText}/10점입니다. ${categoryLabel(
+          average
+        )} #우리동네빌런찾기 #구정감시 #지방선거`;
+        const panel = document.getElementById("resultPanel");
+        panel.classList.remove("hidden");
+        panel.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function showToast(message) {
+        const el = document.createElement("div");
+        el.className =
+          "fixed left-1/2 top-4 z-50 -translate-x-1/2 rounded-lg border-2 border-slate-900 bg-white px-4 py-2 text-sm font-black text-slate-900 shadow-[3px_3px_0_rgba(2,6,23,0.75)]";
+        el.textContent = message;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1800);
+      }
+
+      async function copyShareText() {
+        const text = `${lastShareText || "질의서 자가진단에 참여했습니다."}\n${location.href}`;
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast("인증 문구를 복사했습니다.");
+        } catch (e) {
+          window.prompt("아래 문구를 복사해 주세요.", text);
+        }
+      }
+
+      async function shareResult() {
+        const text = lastShareText || "질의서 자가진단에 참여했습니다.";
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: "질의서 자가진단",
+              text,
+              url: location.href,
+            });
+            return;
+          } catch (e) {
+            if (e && e.name === "AbortError") return;
+          }
+        }
+        await copyShareText();
+      }
+
+      (function () {
+        async function inject(id, url) {
+          try {
+            const r = await fetch(url);
+            if (!r.ok) return;
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = await r.text();
+          } catch (e) {
+            console.warn("[candidates] 헤더·푸터 로드:", e);
+          }
+        }
+        function setActiveSubnav() {
+          document.querySelectorAll("a[data-candidates-subnav]").forEach(function (a) {
+            a.classList.remove("active");
+            a.removeAttribute("aria-current");
+          });
+          const link = document.querySelector('a[data-candidates-subnav="questionnaire"]');
+          if (link) {
+            link.classList.add("active");
+            link.setAttribute("aria-current", "page");
+          }
+        }
+        (async function () {
+          await inject("header-plugin", "header.html");
+          setActiveSubnav();
+          await inject("footer-plugin", "footer.html");
+        })();
+      })();
+
+      renderQuestions();
+
+      document.getElementById("questionnaireForm").addEventListener("change", function (event) {
+        const input = event.target.closest('input[type="radio"]');
+        if (!input) return;
+        const fieldset = input.closest("fieldset");
+        if (fieldset) {
+          fieldset.querySelectorAll(".qa-option").forEach((label) => label.classList.remove("is-selected"));
+          input.closest(".qa-option").classList.add("is-selected");
+        }
+        updateProgress();
+      });
+
+      document.getElementById("questionnaireForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const result = calculateResult();
+        if (result.answered < result.total) {
+          showToast(`아직 ${result.total - result.answered}개 문항이 남았습니다.`);
+          const firstMissing = getAllQuestions().find((question) => !document.querySelector(`input[name="${question.id}"]:checked`));
+          const target = firstMissing ? document.querySelector(`[data-question-id="${firstMissing.id}"]`) : null;
+          if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
+        renderResult(result);
+      });
+
+      document.getElementById("shuffleBtn").addEventListener("click", function () {
+        renderQuestions();
+        document.getElementById("resultPanel").classList.add("hidden");
+        showToast("선택지를 다시 섞었습니다.");
+      });
+      document.getElementById("copyBtn").addEventListener("click", copyShareText);
+      document.getElementById("shareBtn").addEventListener("click", shareResult);
+    </script>
+  </body>
+</html>

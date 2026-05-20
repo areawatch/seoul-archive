@@ -91,6 +91,9 @@
       .menu-card--briefing .menu-icon {
         background: rgba(250, 204, 21, 0.16);
       }
+      .menu-card--questionnaire .menu-icon {
+        background: rgba(255, 77, 77, 0.14);
+      }
       .menu-card--expedition .menu-icon {
         background: rgba(16, 185, 129, 0.16);
       }
@@ -226,7 +229,7 @@
       </section>
 
       <section class="mt-6">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <a href="villain.html" class="menu-card menu-card--villain block rounded-xl p-4 text-decoration-none text-slate-900">
             <div class="flex items-start justify-between gap-3">
               <div class="menu-icon inline-flex items-center justify-center rounded-lg">
@@ -258,6 +261,17 @@
             </div>
             <h3 class="mt-3 text-base font-black text-slate-900">브리핑</h3>
             <p class="mt-1 text-[12px] leading-relaxed text-slate-600">이번 선거 개괄 · 정당/현황 요약</p>
+          </a>
+
+          <a href="questionnaire.html" class="menu-card menu-card--questionnaire block rounded-xl p-4 text-decoration-none text-slate-900">
+            <div class="flex items-start justify-between gap-3">
+              <div class="menu-icon inline-flex items-center justify-center rounded-lg">
+                <i class="bi bi-ui-checks" aria-hidden="true"></i>
+              </div>
+              <span class="text-slate-500"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+            </div>
+            <h3 class="mt-3 text-base font-black text-slate-900">질의서 자가진단</h3>
+            <p class="mt-1 text-[12px] leading-relaxed text-slate-600">후보자 공개 질의서에 직접 답하고 점수 확인</p>
           </a>
 
           <a href="status.html" class="menu-card menu-card--expedition block rounded-xl p-4 text-decoration-none text-slate-900">
@@ -294,8 +308,9 @@
           var listLink = document.querySelector("a[data-candidates-subnav='list']");
           var briefLink = document.querySelector("a[data-candidates-subnav='briefing']");
           var villainLink = document.querySelector("a[data-candidates-subnav='villain']");
+          var questionnaireLink = document.querySelector("a[data-candidates-subnav='questionnaire']");
           var expeditionLink = document.querySelector("a[data-candidates-subnav='expedition']");
-          [listLink, briefLink, villainLink, expeditionLink].forEach(function (a) {
+          [listLink, briefLink, villainLink, questionnaireLink, expeditionLink].forEach(function (a) {
             if (!a) return;
             a.classList.remove("active");
             a.removeAttribute("aria-current");
