@@ -506,6 +506,21 @@
         return Object.keys(row || {}).filter((key) => key.includes(token));
       }
 
+      function sheetCell(row, candidates) {
+        const col = findSheetColumn(row, candidates);
+        return col ? String(row[col] || "").trim() : "";
+      }
+
+      function collectSheetAnswers(row, columns) {
+        return columns
+          .map((item) => {
+            const value = String(row[item.column] || "").trim();
+            return value ? `${item.label}. ${value}` : "";
+          })
+          .filter(Boolean)
+          .join("\n");
+      }
+
       function parseSheetNewsLinks(raw) {
         const text = String(raw || "").trim();
         if (!text) return [];
@@ -538,6 +553,15 @@
         }
       }
 
+      function parseSheetTextItems(raw) {
+        const text = String(raw || "").trim();
+        if (!text) return [];
+        return text
+          .split(/\n|;/g)
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+
       let redlineNewsTitleByUrl = {};
 
       function getNewsTooltipTitle(link) {
@@ -549,53 +573,51 @@
 
       function normalizeVerifiedRow(row) {
         if (!row || typeof row !== "object") return null;
-        const nameCol = findSheetColumn(row, ["이름", "성명"]);
-        const districtCol = findSheetColumn(row, ["지역구", "자치구", "구"]);
-        if (!nameCol || !districtCol) return null;
-        const name = String(row[nameCol] || "").trim();
-        const district = String(row[districtCol] || "").trim();
+        const name = sheetCell(row, ["이름", "성명"]);
+        const district = sheetCell(row, ["지역구", "자치구", "구"]);
         if (!name || !district) return null;
-        const gradeCol = findSheetColumn(row, ["검증등급", "등급"]);
-        const commentCol = findSheetColumn(row, ["구서넷 코멘트", "코멘트", "comment"]);
-        const crimeCol = findSheetColumn(row, ["범죄이력", "범죄", "전과"]);
-        const newsCol = findSheetColumn(row, ["뉴스링크", "뉴스 링크", "뉴스"]);
-        const imageCol = findSheetColumn(row, ["이미지 주소", "사진 주소", "이미지", "photo"]);
-        const insurrectionCols = findSheetColumnsByContains(row, "내란");
-        const corruptionCols = findSheetColumnsByContains(row, "부패");
-        const democracyCols = findSheetColumnsByContains(row, "민주");
-        const newsCols = findSheetColumnsByContains(row, "뉴스링크");
-        const questionnaireCols = findSheetColumnsByContains(row, "질의서");
-        const insurrectionText = insurrectionCols
+        const newsRaw = ["뉴스링크1", "뉴스링크2"]
           .map((col) => String(row[col] || "").trim())
           .filter(Boolean)
           .join("\n");
-        const corruptionText = corruptionCols
-          .map((col) => String(row[col] || "").trim())
-          .filter(Boolean)
-          .join("\n");
-        const democracyText = democracyCols
-          .map((col) => String(row[col] || "").trim())
-          .filter(Boolean)
-          .join("\n");
-        const newsRaw = newsCols.length
-          ? newsCols.map((col) => String(row[col] || "").trim()).filter(Boolean).join("\n")
-          : String(row[newsCol] || "");
-        const questionnaireText = questionnaireCols
+        const snsRaw = ["SNS발언1", "SNS발언2"]
           .map((col) => String(row[col] || "").trim())
           .filter(Boolean)
           .join("\n");
         return {
           name,
           district,
-          grade: String(row[gradeCol] || "").trim(),
-          comment: String(row[commentCol] || "").trim(),
-          criminalHistory: String(row[crimeCol] || "").trim(),
+          electionType: sheetCell(row, ["선거 종류", "선거종류", "종류"]),
+          party: sheetCell(row, ["정당"]),
+          grade: sheetCell(row, ["검증등급", "등급"]),
+          comment: sheetCell(row, ["구서넷 코멘트", "코멘트", "comment"]),
+          criminalHistory: sheetCell(row, ["범죄이력(텍스트)", "범죄이력", "범죄", "전과"]),
           newsLinks: parseSheetNewsLinks(newsRaw),
-          imageUrl: String(row[imageCol] || "").trim(),
-          qaInsurrection: insurrectionText,
-          qaCorruption: corruptionText,
-          qaDemocracy: democracyText,
-          qaQuestionnaire: questionnaireText,
+          snsStatements: parseSheetTextItems(snsRaw),
+          imageUrl: sheetCell(row, ["이미지 주소", "사진 주소", "이미지", "photo"]),
+          qaInsurrection: collectSheetAnswers(row, [
+            { column: "내란 Q1", label: "Q1" },
+            { column: "내란 Q2", label: "Q2" },
+            { column: "내란 Q3", label: "Q3" },
+            { column: "내란 Q4", label: "Q4" },
+            { column: "내란 Q5", label: "Q5" },
+            { column: "내란 기타", label: "기타" },
+          ]),
+          qaCorruption: collectSheetAnswers(row, [
+            { column: "부패 Q1", label: "Q1" },
+            { column: "부패 Q2", label: "Q2" },
+            { column: "부패 Q3", label: "Q3" },
+            { column: "부패 Q4", label: "Q4" },
+            { column: "부패 기타", label: "기타" },
+          ]),
+          qaDemocracy: collectSheetAnswers(row, [
+            { column: "민주 Q1", label: "Q1" },
+            { column: "민주 Q2", label: "Q2" },
+            { column: "민주 Q3", label: "Q3" },
+            { column: "민주 Q4", label: "Q4" },
+            { column: "민주 기타", label: "기타" },
+          ]),
+          qaQuestionnaire: sheetCell(row, ["질의서"]),
         };
       }
 
@@ -604,8 +626,14 @@
         (rows || []).forEach((row) => {
           const normalized = normalizeVerifiedRow(row);
           if (!normalized) return;
-          const key = normalizeLooseText(normalized.name) + "|" + normalizeDistrictName(normalized.district);
-          if (!map.has(key)) map.set(key, normalized);
+          const baseKey =
+            normalizeLooseText(normalized.name) + "|" + normalizeDistrictName(normalized.district);
+          const officeKey = normalizeLooseText(normalized.electionType);
+          if (officeKey) {
+            const typedKey = baseKey + "|" + officeKey;
+            if (!map.has(typedKey)) map.set(typedKey, normalized);
+          }
+          if (!map.has(baseKey)) map.set(baseKey, normalized);
         });
         return map;
       }
@@ -1233,7 +1261,7 @@
         const names = new Set();
         allCandidates.forEach((c) => {
           if (!candidateMatchesJobFilters(c)) return;
-          const p = String(c.party ?? "").trim();
+          const p = String(mergedCandidateParty(c) || "").trim();
           if (p) names.add(p);
         });
         Array.from(names)
@@ -1250,6 +1278,11 @@
       function mergedCandidatePhoto(c) {
         if (c && c.verifiedMeta && c.verifiedMeta.imageUrl) return c.verifiedMeta.imageUrl;
         return c.photo || "";
+      }
+
+      function mergedCandidateParty(c) {
+        if (c && c.verifiedMeta && c.verifiedMeta.party) return c.verifiedMeta.party;
+        return c.party || "";
       }
 
       function makeQaAccordionHtml(meta) {
@@ -1344,17 +1377,21 @@
               ${sortedVerified
                 .map((c, idx) => {
                   const meta = c.verifiedMeta;
-                  const party = c.party || "정당 미상";
+                  const party = mergedCandidateParty(c) || "정당 미상";
                   const commentText = String(meta.comment || "").trim();
                   const newsLinks = Array.isArray(meta.newsLinks) ? meta.newsLinks.filter(Boolean) : [];
+                  const snsStatements = Array.isArray(meta.snsStatements)
+                    ? meta.snsStatements.filter(Boolean)
+                    : [];
                   const detailsId = "va-detail-" + idx;
                   const hasDetails =
                     !!commentText ||
                     newsLinks.length > 0 ||
+                    snsStatements.length > 0 ||
                     String(meta.qaQuestionnaire || "").trim() !== "" ||
-                    String(meta.coup || "").trim() !== "" ||
-                    String(meta.corruption || "").trim() !== "" ||
-                    String(meta.democracy || "").trim() !== "";
+                    String(meta.qaInsurrection || "").trim() !== "" ||
+                    String(meta.qaCorruption || "").trim() !== "" ||
+                    String(meta.qaDemocracy || "").trim() !== "";
 
                   const newsListHtml = newsLinks.length
                     ? `<ul class="m-0 list-disc space-y-1.5 pl-5">
@@ -1369,10 +1406,25 @@
                           })
                           .join("")}
                       </ul>`
-                    : `<p class="m-0 text-slate-400 text-xs">연락처 없음</p>`;
+                    : `<p class="m-0 text-slate-400 text-xs">기사 없음</p>`;
 
                   const commentBlockHtml = commentText
                     ? `<div class="whitespace-pre-line text-slate-700 leading-relaxed">${escapeHtml(commentText)}</div>`
+                    : `<p class="m-0 text-slate-400 text-xs">-</p>`;
+                  const snsListHtml = snsStatements.length
+                    ? `<ul class="m-0 list-disc space-y-1.5 pl-5">
+                        ${snsStatements
+                          .slice(0, 10)
+                          .map((item) => {
+                            const m = String(item).match(/https?:\/\/\S+/);
+                            if (!m) return `<li class="whitespace-pre-line text-slate-700">${escapeHtml(item)}</li>`;
+                            const href = m[0];
+                            return `<li class="text-slate-700"><a class="font-medium underline decoration-slate-400 underline-offset-2 hover:text-[#ff4d4d] hover:decoration-[#ff4d4d]" href="${escapeAttr(
+                              href
+                            )}" target="_blank" rel="noopener noreferrer">${escapeHtml(item)}</a></li>`;
+                          })
+                          .join("")}
+                      </ul>`
                     : `<p class="m-0 text-slate-400 text-xs">-</p>`;
 
                   const qaText = String(meta.qaQuestionnaire || "").trim() || "-";
@@ -1451,6 +1503,12 @@
                         <div class="mt-3 space-y-2 text-sm leading-relaxed">
                           ${qaAccordion ? qaAccordion : '<p class="m-0 text-xs text-slate-400">등록된 내란/부패/민주 질의 응답이 없습니다.</p>'}
                         </div>
+                      </section>
+                      <section class="mt-3 rounded-xl border-2 border-slate-800 bg-white p-4 shadow-[3px_3px_0_rgba(2,6,23,0.85)]">
+                        <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
+                          <span class="inline-block h-2 w-2 rounded-sm bg-blue-500"></span>SNS 발언
+                        </h3>
+                        <div class="mt-2 text-sm leading-relaxed">${snsListHtml}</div>
                       </section>
                     </td>
                   </tr>`;
@@ -1537,7 +1595,7 @@
 
         const filtered = allCandidates.filter((c) => {
           if (district && c.district !== district) return false;
-          if (party && String(c.party ?? "").trim() !== party) return false;
+          if (party && String(mergedCandidateParty(c) || "").trim() !== party) return false;
           if (!candidateMatchesJobFilters(c)) return false;
           if (!q) return true;
           return normalizeSearch(c.name).includes(q);
@@ -1768,11 +1826,12 @@
           const verifiedIndex = buildVerifiedRowIndex(verifiedRows);
 
           allCandidates = parsed.list.map((candidate) => {
-            const key =
+            const baseKey =
               normalizeLooseText(primaryName(candidate.name)) +
               "|" +
               normalizeDistrictName(candidate.district);
-            const matched = verifiedIndex.get(key) || null;
+            const typedKey = baseKey + "|" + normalizeLooseText(candidateOffice(candidate));
+            const matched = verifiedIndex.get(typedKey) || verifiedIndex.get(baseKey) || null;
             return matched ? { ...candidate, verifiedMeta: matched } : { ...candidate };
           });
           verifiedCandidates = allCandidates.filter((candidate) => !!candidate.verifiedMeta);
