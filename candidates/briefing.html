@@ -445,6 +445,36 @@
           return String((c && c.office) || "구의원").trim() || "구의원";
         }
 
+        function normalizeSeatIndex(data) {
+          if (!data || typeof data !== "object") return null;
+          return {
+            byConstituency: data.byConstituency || {},
+            defaults: data.defaults || {},
+          };
+        }
+
+        function seatCountFor(office, constituency, seatIndex) {
+          if (!seatIndex) return null;
+          var o = String(office || "").trim();
+          var cons = String(constituency || "").trim();
+          if (o === "구청장") return Number(seatIndex.defaults.구청장) || 1;
+          if (o === "시의원") {
+            var metroN = seatIndex.byConstituency[cons];
+            return metroN != null ? Number(metroN) : Number(seatIndex.defaults.시의원) || 1;
+          }
+          if (o === "구의원") {
+            var councilN = seatIndex.byConstituency[cons];
+            return councilN != null ? Number(councilN) : null;
+          }
+          return null;
+        }
+
+        function isUnopposedWin(office, constituency, candidateCount, seatIndex) {
+          var seats = seatCountFor(office, constituency, seatIndex);
+          if (seats == null || seats < 1) return false;
+          return candidateCount > 0 && candidateCount <= seats;
+        }
+
         function sortableAgeYears(ageStr) {
           var s = String(ageStr || "").replace(/\n/g, " ");
           var m = s.match(/\((\d+)세\)/);
@@ -563,7 +593,7 @@
           return ((100 * part) / total).toFixed(1);
         }
 
-        function renderBriefingSnapshot(list) {
+        function renderBriefingSnapshot(list, seatIndex) {
           var ol = document.getElementById("briefingSnapshotList");
           var countEl = document.getElementById("briefingSnapshotCount");
           if (!ol) return;
@@ -721,21 +751,26 @@
 
           var constMap = new Map();
           list.forEach(function (c) {
-            if (candidateOffice(c).indexOf("비례") !== -1) return;
+            var office = candidateOffice(c);
+            if (office.indexOf("비례") !== -1) return;
             var k = String(c.constituency || "").trim() || String(c.district || "").trim();
             if (!k) return;
-            constMap.set(k, (constMap.get(k) || 0) + 1);
+            var groupKey = office + "|" + k;
+            if (!constMap.has(groupKey)) {
+              constMap.set(groupKey, { office: office, constituency: k, count: 0 });
+            }
+            constMap.get(groupKey).count += 1;
           });
-          var constArr = Array.from(constMap.entries()).sort(function (a, b) {
-            return b[1] - a[1];
+          var constArr = Array.from(constMap.values()).sort(function (a, b) {
+            return b.count - a.count;
           });
           var constN = constArr.length;
-          var oneCand = constArr.filter(function (x) {
-            return x[1] === 1;
+          var unopposedN = constArr.filter(function (row) {
+            return isUnopposedWin(row.office, row.constituency, row.count, seatIndex);
           }).length;
           var hot = constArr[0];
           var districtCandidateN = constArr.reduce(function (sum, row) {
-            return sum + row[1];
+            return sum + row.count;
           }, 0);
           var li9 = constN
             ? "선거구는 모두 <span class=\"briefing-num\">" +
@@ -743,14 +778,14 @@
               "</span>개이고, 선거구당 평균 후보 수는 " +
               (districtCandidateN / constN).toFixed(1) +
               "명입니다. 경쟁이 가장 치열한 곳은 " +
-              escapeHtml(hot[0]) +
+              escapeHtml(hot.constituency) +
               "로 <span class=\"briefing-num\">" +
-              hot[1] +
+              hot.count +
               "</span>명이 출마했습니다."
             : "선거구 정보 없음";
           var li10 =
             "무투표 당선 선거는 총 <span class=\"briefing-num\">" +
-            oneCand +
+            unopposedN +
             "</span>개입니다.";
 
           ol.innerHTML = [li1, li2, li3, li4, li6, li7, li9, li10]
@@ -1048,10 +1083,18 @@
             .catch(function () {
               return null;
             }),
+          fetch("../public/data/seoul-constituency-seats.json")
+            .then(function (r) {
+              return r.ok ? r.json() : null;
+            })
+            .catch(function () {
+              return null;
+            }),
         ])
           .then(function (results) {
             var data = results[0];
             var wealthObj = results[1];
+            var seatIndex = normalizeSeatIndex(results[2]);
             wealthPositionByKey = {};
             if (wealthObj && typeof wealthObj === "object") {
               buildWealthIndex(wealthObj);
@@ -1076,7 +1119,7 @@
               updatedEl.classList.remove("hidden");
             }
 
-            renderBriefingSnapshot(list);
+            renderBriefingSnapshot(list, seatIndex);
             renderFemaleRank(list);
             renderIncumbentRank(list, wealthLoaded);
 
