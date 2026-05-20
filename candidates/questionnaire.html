@@ -17,7 +17,7 @@
     <title>질의서 자가진단 · 우리동네빌런찾기</title>
     <meta
       name="description"
-      content="지방선거 후보자에게 보내는 공개 질의서에 시민도 직접 답하고 민주주의 수호·부패·투명한 공직 수행 점수를 확인해 보세요."
+      content="지방선거 후보자에게 보내는 공개 질의서에 시민도 직접 답하고 민주주의 수호·공직자 윤리·투명한 공직 수행 점수를 확인해 보세요."
     />
     <meta property="og:title" content="질의서 자가진단 · 우리동네빌런찾기" />
     <meta
@@ -107,7 +107,7 @@
           </h1>
           <p class="mx-auto mt-3 max-w-3xl text-sm leading-relaxed text-slate-700 sm:text-base">
             후보자들에게 보낼 공개 질의서에 시민도 직접 답해볼 수 있습니다. 각 문항의 선택지는 매번 섞이며,
-            답변을 마치면 민주주의 수호·부패·투명한 공직 수행 파트별 점수와 인증 문구를 확인할 수 있습니다.
+            답변을 마치면 민주주의 수호·공직자 윤리·투명한 공직 수행 파트별 점수와 인증 문구를 확인할 수 있습니다.
           </p>
           <nav class="mt-4 flex flex-wrap items-center justify-center gap-1.5" aria-label="breadcrumb">
             <a href="/" class="inline-flex items-center rounded border-2 border-slate-300 bg-white/80 px-2 py-0.5 text-[10px] font-black tracking-widest text-slate-500 shadow-[1px_1px_0_rgba(2,6,23,0.25)] transition hover:border-slate-500 hover:text-slate-800">SEOUL ARCHIVE</a>
@@ -132,6 +132,7 @@
             <p class="text-xs font-black uppercase tracking-widest text-[#ff4d4d]">MY RESULT</p>
             <h2 id="resultTitle" class="mt-1 text-2xl font-black text-slate-900">파트별 점수</h2>
             <p id="resultDescription" class="mt-2 text-sm leading-relaxed text-slate-700"></p>
+            <div id="totalScoreSummary" class="mt-4"></div>
             <div id="categoryScores" class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3"></div>
           </div>
           <div class="flex flex-col gap-2">
@@ -225,7 +226,7 @@
         },
         {
           id: "corruption",
-          title: "부패",
+          title: "공직자 윤리",
           description: "공직자 윤리에 대한 입장",
           lead:
             "공직자윤리법 제1조(목적) “이 법은 … 공직자의 부정한 재산 증식을 방지하고, 공무집행의 공정성을 확보하는 등 공익과 사익의 이해충돌을 방지하여 국민에 대한 봉사자로서 가져야 할 공직자의 윤리를 확립함을 목적으로 한다.”\n\n공직자는 국민으로부터 막대한 권한을 위임받은 국민에 대한 봉사자입니다. 막대한 권한을 위임한만큼, 윤리적 책임은 보통의 시민들보다 더욱 강력해야 합니다.\n공직자로서 윤리적 책임에 대한 후보자들의 입장을 확인하고자 합니다.",
@@ -456,8 +457,16 @@
 
       function renderResult(result) {
         const scoreParts = result.sections.map((section) => `${section.title} ${section.average.toFixed(1)}점`);
+        const totalScoreText = result.average.toFixed(1);
         document.getElementById("resultTitle").textContent = "내 질의서 자가진단 파트별 점수";
-        document.getElementById("resultDescription").textContent = `${result.answered}/${result.total} 문항을 바탕으로 민주주의 수호·부패·투명한 공직 수행 점수를 각각 계산했습니다.`;
+        document.getElementById("resultDescription").textContent = `${result.answered}/${result.total} 문항을 바탕으로 민주주의 수호·공직자 윤리·투명한 공직 수행 점수를 각각 계산했습니다.`;
+        document.getElementById("totalScoreSummary").innerHTML = `
+          <div class="rounded-xl border-4 border-slate-900 bg-white p-4 shadow-[3px_3px_0_rgba(2,6,23,0.75)]">
+            <p class="text-sm font-black text-slate-900">총점</p>
+            <p class="mt-1 text-5xl font-black text-[#ff4d4d]">${totalScoreText}<span class="text-lg text-slate-500">/10</span></p>
+            <p class="mt-2 text-xs font-bold leading-relaxed text-slate-600">세 파트 전체 문항의 평균 점수입니다.</p>
+          </div>
+        `;
         document.getElementById("categoryScores").innerHTML = result.sections
           .map(
             (section) => `
@@ -469,7 +478,7 @@
             `
           )
           .join("");
-        lastShareText = `질의서 자가진단 완료! 내 파트별 점수는 ${scoreParts.join(", ")}입니다. #우리동네빌런찾기 #구정감시 #지방선거`;
+        lastShareText = `질의서 자가진단 완료! 내 총점은 ${totalScoreText}/10점, 파트별 점수는 ${scoreParts.join(", ")}입니다. #우리동네빌런찾기 #구정감시 #지방선거`;
         const panel = document.getElementById("resultPanel");
         panel.classList.remove("hidden");
         panel.scrollIntoView({ behavior: "smooth", block: "start" });
