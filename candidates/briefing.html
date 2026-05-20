@@ -591,19 +591,19 @@
             return sortableAgeYears(c.age);
           }, "min");
           var li1 =
-            "평균 <span class=\"briefing-num\">" +
+            "후보들의 평균 나이는 <span class=\"briefing-num\">" +
             (ageN ? (ageSum / ageN).toFixed(1) + "세" : "—") +
-            "</span>" +
+            "</span>입니다" +
             (ageEx.value != null && ageMn.value != null
-              ? " · 최고령 " +
+              ? ". 가장 나이가 많은 후보는 " +
                 ageEx.value +
-                "세(" +
+                "세의 " +
                 briefCandNames(ageEx.candidates, 1) +
-                ") · 최연소 " +
+                "이고, 가장 어린 후보는 " +
                 ageMn.value +
-                "세(" +
+                "세의 " +
                 briefCandNames(ageMn.candidates, 1) +
-                ")"
+                "입니다."
               : "");
 
           var props = [];
@@ -621,19 +621,19 @@
             : null;
           var li2 =
             props.length > 0
-              ? "평균 <span class=\"briefing-num\">" +
+              ? "재산신고액은 평균 <span class=\"briefing-num\">" +
                 formatPropertyThousands(propAvg) +
-                "</span>천원 · 중앙값 <span class=\"briefing-num\">" +
+                "</span>천원, 중앙값은 <span class=\"briefing-num\">" +
                 formatPropertyThousands(med) +
-                "</span>천원 · 최고 <span class=\"briefing-num\">" +
-                formatPropertyThousands(propMax.value) +
-                "</span>(" +
+                "</span>천원입니다. 가장 많이 신고한 후보는 " +
                 briefCandNames(propMax.candidates, 1) +
-                ") · 최저 <span class=\"briefing-num\">" +
-                formatPropertyThousands(propMin.value) +
-                "</span>(" +
+                "로 <span class=\"briefing-num\">" +
+                formatPropertyThousands(propMax.value) +
+                "</span>천원이고, 가장 적게 신고한 후보는 " +
                 briefCandNames(propMin.candidates, 1) +
-                ")"
+                "로 <span class=\"briefing-num\">" +
+                formatPropertyThousands(propMin.value) +
+                "</span>천원입니다."
               : "재산신고액 데이터 없음";
 
           var withCr = list.filter(function (c) {
@@ -651,14 +651,18 @@
             }
           });
           var li3 =
-            "<span class=\"briefing-num\">" +
+            "전과 기록이 있는 후보는 <span class=\"briefing-num\">" +
             withCr.length +
-            "</span>명(" +
+            "</span>명으로, 전체의 " +
             pct(withCr.length, n) +
-            "%) · 최다 " +
+            "%입니다. " +
             (topCrN > 0
-              ? "<span class=\"briefing-num\">" + topCrN + "</span>건(" + briefCandNames(topCrList, 2) + ")"
-              : "—");
+              ? "전과 건수가 가장 많은 후보는 " +
+                briefCandNames(topCrList, 2) +
+                "이고, 신고된 전과는 <span class=\"briefing-num\">" +
+                topCrN +
+                "</span>건입니다."
+              : "전과 기록이 있는 후보는 없습니다.");
 
           var female = list.filter(isFemaleCandidate).length;
           var officeOrder = ["구청장", "시의원", "시의원비례", "구의원", "구의원비례"];
@@ -673,20 +677,24 @@
             })
             .join(" · ");
           var li4 =
-            "전체 <span class=\"briefing-num\">" +
+            "여성 후보는 전체 중 <span class=\"briefing-num\">" +
             female +
-            "</span>명(" +
+            "</span>명으로, 비율은 " +
             pct(female, n) +
-            "%) · 직무별 " +
-            officeFemaleBits;
+            "%입니다. 직무별 여성 후보 비율은 " +
+            officeFemaleBits +
+            "입니다.";
 
-          var officeCounts = { 구청장: 0, 구의원: 0, 시의원: 0 };
+          var officeCounts = {};
+          officeOrder.forEach(function (off) {
+            officeCounts[off] = 0;
+          });
           list.forEach(function (c) {
             var o = candidateOffice(c);
             if (officeCounts[o] != null) officeCounts[o] += 1;
           });
           var li5 =
-            '직무별 인원 · <span class="briefing-office-row">' +
+            '직무별 인원은 <span class="briefing-office-row">' +
             officeOrder
               .map(function (off) {
                 return (
@@ -698,17 +706,17 @@
                 );
               })
               .join("") +
-            "</span>";
+            "</span>입니다.";
 
           var taxIssue = list.filter(function (c) {
             return parseAmount(c.taxArrears5y) > 0 || parseAmount(c.taxArrearsCurrent) > 0;
           });
           var li6 =
-            "체납 이력 <span class=\"briefing-num\">" +
+            "최근 5년 체납액이나 현재 체납액이 0원이 아닌 후보는 <span class=\"briefing-num\">" +
             taxIssue.length +
-            "</span>명(" +
+            "</span>명으로, 전체의 " +
             pct(taxIssue.length, n) +
-            "%) · 5년 체납·현체납 0원이 아닌 경우";
+            "%입니다.";
 
           var repeat = list.filter(function (c) {
             return parseCandidacyRuns(c.candidacyCount) >= 2;
@@ -721,18 +729,18 @@
             "max"
           );
           var li7 =
-            "2회 이상 출마 <span class=\"briefing-num\">" +
+            "과거 선거까지 포함해 2회 이상 출마한 후보는 <span class=\"briefing-num\">" +
             repeat.length +
-            "</span>명(" +
+            "</span>명으로, 전체의 " +
             pct(repeat.length, n) +
-            "%)" +
+            "%입니다" +
             (runEx.value > 0
-              ? " · 최다 <span class=\"briefing-num\">" +
-                runEx.value +
-                "</span>회(" +
+              ? ". 출마 횟수가 가장 많은 후보는 " +
                 briefCandNames(runEx.candidates, 2) +
-                ")"
-              : "");
+                "로 <span class=\"briefing-num\">" +
+                runEx.value +
+                "</span>회 출마했습니다."
+              : ".");
 
           var milMap = {};
           list.forEach(function (c) {
@@ -740,7 +748,7 @@
             milMap[k] = (milMap[k] || 0) + 1;
           });
           var milOrder = ["군필", "비대상", "면제", "기타", "미기재"];
-          var li8 = milOrder
+          var milBits = milOrder
             .filter(function (k) {
               return milMap[k];
             })
@@ -755,6 +763,9 @@
               );
             })
             .join(" · ");
+          var li8 = milBits
+            ? "병역 항목은 " + milBits + "으로 집계됩니다."
+            : "병역 항목에 표시할 데이터가 없습니다.";
 
           var constMap = new Map();
           list.forEach(function (c) {
@@ -771,17 +782,17 @@
           }).length;
           var hot = constArr[0];
           var li9 = constN
-            ? "선거구 <span class=\"briefing-num\">" +
+            ? "선거구는 모두 <span class=\"briefing-num\">" +
               constN +
-              "</span>개 · 평균 " +
+              "</span>개이고, 선거구당 평균 후보 수는 " +
               (n / constN).toFixed(1) +
-              "명/구 · 1인구 " +
+              "명입니다. 후보가 1명뿐인 선거구는 " +
               oneCand +
-              "개 · 최다 경쟁 <span class=\"briefing-num\">" +
-              hot[1] +
-              "</span>명(" +
+              "개이고, 경쟁이 가장 치열한 곳은 " +
               escapeHtml(hot[0]) +
-              ")"
+              "로 <span class=\"briefing-num\">" +
+              hot[1] +
+              "</span>명이 출마했습니다."
             : "선거구 정보 없음";
 
           var partyPairs = aggregateByParty(list);
@@ -790,19 +801,19 @@
             return String(c.party || "").trim() === "무소속";
           }).length;
           var li10 = topParty
-            ? "1위 <span class=\"briefing-num\">" +
+            ? "정당별로는 <span class=\"briefing-num\">" +
               escapeHtml(topParty[0]) +
-              "</span> " +
+              "</span> 후보가 가장 많아 " +
               topParty[1] +
-              "명(" +
+              "명이고, 전체의 " +
               pct(topParty[1], n) +
-              "%) · 무소속 <span class=\"briefing-num\">" +
+              "%입니다. 무소속 후보는 <span class=\"briefing-num\">" +
               indie +
               "</span>명(" +
               pct(indie, n) +
-              "%) · 정당 " +
+              "%)이고, 후보를 낸 정당은 모두 " +
               partyPairs.length +
-              "개"
+              "개입니다."
             : "—";
 
           ol.innerHTML = [li1, li2, li3, li4, li5, li6, li7, li8, li9, li10]
