@@ -685,29 +685,6 @@
             officeFemaleBits +
             "입니다.";
 
-          var officeCounts = {};
-          officeOrder.forEach(function (off) {
-            officeCounts[off] = 0;
-          });
-          list.forEach(function (c) {
-            var o = candidateOffice(c);
-            if (officeCounts[o] != null) officeCounts[o] += 1;
-          });
-          var li5 =
-            '직무별 인원은 <span class="briefing-office-row">' +
-            officeOrder
-              .map(function (off) {
-                return (
-                  '<span class="briefing-office-pill">' +
-                  escapeHtml(off) +
-                  ' <span class="briefing-num">' +
-                  officeCounts[off] +
-                  "</span>명</span>"
-                );
-              })
-              .join("") +
-            "</span>입니다.";
-
           var taxIssue = list.filter(function (c) {
             return parseAmount(c.taxArrears5y) > 0 || parseAmount(c.taxArrearsCurrent) > 0;
           });
@@ -742,33 +719,9 @@
                 "</span>회 출마했습니다."
               : ".");
 
-          var milMap = {};
-          list.forEach(function (c) {
-            var k = militaryCategory(c.military);
-            milMap[k] = (milMap[k] || 0) + 1;
-          });
-          var milOrder = ["군필", "비대상", "면제", "기타", "미기재"];
-          var milBits = milOrder
-            .filter(function (k) {
-              return milMap[k];
-            })
-            .map(function (k) {
-              return (
-                k +
-                ' <span class="briefing-num">' +
-                milMap[k] +
-                "</span>명(" +
-                pct(milMap[k], n) +
-                "%)"
-              );
-            })
-            .join(" · ");
-          var li8 = milBits
-            ? "병역 항목은 " + milBits + "으로 집계됩니다."
-            : "병역 항목에 표시할 데이터가 없습니다.";
-
           var constMap = new Map();
           list.forEach(function (c) {
+            if (candidateOffice(c).indexOf("비례") !== -1) return;
             var k = String(c.constituency || "").trim() || String(c.district || "").trim();
             if (!k) return;
             constMap.set(k, (constMap.get(k) || 0) + 1);
@@ -781,42 +734,26 @@
             return x[1] === 1;
           }).length;
           var hot = constArr[0];
+          var districtCandidateN = constArr.reduce(function (sum, row) {
+            return sum + row[1];
+          }, 0);
           var li9 = constN
             ? "선거구는 모두 <span class=\"briefing-num\">" +
               constN +
               "</span>개이고, 선거구당 평균 후보 수는 " +
-              (n / constN).toFixed(1) +
-              "명입니다. 후보가 1명뿐인 선거구는 " +
-              oneCand +
-              "개이고, 경쟁이 가장 치열한 곳은 " +
+              (districtCandidateN / constN).toFixed(1) +
+              "명입니다. 경쟁이 가장 치열한 곳은 " +
               escapeHtml(hot[0]) +
               "로 <span class=\"briefing-num\">" +
               hot[1] +
               "</span>명이 출마했습니다."
             : "선거구 정보 없음";
+          var li10 =
+            "무투표 당선 선거는 총 <span class=\"briefing-num\">" +
+            oneCand +
+            "</span>개입니다.";
 
-          var partyPairs = aggregateByParty(list);
-          var topParty = partyPairs[0];
-          var indie = list.filter(function (c) {
-            return String(c.party || "").trim() === "무소속";
-          }).length;
-          var li10 = topParty
-            ? "정당별로는 <span class=\"briefing-num\">" +
-              escapeHtml(topParty[0]) +
-              "</span> 후보가 가장 많아 " +
-              topParty[1] +
-              "명이고, 전체의 " +
-              pct(topParty[1], n) +
-              "%입니다. 무소속 후보는 <span class=\"briefing-num\">" +
-              indie +
-              "</span>명(" +
-              pct(indie, n) +
-              "%)이고, 후보를 낸 정당은 모두 " +
-              partyPairs.length +
-              "개입니다."
-            : "—";
-
-          ol.innerHTML = [li1, li2, li3, li4, li5, li6, li7, li8, li9, li10]
+          ol.innerHTML = [li1, li2, li3, li4, li6, li7, li9, li10]
             .map(function (html) {
               return "<li>" + html + "</li>";
             })
