@@ -661,7 +661,7 @@
               : "—");
 
           var female = list.filter(isFemaleCandidate).length;
-          var officeOrder = ["구청장", "구의원", "시의원"];
+          var officeOrder = ["구청장", "시의원", "시의원비례", "구의원", "구의원비례"];
           var officeFemaleBits = officeOrder
             .map(function (off) {
               var sub = list.filter(function (c) {

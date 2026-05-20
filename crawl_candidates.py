@@ -6,6 +6,8 @@
 - 구·시·군의회의원(구의원): electionCode 6
 - 시·도의회의원(서울 = 시의원, 자치구 단위 선거구): electionCode 5
 - 시장·군수·구청장(서울 자치구 단위 = 구청장): electionCode 4
+- 광역의원비례대표(서울시의회 비례): electionCode 8
+- 기초의원비례대표(서울 구의회 비례, 구별): electionCode 9
 
 사용:
   pip install -r requirements-crawl.txt
@@ -30,7 +32,7 @@
 
 출력: public/data/candidates.json
   형식: {"updatedAt": "ISO8601(Asia/Seoul)", "candidates": [ ... ]}
-  각 후보에 "office": "구의원" | "시의원" | "구청장" 필드가 붙습니다(없으면 화면에서 구의원으로 간주).
+  각 후보에 "office": "구의원" | "시의원" | "구청장" | "시의원비례" | "구의원비례" 필드가 붙습니다(없으면 화면에서 구의원으로 간주).
 
 선거구명(constituency)·주소(address)는 이 스크립트가 넣는 필드입니다.
 huboId는 선관위 예비·본후보 상세(전과 스캔 서류) 링크용입니다. 제9회 지방선거(0020260603) 명부 POST는 requestURI …/cp/cpri03.jsp 로 통일하고,
@@ -72,6 +74,16 @@ MAYOR_OFFICE = "구청장"
 METRO_COUNCIL_ELECTION_CODE = "5"
 METRO_COUNCIL_STATEMENT_ID = "CPRI03_#5"
 METRO_OFFICE = "시의원"
+
+# 광역의원비례대표 (서울시의회 비례)
+METRO_PROP_ELECTION_CODE = "8"
+METRO_PROP_STATEMENT_ID = "CPRI03_#8"
+METRO_PROP_OFFICE = "시의원비례"
+
+# 기초의원비례대표 (자치구의회 비례, 구별 명부)
+COUNCIL_PROP_ELECTION_CODE = "9"
+COUNCIL_PROP_STATEMENT_ID = "CPRI03_#9"
+COUNCIL_PROP_OFFICE = "구의원비례"
 
 # 선거통계 후보 명부 공통 (지방선거 2026)
 NEC_TOP_MENU_ID = "CP"
@@ -264,7 +276,12 @@ def _nec_report_post_form(
     menu_id, jsp_name = _nec_pc_report_menu()
     stmt = _nec_statement_id_for_status(statement_id, candidate_status=candidate_status)
     ec = str(election_code or "").strip()
-    if ec in (METRO_COUNCIL_ELECTION_CODE, COUNCIL_ELECTION_CODE):
+    if ec in (
+        METRO_COUNCIL_ELECTION_CODE,
+        COUNCIL_ELECTION_CODE,
+        METRO_PROP_ELECTION_CODE,
+        COUNCIL_PROP_ELECTION_CODE,
+    ):
         sgg_city = "-1"
         sgg_town = "0"
     else:
@@ -294,6 +311,7 @@ def post_report_html(
     election_code: str,
     statement_id: str,
     candidate_status: str,
+    sgg_city_code: str | None = None,
 ) -> str:
     # electionCode=4(구청장 등): sggCityCode·sggTownCode에 선거구 JSON 코드 필요.
     # electionCode=5·6: _nec_report_post_form 이 sggCityCode=-1, sggTownCode=0 으로 맞춤.
@@ -304,6 +322,8 @@ def post_report_html(
         statement_id=statement_id,
         candidate_status=candidate_status,
     )
+    if sgg_city_code is not None:
+        form["sggCityCode"] = str(sgg_city_code).strip()
     menu_id = str(form.get("secondMenuId") or "")
     url = urljoin(BASE, REPORT_PATH)
     referer = urljoin(
@@ -451,15 +471,65 @@ def _td_has_report_photo_image(td) -> bool:
     return bool(td.find("input", attrs={"type": "image"}))
 
 
+def _parse_party_cell(raw: str) -> tuple[str, str]:
+    """「더불어민주당 (1)」→ (정당명, 기호)."""
+    s = unescape(str(raw or "").strip())
+    m = re.match(r"^(.+?)\s*\(([^)]*)\)\s*$", s)
+    if m:
+        return m.group(1).strip(), m.group(2).strip()
+    return s, ""
+
+
+def _is_proportional_table_layout(tds: list) -> bool:
+    """비례대표 명부: 정당·기호(2)·추천순위(3)·성명(4) — 사진 열(1)은 지역구와 동일하게 존재."""
+    n = len(tds)
+    if n < 17:
+        return False
+    party_cell = tds[2].get_text(" ", strip=True)
+    rank_cell = tds[3].get_text(" ", strip=True)
+    if not party_cell or not rank_cell:
+        return False
+    # 지역구 18열: 기호(2)는 숫자만, 정당명은 (3)열
+    if re.fullmatch(r"\d+", party_cell):
+        return False
+    if not re.fullmatch(r"\d{1,3}", rank_cell):
+        return False
+    return "당" in party_cell or "(" in party_cell
+
+
 def _candidate_table_td_indices(tds: list) -> dict[str, int] | None:
     """
     NEC 후보 명부 table01 행 레이아웃(연도·메뉴별 열 순서)에 따른 td 인덱스.
     - 구형(예): 선거구, 정당, 사진, 성명, …, 전과, 등록일 (12열 전후)
     - 2026 구형 확장: 선거구, 사진, 기호, 정당, 성명, …, 전과, 입후보횟수 등 (18열 전후)
+    - 비례대표: 선거구, 사진, 정당(기호), 추천순위, 성명, … (18열)
     """
     n = len(tds)
     if n < 12:
         return None
+    if _is_proportional_table_layout(tds):
+        return {
+            "_proportional": 1,
+            "constituency": 0,
+            "photo": 1,
+            "party": 2,
+            "ballot": 3,
+            "name": 4,
+            "gender": 5,
+            "age": 6,
+            "address": 7,
+            "job": 8,
+            "education": 9,
+            "career": 10,
+            "property_declared": 11,
+            "military": 12,
+            "tax_paid": 13,
+            "tax_arrears_5y": 14,
+            "tax_arrears_current": 15,
+            "criminal": 16,
+            "candidacy_count": 17 if n >= 18 else -1,
+            "reg_date": -1,
+        }
     # 제9회 지방선거 등: 사진이 두 번째 열(인덱스 1)
     if _td_has_report_photo_image(tds[1]) and n >= 17:
         return {
@@ -571,7 +641,21 @@ def parse_candidates_from_report(
 
         constituency = tds[ix["constituency"]].get_text(" ", strip=True)
         district = _district_from_constituency(constituency) or gu_name
-        party = tds[ix["party"]].get_text(" ", strip=True)
+        party_raw = _td_cell_text(tds, ix, "party")
+        if ix.get("_proportional"):
+            party, party_sym = _parse_party_cell(party_raw)
+            rank = _td_cell_text(tds, ix, "ballot")
+            ballot_label = ""
+            if party_sym and rank:
+                ballot_label = f"{party_sym}·{rank}순위"
+            elif rank:
+                ballot_label = f"{rank}순위"
+            elif party_sym:
+                ballot_label = party_sym
+        else:
+            party = party_raw
+            ballot_label = ""
+            rank = ""
 
         img = tds[ix["photo"]].find("input", attrs={"type": "image"})
         src = img.get("src") if img else None
@@ -609,9 +693,15 @@ def parse_candidates_from_report(
             "regDate": reg_date,
             "office": office,
         }
-        ballot = _td_cell_text(tds, ix, "ballot")
-        if ballot:
-            row["ballot"] = ballot
+        if ix.get("_proportional"):
+            if ballot_label:
+                row["ballot"] = ballot_label
+            if rank:
+                row["nominateRank"] = rank
+        else:
+            ballot = _td_cell_text(tds, ix, "ballot")
+            if ballot:
+                row["ballot"] = ballot
         prop = _td_cell_text(tds, ix, "property_declared")
         if prop:
             row["propertyDeclared"] = prop
@@ -983,6 +1073,167 @@ def crawl_office(
     return merged, request_count
 
 
+def _finalize_proportional_row(
+    row: dict[str, Any],
+    *,
+    office_label: str,
+    query_gu: str | None = None,
+) -> None:
+    """비례 명부 표시용 district·constituency 정리."""
+    if office_label == METRO_PROP_OFFICE:
+        row["district"] = "서울특별시"
+        row["constituency"] = "서울특별시비례대표"
+        return
+    if office_label == COUNCIL_PROP_OFFICE:
+        gu = _district_from_constituency(str(row.get("constituency") or "")) or (
+            query_gu or ""
+        )
+        if gu:
+            row["district"] = gu
+            row["constituency"] = f"{gu}비례대표"
+
+
+def crawl_metro_proportional(
+    *,
+    dry_run: bool,
+    election_name: str,
+    candidate_status: str,
+) -> tuple[list[dict[str, Any]], int]:
+    """광역의원비례대표(서울시의회 비례) — 시도 단위 1회 조회."""
+    if dry_run:
+        print("[dry-run] [시의원비례] 서울특별시 명부 1회", file=sys.stderr)
+        return [], 1
+    towns = fetch_seoul_towns(election_code=METRO_PROP_ELECTION_CODE)
+    town_code = towns[0]["code"] if towns else "1101"
+    html = post_report_html(
+        town_code,
+        "0",
+        election_code=METRO_PROP_ELECTION_CODE,
+        statement_id=METRO_PROP_STATEMENT_ID,
+        candidate_status=candidate_status,
+    )
+    batch = parse_candidates_from_report(
+        html,
+        "서울특별시",
+        office=METRO_PROP_OFFICE,
+        election_name=election_name,
+        candidate_status=candidate_status,
+    )
+    for c in batch:
+        _finalize_proportional_row(c, office_label=METRO_PROP_OFFICE)
+    print(f"  [{METRO_PROP_OFFICE}] +{len(batch)}명", file=sys.stderr)
+    return batch, 1
+
+
+def crawl_council_proportional(
+    *,
+    towns_filter: set[str] | None,
+    dry_run: bool,
+    election_name: str,
+    candidate_status: str,
+) -> tuple[list[dict[str, Any]], int]:
+    """
+    기초의원비례대표 — 선관위 명부 1회(서울) + 구별 조회 병합.
+    구별 POST가 동일 12명만 돌려주는 경우가 있어, 응답 행의 선거구명(소속 구)으로 district를 잡습니다.
+  """
+    if dry_run:
+        n = len(towns_filter) if towns_filter else 25
+        print(f"[dry-run] [{COUNCIL_PROP_OFFICE}] 자치구별 최대 {n}회 + 통합 1회", file=sys.stderr)
+        return [], n + 1
+
+    seen_ids: set[str] = set()
+    merged: list[dict[str, Any]] = []
+    request_count = 0
+
+    def _merge_batch(batch: list[dict[str, Any]], query_gu: str | None) -> int:
+        added = 0
+        for c in batch:
+            _finalize_proportional_row(
+                c, office_label=COUNCIL_PROP_OFFICE, query_gu=query_gu
+            )
+            if towns_filter is not None and c.get("district") not in towns_filter:
+                continue
+            hid = c.get("huboId")
+            if hid:
+                key = f"{COUNCIL_PROP_OFFICE}:{hid}"
+                if key in seen_ids:
+                    continue
+                seen_ids.add(key)
+            merged.append(c)
+            added += 1
+        return added
+
+    try:
+        towns = fetch_seoul_towns(election_code=COUNCIL_PROP_ELECTION_CODE)
+    except Exception as e:
+        print(f"[error] [{COUNCIL_PROP_OFFICE}] 자치구 목록 조회 실패: {e}", file=sys.stderr)
+        return [], 0
+    if towns_filter is not None:
+        towns = [t for t in towns if t["name"] in towns_filter]
+
+    for town in towns:
+        try:
+            sggs = fetch_sgg_town_codes(town["code"], election_code=COUNCIL_PROP_ELECTION_CODE)
+        except Exception as e:
+            continue
+        if not sggs:
+            continue
+        sgg = sggs[0]
+        request_count += 1
+        try:
+            html = post_report_html(
+                town["code"],
+                "0",
+                election_code=COUNCIL_PROP_ELECTION_CODE,
+                statement_id=COUNCIL_PROP_STATEMENT_ID,
+                candidate_status=candidate_status,
+                sgg_city_code=sgg["code"],
+            )
+            batch = parse_candidates_from_report(
+                html,
+                town["name"],
+                office=COUNCIL_PROP_OFFICE,
+                election_name=election_name,
+                candidate_status=candidate_status,
+            )
+            added = _merge_batch(batch, query_gu=town["name"])
+            if added:
+                print(
+                    f"  [{COUNCIL_PROP_OFFICE}] {town['name']}: +{added}명",
+                    file=sys.stderr,
+                )
+        except Exception as e:
+            print(
+                f"[skip] [{COUNCIL_PROP_OFFICE}] {town['name']}: 본문 조회 실패 ({e})",
+                file=sys.stderr,
+            )
+        time.sleep(REQUEST_PAUSE_SEC)
+
+    if not merged:
+        request_count += 1
+        try:
+            html = post_report_html(
+                "1101",
+                "0",
+                election_code=COUNCIL_PROP_ELECTION_CODE,
+                statement_id=COUNCIL_PROP_STATEMENT_ID,
+                candidate_status=candidate_status,
+            )
+            batch = parse_candidates_from_report(
+                html,
+                "서울특별시",
+                office=COUNCIL_PROP_OFFICE,
+                election_name=election_name,
+                candidate_status=candidate_status,
+            )
+            added = _merge_batch(batch, query_gu=None)
+            print(f"  [{COUNCIL_PROP_OFFICE}] 통합 조회: +{added}명", file=sys.stderr)
+        except Exception as e:
+            print(f"[skip] [{COUNCIL_PROP_OFFICE}] 통합 조회 실패: {e}", file=sys.stderr)
+
+    return merged, request_count
+
+
 def crawl(
     *,
     mode: str,
@@ -1025,6 +1276,25 @@ def crawl(
             election_code=METRO_COUNCIL_ELECTION_CODE,
             statement_id=METRO_COUNCIL_STATEMENT_ID,
             office_label=METRO_OFFICE,
+            towns_filter=towns_filter,
+            dry_run=dry_run,
+            election_name=election_name,
+            candidate_status=candidate_status,
+        )
+        total_requests += nreq
+        out.extend(batch)
+
+    if mode in ("all", "metro-prop"):
+        batch, nreq = crawl_metro_proportional(
+            dry_run=dry_run,
+            election_name=election_name,
+            candidate_status=candidate_status,
+        )
+        total_requests += nreq
+        out.extend(batch)
+
+    if mode in ("all", "council-prop"):
+        batch, nreq = crawl_council_proportional(
             towns_filter=towns_filter,
             dry_run=dry_run,
             election_name=election_name,
@@ -1154,9 +1424,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--only",
-        choices=("all", "council", "mayor", "metro"),
+        choices=("all", "council", "mayor", "metro", "metro-prop", "council-prop"),
         default="all",
-        help="구의원만 / 시의원만 / 구청장만 / 전체 (기본: all)",
+        help="구의원·시의원·구청장·시의원비례·구의원비례 / 전체 (기본: all)",
     )
     parser.add_argument(
         "--task",

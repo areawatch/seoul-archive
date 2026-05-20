@@ -176,8 +176,14 @@
         "https://docs.google.com/spreadsheets/d/1zmjXBcr-5HnjkgxxChJa_U7IRdDeyND1IQ0wvrWReRk/export?format=csv&gid=0",
       ];
 
-      const OFFICE_COLOR = { 구청장: "#7c3aed", 시의원: "#0369a1", 구의원: "#374151" };
-      const OFFICE_ORDER = { 구청장: 0, 시의원: 1, 구의원: 2 };
+      const OFFICE_COLOR = {
+        구청장: "#7c3aed",
+        시의원: "#0369a1",
+        구의원: "#374151",
+        시의원비례: "#0e7490",
+        구의원비례: "#475569",
+      };
+      const OFFICE_ORDER = { 구청장: 0, 시의원: 1, 시의원비례: 2, 구의원: 3, 구의원비례: 4 };
       const SNS_ICONS = {
         facebook: "bi-facebook",
         instagram: "bi-instagram",
@@ -510,7 +516,7 @@
         const defaults =
           payload.defaults && typeof payload.defaults === "object"
             ? payload.defaults
-            : { 구청장: 1, 시의원: 1 };
+            : { 구청장: 1, 시의원: 1, 시의원비례: 1, 구의원비례: 1 };
         return { byConstituency: by, defaults };
       }
 
