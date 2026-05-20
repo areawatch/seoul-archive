@@ -17,7 +17,7 @@
     <title>질의서 자가진단 · 우리동네빌런찾기</title>
     <meta
       name="description"
-      content="지방선거 후보자에게 보내는 공개 질의서에 시민도 직접 답하고 민주주의·공직윤리·시민참여 점수를 확인해 보세요."
+      content="지방선거 후보자에게 보내는 공개 질의서에 시민도 직접 답하고 민주주의 수호·부패·투명한 공직 수행 점수를 확인해 보세요."
     />
     <meta property="og:title" content="질의서 자가진단 · 우리동네빌런찾기" />
     <meta
@@ -107,7 +107,7 @@
           </h1>
           <p class="mx-auto mt-3 max-w-3xl text-sm leading-relaxed text-slate-700 sm:text-base">
             후보자들에게 보낼 공개 질의서에 시민도 직접 답해볼 수 있습니다. 각 문항의 선택지는 매번 섞이며,
-            답변을 마치면 내란·부패·민주주의 파트별 점수와 인증 문구를 확인할 수 있습니다.
+            답변을 마치면 민주주의 수호·부패·투명한 공직 수행 파트별 점수와 인증 문구를 확인할 수 있습니다.
           </p>
           <nav class="mt-4 flex flex-wrap items-center justify-center gap-1.5" aria-label="breadcrumb">
             <a href="/" class="inline-flex items-center rounded border-2 border-slate-300 bg-white/80 px-2 py-0.5 text-[10px] font-black tracking-widest text-slate-500 shadow-[1px_1px_0_rgba(2,6,23,0.25)] transition hover:border-slate-500 hover:text-slate-800">SEOUL ARCHIVE</a>
@@ -171,7 +171,7 @@
       const QUESTION_SECTIONS = [
         {
           id: "insurrection",
-          title: "내란",
+          title: "민주주의 수호",
           description: "민주주의 수호에 대한 입장",
           lead:
             "지방자치법 제1조(목적) “지방자치행정을 민주적이고 능률적으로 수행하고, 지방을 균형 있게 발전시키며, 대한민국을 민주적으로 발전시키려는 것을 목적으로 한다.”\n\n지방자치법 제1조에 따르면 지방자치단체는 ‘대한민국을 민주적으로 발전’시켜야 할 의무가 있습니다. 헌법의 가치를 지키고 민주주의를 수호하고 대한민국을 민주적으로 발전시키는 것을 목적으로 합니다.\n\n이번 지방선거는 12.3 불법 비상계엄 이후 처음으로 치러지는 매우 중요한 선거입니다. 1심에서 내란으로 규정된 12.3 불법 비상계엄에 대한 입장은 대한민국을 민주적으로 발전시켜야 할 공직자로서 가장 기본적인 의제입니다.",
@@ -270,7 +270,7 @@
         },
         {
           id: "democracy",
-          title: "민주주의",
+          title: "투명한 공직 수행",
           description: "투명한 공직 수행 및 시민의 민주적 참여에 대한 입장",
           lead:
             "지방자치는 민주주의의 질적 향상(풀뿌리 민주주의)과 권력분립(지방분권)을 통한 주민주권의 구현하기 위해서 헌법적으로 보장된 제도입니다. 또한 공직자는 ‘주권자’인 국민의 뜻을 ‘대의’하고 ‘대표’하는 기구로서 존재합니다.\n주민투표, 조례제정, 주민소환 등을 통해 대의제의 한계를 보완하고, 주민이 지역 정책의 주체로서 스스로 책임을 지는 실질적 자치를 실현하는 방향으로 나아가야 합니다.\n시민의 참여를 위해서는 공직자들의 업무와 일정들이 투명하게 공개되어야 하며, 시민의 민주적 참여를 위한 제도적 장치 또한 보장되어야 합니다.",
@@ -457,7 +457,7 @@
       function renderResult(result) {
         const scoreParts = result.sections.map((section) => `${section.title} ${section.average.toFixed(1)}점`);
         document.getElementById("resultTitle").textContent = "내 질의서 자가진단 파트별 점수";
-        document.getElementById("resultDescription").textContent = `${result.answered}/${result.total} 문항을 바탕으로 내란·부패·민주주의 점수를 각각 계산했습니다.`;
+        document.getElementById("resultDescription").textContent = `${result.answered}/${result.total} 문항을 바탕으로 민주주의 수호·부패·투명한 공직 수행 점수를 각각 계산했습니다.`;
         document.getElementById("categoryScores").innerHTML = result.sections
           .map(
             (section) => `
