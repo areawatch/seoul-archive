@@ -107,7 +107,7 @@
           </h1>
           <p class="mx-auto mt-3 max-w-3xl text-sm leading-relaxed text-slate-700 sm:text-base">
             후보자들에게 보낼 공개 질의서에 시민도 직접 답해볼 수 있습니다. 각 문항의 선택지는 매번 섞이며,
-            답변을 마치면 평균 점수와 인증 문구를 확인할 수 있습니다.
+            답변을 마치면 내란·부패·민주주의 파트별 점수와 인증 문구를 확인할 수 있습니다.
           </p>
           <nav class="mt-4 flex flex-wrap items-center justify-center gap-1.5" aria-label="breadcrumb">
             <a href="/" class="inline-flex items-center rounded border-2 border-slate-300 bg-white/80 px-2 py-0.5 text-[10px] font-black tracking-widest text-slate-500 shadow-[1px_1px_0_rgba(2,6,23,0.25)] transition hover:border-slate-500 hover:text-slate-800">SEOUL ARCHIVE</a>
@@ -126,44 +126,21 @@
     </header>
 
     <main class="mx-auto max-w-6xl px-4 pb-14 sm:px-6 lg:px-8">
-      <section class="dash-card p-4 sm:p-5">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h2 class="text-lg font-black tracking-tight text-slate-900">점수 기준</h2>
-            <p class="mt-1 text-sm leading-relaxed text-slate-600">
-              각 문항은 10점, 6점, 3점, 0점 중 하나로 계산됩니다. 실제 후보자에게 보내는 선택지 순서와 무관하게
-              이 페이지에서는 선택지가 무작위로 표시됩니다.
-            </p>
-          </div>
-          <div class="grid grid-cols-4 gap-2 text-center text-xs font-black">
-            <div class="rounded-lg border-2 border-slate-800 bg-white px-3 py-2 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">10점</div>
-            <div class="rounded-lg border-2 border-slate-800 bg-white px-3 py-2 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">6점</div>
-            <div class="rounded-lg border-2 border-slate-800 bg-white px-3 py-2 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">3점</div>
-            <div class="rounded-lg border-2 border-slate-800 bg-white px-3 py-2 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">0점</div>
-          </div>
-        </div>
-      </section>
-
-      <section id="resultPanel" class="mt-5 hidden rounded-2xl border-4 border-slate-900 bg-[#fff7ed] p-5 shadow-[6px_6px_0_rgba(2,6,23,0.85)]" aria-live="polite">
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_280px] lg:items-center">
+      <section id="resultPanel" class="hidden rounded-2xl border-4 border-slate-900 bg-[#fff7ed] p-5 shadow-[6px_6px_0_rgba(2,6,23,0.85)]" aria-live="polite">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_240px] lg:items-center">
           <div>
             <p class="text-xs font-black uppercase tracking-widest text-[#ff4d4d]">MY RESULT</p>
-            <h2 id="resultTitle" class="mt-1 text-2xl font-black text-slate-900">결과</h2>
+            <h2 id="resultTitle" class="mt-1 text-2xl font-black text-slate-900">파트별 점수</h2>
             <p id="resultDescription" class="mt-2 text-sm leading-relaxed text-slate-700"></p>
             <div id="categoryScores" class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3"></div>
           </div>
-          <div class="rounded-xl border-2 border-slate-900 bg-white p-4 text-center shadow-[3px_3px_0_rgba(2,6,23,0.75)]">
-            <p class="text-xs font-black text-slate-500">평균 점수</p>
-            <p class="mt-1"><span id="scoreValue" class="text-5xl font-black text-[#ff4d4d]">0.0</span><span class="text-lg font-black text-slate-700">/10</span></p>
-            <p id="answeredValue" class="mt-1 text-xs font-bold text-slate-500"></p>
-            <div class="mt-4 flex flex-col gap-2">
-              <button id="shareBtn" type="button" class="rounded-lg border-2 border-slate-900 bg-[#ff4d4d] px-3 py-2 text-sm font-black text-white shadow-[2px_2px_0_rgba(2,6,23,0.75)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
-                SNS 공유하기
-              </button>
-              <button id="copyBtn" type="button" class="rounded-lg border-2 border-slate-900 bg-white px-3 py-2 text-sm font-black text-slate-900 shadow-[2px_2px_0_rgba(2,6,23,0.75)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
-                인증 문구 복사
-              </button>
-            </div>
+          <div class="flex flex-col gap-2">
+            <button id="shareBtn" type="button" class="rounded-lg border-2 border-slate-900 bg-[#ff4d4d] px-3 py-2 text-sm font-black text-white shadow-[2px_2px_0_rgba(2,6,23,0.75)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
+              SNS 공유하기
+            </button>
+            <button id="copyBtn" type="button" class="rounded-lg border-2 border-slate-900 bg-white px-3 py-2 text-sm font-black text-slate-900 shadow-[2px_2px_0_rgba(2,6,23,0.75)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
+              인증 문구 복사
+            </button>
           </div>
         </div>
       </section>
@@ -193,8 +170,9 @@
       const SCORE_BY_ORIGINAL_CHOICE = [10, 6, 3, 0];
       const QUESTION_SECTIONS = [
         {
-          id: "democracy",
-          title: "민주주의 수호에 대한 입장",
+          id: "insurrection",
+          title: "내란",
+          description: "민주주의 수호에 대한 입장",
           lead:
             "지방자치단체는 대한민국을 민주적으로 발전시켜야 할 의무가 있습니다. 12.3 불법 비상계엄 이후 처음 치러지는 지방선거에서 민주주의 수호는 공직자의 기본 의제입니다.",
           questions: [
@@ -247,8 +225,9 @@
           freeText: "공직후보자로서 민주주의 수호에 관해 추가로 제출할 의견이 있다면 자유롭게 적어주십시오.",
         },
         {
-          id: "ethics",
-          title: "공직자 윤리에 대한 입장",
+          id: "corruption",
+          title: "부패",
+          description: "공직자 윤리에 대한 입장",
           lead:
             "공직자는 국민으로부터 막대한 권한을 위임받은 국민에 대한 봉사자입니다. 권한을 위임받은 만큼 윤리적 책임은 보통의 시민보다 강력해야 합니다.",
           questions: [
@@ -292,8 +271,9 @@
           freeText: "공직자의 윤리에 관해 추가로 제출할 의견이 있다면 자유롭게 적어주십시오.",
         },
         {
-          id: "participation",
-          title: "투명한 공직 수행 및 시민의 민주적 참여에 대한 입장",
+          id: "democracy",
+          title: "민주주의",
+          description: "투명한 공직 수행 및 시민의 민주적 참여에 대한 입장",
           lead:
             "지방자치는 주민주권을 구현하기 위해 헌법적으로 보장된 제도입니다. 시민 참여를 위해 공직자의 업무와 일정은 투명하게 공개되어야 합니다.",
           questions: [
@@ -398,6 +378,7 @@
                   <div>
                     <p class="text-[11px] font-black uppercase tracking-widest text-[#ff4d4d]">PART ${sectionIndex + 1}</p>
                     <h2 class="mt-1 text-xl font-black text-slate-900">${escapeHtml(section.title)}</h2>
+                    <p class="mt-1 text-sm font-black text-slate-700">${escapeHtml(section.description || "")}</p>
                     <p class="mt-2 max-w-4xl text-sm leading-relaxed text-slate-600">${escapeHtml(section.lead)}</p>
                   </div>
                   <span class="inline-flex w-fit rounded-full border-2 border-slate-900 bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">${section.questions.length}문항</span>
@@ -451,10 +432,10 @@
       }
 
       function categoryLabel(score) {
-        if (score >= 8.5) return "민주주의·윤리·참여 기준에 매우 적극적입니다.";
+        if (score >= 8.5) return "매우 적극적입니다.";
         if (score >= 6.5) return "대체로 적극적이지만 일부 쟁점에서 유보가 있습니다.";
-        if (score >= 4) return "핵심 기준에 대한 입장이 다소 미온적입니다.";
-        return "민주주의·공직윤리 기준과 거리가 큽니다.";
+        if (score >= 4) return "입장이 다소 미온적입니다.";
+        return "기준과 거리가 큽니다.";
       }
 
       function calculateResult() {
@@ -484,25 +465,21 @@
       }
 
       function renderResult(result) {
-        const average = result.average;
-        const scoreText = average.toFixed(1);
-        document.getElementById("scoreValue").textContent = scoreText;
-        document.getElementById("answeredValue").textContent = `${result.answered}/${result.total} 문항 반영`;
-        document.getElementById("resultTitle").textContent = `내 질의서 자가진단 점수는 ${scoreText}점`;
-        document.getElementById("resultDescription").textContent = categoryLabel(average);
+        const scoreParts = result.sections.map((section) => `${section.title} ${section.average.toFixed(1)}점`);
+        document.getElementById("resultTitle").textContent = "내 질의서 자가진단 파트별 점수";
+        document.getElementById("resultDescription").textContent = `${result.answered}/${result.total} 문항을 바탕으로 내란·부패·민주주의 점수를 각각 계산했습니다.`;
         document.getElementById("categoryScores").innerHTML = result.sections
           .map(
             (section) => `
-              <div class="rounded-xl border-2 border-slate-900 bg-white p-3 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">
-                <p class="text-[11px] font-black text-slate-500">${escapeHtml(section.title)}</p>
-                <p class="mt-1 text-2xl font-black text-slate-900">${section.average.toFixed(1)}<span class="text-sm text-slate-500">/10</span></p>
+              <div class="rounded-xl border-2 border-slate-900 bg-white p-4 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">
+                <p class="text-sm font-black text-slate-900">${escapeHtml(section.title)}</p>
+                <p class="mt-1 text-4xl font-black text-[#ff4d4d]">${section.average.toFixed(1)}<span class="text-base text-slate-500">/10</span></p>
+                <p class="mt-2 text-xs font-bold leading-relaxed text-slate-600">${escapeHtml(categoryLabel(section.average))}</p>
               </div>
             `
           )
           .join("");
-        lastShareText = `질의서 자가진단 완료! 내 평균 점수는 ${scoreText}/10점입니다. ${categoryLabel(
-          average
-        )} #우리동네빌런찾기 #구정감시 #지방선거`;
+        lastShareText = `질의서 자가진단 완료! 내 파트별 점수는 ${scoreParts.join(", ")}입니다. #우리동네빌런찾기 #구정감시 #지방선거`;
         const panel = document.getElementById("resultPanel");
         panel.classList.remove("hidden");
         panel.scrollIntoView({ behavior: "smooth", block: "start" });
