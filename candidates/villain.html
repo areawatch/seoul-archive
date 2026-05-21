@@ -209,13 +209,6 @@
                 시의원
               </button>
             </div>
-            <button
-              type="button"
-              id="filterResetBtn"
-              class="pixel-nav-btn shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-xs transition"
-            >
-              필터 초기화
-            </button>
           </div>
         </div>
         <div class="flex flex-col gap-2 lg:col-span-12">
@@ -226,6 +219,10 @@
               답변완료
             </label>
             <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-slate-500 hover:text-slate-900">
+              <input id="contactMissingOnlyFilter" type="checkbox" class="h-3.5 w-3.5 accent-[#ff4d4d]" />
+              연락처 없음
+            </label>
+            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-slate-500 hover:text-slate-900">
               <input id="commentOnlyFilter" type="checkbox" class="h-3.5 w-3.5 accent-[#ff4d4d]" />
               코멘트
             </label>
@@ -233,6 +230,13 @@
               <input id="tagOnlyFilter" type="checkbox" class="h-3.5 w-3.5 accent-[#ff4d4d]" />
               태그
             </label>
+            <button
+              type="button"
+              id="filterResetBtn"
+              class="pixel-nav-btn shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-xs transition"
+            >
+              필터 초기화
+            </button>
           </div>
         </div>
         <div class="flex w-full flex-col gap-1.5 lg:col-span-3">
@@ -1443,6 +1447,12 @@
         );
       }
 
+      function hasMissingContact(meta) {
+        if (!meta) return false;
+        const status = String(meta.qaQuestionnaire || "").replace(/\s+/g, "");
+        return status.includes("연락처없음");
+      }
+
       function hasQuestionnaireDelivered(meta) {
         if (!meta) return false;
         const status = String(meta.qaQuestionnaire || "").replace(/\s+/g, "");
@@ -1967,6 +1977,7 @@
         const office = getOfficeFilterValue();
         const incumbentOnly = getIncumbentOnlyChecked();
         const responseOnly = !!document.getElementById("questionnaireResponseOnlyFilter").checked;
+        const contactMissingOnly = !!document.getElementById("contactMissingOnlyFilter").checked;
         const commentOnly = !!document.getElementById("commentOnlyFilter").checked;
         const tagOnly = !!document.getElementById("tagOnlyFilter").checked;
         const q = normalizeSearch(document.getElementById("nameQuery").value);
@@ -1977,13 +1988,16 @@
           if (party && String(mergedCandidateParty(c) || "").trim() !== party) return false;
           if (!candidateMatchesJobFilters(c)) return false;
           if (responseOnly && !hasQuestionnaireResponse(c.verifiedMeta)) return false;
+          if (contactMissingOnly && !hasMissingContact(c.verifiedMeta)) return false;
           if (commentOnly && !hasVerifiedComment(c.verifiedMeta)) return false;
           if (tagOnly && !hasVerifiedTag(c.verifiedMeta)) return false;
           if (!q) return true;
           return normalizeSearch(c.name).includes(q);
         });
 
-        const usingFilter = Boolean(district || party || q || office || incumbentOnly || responseOnly || commentOnly || tagOnly);
+        const usingFilter = Boolean(
+          district || party || q || office || incumbentOnly || responseOnly || contactMissingOnly || commentOnly || tagOnly
+        );
         const verifiedCount = filtered.filter((c) => !!c.verifiedMeta).length;
         countLabel.textContent = usingFilter
           ? `심층검증 ${verifiedCount}명 (필터 후보 ${filtered.length}명 / 전체 ${allCandidates.length}명)`
@@ -2128,16 +2142,19 @@
       document.getElementById("nameQuery").addEventListener("input", function () {
         render(true);
       });
-      ["questionnaireResponseOnlyFilter", "commentOnlyFilter", "tagOnlyFilter"].forEach(function (id) {
-        document.getElementById(id).addEventListener("change", function () {
-          render(true);
-        });
-      });
+      ["questionnaireResponseOnlyFilter", "contactMissingOnlyFilter", "commentOnlyFilter", "tagOnlyFilter"].forEach(
+        function (id) {
+          document.getElementById(id).addEventListener("change", function () {
+            render(true);
+          });
+        }
+      );
 
       function resetFilters() {
         document.getElementById("district").value = "";
         document.getElementById("nameQuery").value = "";
         document.getElementById("questionnaireResponseOnlyFilter").checked = false;
+        document.getElementById("contactMissingOnlyFilter").checked = false;
         document.getElementById("commentOnlyFilter").checked = false;
         document.getElementById("tagOnlyFilter").checked = false;
         setOfficeSegVisual("");
