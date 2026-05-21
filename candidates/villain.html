@@ -1428,6 +1428,72 @@
         return overall && overall.average != null ? overall.average : null;
       }
 
+      function hasQuestionnaireResponse(meta) {
+        if (!meta) return false;
+        const status = String(meta.qaQuestionnaire || "").replace(/\s+/g, "");
+        return (
+          status.includes("답변완료") ||
+          !!(meta.qaScores && meta.qaScores.overall && meta.qaScores.overall.average != null)
+        );
+      }
+
+      function partyColorHex(party) {
+        const cls = String(partyTheme(party).badgeSolid || "");
+        const match = cls.match(/bg-\[#([0-9a-fA-F]{3,8})\]/);
+        return match ? `#${match[1]}` : "#64748B";
+      }
+
+      function makeQuestionnaireResponseSummaryHtml(candidates) {
+        const total = candidates.length;
+        const responded = candidates.filter((c) => hasQuestionnaireResponse(c.verifiedMeta));
+        const respondedCount = responded.length;
+        const rate = total > 0 ? Math.round((respondedCount / total) * 100) : 0;
+        const byParty = new Map();
+        responded.forEach((candidate) => {
+          const party = mergedCandidateParty(candidate) || "정당 미상";
+          byParty.set(party, (byParty.get(party) || 0) + 1);
+        });
+        const partyCounts = Array.from(byParty.entries()).sort((a, b) => {
+          if (b[1] !== a[1]) return b[1] - a[1];
+          return a[0].localeCompare(b[0], "ko");
+        });
+        const barHtml = respondedCount
+          ? partyCounts
+              .map(([party, count]) => {
+                const width = Math.max((count / respondedCount) * 100, 2);
+                return `<span class="block h-full" style="width:${width.toFixed(3)}%;background:${partyColorHex(
+                  party
+                )};" title="${escapeAttr(`${party} ${count}명`)}"></span>`;
+              })
+              .join("")
+          : `<span class="block h-full w-full bg-slate-200"></span>`;
+        const partyListHtml = partyCounts.length
+          ? partyCounts
+              .map(([party, count]) => {
+                const color = partyColorHex(party);
+                return `<span class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-bold text-slate-700">
+                  <span class="h-2 w-2 rounded-full" style="background:${color};"></span>${escapeHtml(party)} ${count}명
+                </span>`;
+              })
+              .join("")
+          : `<span class="text-xs font-bold text-slate-500">아직 답변 후보가 없습니다.</span>`;
+        return `<section class="mb-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_28px_rgba(15,23,42,0.06)]" aria-label="질의서 답변 현황">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p class="m-0 text-xs font-black uppercase tracking-widest text-[#ff4d4d]">질의서 답변 현황</p>
+              <p class="m-0 mt-1 text-lg font-black tracking-tight text-slate-900">
+                전체 후보 ${total.toLocaleString("ko-KR")}명 중에 ${respondedCount.toLocaleString("ko-KR")}명이 답변을 보냈습니다.
+              </p>
+            </div>
+            <p class="m-0 text-sm font-black tabular-nums text-slate-700">${rate}%</p>
+          </div>
+          <div class="mt-3 h-4 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+            <div class="flex h-full w-full">${barHtml}</div>
+          </div>
+          <div class="mt-3 flex flex-wrap gap-2">${partyListHtml}</div>
+        </section>`;
+      }
+
       function renderVerifiedCandidates(filtered) {
         const listEl = document.getElementById("verifiedCandidatesList");
         const emptyEl = document.getElementById("verifiedCandidatesEmpty");
@@ -1451,7 +1517,8 @@
         const visibleVerified = sortedVerified.slice(0, visibleRowCount);
         const remaining = sortedVerified.length - visibleVerified.length;
         const nextCount = Math.min(LIST_PAGE_SIZE, Math.max(0, remaining));
-        listEl.innerHTML = `<div class="hidden w-full overflow-x-auto border-2 border-black bg-black/20 sm:block">
+        listEl.innerHTML = `${makeQuestionnaireResponseSummaryHtml(filteredVerified)}
+        <div class="hidden w-full overflow-x-auto border-2 border-black bg-black/20 sm:block">
           <table class="w-full table-auto border-collapse text-left text-[11px] text-slate-100">
             <thead>
               <tr class="border-b border-white/10 bg-black/30">
