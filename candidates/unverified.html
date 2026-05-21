@@ -191,14 +191,6 @@
         return String(raw || "").split("\n")[0].trim();
       }
 
-      function subtitleName(raw) {
-        const lines = String(raw || "")
-          .split("\n")
-          .map((line) => line.trim())
-          .filter(Boolean);
-        return lines.length > 1 ? lines.slice(1).join(" · ") : "";
-      }
-
       function candidateOffice(candidate) {
         const office = String((candidate && candidate.office) || "구의원").trim();
         return office || "구의원";
@@ -224,12 +216,6 @@
         if (!text) return "—";
         const num = Number(text.replace(/,/g, ""));
         return Number.isFinite(num) ? num.toLocaleString("ko-KR") : text;
-      }
-
-      function candidateListAreaLine(candidate) {
-        const district = candidate.district || "—";
-        if (candidateOffice(candidate) === "구청장") return `${district} 구청장`;
-        return `${district} · ${candidate.constituency || "—"}`;
       }
 
       function parseCsvText(csvText) {
@@ -350,7 +336,6 @@
         tbody.innerHTML = candidates
           .map((candidate) => {
             const name = primaryName(candidate.name);
-            const subtitle = subtitleName(candidate.name);
             const party = String(candidate.party || "정당 미상").trim() || "정당 미상";
             const partyClass = PARTY_STYLES[party] || "bg-[#64748B] text-white";
             const criminal = String(candidate.criminal || "").trim() || "—";
@@ -358,26 +343,24 @@
               ? "font-black text-rose-700"
               : "font-medium text-slate-500";
             return `<tr class="bg-white align-top transition hover:bg-slate-50">
-              <td class="py-3 pl-4 pr-3">
-                <div class="flex min-w-[12rem] items-start gap-3">
-                  <img src="${escapeHtml(candidate.photo || DEFAULT_AVATAR)}" alt="" class="h-11 w-11 shrink-0 rounded-full object-cover object-top ring-2 ring-slate-200" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
+              <td class="py-1.5 pl-3 pr-2">
+                <div class="flex min-w-[8rem] items-center gap-2">
+                  <img src="${escapeHtml(candidate.photo || DEFAULT_AVATAR)}" alt="" class="h-8 w-8 shrink-0 rounded-full object-cover object-top ring-1 ring-slate-200" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
                   <div class="min-w-0">
-                    <p class="m-0 font-black leading-tight text-slate-900">${escapeHtml(name || "이름 없음")}</p>
-                    ${subtitle ? `<p class="m-0 mt-0.5 text-xs text-slate-500">${escapeHtml(subtitle)}</p>` : ""}
-                    <p class="m-0 mt-1 text-xs text-slate-500">${escapeHtml(candidateListAreaLine(candidate))}</p>
+                    <p class="m-0 text-sm font-black leading-tight text-slate-900">${escapeHtml(name || "이름 없음")}</p>
                   </div>
                 </div>
               </td>
-              <td class="whitespace-nowrap px-3 py-3">
-                <span class="inline-flex rounded px-1.5 py-[3px] text-[11px] font-bold leading-none ${partyClass}">${escapeHtml(party)}</span>
+              <td class="whitespace-nowrap px-2 py-1.5">
+                <span class="inline-flex rounded px-1.5 py-[2px] text-[10px] font-bold leading-none ${partyClass}">${escapeHtml(party)}</span>
               </td>
-              <td class="whitespace-nowrap px-3 py-3 text-sm font-black text-slate-800">${escapeHtml(candidateOffice(candidate))}</td>
-              <td class="whitespace-nowrap px-3 py-3 text-sm text-slate-600">${escapeHtml(candidate.constituency || "—")}</td>
-              <td class="whitespace-nowrap px-3 py-3 text-sm text-slate-700">${escapeHtml(ageSummary(candidate.age))}</td>
-              <td class="whitespace-nowrap px-3 py-3 text-sm text-slate-700">${escapeHtml(candidate.gender || "—")}</td>
-              <td class="whitespace-nowrap px-3 py-3 text-sm tabular-nums text-slate-700">${escapeHtml(formatProperty(candidate.property))}</td>
-              <td class="px-3 py-3 text-sm ${criminalClass}">${escapeHtml(criminal)}</td>
-              <td class="whitespace-nowrap px-3 py-3 text-sm text-slate-700">${escapeHtml(candidate.electionCount || "—")}</td>
+              <td class="whitespace-nowrap px-2 py-1.5 text-xs font-black text-slate-800">${escapeHtml(candidateOffice(candidate))}</td>
+              <td class="whitespace-nowrap px-2 py-1.5 text-xs text-slate-600">${escapeHtml(candidate.constituency || "—")}</td>
+              <td class="whitespace-nowrap px-2 py-1.5 text-xs text-slate-700">${escapeHtml(ageSummary(candidate.age))}</td>
+              <td class="whitespace-nowrap px-2 py-1.5 text-xs text-slate-700">${escapeHtml(candidate.gender || "—")}</td>
+              <td class="whitespace-nowrap px-2 py-1.5 text-xs tabular-nums text-slate-700">${escapeHtml(formatProperty(candidate.property))}</td>
+              <td class="px-2 py-1.5 text-xs ${criminalClass}">${escapeHtml(criminal)}</td>
+              <td class="whitespace-nowrap px-2 py-1.5 text-xs text-slate-700">${escapeHtml(candidate.electionCount || "—")}</td>
             </tr>`;
           })
           .join("");
