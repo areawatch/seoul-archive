@@ -523,3 +523,163 @@ body:not(.data-expedition-page) #candidatesTableWrap::before {
   background: #111827 !important;
 }
 
+/* ── Minimal retro unification for candidate tools ── */
+body:not(.data-expedition-page) #vaFilters {
+  gap: 16px !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+}
+
+body:not(.data-expedition-page) #vaFilters label,
+body:not(.data-expedition-page) #vaFilters span[id="officeFilterLegend"] {
+  color: #1f2937 !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+}
+
+body:not(.data-expedition-page) #vaFilters select,
+body:not(.data-expedition-page) #vaFilters input[type="search"],
+body:not(.data-expedition-page) #vaFilters input[type="text"] {
+  min-height: 40px !important;
+  background-color: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.16) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  color: #111827 !important;
+  font-weight: 700 !important;
+}
+
+body:not(.data-expedition-page) #vaFilters select:focus,
+body:not(.data-expedition-page) #vaFilters input[type="search"]:focus,
+body:not(.data-expedition-page) #vaFilters input[type="text"]:focus {
+  border-color: rgba(255, 77, 77, 0.72) !important;
+  box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.12) !important;
+}
+
+body:not(.data-expedition-page) #vaFilters #officeFilterSeg {
+  display: inline-flex !important;
+  gap: 6px !important;
+  max-width: 100% !important;
+  padding: 3px !important;
+  background: #f8fafc !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+  overflow-x: auto !important;
+}
+
+body:not(.data-expedition-page) #vaFilters #officeFilterSeg::before {
+  display: none !important;
+}
+
+body:not(.data-expedition-page) #vaFilters #officeFilterSeg button {
+  min-height: 34px !important;
+  border: 1px solid transparent !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  color: #475569 !important;
+  font-weight: 800 !important;
+}
+
+body:not(.data-expedition-page) #vaFilters #officeFilterSeg button[aria-pressed="true"] {
+  background: #111827 !important;
+  border-color: #111827 !important;
+  color: #ffffff !important;
+}
+
+body:not(.data-expedition-page) #vaFilters #officeFilterSeg button[aria-pressed="false"] {
+  background: transparent !important;
+}
+
+body:not(.data-expedition-page) #vaFilters #officeFilterSeg button[aria-pressed="false"]:hover {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  color: #111827 !important;
+}
+
+body:not(.data-expedition-page) #filterResetBtn,
+body:not(.data-expedition-page) #runCandidatesCrawlerBtn,
+body:not(.data-expedition-page) #runNewsCrawlerBtn,
+body:not(.data-expedition-page) #verifiedLoadMore {
+  border: 1px solid rgba(15, 23, 42, 0.16) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+  color: #111827 !important;
+  font-weight: 800 !important;
+}
+
+body:not(.data-expedition-page) #verifiedCandidatesTitle,
+body:not(.data-expedition-page) #verifiedCandidatesTitle + p,
+body:not(.data-expedition-page) #verifiedCountLabel {
+  color: #111827 !important;
+}
+
+body:not(.data-expedition-page) #verifiedCandidatesList thead th,
+body:not(.data-expedition-page) #candidatesTableWrap thead th {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+body:not(.data-expedition-page) #verifiedCandidatesList thead th button,
+body:not(.data-expedition-page) #candidatesTableWrap thead th button {
+  justify-content: center !important;
+  margin-inline: auto !important;
+  min-height: 28px !important;
+}
+
+body:not(.data-expedition-page) #verifiedCandidatesList tbody tr {
+  background: #ffffff !important;
+}
+
+body:not(.data-expedition-page) #verifiedCandidatesList tbody tr:hover {
+  background: #f8fafc !important;
+}
+
+body:not(.data-expedition-page) #verifiedCandidatesList [data-va-toggle] {
+  border: 1px solid rgba(15, 23, 42, 0.18) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  color: #111827 !important;
+}
+
+body:not(.data-expedition-page) #verifiedCandidatesList [data-va-detail] {
+  background: #f8fafc !important;
+  border-top: 1px solid rgba(15, 23, 42, 0.10) !important;
+}
+
+body:not(.data-expedition-page) #verifiedCandidatesList [data-va-detail] section {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05) !important;
+}
+
+body:not(.data-expedition-page) #verifiedCandidatesList [data-va-detail] h3 {
+  color: #475569 !important;
+  letter-spacing: 0.02em !important;
+}
+
+body:not(.data-expedition-page) #verifiedCandidatesList [data-va-detail] h3 span {
+  border-radius: 999px !important;
+}
+
+body:not(.data-expedition-page) #verifiedCandidatesList [data-va-detail] .rounded-lg.border {
+  background: #f8fafc !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+
+body:not(.data-expedition-page) #verifiedCandidatesList [data-va-detail] .rounded-md.border {
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+  border-radius: 12px !important;
+}
+
+body:not(.data-expedition-page) #verifiedCandidatesList article {
+  border-width: 1px !important;
+  border-left-width: 3px !important;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08) !important;
+}
+
+body:not(.data-expedition-page) #verifiedCandidatesList article [data-va-detail] {
+  border-top: 1px solid rgba(15, 23, 42, 0.10) !important;
+}
