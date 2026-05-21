@@ -1405,11 +1405,11 @@
       function questionnaireOverallScoreBadgeHtml(meta) {
         const overall = meta && meta.qaScores && meta.qaScores.overall;
         if (!overall || overall.average == null) {
-          return '<span class="inline-flex items-center rounded-full border border-slate-300 bg-white px-2 py-1 text-[11px] font-black leading-none text-slate-400">—</span>';
+          return '<span class="text-sm font-black text-slate-400">—</span>';
         }
-        return `<span class="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-2 py-1 text-[11px] font-black leading-none text-white">${scoreText(
+        return `<span class="text-base font-black tabular-nums text-slate-900">${scoreText(
           overall.average
-        )}<span class="ml-0.5 text-[10px] text-slate-300">/10</span></span>`;
+        )}</span>`;
       }
 
       function renderVerifiedCandidates(filtered) {
