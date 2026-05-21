@@ -1328,6 +1328,24 @@
           .join("");
       }
 
+      function questionnaireStatusBadgeHtml(raw) {
+        const status = String(raw || "").trim() || "공란";
+        const normalized = status.replace(/\s+/g, "");
+        let cls = "border-slate-300 bg-slate-100 text-slate-700";
+        if (normalized.includes("발송완료")) {
+          cls = "border-emerald-600 bg-emerald-50 text-emerald-800";
+        } else if (normalized.includes("발송전")) {
+          cls = "border-amber-500 bg-amber-50 text-amber-800";
+        } else if (normalized.includes("연락처없음")) {
+          cls = "border-rose-500 bg-rose-50 text-rose-800";
+        } else if (normalized === "공란" || normalized === "미기재") {
+          cls = "border-slate-300 bg-white text-slate-500";
+        }
+        return `<span class="inline-flex max-w-[7rem] items-center rounded-full border px-2 py-1 text-[11px] font-black leading-none ${cls}">${escapeHtml(
+          status
+        )}</span>`;
+      }
+
       function renderVerifiedCandidates(filtered) {
         const listEl = document.getElementById("verifiedCandidatesList");
         const emptyEl = document.getElementById("verifiedCandidatesEmpty");
@@ -1347,9 +1365,10 @@
           verifiedSortAsc
         );
         listEl.innerHTML = `<div class="overflow-x-auto border-2 border-black bg-black/20">
-          <table class="min-w-[1080px] w-full border-collapse text-left text-sm text-slate-100">
+          <table class="min-w-[1160px] w-full border-collapse text-left text-sm text-slate-100">
             <thead>
               <tr class="border-b border-white/10 bg-black/30">
+                <th class="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-white">질의서</th>
                 <th class="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-white">
                   <button type="button" data-sort-scope="verified" data-sort-key="name" class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/5 hover:text-white">
                     후보
@@ -1428,10 +1447,12 @@
                     : `<p class="m-0 text-slate-400 text-xs">-</p>`;
 
                   const qaText = String(meta.qaQuestionnaire || "").trim() || "-";
+                  const questionnaireBadgeHtml = questionnaireStatusBadgeHtml(meta.qaQuestionnaire);
                   const qaAccordion = makeQaAccordionHtml(meta);
                   const crimeTagsHtml = criminalHistoryTagsHtml(meta.criminalHistory);
 
                   const mainRow = `<tr class="align-top ${verificationBorderClass(meta.grade)} border-l-4 cursor-pointer hover:bg-slate-50 transition-colors" data-va-row="${idx}" aria-controls="${detailsId}" aria-expanded="false">
+                    <td class="whitespace-nowrap py-3 pl-4 pr-2">${questionnaireBadgeHtml}</td>
                     <td class="py-3 pl-4 pr-2">
                       <div class="flex gap-2.5">
                         <img src="${escapeAttr(mergedCandidatePhoto(c) || DEFAULT_AVATAR)}" alt="" class="h-10 w-10 shrink-0 rounded-full object-cover object-top ring-2 ring-slate-300" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
@@ -1473,7 +1494,7 @@
                   </tr>`;
 
                   const detailRow = `<tr id="${detailsId}" class="hidden" data-va-detail="${idx}" style="background:#f8fafc;border-top:2px solid #0b1220;">
-                    <td colspan="6" class="px-5 py-5">
+                    <td colspan="7" class="px-5 py-5">
                       <div class="grid grid-cols-1 gap-3 lg:grid-cols-3">
                         <section class="rounded-xl border-2 border-slate-800 bg-white p-4 shadow-[3px_3px_0_rgba(2,6,23,0.85)]">
                           <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
