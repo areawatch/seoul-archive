@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>검증 결과 미매칭 후보 명부 · 우리동네빌런찾기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: [
+                "Pretendard Variable",
+                "Pretendard",
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "system-ui",
+                "sans-serif",
+              ],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="theme-light.css" />
+  </head>
+  <body class="min-h-screen bg-white text-slate-800 antialiased">
+    <div id="header-plugin"></div>
+
+    <header class="mb-10 text-center">
+      <section class="villain-slide w-full px-0">
+        <div class="relative z-10 mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+          <div>
+            <p class="text-xs font-black uppercase tracking-widest text-[#ff4d4d]">ANALYSIS</p>
+            <h1 class="dash-title mt-1 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+              검증 결과 미매칭 후보 명부
+            </h1>
+          </div>
+          <nav class="mt-4 flex flex-wrap items-center justify-center gap-1.5" aria-label="breadcrumb">
+            <a href="/" class="inline-flex items-center rounded border-2 border-slate-300 bg-white/80 px-2 py-0.5 text-[10px] font-black tracking-widest text-slate-500 transition hover:border-slate-500 hover:text-slate-800">SEOUL ARCHIVE</a>
+            <span class="text-[10px] font-black text-slate-400">&gt;</span>
+            <a href="/candidates/" class="inline-flex items-center rounded border-2 border-slate-300 bg-white/80 px-2 py-0.5 text-[10px] font-black tracking-widest text-slate-500 transition hover:border-slate-500 hover:text-slate-800">VILLAIN ARCHIVE</a>
+            <span class="text-[10px] font-black text-slate-400">&gt;</span>
+            <span class="inline-flex items-center rounded border-2 border-[#ff4d4d] bg-[#fff0f0] px-2 py-0.5 text-[10px] font-black tracking-widest text-[#ff4d4d]">UNMATCHED</span>
+          </nav>
+          <div class="mt-4 flex w-full flex-wrap justify-center gap-2">
+            <a href="villain.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">😈 검증 결과 ←</a>
+            <a href="list.html" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">👥 전체 후보자 목록 →</a>
+          </div>
+          <p class="mt-3 text-sm text-slate-500">
+            선관위 전체 명부 중 구글 시트 검증 결과와 매칭되지 않은 후보만 표시합니다.
+          </p>
+          <p id="dataUpdatedLine" class="mt-1 hidden text-sm text-slate-500" aria-live="polite"></p>
+        </div>
+      </section>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <section class="dash-card mb-6 p-4" aria-live="polite">
+        <p id="summaryLine" class="m-0 text-lg font-black tracking-tight text-slate-900">불러오는 중...</p>
+        <p class="m-0 mt-1 text-sm text-slate-500">
+          이 페이지는 검색 없이 누락 후보 확인만 하기 위한 분석용 화면입니다.
+        </p>
+      </section>
+
+      <div
+        id="errorBox"
+        class="mb-6 hidden rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+        role="alert"
+      ></div>
+
+      <section aria-labelledby="unverifiedCandidatesTitle">
+        <div class="mb-3 flex items-end justify-between gap-3">
+          <h2 id="unverifiedCandidatesTitle" class="text-xl font-black tracking-tight text-slate-900">
+            미매칭 후보자 명부
+          </h2>
+        </div>
+        <div
+          id="candidatesTableWrap"
+          class="overflow-x-auto border-2 border-black bg-white"
+          style="border-radius:14px;overflow:hidden;box-shadow:0 10px 0 rgba(2,6,23,.22);"
+        >
+          <table class="min-w-[1120px] w-full border-collapse text-left text-sm text-slate-800">
+            <thead>
+              <tr class="border-b border-white/10 bg-[#0b1220]">
+                <th scope="col" class="whitespace-nowrap py-3 pl-4 pr-3 text-xs font-semibold tracking-wide text-white">이름</th>
+                <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">정당</th>
+                <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">종류</th>
+                <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">선거구</th>
+                <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">나이</th>
+                <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">성별</th>
+                <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">
+                  재산신고액<br /><span class="font-normal text-white/80">(천원)</span>
+                </th>
+                <th scope="col" class="min-w-[4rem] px-3 py-3 text-xs font-semibold tracking-wide text-white">전과</th>
+                <th scope="col" class="whitespace-nowrap px-3 py-3 text-xs font-semibold tracking-wide text-white">입후보횟수</th>
+              </tr>
+            </thead>
+            <tbody id="candidateRows" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div id="footer-plugin"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      (function () {
+        async function inject(id, url) {
+          try {
+            const r = await fetch(url);
+            if (!r.ok) return;
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = await r.text();
+          } catch (e) {
+            console.warn("[candidates] 헤더·푸터 로드:", e);
+          }
+        }
+        (async function () {
+          await inject("header-plugin", "header.html");
+          await inject("footer-plugin", "footer.html");
+        })();
+      })();
+    </script>
+    <script>
+      const VERIFIED_SHEET_CSV_URL =
+        "https://docs.google.com/spreadsheets/d/1HZOgA2XGNQe9RTyZsDDZdqfgdHIrUIfGqBKRs62cugA/gviz/tq?tqx=out:csv";
+
+      const PARTY_STYLES = {
+        더불어민주당: "bg-[#004EA2] text-white",
+        국민의힘: "bg-[#E61E2B] text-white",
+        조국혁신당: "bg-[#06275E] text-white",
+        정의당: "bg-[#ffca00] text-slate-900",
+        기본소득당: "bg-[#00D2C3] text-slate-900",
+        개혁신당: "bg-[#FF7F32] text-white",
+        녹색당: "bg-[#5CB531] text-white",
+        노동당: "bg-[#FF0000] text-white",
+        진보당: "bg-[#E60020] text-white",
+        무소속: "bg-[#707070] text-white",
+      };
+      const DEFAULT_AVATAR =
+        "data:image/svg+xml," +
+        encodeURIComponent(
+          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+            <rect width="120" height="120" fill="#e2e8f0"/>
+            <circle cx="60" cy="48" r="22" fill="#94a3b8"/>
+            <path d="M24 108c4-28 72-28 72 0" fill="#94a3b8"/>
+          </svg>`
+        );
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function normalizeLooseText(value) {
+        return String(value || "")
+          .trim()
+          .replace(/\s+/g, "")
+          .replace(/[()（）]/g, "")
+          .toLowerCase();
+      }
+
+      function normalizeDistrictName(value) {
+        return String(value || "")
+          .trim()
+          .replace(/\s+/g, "")
+          .replace(/서울특별시|서울시|서울/g, "")
+          .replace(/자치구/g, "구");
+      }
+
+      function primaryName(raw) {
+        return String(raw || "").split("\n")[0].trim();
+      }
+
+      function subtitleName(raw) {
+        const lines = String(raw || "")
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean);
+        return lines.length > 1 ? lines.slice(1).join(" · ") : "";
+      }
+
+      function candidateOffice(candidate) {
+        const office = String((candidate && candidate.office) || "구의원").trim();
+        return office || "구의원";
+      }
+
+      function ageSummary(ageStr) {
+        const text = String(ageStr || "").replace(/\n/g, " ");
+        const parenMatch = text.match(/\((\d+)세\)/);
+        if (parenMatch) return `${parenMatch[1]}세`;
+        const plainMatch = text.match(/(\d+)세/);
+        if (plainMatch) return `${plainMatch[1]}세`;
+        return text.trim() ? text.trim().split(/\s+/)[0] : "—";
+      }
+
+      function criminalShowsRecord(criminal) {
+        const text = String(criminal || "").trim();
+        if (!text || text === "없음") return false;
+        return !/^0\s*건$/.test(text);
+      }
+
+      function formatProperty(value) {
+        const text = String(value || "").trim();
+        if (!text) return "—";
+        const num = Number(text.replace(/,/g, ""));
+        return Number.isFinite(num) ? num.toLocaleString("ko-KR") : text;
+      }
+
+      function candidateListAreaLine(candidate) {
+        const district = candidate.district || "—";
+        if (candidateOffice(candidate) === "구청장") return `${district} 구청장`;
+        return `${district} · ${candidate.constituency || "—"}`;
+      }
+
+      function parseCsvText(csvText) {
+        const text = String(csvText || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+        const rows = [];
+        let row = [];
+        let cell = "";
+        let inQuotes = false;
+        for (let i = 0; i < text.length; i += 1) {
+          const ch = text[i];
+          if (ch === '"') {
+            if (inQuotes && text[i + 1] === '"') {
+              cell += '"';
+              i += 1;
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (ch === "," && !inQuotes) {
+            row.push(cell);
+            cell = "";
+          } else if (ch === "\n" && !inQuotes) {
+            row.push(cell);
+            rows.push(row);
+            row = [];
+            cell = "";
+          } else {
+            cell += ch;
+          }
+        }
+        if (cell.length || row.length) {
+          row.push(cell);
+          rows.push(row);
+        }
+        const meaningfulRows = rows.filter((cells) => cells.some((item) => String(item || "").trim() !== ""));
+        if (!meaningfulRows.length) return [];
+        const headers = meaningfulRows[0].map((header) => String(header || "").trim());
+        return meaningfulRows.slice(1).map((cells) => {
+          const obj = {};
+          headers.forEach((header, idx) => {
+            obj[header] = String(cells[idx] || "").trim();
+          });
+          return obj;
+        });
+      }
+
+      function findSheetColumn(row, candidates) {
+        const keys = Object.keys(row || {});
+        for (const candidate of candidates) {
+          const exact = keys.find((key) => key === candidate);
+          if (exact) return exact;
+        }
+        for (const candidate of candidates) {
+          const contains = keys.find((key) => key.includes(candidate));
+          if (contains) return contains;
+        }
+        return "";
+      }
+
+      function sheetCell(row, candidates) {
+        const column = findSheetColumn(row, candidates);
+        return column ? String(row[column] || "").trim() : "";
+      }
+
+      function normalizeVerifiedRow(row) {
+        if (!row || typeof row !== "object") return null;
+        const name = sheetCell(row, ["이름", "성명"]);
+        const district = sheetCell(row, ["지역구", "자치구", "구"]);
+        if (!name || !district) return null;
+        return {
+          name,
+          district,
+          electionType: sheetCell(row, ["선거 종류", "선거종류", "종류"]),
+        };
+      }
+
+      function buildVerifiedRowIndex(rows) {
+        const map = new Map();
+        (rows || []).forEach((row) => {
+          const normalized = normalizeVerifiedRow(row);
+          if (!normalized) return;
+          const baseKey =
+            normalizeLooseText(normalized.name) + "|" + normalizeDistrictName(normalized.district);
+          const officeKey = normalizeLooseText(normalized.electionType);
+          if (officeKey) map.set(`${baseKey}|${officeKey}`, normalized);
+          if (!map.has(baseKey)) map.set(baseKey, normalized);
+        });
+        return map;
+      }
+
+      function parseCandidatesPayload(data) {
+        if (Array.isArray(data)) return { list: data, updatedAt: null };
+        if (data && typeof data === "object" && Array.isArray(data.candidates)) {
+          return {
+            list: data.candidates,
+            updatedAt: typeof data.updatedAt === "string" ? data.updatedAt : null,
+          };
+        }
+        throw new Error("candidates.json 형식을 해석할 수 없습니다.");
+      }
+
+      function formatUpdatedAtKo(iso) {
+        if (!iso) return "";
+        const date = new Date(iso);
+        if (Number.isNaN(date.getTime())) return "";
+        return "자료 갱신: " + new Intl.DateTimeFormat("ko-KR", {
+          dateStyle: "medium",
+          timeStyle: "short",
+          timeZone: "Asia/Seoul",
+        }).format(date);
+      }
+
+      function renderRows(candidates) {
+        const tbody = document.getElementById("candidateRows");
+        if (!candidates.length) {
+          tbody.innerHTML = `<tr><td colspan="9" class="px-4 py-8 text-center text-sm text-slate-500">미매칭 후보가 없습니다.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = candidates
+          .map((candidate) => {
+            const name = primaryName(candidate.name);
+            const subtitle = subtitleName(candidate.name);
+            const party = String(candidate.party || "정당 미상").trim() || "정당 미상";
+            const partyClass = PARTY_STYLES[party] || "bg-[#64748B] text-white";
+            const criminal = String(candidate.criminal || "").trim() || "—";
+            const criminalClass = criminalShowsRecord(criminal)
+              ? "font-black text-rose-700"
+              : "font-medium text-slate-500";
+            return `<tr class="bg-white align-top transition hover:bg-slate-50">
+              <td class="py-3 pl-4 pr-3">
+                <div class="flex min-w-[12rem] items-start gap-3">
+                  <img src="${escapeHtml(candidate.photo || DEFAULT_AVATAR)}" alt="" class="h-11 w-11 shrink-0 rounded-full object-cover object-top ring-2 ring-slate-200" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
+                  <div class="min-w-0">
+                    <p class="m-0 font-black leading-tight text-slate-900">${escapeHtml(name || "이름 없음")}</p>
+                    ${subtitle ? `<p class="m-0 mt-0.5 text-xs text-slate-500">${escapeHtml(subtitle)}</p>` : ""}
+                    <p class="m-0 mt-1 text-xs text-slate-500">${escapeHtml(candidateListAreaLine(candidate))}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="whitespace-nowrap px-3 py-3">
+                <span class="inline-flex rounded px-1.5 py-[3px] text-[11px] font-bold leading-none ${partyClass}">${escapeHtml(party)}</span>
+              </td>
+              <td class="whitespace-nowrap px-3 py-3 text-sm font-black text-slate-800">${escapeHtml(candidateOffice(candidate))}</td>
+              <td class="whitespace-nowrap px-3 py-3 text-sm text-slate-600">${escapeHtml(candidate.constituency || "—")}</td>
+              <td class="whitespace-nowrap px-3 py-3 text-sm text-slate-700">${escapeHtml(ageSummary(candidate.age))}</td>
+              <td class="whitespace-nowrap px-3 py-3 text-sm text-slate-700">${escapeHtml(candidate.gender || "—")}</td>
+              <td class="whitespace-nowrap px-3 py-3 text-sm tabular-nums text-slate-700">${escapeHtml(formatProperty(candidate.property))}</td>
+              <td class="px-3 py-3 text-sm ${criminalClass}">${escapeHtml(criminal)}</td>
+              <td class="whitespace-nowrap px-3 py-3 text-sm text-slate-700">${escapeHtml(candidate.electionCount || "—")}</td>
+            </tr>`;
+          })
+          .join("");
+      }
+
+      function showError(error) {
+        const box = document.getElementById("errorBox");
+        box.textContent = error && error.message ? error.message : String(error);
+        box.classList.remove("hidden");
+      }
+
+      Promise.all([
+        fetch("../public/data/candidates.json").then((response) => {
+          if (!response.ok) throw new Error(`candidates.json HTTP ${response.status}`);
+          return response.json();
+        }),
+        fetch(VERIFIED_SHEET_CSV_URL).then((response) => {
+          if (!response.ok) throw new Error(`google sheet CSV HTTP ${response.status}`);
+          return response.text();
+        }),
+      ])
+        .then(([candidatePayload, verifiedCsvText]) => {
+          const parsed = parseCandidatesPayload(candidatePayload);
+          const verifiedIndex = buildVerifiedRowIndex(parseCsvText(verifiedCsvText));
+          const allCandidates = parsed.list;
+          const unmatched = allCandidates
+            .filter((candidate) => {
+              const baseKey =
+                normalizeLooseText(primaryName(candidate.name)) +
+                "|" +
+                normalizeDistrictName(candidate.district);
+              const typedKey = `${baseKey}|${normalizeLooseText(candidateOffice(candidate))}`;
+              return !verifiedIndex.has(typedKey) && !verifiedIndex.has(baseKey);
+            })
+            .sort((a, b) => {
+              const officeCompare = candidateOffice(a).localeCompare(candidateOffice(b), "ko");
+              if (officeCompare !== 0) return officeCompare;
+              const districtCompare = String(a.district || "").localeCompare(String(b.district || ""), "ko");
+              if (districtCompare !== 0) return districtCompare;
+              return primaryName(a.name).localeCompare(primaryName(b.name), "ko");
+            });
+
+          document.getElementById("summaryLine").textContent =
+            `전체 후보 ${allCandidates.length.toLocaleString("ko-KR")}명 중 검증 결과 페이지에 없는 후보는 ${unmatched.length.toLocaleString("ko-KR")}명입니다.`;
+          const updatedLine = document.getElementById("dataUpdatedLine");
+          const updatedText = formatUpdatedAtKo(parsed.updatedAt);
+          if (updatedText) {
+            updatedLine.textContent = updatedText;
+            updatedLine.classList.remove("hidden");
+          }
+          renderRows(unmatched);
+        })
+        .catch((error) => {
+          showError(error);
+          document.getElementById("summaryLine").textContent = "데이터를 불러오지 못했습니다.";
+        });
+    </script>
+  </body>
+</html>
