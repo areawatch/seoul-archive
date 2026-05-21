@@ -218,6 +218,23 @@
             </button>
           </div>
         </div>
+        <div class="flex flex-col gap-2 lg:col-span-12">
+          <span class="text-sm font-black text-slate-800">추가 필터</span>
+          <div class="flex flex-wrap items-center gap-2">
+            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-slate-500 hover:text-slate-900">
+              <input id="questionnaireResponseOnlyFilter" type="checkbox" class="h-3.5 w-3.5 accent-[#ff4d4d]" />
+              답변완료
+            </label>
+            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-slate-500 hover:text-slate-900">
+              <input id="commentOnlyFilter" type="checkbox" class="h-3.5 w-3.5 accent-[#ff4d4d]" />
+              코멘트
+            </label>
+            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-slate-500 hover:text-slate-900">
+              <input id="tagOnlyFilter" type="checkbox" class="h-3.5 w-3.5 accent-[#ff4d4d]" />
+              태그
+            </label>
+          </div>
+        </div>
         <div class="flex w-full flex-col gap-1.5 lg:col-span-3">
           <label for="district" class="text-sm font-black text-slate-800"
             >구 선택 <span class="font-normal text-slate-500">(25개구)</span></label
@@ -466,6 +483,10 @@
           headers.forEach((header, idx) => {
             obj[header] = String(cells[idx] || "").trim();
           });
+          Object.defineProperty(obj, "__cells", {
+            value: cells.map((cell) => String(cell || "").trim()),
+            enumerable: false,
+          });
           return obj;
         });
       }
@@ -490,6 +511,10 @@
       function sheetCell(row, candidates) {
         const col = findSheetColumn(row, candidates);
         return col ? String(row[col] || "").trim() : "";
+      }
+
+      function sheetCellByIndex(row, index) {
+        return row && Array.isArray(row.__cells) ? String(row.__cells[index] || "").trim() : "";
       }
 
       function collectSheetAnswers(row, columns) {
@@ -634,6 +659,7 @@
           qaEthicsOpinion: sheetCell(row, ["부패 기타"]),
           qaTransparencyOpinion: sheetCell(row, ["민주 기타"]),
           qaQuestionnaire: sheetCell(row, ["질의서"]),
+          tag: sheetCellByIndex(row, 23) || sheetCell(row, ["태그", "tag", "TAG"]),
         };
       }
 
@@ -1427,6 +1453,14 @@
         );
       }
 
+      function hasVerifiedComment(meta) {
+        return !!String((meta && meta.comment) || "").trim();
+      }
+
+      function hasVerifiedTag(meta) {
+        return !!String((meta && meta.tag) || "").trim();
+      }
+
       function partyColorHex(party) {
         const cls = String(partyTheme(party).badgeSolid || "");
         const match = cls.match(/bg-\[#([0-9a-fA-F]{3,8})\]/);
@@ -1644,7 +1678,7 @@
                             <span>${escapeHtml(primaryName(c.name))}</span>
                             ${
                               commentText
-                                ? `<span class="ml-0.5 inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-rose-200 bg-rose-50 px-1.5 py-[2px] text-[10px] font-black leading-none text-rose-700">
+                                ? `<span class="ml-0.5 inline-flex items-center gap-[1px] whitespace-nowrap rounded-full border border-rose-200 bg-rose-50 px-1.5 py-[2px] text-[10px] font-black leading-none text-rose-700">
                                   <span aria-hidden="true">❗</span>
                                   <span>코멘트</span>
                                 </span>`
@@ -1796,7 +1830,7 @@
                       <span>${escapeHtml(primaryName(c.name))}</span>
                       ${
                         commentText
-                          ? `<span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-rose-200 bg-rose-50 px-1.5 py-[2px] text-[10px] font-black leading-none text-rose-700">
+                          ? `<span class="inline-flex items-center gap-[1px] whitespace-nowrap rounded-full border border-rose-200 bg-rose-50 px-1.5 py-[2px] text-[10px] font-black leading-none text-rose-700">
                             <span aria-hidden="true">❗</span>
                             <span>코멘트</span>
                           </span>`
@@ -1932,6 +1966,9 @@
         const party = document.getElementById("party").value;
         const office = getOfficeFilterValue();
         const incumbentOnly = getIncumbentOnlyChecked();
+        const responseOnly = !!document.getElementById("questionnaireResponseOnlyFilter").checked;
+        const commentOnly = !!document.getElementById("commentOnlyFilter").checked;
+        const tagOnly = !!document.getElementById("tagOnlyFilter").checked;
         const q = normalizeSearch(document.getElementById("nameQuery").value);
         const countLabel = document.getElementById("countLabel");
 
@@ -1939,11 +1976,14 @@
           if (district && c.district !== district) return false;
           if (party && String(mergedCandidateParty(c) || "").trim() !== party) return false;
           if (!candidateMatchesJobFilters(c)) return false;
+          if (responseOnly && !hasQuestionnaireResponse(c.verifiedMeta)) return false;
+          if (commentOnly && !hasVerifiedComment(c.verifiedMeta)) return false;
+          if (tagOnly && !hasVerifiedTag(c.verifiedMeta)) return false;
           if (!q) return true;
           return normalizeSearch(c.name).includes(q);
         });
 
-        const usingFilter = Boolean(district || party || q || office || incumbentOnly);
+        const usingFilter = Boolean(district || party || q || office || incumbentOnly || responseOnly || commentOnly || tagOnly);
         const verifiedCount = filtered.filter((c) => !!c.verifiedMeta).length;
         countLabel.textContent = usingFilter
           ? `심층검증 ${verifiedCount}명 (필터 후보 ${filtered.length}명 / 전체 ${allCandidates.length}명)`
@@ -2088,10 +2128,18 @@
       document.getElementById("nameQuery").addEventListener("input", function () {
         render(true);
       });
+      ["questionnaireResponseOnlyFilter", "commentOnlyFilter", "tagOnlyFilter"].forEach(function (id) {
+        document.getElementById(id).addEventListener("change", function () {
+          render(true);
+        });
+      });
 
       function resetFilters() {
         document.getElementById("district").value = "";
         document.getElementById("nameQuery").value = "";
+        document.getElementById("questionnaireResponseOnlyFilter").checked = false;
+        document.getElementById("commentOnlyFilter").checked = false;
+        document.getElementById("tagOnlyFilter").checked = false;
         setOfficeSegVisual("");
         var inc = document.getElementById("incumbentOnlyFilter");
         if (inc) inc.checked = false;
