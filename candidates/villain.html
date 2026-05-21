@@ -279,26 +279,6 @@
             <p class="mt-1 text-xs text-slate-300">표 상단 필터로 구·정당·이름을 좁힐 수 있습니다.</p>
           </div>
           <div class="flex shrink-0 items-center gap-2">
-            <a
-              id="runCandidatesCrawlerBtn"
-              href="https://github.com/areawatch/seoul-archive/actions/workflows/crawl-candidates.yml"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="pixel-nav-btn inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition"
-              title="선관위 예비후보 수집 수동 실행"
-            >
-              선관위 크롤
-            </a>
-            <a
-              id="runNewsCrawlerBtn"
-              href="https://github.com/areawatch/seoul-archive/actions/workflows/crawl-redline-news.yml"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="pixel-nav-btn inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition"
-              title="뉴스 제목 수집 수동 실행"
-            >
-              뉴스기사 수집
-            </a>
             <p id="verifiedCountLabel" class="text-sm font-black text-slate-200">0명</p>
           </div>
         </div>
@@ -1437,6 +1417,16 @@
         );
       }
 
+      function hasQuestionnaireDelivered(meta) {
+        if (!meta) return false;
+        const status = String(meta.qaQuestionnaire || "").replace(/\s+/g, "");
+        return (
+          status.includes("발송완료") ||
+          status.includes("답변완료") ||
+          hasQuestionnaireResponse(meta)
+        );
+      }
+
       function partyColorHex(party) {
         const cls = String(partyTheme(party).badgeSolid || "");
         const match = cls.match(/bg-\[#([0-9a-fA-F]{3,8})\]/);
@@ -1445,6 +1435,7 @@
 
       function makeQuestionnaireResponseSummaryHtml(candidates) {
         const total = candidates.length;
+        const deliveredCount = candidates.filter((c) => hasQuestionnaireDelivered(c.verifiedMeta)).length;
         const responded = candidates.filter((c) => hasQuestionnaireResponse(c.verifiedMeta));
         const respondedCount = responded.length;
         const rate = total > 0 ? Math.round((respondedCount / total) * 100) : 0;
@@ -1482,7 +1473,7 @@
             <div>
               <p class="m-0 text-xs font-black uppercase tracking-widest text-[#ff4d4d]">질의서 답변 현황</p>
               <p class="m-0 mt-1 text-lg font-black tracking-tight text-slate-900">
-                전체 후보 ${total.toLocaleString("ko-KR")}명 중에 ${respondedCount.toLocaleString("ko-KR")}명이 답변을 보냈습니다.
+                전체 후보 ${total.toLocaleString("ko-KR")}명 중에 ${deliveredCount.toLocaleString("ko-KR")}명에게 질의서를 전달했고, ${respondedCount.toLocaleString("ko-KR")}명이 답변을 보냈습니다.
               </p>
             </div>
             <p class="m-0 text-sm font-black tabular-nums text-slate-700">${rate}%</p>
@@ -1653,9 +1644,9 @@
                             <span>${escapeHtml(primaryName(c.name))}</span>
                             ${
                               commentText
-                                ? `<span class="ml-0.5 inline-flex items-center gap-1 whitespace-nowrap rounded-full px-1.5 py-[2px] text-[10px] font-black leading-none" style="background:#ffffff;border:2px solid #ff0049;color:#cc1a1a;box-shadow:1px 1px 0 rgba(204,26,26,0.3)">
-                                  <img src="/ghost.svg" alt="" class="h-3 w-3" aria-hidden="true" />
-                                  <span>빌런?</span>
+                                ? `<span class="ml-0.5 inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-rose-200 bg-rose-50 px-1.5 py-[2px] text-[10px] font-black leading-none text-rose-700">
+                                  <span aria-hidden="true">❗</span>
+                                  <span>코멘트</span>
                                 </span>`
                                 : ""
                             }
@@ -1805,9 +1796,9 @@
                       <span>${escapeHtml(primaryName(c.name))}</span>
                       ${
                         commentText
-                          ? `<span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-1.5 py-[2px] text-[10px] font-black leading-none" style="background:#ffffff;border:2px solid #ff0049;color:#cc1a1a;box-shadow:1px 1px 0 rgba(204,26,26,0.3)">
-                            <img src="/ghost.svg" alt="" class="h-3 w-3" aria-hidden="true" />
-                            <span>빌런?</span>
+                          ? `<span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-rose-200 bg-rose-50 px-1.5 py-[2px] text-[10px] font-black leading-none text-rose-700">
+                            <span aria-hidden="true">❗</span>
+                            <span>코멘트</span>
                           </span>`
                           : ""
                       }
