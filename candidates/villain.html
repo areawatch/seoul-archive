@@ -309,6 +309,7 @@
           현재 필터 조건과 일치하는 심층 검증 후보가 없습니다.
         </div>
         <div id="verifiedCandidatesList" class="w-full"></div>
+        <div id="verifiedLoadMoreWrap"></div>
       </section>
 
       <div id="cardList" class="hidden" aria-hidden="true"></div>
@@ -1397,7 +1398,7 @@
         } else if (normalized === "공란" || normalized === "미기재") {
           cls = "border-slate-300 bg-white text-slate-500";
         }
-        return `<span class="inline-flex max-w-[7rem] items-center rounded-full border px-2 py-1 text-[11px] font-black leading-none ${cls}">${escapeHtml(
+        return `<span class="inline-flex max-w-[5.75rem] items-center rounded-full border px-1.5 py-0.5 text-[10px] font-black leading-none ${cls}">${escapeHtml(
           status
         )}</span>`;
       }
@@ -1407,7 +1408,7 @@
         if (!overall || overall.average == null) {
           return '<span class="text-sm font-black text-slate-400">—</span>';
         }
-        return `<span class="text-base font-black tabular-nums text-slate-900">${scoreText(
+        return `<span class="text-sm font-black tabular-nums text-slate-900">${scoreText(
           overall.average
         )}</span>`;
       }
@@ -1416,11 +1417,13 @@
         const listEl = document.getElementById("verifiedCandidatesList");
         const emptyEl = document.getElementById("verifiedCandidatesEmpty");
         const countEl = document.getElementById("verifiedCountLabel");
+        const loadMoreWrap = document.getElementById("verifiedLoadMoreWrap");
         if (!listEl || !emptyEl || !countEl) return;
         const filteredVerified = filtered.filter((c) => !!c.verifiedMeta);
         countEl.textContent = `${filteredVerified.length}명`;
         if (!filteredVerified.length) {
           listEl.innerHTML = "";
+          if (loadMoreWrap) loadMoreWrap.innerHTML = "";
           emptyEl.classList.remove("hidden");
           return;
         }
@@ -1430,37 +1433,40 @@
           verifiedSortKey,
           verifiedSortAsc
         );
-        listEl.innerHTML = `<div class="overflow-x-auto border-2 border-black bg-black/20">
-          <table class="min-w-[1180px] w-full border-collapse text-left text-xs text-slate-100">
+        const visibleVerified = sortedVerified.slice(0, visibleRowCount);
+        const remaining = sortedVerified.length - visibleVerified.length;
+        const nextCount = Math.min(LIST_PAGE_SIZE, Math.max(0, remaining));
+        listEl.innerHTML = `<div class="w-full overflow-x-auto border-2 border-black bg-black/20">
+          <table class="w-full table-auto border-collapse text-left text-[11px] text-slate-100">
             <thead>
               <tr class="border-b border-white/10 bg-black/30">
-                <th class="whitespace-nowrap py-2 pl-3 pr-2 text-xs font-semibold tracking-wide text-white">질의서</th>
-                <th class="whitespace-nowrap px-2 py-2 text-xs font-semibold tracking-wide text-white">전체 평점</th>
-                <th class="whitespace-nowrap px-2 py-2 text-xs font-semibold tracking-wide text-white">
+                <th class="whitespace-nowrap py-2 pl-2 pr-1 text-[11px] font-semibold tracking-wide text-white">질의서</th>
+                <th class="whitespace-nowrap px-1 py-2 text-[11px] font-semibold tracking-wide text-white">전체 평점</th>
+                <th class="whitespace-nowrap px-1 py-2 text-[11px] font-semibold tracking-wide text-white">
                   <button type="button" data-sort-scope="verified" data-sort-key="name" class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/5 hover:text-white">
                     후보
                     <span data-sort-scope="verified" data-sort-icon-for="name" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
                   </button>
                 </th>
-                <th class="whitespace-nowrap px-2 py-2 text-xs font-semibold tracking-wide text-white">정당</th>
-                <th class="whitespace-nowrap px-2 py-2 text-xs font-semibold tracking-wide text-white">
+                <th class="whitespace-nowrap px-1 py-2 text-[11px] font-semibold tracking-wide text-white">정당</th>
+                <th class="whitespace-nowrap px-1 py-2 text-[11px] font-semibold tracking-wide text-white">
                   <button type="button" data-sort-scope="verified" data-sort-key="office" class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/5 hover:text-white">
                     종류
                     <span data-sort-scope="verified" data-sort-icon-for="office" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
                   </button>
                 </th>
-                <th class="whitespace-nowrap px-2 py-2 text-xs font-semibold tracking-wide text-white">
+                <th class="whitespace-nowrap px-1 py-2 text-[11px] font-semibold tracking-wide text-white">
                   <button type="button" data-sort-scope="verified" data-sort-key="constituency" class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/5 hover:text-white">
                     선거구
                     <span data-sort-scope="verified" data-sort-icon-for="constituency" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
                   </button>
                 </th>
-                <th class="whitespace-nowrap px-2 py-2 text-xs font-semibold tracking-wide text-white">검증등급</th>
-                <th class="whitespace-nowrap px-2 py-2 text-xs font-semibold tracking-wide text-white">상세</th>
+                <th class="whitespace-nowrap px-1 py-2 text-[11px] font-semibold tracking-wide text-white">검증등급</th>
+                <th class="whitespace-nowrap px-1 py-2 text-[11px] font-semibold tracking-wide text-white">상세</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-white/10">
-              ${sortedVerified
+              ${visibleVerified
                 .map((c, idx) => {
                   const meta = c.verifiedMeta;
                   const party = mergedCandidateParty(c) || "정당 미상";
@@ -1521,13 +1527,13 @@
                   const crimeTagsHtml = criminalHistoryTagsHtml(meta.criminalHistory);
 
                   const mainRow = `<tr class="align-top ${verificationBorderClass(meta.grade)} border-l-4 cursor-pointer hover:bg-slate-50 transition-colors" data-va-row="${idx}" aria-controls="${detailsId}" aria-expanded="false">
-                    <td class="whitespace-nowrap py-2 pl-3 pr-2">${questionnaireBadgeHtml}</td>
-                    <td class="whitespace-nowrap px-2 py-2">${overallScoreBadgeHtml}</td>
-                    <td class="py-2 px-2">
-                      <div class="flex gap-2">
-                        <img src="${escapeAttr(mergedCandidatePhoto(c) || DEFAULT_AVATAR)}" alt="" class="h-10 w-10 shrink-0 rounded-full object-cover object-top ring-2 ring-slate-300" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
-                        <div class="min-w-0">
-                          <p class="flex items-center gap-1 font-black text-slate-900">
+                    <td class="whitespace-nowrap py-2 pl-2 pr-1">${questionnaireBadgeHtml}</td>
+                    <td class="whitespace-nowrap px-1 py-2">${overallScoreBadgeHtml}</td>
+                    <td class="py-2 px-1">
+                      <div class="flex min-w-[7.5rem] max-w-[9rem] gap-1.5">
+                        <img src="${escapeAttr(mergedCandidatePhoto(c) || DEFAULT_AVATAR)}" alt="" class="h-9 w-9 shrink-0 rounded-full object-cover object-top ring-2 ring-slate-300" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
+                        <div class="min-w-0 flex-1">
+                          <p class="flex items-center gap-1 font-black leading-tight text-slate-900">
                             <span>${escapeHtml(primaryName(c.name))}</span>
                             ${
                               commentText
@@ -1538,26 +1544,26 @@
                                 : ""
                             }
                           </p>
-                          <div class="mt-1 flex flex-wrap gap-1">${crimeTagsHtml}</div>
+                          <div class="mt-0.5 flex flex-wrap gap-1">${crimeTagsHtml}</div>
                         </div>
                       </div>
                     </td>
-                    <td class="whitespace-nowrap px-2 py-2">
+                    <td class="whitespace-nowrap px-1 py-2">
                       <span class="inline-flex rounded px-1.5 py-[3px] text-[10px] font-bold leading-none ${partyTheme(
                         party
                       ).badgeSolid}">${escapeHtml(party)}</span>
                     </td>
-                    <td class="whitespace-nowrap px-2 py-2 text-xs font-black text-slate-800">${escapeHtml(
+                    <td class="whitespace-nowrap px-1 py-2 text-[11px] font-black text-slate-800">${escapeHtml(
                       candidateOffice(c)
                     )}</td>
-                    <td class="whitespace-nowrap px-2 py-2 text-xs text-slate-600">${escapeHtml(
+                    <td class="whitespace-nowrap px-1 py-2 text-[11px] text-slate-600">${escapeHtml(
                       c.constituency || "—"
                     )}</td>
-                    <td class="whitespace-nowrap px-2 py-2 text-xs font-black text-slate-800">${escapeHtml(
+                    <td class="whitespace-nowrap px-1 py-2 text-[11px] font-black text-slate-800">${escapeHtml(
                       meta.grade || "미기재"
                     )}</td>
-                    <td class="whitespace-nowrap px-2 py-2 text-xs">
-                      <button type="button" class="inline-flex items-center gap-1 rounded-md border-2 border-slate-800 bg-white px-2.5 py-1.5 text-[11px] font-black text-slate-800 shadow-[2px_2px_0_rgba(2,6,23,0.85)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all" data-va-toggle="${idx}" aria-controls="${detailsId}" aria-expanded="false">
+                    <td class="whitespace-nowrap px-1 py-2 text-[11px]">
+                      <button type="button" class="inline-flex items-center gap-1 rounded-md border-2 border-slate-800 bg-white px-2 py-1 text-[11px] font-black text-slate-800 shadow-[2px_2px_0_rgba(2,6,23,0.85)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all" data-va-toggle="${idx}" aria-controls="${detailsId}" aria-expanded="false">
                         ${hasDetails ? "펼치기 ▼" : "내용 없음"}
                       </button>
                     </td>
@@ -1610,6 +1616,16 @@
             </tbody>
           </table>
         </div>`;
+        if (loadMoreWrap) {
+          loadMoreWrap.innerHTML =
+            remaining > 0
+              ? `<div class="flex justify-center bg-slate-50 px-4 py-4">
+  <button type="button" id="verifiedLoadMore" class="pixel-nav-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition">
+    <span class="font-black text-slate-800">${nextCount}명 더보기</span> <span class="font-normal text-slate-500">(${visibleVerified.length}/${sortedVerified.length})</span>
+  </button>
+</div>`
+              : "";
+        }
         if (typeof lucide !== "undefined" && lucide.createIcons) {
           lucide.createIcons({
             attrs: { "stroke-width": 1.5 },
@@ -1787,6 +1803,15 @@
           if (anyBtn && !anyBtn.disabled) {
             anyBtn.textContent = isOpen ? "펼치기 ▼" : "접기 ▲";
           }
+        });
+      }
+      var verifiedLoadMoreWrap = document.getElementById("verifiedLoadMoreWrap");
+      if (verifiedLoadMoreWrap) {
+        verifiedLoadMoreWrap.addEventListener("click", function (e) {
+          var btn = e.target && e.target.closest && e.target.closest("#verifiedLoadMore");
+          if (!btn) return;
+          visibleRowCount += LIST_PAGE_SIZE;
+          render(false);
         });
       }
 
