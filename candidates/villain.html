@@ -1413,6 +1413,21 @@
         )}</span>`;
       }
 
+      function questionnaireStatusRank(meta) {
+        const status = String((meta && meta.qaQuestionnaire) || "").trim();
+        const normalized = status.replace(/\s+/g, "");
+        if (normalized.includes("답변완료")) return 4;
+        if (normalized.includes("발송완료")) return 3;
+        if (normalized.includes("발송전")) return 2;
+        if (normalized.includes("연락처없음")) return 1;
+        return 0;
+      }
+
+      function questionnaireOverallScoreValue(meta) {
+        const overall = meta && meta.qaScores && meta.qaScores.overall;
+        return overall && overall.average != null ? overall.average : null;
+      }
+
       function renderVerifiedCandidates(filtered) {
         const listEl = document.getElementById("verifiedCandidatesList");
         const emptyEl = document.getElementById("verifiedCandidatesEmpty");
@@ -1436,12 +1451,22 @@
         const visibleVerified = sortedVerified.slice(0, visibleRowCount);
         const remaining = sortedVerified.length - visibleVerified.length;
         const nextCount = Math.min(LIST_PAGE_SIZE, Math.max(0, remaining));
-        listEl.innerHTML = `<div class="w-full overflow-x-auto border-2 border-black bg-black/20">
+        listEl.innerHTML = `<div class="hidden w-full overflow-x-auto border-2 border-black bg-black/20 sm:block">
           <table class="w-full table-auto border-collapse text-left text-[11px] text-slate-100">
             <thead>
               <tr class="border-b border-white/10 bg-black/30">
-                <th class="whitespace-nowrap py-2 pl-2 pr-1 text-[11px] font-semibold tracking-wide text-white">질의서</th>
-                <th class="whitespace-nowrap px-1 py-2 text-[11px] font-semibold tracking-wide text-white">전체 평점</th>
+                <th class="whitespace-nowrap py-2 pl-2 pr-1 text-[11px] font-semibold tracking-wide text-white">
+                  <button type="button" data-sort-scope="verified" data-sort-key="questionnaire" class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/5 hover:text-white">
+                    질의서
+                    <span data-sort-scope="verified" data-sort-icon-for="questionnaire" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
+                  </button>
+                </th>
+                <th class="whitespace-nowrap px-1 py-2 text-[11px] font-semibold tracking-wide text-white">
+                  <button type="button" data-sort-scope="verified" data-sort-key="overallScore" class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/5 hover:text-white">
+                    전체 평점
+                    <span data-sort-scope="verified" data-sort-icon-for="overallScore" class="inline-block w-2.5 text-center text-[10px] font-bold" aria-hidden="true"></span>
+                  </button>
+                </th>
                 <th class="whitespace-nowrap px-1 py-2 text-[11px] font-semibold tracking-wide text-white">
                   <button type="button" data-sort-scope="verified" data-sort-key="name" class="inline-flex items-center gap-1 rounded-md font-semibold text-white hover:bg-white/5 hover:text-white">
                     후보
@@ -1615,6 +1640,140 @@
                 .join("")}
             </tbody>
           </table>
+        </div>
+        <div class="space-y-3 sm:hidden">
+          ${visibleVerified
+            .map((c, idx) => {
+              const meta = c.verifiedMeta;
+              const party = mergedCandidateParty(c) || "정당 미상";
+              const commentText = String(meta.comment || "").trim();
+              const newsLinks = Array.isArray(meta.newsLinks) ? meta.newsLinks.filter(Boolean) : [];
+              const snsStatements = Array.isArray(meta.snsStatements)
+                ? meta.snsStatements.filter(Boolean)
+                : [];
+              const detailsId = "va-card-detail-" + idx;
+              const hasDetails =
+                !!commentText ||
+                newsLinks.length > 0 ||
+                snsStatements.length > 0 ||
+                String(meta.qaQuestionnaire || "").trim() !== "" ||
+                !!(meta.qaScores && meta.qaScores.overall && meta.qaScores.overall.average != null) ||
+                String(meta.qaDemocracyGuardOpinion || "").trim() !== "" ||
+                String(meta.qaEthicsOpinion || "").trim() !== "" ||
+                String(meta.qaTransparencyOpinion || "").trim() !== "";
+              const newsListHtml = newsLinks.length
+                ? `<ul class="m-0 list-disc space-y-1.5 pl-5">
+                    ${newsLinks
+                      .slice(0, 10)
+                      .map((href) => {
+                        const title = getNewsTooltipTitle(href);
+                        const label = title && title !== href ? title : href;
+                        return `<li class="text-slate-700"><a class="font-medium underline decoration-slate-400 underline-offset-2 hover:text-[#ff4d4d] hover:decoration-[#ff4d4d]" href="${escapeAttr(
+                          href
+                        )}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a></li>`;
+                      })
+                      .join("")}
+                  </ul>`
+                : `<p class="m-0 text-slate-400 text-xs">기사 없음</p>`;
+              const commentBlockHtml = commentText
+                ? `<div class="whitespace-pre-line text-slate-700 leading-relaxed">${escapeHtml(commentText)}</div>`
+                : `<p class="m-0 text-slate-400 text-xs">-</p>`;
+              const snsListHtml = snsStatements.length
+                ? `<ul class="m-0 list-disc space-y-1.5 pl-5">
+                    ${snsStatements
+                      .slice(0, 10)
+                      .map((item) => {
+                        const m = String(item).match(/https?:\/\/\S+/);
+                        if (!m) return `<li class="whitespace-pre-line text-slate-700">${escapeHtml(item)}</li>`;
+                        const href = m[0];
+                        return `<li class="text-slate-700"><a class="font-medium underline decoration-slate-400 underline-offset-2 hover:text-[#ff4d4d] hover:decoration-[#ff4d4d]" href="${escapeAttr(
+                          href
+                        )}" target="_blank" rel="noopener noreferrer">${escapeHtml(item)}</a></li>`;
+                      })
+                      .join("")}
+                  </ul>`
+                : `<p class="m-0 text-slate-400 text-xs">-</p>`;
+              const qaText = String(meta.qaQuestionnaire || "").trim() || "-";
+              const qaAccordion = makeQaAccordionHtml(meta);
+              const crimeTagsHtml = criminalHistoryTagsHtml(meta.criminalHistory);
+              return `<article class="${verificationBorderClass(meta.grade)} rounded-2xl border-2 border-slate-900 border-l-4 bg-white p-3 shadow-[3px_3px_0_rgba(2,6,23,0.85)]" data-va-row="m-${idx}" aria-controls="${detailsId}" aria-expanded="false">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    ${questionnaireStatusBadgeHtml(meta.qaQuestionnaire)}
+                    <span class="rounded-full border border-slate-300 bg-slate-50 px-2 py-0.5 text-xs font-black text-slate-900">평점 ${escapeHtml(
+                      (meta.qaScores && meta.qaScores.overall && meta.qaScores.overall.average != null)
+                        ? scoreText(meta.qaScores.overall.average)
+                        : "—"
+                    )}</span>
+                  </div>
+                  <button type="button" class="shrink-0 rounded-md border-2 border-slate-800 bg-white px-2 py-1 text-[11px] font-black text-slate-800 shadow-[2px_2px_0_rgba(2,6,23,0.85)]" data-va-toggle="m-${idx}" aria-controls="${detailsId}" aria-expanded="false">
+                    ${hasDetails ? "펼치기 ▼" : "내용 없음"}
+                  </button>
+                </div>
+                <div class="mt-3 flex gap-2.5">
+                  <img src="${escapeAttr(mergedCandidatePhoto(c) || DEFAULT_AVATAR)}" alt="" class="h-12 w-12 shrink-0 rounded-full object-cover object-top ring-2 ring-slate-300" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" />
+                  <div class="min-w-0 flex-1">
+                    <p class="m-0 flex flex-wrap items-center gap-1 text-base font-black leading-tight text-slate-900">
+                      <span>${escapeHtml(primaryName(c.name))}</span>
+                      ${
+                        commentText
+                          ? `<span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-1.5 py-[2px] text-[10px] font-black leading-none" style="background:#ffffff;border:2px solid #ff0049;color:#cc1a1a;box-shadow:1px 1px 0 rgba(204,26,26,0.3)">
+                            <img src="/ghost.svg" alt="" class="h-3 w-3" aria-hidden="true" />
+                            <span>빌런?</span>
+                          </span>`
+                          : ""
+                      }
+                    </p>
+                    <div class="mt-1 flex flex-wrap items-center gap-1.5">
+                      <span class="inline-flex rounded px-1.5 py-[3px] text-[10px] font-bold leading-none ${partyTheme(
+                        party
+                      ).badgeSolid}">${escapeHtml(party)}</span>
+                      <span class="text-xs font-black text-slate-700">${escapeHtml(candidateOffice(c))}</span>
+                      <span class="text-xs text-slate-500">${escapeHtml(c.constituency || "—")}</span>
+                    </div>
+                    <div class="mt-1 flex flex-wrap gap-1">${crimeTagsHtml}</div>
+                    <p class="m-0 mt-1 text-xs font-black text-slate-600">검증등급 ${escapeHtml(meta.grade || "미기재")}</p>
+                  </div>
+                </div>
+                <div id="${detailsId}" class="mt-3 hidden border-t-2 border-slate-200 pt-3" data-va-detail="m-${idx}">
+                  <div class="space-y-3">
+                    <section class="rounded-xl border-2 border-slate-800 bg-white p-3 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">
+                      <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
+                        <span class="inline-block h-2 w-2 rounded-sm bg-[#ff4d4d]"></span>코멘트
+                      </h3>
+                      <div class="mt-2 text-sm leading-relaxed">${commentBlockHtml}</div>
+                    </section>
+                    <section class="rounded-xl border-2 border-slate-800 bg-white p-3 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">
+                      <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
+                        <span class="inline-block h-2 w-2 rounded-sm bg-slate-800"></span>뉴스기사
+                      </h3>
+                      <div class="mt-2 text-sm leading-relaxed">${newsListHtml}</div>
+                    </section>
+                    <section class="rounded-xl border-2 border-slate-800 bg-white p-3 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">
+                      <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
+                        <span class="inline-block h-2 w-2 rounded-sm bg-slate-400"></span>질의서
+                      </h3>
+                      <div class="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-700">${escapeHtml(qaText)}</div>
+                    </section>
+                    <section class="rounded-xl border-2 border-slate-800 bg-white p-3 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">
+                      <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
+                        <span class="inline-block h-2 w-2 rounded-sm bg-amber-500"></span>민주주의 수호 / 공직자 윤리 / 투명한 공직수행
+                      </h3>
+                      <div class="mt-3 space-y-2 text-sm leading-relaxed">
+                        ${qaAccordion ? qaAccordion : '<p class="m-0 text-xs text-slate-400">등록된 질의서 평점이나 추가 의견이 없습니다.</p>'}
+                      </div>
+                    </section>
+                    <section class="rounded-xl border-2 border-slate-800 bg-white p-3 shadow-[2px_2px_0_rgba(2,6,23,0.65)]">
+                      <h3 class="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-500">
+                        <span class="inline-block h-2 w-2 rounded-sm bg-blue-500"></span>SNS 발언
+                      </h3>
+                      <div class="mt-2 text-sm leading-relaxed">${snsListHtml}</div>
+                    </section>
+                  </div>
+                </div>
+              </article>`;
+            })
+            .join("")}
         </div>`;
         if (loadMoreWrap) {
           loadMoreWrap.innerHTML =
@@ -1631,7 +1790,7 @@
             attrs: { "stroke-width": 1.5 },
           });
         }
-        ["name", "office", "constituency"].forEach(function (key) {
+        ["questionnaire", "overallScore", "name", "office", "constituency"].forEach(function (key) {
           listEl
             .querySelectorAll('[data-sort-scope="verified"][data-sort-icon-for="' + key + '"]')
             .forEach(function (el) {
@@ -1649,6 +1808,26 @@
       function sortCandidatesByKey(candidates, sortKey, sortAsc) {
         return candidates.slice().sort(function (a, b) {
           const nameCmp = primaryName(a.name).localeCompare(primaryName(b.name), "ko");
+          if (sortKey === "questionnaire") {
+            const ra = questionnaireStatusRank(a.verifiedMeta);
+            const rb = questionnaireStatusRank(b.verifiedMeta);
+            if (ra !== rb) return sortAsc ? ra - rb : rb - ra;
+            const ta = String((a.verifiedMeta && a.verifiedMeta.qaQuestionnaire) || "").trim();
+            const tb = String((b.verifiedMeta && b.verifiedMeta.qaQuestionnaire) || "").trim();
+            const c = ta.localeCompare(tb, "ko");
+            if (c !== 0) return sortAsc ? c : -c;
+            return nameCmp;
+          }
+          if (sortKey === "overallScore") {
+            const sa = questionnaireOverallScoreValue(a.verifiedMeta);
+            const sb = questionnaireOverallScoreValue(b.verifiedMeta);
+            if (sa == null && sb == null) return nameCmp;
+            if (sa == null) return 1;
+            if (sb == null) return -1;
+            const d = sortAsc ? sa - sb : sb - sa;
+            if (d !== 0) return d;
+            return nameCmp;
+          }
           if (sortKey === "name") {
             const c = primaryName(a.name).localeCompare(primaryName(b.name), "ko");
             return sortAsc ? c : -c;
@@ -1785,15 +1964,15 @@
           var a = e.target.closest("a[href]");
           if (a) return;
           var toggleBtn = e.target.closest("button[data-va-toggle]");
-          var row = e.target.closest("tr[data-va-row]");
+          var row = e.target.closest("[data-va-row]");
           if (!toggleBtn && !row) return;
           e.preventDefault();
           var idx = toggleBtn
             ? String(toggleBtn.getAttribute("data-va-toggle") || "")
             : String(row.getAttribute("data-va-row") || "");
           if (!idx) return;
-          var detail = verifiedListEl.querySelector('tr[data-va-detail="' + idx + '"]');
-          var main = verifiedListEl.querySelector('tr[data-va-row="' + idx + '"]');
+          var detail = verifiedListEl.querySelector('[data-va-detail="' + idx + '"]');
+          var main = verifiedListEl.querySelector('[data-va-row="' + idx + '"]');
           if (!detail || !main) return;
           var isOpen = !detail.classList.contains("hidden");
           detail.classList.toggle("hidden", isOpen);
