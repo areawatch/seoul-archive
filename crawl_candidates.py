@@ -92,6 +92,7 @@ NEC_REPORT_JSP_DIR = "cp"  # requestURI 경로: .../electioninfo/{id}/cp/cpri03_
 REPORT_PATH = "/electioninfo/electionInfo_report.xhtml"
 TOWN_JSON = "/bizcommon/selectbox/selectbox_townCodeBySgJson.json"
 SGG_JSON = "/bizcommon/selectbox/selectbox_getSggTownCodeJson.json"
+SGG_CITY_JSON = "/bizcommon/selectbox/selectbox_getSggCityCodeJson.json"
 
 DEFAULT_OUT = "public/data/candidates.json"
 DEFAULT_ELECTION_NAME = "2026지방선거"
@@ -228,6 +229,21 @@ def fetch_sgg_town_codes(town_code: str, *, election_code: str) -> list[dict[str
     return out
 
 
+def fetch_sgg_city_codes(*, election_code: str) -> list[dict[str, str]]:
+    """기초의원비례대표(9) 등: 선관위 UI의 '선거구'(9110100=종로구 …) 코드 목록."""
+    rows = nec_get_json(
+        SGG_CITY_JSON,
+        {
+            "electionId": ELECTION_ID,
+            "electionCode": election_code,
+            "cityCode": SEOUL_CITY_CODE,
+        },
+    )
+    out = [{"code": str(r["CODE"]), "name": str(r["NAME"])} for r in rows]
+    out.sort(key=lambda t: (_GU_ORDER_RANK.get(t["name"], 999), t["name"]))
+    return out
+
+
 def _nec_pc_report_menu() -> tuple[str, str]:
     """
     선거통계 지방선거(2026) 후보 명부: 예비·본 모두 동일하게 CPRI03 / cpri03.jsp.
@@ -241,6 +257,9 @@ def _nec_statement_id_for_status(statement_id: str, *, candidate_status: str) ->
     """CPRI03_#6 형태를 official일 때 CPRI04_#6으로 치환(POST 1차 시도)."""
     sid = str(statement_id or "").strip()
     if str(candidate_status or "").strip().lower() != "official":
+        return sid
+    # 기초의원비례(9): CPRI04_#9 + sggCityCode 조합은 구 필터가 무시되고 동일 12명만 반복됨 → CPRI03 유지
+    if sid == COUNCIL_PROP_STATEMENT_ID or sid == "CPRI03_#9":
         return sid
     if sid.startswith("CPRI03_"):
         return "CPRI04_" + sid[len("CPRI03_") :]
@@ -1133,13 +1152,13 @@ def crawl_council_proportional(
     candidate_status: str,
 ) -> tuple[list[dict[str, Any]], int]:
     """
-    기초의원비례대표 — 선관위 명부 1회(서울) + 구별 조회 병합.
-    구별 POST가 동일 12명만 돌려주는 경우가 있어, 응답 행의 선거구명(소속 구)으로 district를 잡습니다.
-  """
+    기초의원비례대표 — 서울 25구별 sggCityCode(91101xx)로 조회 후 huboId 기준 병합.
+    본후보는 CPRI03_#9를 유지해야 구별 필터가 동작합니다(CPRI04_#9는 동일 12명만 반복 반환).
+    """
     if dry_run:
         n = len(towns_filter) if towns_filter else 25
-        print(f"[dry-run] [{COUNCIL_PROP_OFFICE}] 자치구별 최대 {n}회 + 통합 1회", file=sys.stderr)
-        return [], n + 1
+        print(f"[dry-run] [{COUNCIL_PROP_OFFICE}] sggCityCode 기준 {n}회", file=sys.stderr)
+        return [], n
 
     seen_ids: set[str] = set()
     merged: list[dict[str, Any]] = []
@@ -1164,74 +1183,68 @@ def crawl_council_proportional(
         return added
 
     try:
-        towns = fetch_seoul_towns(election_code=COUNCIL_PROP_ELECTION_CODE)
+        sgg_cities = fetch_sgg_city_codes(election_code=COUNCIL_PROP_ELECTION_CODE)
     except Exception as e:
-        print(f"[error] [{COUNCIL_PROP_OFFICE}] 자치구 목록 조회 실패: {e}", file=sys.stderr)
+        print(f"[error] [{COUNCIL_PROP_OFFICE}] sggCityCode 목록 조회 실패: {e}", file=sys.stderr)
         return [], 0
     if towns_filter is not None:
-        towns = [t for t in towns if t["name"] in towns_filter]
+        sgg_cities = [s for s in sgg_cities if s["name"] in towns_filter]
 
-    for town in towns:
-        try:
-            sggs = fetch_sgg_town_codes(town["code"], election_code=COUNCIL_PROP_ELECTION_CODE)
-        except Exception as e:
-            continue
-        if not sggs:
-            continue
-        sgg = sggs[0]
+    for sgg_city in sgg_cities:
+        gu_name = sgg_city["name"]
         request_count += 1
         try:
             html = post_report_html(
-                town["code"],
+                "0",
                 "0",
                 election_code=COUNCIL_PROP_ELECTION_CODE,
                 statement_id=COUNCIL_PROP_STATEMENT_ID,
                 candidate_status=candidate_status,
-                sgg_city_code=sgg["code"],
+                sgg_city_code=sgg_city["code"],
             )
             batch = parse_candidates_from_report(
                 html,
-                town["name"],
+                gu_name,
                 office=COUNCIL_PROP_OFFICE,
                 election_name=election_name,
                 candidate_status=candidate_status,
             )
-            added = _merge_batch(batch, query_gu=town["name"])
+            added = _merge_batch(batch, query_gu=gu_name)
             if added:
                 print(
-                    f"  [{COUNCIL_PROP_OFFICE}] {town['name']}: +{added}명",
+                    f"  [{COUNCIL_PROP_OFFICE}] {gu_name}: +{added}명",
                     file=sys.stderr,
                 )
         except Exception as e:
             print(
-                f"[skip] [{COUNCIL_PROP_OFFICE}] {town['name']}: 본문 조회 실패 ({e})",
+                f"[skip] [{COUNCIL_PROP_OFFICE}] {gu_name}: 본문 조회 실패 ({e})",
                 file=sys.stderr,
             )
         time.sleep(REQUEST_PAUSE_SEC)
 
-    if not merged:
-        request_count += 1
-        try:
-            html = post_report_html(
-                "1101",
-                "0",
-                election_code=COUNCIL_PROP_ELECTION_CODE,
-                statement_id=COUNCIL_PROP_STATEMENT_ID,
-                candidate_status=candidate_status,
-            )
-            batch = parse_candidates_from_report(
-                html,
-                "서울특별시",
-                office=COUNCIL_PROP_OFFICE,
-                election_name=election_name,
-                candidate_status=candidate_status,
-            )
-            added = _merge_batch(batch, query_gu=None)
-            print(f"  [{COUNCIL_PROP_OFFICE}] 통합 조회: +{added}명", file=sys.stderr)
-        except Exception as e:
-            print(f"[skip] [{COUNCIL_PROP_OFFICE}] 통합 조회 실패: {e}", file=sys.stderr)
-
     return merged, request_count
+
+
+_PARTIAL_CRAWL_OFFICES: dict[str, set[str]] = {
+    "council": {COUNCIL_OFFICE},
+    "mayor": {MAYOR_OFFICE},
+    "metro": {METRO_OFFICE},
+    "metro-prop": {METRO_PROP_OFFICE},
+    "council-prop": {COUNCIL_PROP_OFFICE},
+}
+
+
+def _splice_partial_crawl_rows(
+    new_rows: list[dict[str, Any]],
+    existing_path: str,
+    *,
+    replace_offices: set[str],
+) -> list[dict[str, Any]]:
+    """--only council-prop 등 부분 크롤 시, 해당 office만 갈아끼우고 나머지 직종은 유지."""
+    if not replace_offices or not os.path.isfile(existing_path):
+        return new_rows
+    kept = [c for c in _load_candidates_list_from_file(existing_path) if c.get("office") not in replace_offices]
+    return kept + new_rows
 
 
 def crawl(
@@ -1522,6 +1535,16 @@ def main() -> None:
                     print(f"기존 출력 스냅샷 저장: {snap}", file=sys.stderr)
                 else:
                     print("스냅샷: 기존 출력 파일이 없어 건너뜁니다.", file=sys.stderr)
+            replace_offices = _PARTIAL_CRAWL_OFFICES.get(str(args.only or "all"))
+            if replace_offices:
+                before = len(rows)
+                rows = _splice_partial_crawl_rows(
+                    rows, args.output, replace_offices=replace_offices
+                )
+                print(
+                    f"[partial] --only {args.only}: 이번 {before}명 + 기존 다른 직종 → 합계 {len(rows)}명",
+                    file=sys.stderr,
+                )
             # merge: preserve previously collected contact/photo/etc even if NEC updates status
             prelim_path = None if args.no_preliminary_merge else str(args.preliminary_archive or "").strip() or None
             rows = merge_with_existing_candidates(
