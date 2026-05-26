@@ -446,7 +446,7 @@
 
       const NEC_ELECTION_ID = "0020260603";
       const VERIFIED_SHEET_CSV_URL =
-        "https://docs.google.com/spreadsheets/d/1HZOgA2XGNQe9RTyZsDDZdqfgdHIrUIfGqBKRs62cugA/gviz/tq?tqx=out:csv&headers=1";
+        "https://docs.google.com/spreadsheets/d/1rc6iunDwlGW8wtwyMVONtUAjLz1bTdDPhdXzD3c-SrM/gviz/tq?tqx=out:csv&headers=1";
 
       function normalizeLooseText(value) {
         return String(value || "")
@@ -532,10 +532,6 @@
       function sheetCell(row, candidates) {
         const col = findSheetColumn(row, candidates);
         return col ? String(row[col] || "").trim() : "";
-      }
-
-      function sheetCellByIndex(row, index) {
-        return row && Array.isArray(row.__cells) ? String(row.__cells[index] || "").trim() : "";
       }
 
       function collectSheetAnswers(row, columns) {
@@ -680,7 +676,7 @@
           qaEthicsOpinion: sheetCell(row, ["부패 기타"]),
           qaTransparencyOpinion: sheetCell(row, ["민주 기타"]),
           qaQuestionnaire: sheetCell(row, ["질의서"]),
-          tag: sheetCellByIndex(row, 23) || sheetCell(row, ["태그", "tag", "TAG"]),
+          tag: sheetCell(row, ["범죄이력 등 주요 태그", "태그", "tag", "TAG"]),
         };
       }
 

@@ -101,7 +101,7 @@ DEFAULT_CANDIDATE_STATUS = "preliminary"  # preliminary(예비후보) | official
 DEFAULT_PRELIMINARY_ARCHIVE = "public/data/candidates-2026-preliminary.json"
 DEFAULT_REDLINE_SHEET_CSV_URL = (
     "https://docs.google.com/spreadsheets/d/"
-    "1HZOgA2XGNQe9RTyZsDDZdqfgdHIrUIfGqBKRs62cugA/gviz/tq?tqx=out:csv&headers=1"
+    "1rc6iunDwlGW8wtwyMVONtUAjLz1bTdDPhdXzD3c-SrM/gviz/tq?tqx=out:csv&headers=1"
 )
 DEFAULT_NEWS_CACHE_OUT = "public/data/redline-news-cache.json"
 REQUEST_PAUSE_SEC = 0.35
