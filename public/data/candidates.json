@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-27T12:47:25+09:00",
+  "updatedAt": "2026-05-28T12:35:43+09:00",
   "candidates": [
     {
       "election_name": "2026지방선거",
@@ -10098,33 +10098,6 @@
       "taxArrearsCurrent": "0",
       "candidacyCount": "1회",
       "huboId": "100157820"
-    },
-    {
-      "election_name": "2026지방선거",
-      "candidate_status": "official",
-      "candidate_stage_ko": "본후보",
-      "district": "금천구",
-      "constituency": "금천구나선거구",
-      "party": "무소속",
-      "name": "김선주\n(金宣住)",
-      "photo": "http://cdn.nec.go.kr/photo_20260603/Gsg1118/Hb100165714/gicho/thumbnail.100165714.JPG?ver=2128553",
-      "gender": "남",
-      "age": "1965.06.11\n(60세)",
-      "address": "서울특별시 금천구 시흥대로104나길",
-      "job": "봉재 플랜트",
-      "education": "고흥녹동고등학교 졸업",
-      "career": "미기재",
-      "criminal": "없음",
-      "regDate": "",
-      "office": "구의원",
-      "ballot": "5",
-      "propertyDeclared": "92,052",
-      "military": "군복무를 마친사람",
-      "taxPaid": "2,919",
-      "taxArrears5y": "0",
-      "taxArrearsCurrent": "0",
-      "candidacyCount": "0회",
-      "huboId": "100165714"
     },
     {
       "election_name": "2026지방선거",
