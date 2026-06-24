@@ -464,6 +464,16 @@
           .replace(/자치구/g, "구");
       }
 
+      function verifiedMatchKey(name, district, electionType, party) {
+        const baseKey =
+          normalizeLooseText(name) + "|" + normalizeDistrictName(district);
+        const officeKey = normalizeLooseText(electionType);
+        const partyKey = normalizeLooseText(party);
+        if (officeKey && partyKey) return `${baseKey}|${officeKey}|${partyKey}`;
+        if (officeKey) return `${baseKey}|${officeKey}`;
+        return baseKey;
+      }
+
       function parseCsvText(csvText) {
         const text = String(csvText || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
         const rows = [];
@@ -685,14 +695,13 @@
         (rows || []).forEach((row) => {
           const normalized = normalizeVerifiedRow(row);
           if (!normalized) return;
-          const baseKey =
-            normalizeLooseText(normalized.name) + "|" + normalizeDistrictName(normalized.district);
-          const officeKey = normalizeLooseText(normalized.electionType);
-          if (officeKey) {
-            const typedKey = baseKey + "|" + officeKey;
-            if (!map.has(typedKey)) map.set(typedKey, normalized);
-          }
-          if (!map.has(baseKey)) map.set(baseKey, normalized);
+          const key = verifiedMatchKey(
+            normalized.name,
+            normalized.district,
+            normalized.electionType,
+            normalized.party
+          );
+          if (!map.has(key)) map.set(key, normalized);
         });
         return map;
       }
@@ -2255,12 +2264,15 @@
           const verifiedIndex = buildVerifiedRowIndex(verifiedRows);
 
           allCandidates = parsed.list.map((candidate) => {
-            const baseKey =
-              normalizeLooseText(primaryName(candidate.name)) +
-              "|" +
-              normalizeDistrictName(candidate.district);
-            const typedKey = baseKey + "|" + normalizeLooseText(candidateOffice(candidate));
-            const matched = verifiedIndex.get(typedKey) || verifiedIndex.get(baseKey) || null;
+            const matched =
+              verifiedIndex.get(
+                verifiedMatchKey(
+                  primaryName(candidate.name),
+                  candidate.district,
+                  candidateOffice(candidate),
+                  candidate.party
+                )
+              ) || null;
             return matched ? { ...candidate, verifiedMeta: matched } : { ...candidate };
           });
           verifiedCandidates = allCandidates.filter((candidate) => !!candidate.verifiedMeta);

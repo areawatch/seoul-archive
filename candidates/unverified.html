@@ -187,6 +187,16 @@
           .replace(/자치구/g, "구");
       }
 
+      function verifiedMatchKey(name, district, electionType, party) {
+        const baseKey =
+          normalizeLooseText(name) + "|" + normalizeDistrictName(district);
+        const officeKey = normalizeLooseText(electionType);
+        const partyKey = normalizeLooseText(party);
+        if (officeKey && partyKey) return `${baseKey}|${officeKey}|${partyKey}`;
+        if (officeKey) return `${baseKey}|${officeKey}`;
+        return baseKey;
+      }
+
       function primaryName(raw) {
         return String(raw || "").split("\n")[0].trim();
       }
@@ -288,6 +298,7 @@
           name,
           district,
           electionType: sheetCell(row, ["선거 종류", "선거종류", "종류"]),
+          party: sheetCell(row, ["정당"]),
         };
       }
 
@@ -296,11 +307,13 @@
         (rows || []).forEach((row) => {
           const normalized = normalizeVerifiedRow(row);
           if (!normalized) return;
-          const baseKey =
-            normalizeLooseText(normalized.name) + "|" + normalizeDistrictName(normalized.district);
-          const officeKey = normalizeLooseText(normalized.electionType);
-          if (officeKey) map.set(`${baseKey}|${officeKey}`, normalized);
-          if (!map.has(baseKey)) map.set(baseKey, normalized);
+          const key = verifiedMatchKey(
+            normalized.name,
+            normalized.district,
+            normalized.electionType,
+            normalized.party
+          );
+          if (!map.has(key)) map.set(key, normalized);
         });
         return map;
       }
@@ -388,12 +401,14 @@
           const allCandidates = parsed.list;
           const unmatched = allCandidates
             .filter((candidate) => {
-              const baseKey =
-                normalizeLooseText(primaryName(candidate.name)) +
-                "|" +
-                normalizeDistrictName(candidate.district);
-              const typedKey = `${baseKey}|${normalizeLooseText(candidateOffice(candidate))}`;
-              return !verifiedIndex.has(typedKey) && !verifiedIndex.has(baseKey);
+              return !verifiedIndex.has(
+                verifiedMatchKey(
+                  primaryName(candidate.name),
+                  candidate.district,
+                  candidateOffice(candidate),
+                  candidate.party
+                )
+              );
             })
             .sort((a, b) => {
               const officeCompare = candidateOffice(a).localeCompare(candidateOffice(b), "ko");
