@@ -464,6 +464,14 @@
           .replace(/자치구/g, "구");
       }
 
+      function electionOfficeAliases(office) {
+        const key = normalizeLooseText(office);
+        if (!key) return [""];
+        if (key === "구의원" || key === "구의원비례") return ["구의원", "구의원비례"];
+        if (key === "시의원" || key === "시의원비례") return ["시의원", "시의원비례"];
+        return [key];
+      }
+
       function verifiedMatchKey(name, district, electionType, party) {
         const baseKey =
           normalizeLooseText(name) + "|" + normalizeDistrictName(district);
@@ -472,6 +480,19 @@
         if (officeKey && partyKey) return `${baseKey}|${officeKey}|${partyKey}`;
         if (officeKey) return `${baseKey}|${officeKey}`;
         return baseKey;
+      }
+
+      function verifiedMatchKeys(name, district, electionType, party) {
+        const baseKey =
+          normalizeLooseText(name) + "|" + normalizeDistrictName(district);
+        const partyKey = normalizeLooseText(party);
+        const keys = new Set();
+        electionOfficeAliases(electionType).forEach((officeKey) => {
+          if (officeKey && partyKey) keys.add(`${baseKey}|${officeKey}|${partyKey}`);
+          else if (officeKey) keys.add(`${baseKey}|${officeKey}`);
+        });
+        if (!keys.size) keys.add(baseKey);
+        return [...keys];
       }
 
       function parseCsvText(csvText) {
@@ -695,13 +716,14 @@
         (rows || []).forEach((row) => {
           const normalized = normalizeVerifiedRow(row);
           if (!normalized) return;
-          const key = verifiedMatchKey(
+          verifiedMatchKeys(
             normalized.name,
             normalized.district,
             normalized.electionType,
             normalized.party
-          );
-          if (!map.has(key)) map.set(key, normalized);
+          ).forEach((key) => {
+            if (!map.has(key)) map.set(key, normalized);
+          });
         });
         return map;
       }
@@ -2265,14 +2287,14 @@
 
           allCandidates = parsed.list.map((candidate) => {
             const matched =
-              verifiedIndex.get(
-                verifiedMatchKey(
-                  primaryName(candidate.name),
-                  candidate.district,
-                  candidateOffice(candidate),
-                  candidate.party
-                )
-              ) || null;
+              verifiedMatchKeys(
+                primaryName(candidate.name),
+                candidate.district,
+                candidateOffice(candidate),
+                candidate.party
+              )
+                .map((key) => verifiedIndex.get(key))
+                .find(Boolean) || null;
             return matched ? { ...candidate, verifiedMeta: matched } : { ...candidate };
           });
           verifiedCandidates = allCandidates.filter((candidate) => !!candidate.verifiedMeta);
